@@ -303,21 +303,21 @@ public class LogHandler {
 
     public async Task LogMassRemove(SocketSlashCommand command, int amount) {
         try {
-        var guild = _client.GetGuild(command.GuildId.Value);
-        var user = command.User;
-        var chnl = command.Channel;
-        
-        var channel = guild.GetChannel(1482805129613938860) as ISocketMessageChannel;
- 
-        Embed embed = (new EmbedBuilder()
-            .WithAuthor("|| " + user.Username, user.GetAvatarUrl())
-            .WithTitle("❖﹒Mass Message Removal")
-            .WithDescription(user.Mention + " removed **" + amount + "** messages in <#" + chnl.Id + ">.")
-            .WithFooter(user.Id.ToString())
-            .WithCurrentTimestamp()
-            .WithColor(0xFF312C)).Build();
-        
-        await channel.SendMessageAsync(embed: embed);
+            var guild = _client.GetGuild(command.GuildId.Value);
+            var user = command.User;
+            var chnl = command.Channel;
+            
+            var channel = guild.GetChannel(1482805129613938860) as ISocketMessageChannel;
+     
+            Embed embed = (new EmbedBuilder()
+                .WithAuthor("|| " + user.Username, user.GetAvatarUrl())
+                .WithTitle("❖﹒Mass Message Removal")
+                .WithDescription(user.Mention + " removed **" + amount + "** messages in <#" + chnl.Id + ">.")
+                .WithFooter(user.Id.ToString())
+                .WithCurrentTimestamp()
+                .WithColor(0xFF312C)).Build();
+            
+            await channel.SendMessageAsync(embed: embed);
         } catch (Exception e) {
             Console.WriteLine(e);
         }

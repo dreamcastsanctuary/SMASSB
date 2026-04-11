@@ -55,6 +55,6 @@ public class GeneralSystem {
         if (tooOld > 0) response += $" {tooOld} message(s) were skipped as they are older than 14 days.";
 
         await command.ModifyOriginalResponseAsync(m => m.Content = response);
-        await _logHandler.LogMassRemove(command, amount);
+        await _logHandler.LogMassRemove(command, validMessages.Count);
     }
 }
