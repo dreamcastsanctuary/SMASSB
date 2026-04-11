@@ -161,7 +161,7 @@ public class LogHandler {
                     .WithDescription("Step right in, we've been waiting for you. || <:sango_emblem_mono:1492222638980989138>\n\n✦ Grab your https://discord.com/channels/1471660035854569505/1473208251100299337, read it *f__ront to bac__k*!\n✦ Tell us more about yourself in https://discord.com/channels/1471660035854569505/1473208770216591422.")
                     .WithColor(color)
                     .WithImageUrl("https://64.media.tumblr.com/51b15f41ee5f58c722ebac09ae3d165e/6a794ae0ea17c706-cc/s2048x3072/39b7a663a13e95d68c46239534bea85f9e008f26.pnj")
-                    .WithFooter("『 日がまた昇る！GO STRIKE! 』")).Build();
+                    .WithFooter("『 太陽はまた昇る！GO STRIKE! 』")).Build();
                 
                 await welcomeChannel.SendMessageAsync(embed: embed);
             }

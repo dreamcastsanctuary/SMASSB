@@ -282,8 +282,8 @@ public class CommandHandler {
             var author = message.Author as SocketGuildUser;
             
             Embed embed = (new EmbedBuilder()
-                .WithAuthor(author.Nickname, author.GetGuildAvatarUrl() ?? author.GetAvatarUrl())
-                .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}!")
+                .WithAuthor(author.Nickname + " || ", author.GetGuildAvatarUrl() ?? author.GetAvatarUrl())
+                .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ <#" + message.Channel.Id + ">")
                 .WithDescription(message.Content)
                 .WithColor(0xBFA55F)).Build();
 
@@ -410,9 +410,11 @@ public class CommandHandler {
                 _db.DeleteStarboardEntry(message.Id);
             } else {
         
+                var author = message.Author as SocketGuildUser;
+                
                 Embed embed = (new EmbedBuilder()
-                    .WithAuthor(message.Author)
-                    .WithTitle($"⭐ {starCount} Star{(starCount != 1 ? "s" : "")}!")
+                    .WithAuthor(author.Nickname + " || ", author.GetGuildAvatarUrl() ?? author.GetAvatarUrl())
+                    .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ <#" + message.Channel.Id + ">")
                     .WithDescription(message.Content)
                     .WithColor(0xBFA55F)).Build();
 
