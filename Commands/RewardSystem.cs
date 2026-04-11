@@ -81,7 +81,7 @@ public class RewardSystem {
         string[] itemPackTrack1 = {"", " and Custom Itempack", "", " and Custom Itempack", "", " and Custom Itempack", " and Custom Itempack", " and Custom Itempack", " and Custom Itempack"};
         string[] itemPackTrack2 = {"", "\n   - You may change or add ONE item to your tracksuit.", "", "\n   - You may change or add ONE item to your tracksuit.", "", "\n   - You may change or add ONE item to your tracksuit.", "\n   - You may change or add ONE item to your tracksuit.", "\n   - You may change or add ONE item to your tracksuit.", "\n   - You may change or add ONE item to your tracksuit."};
         string[] itemPackIdol1 = {"Thin Scarf", "Neck Headphones", "Neck Ribbon", "Cravat", "Sleeveless Shirt", "Longer Sleeves", "Heart Headphones", "Flowy Sleeves", "Skirt / Pants Change, Chest Acc. Change,"};
-        string[] itemPackIdol2 = {"Circle Headphones", "Chest Acc. Pattern Change", "No Headphones Perms", "Ear Acc. Change (Cannot Remove Them)", "Foreleg Pattern Change", "Spiked Collar", "Heart Front Socks", "No Mask Perms", "Hindleg Acc. Change"};
+        string[] itemPackIdol2 = {"Circle Headphones", "No Mask Perms OR Chest Acc. Change", "No Headphones Perms", "Ear Acc. Change (Cannot Remove Them)", "Foreleg Pattern Change", "Spiked Collar", "Heart Front Socks", "No Mask Perms OR Chest Acc. Change", "Hindleg Acc. Change"};
         
         SocketGuildUser assignee = (SocketGuildUser)command.User;
         SocketGuildUser assignedTo = null;

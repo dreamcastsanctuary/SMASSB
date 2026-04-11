@@ -241,6 +241,8 @@ public class LogHandler {
         var msg = message.Value;
         var chnl = messageChannel.Value;
         
+        if (msg.Author.IsBot) return;
+        
         if (msg == null) {
             Console.WriteLine("Deleted message was not cached.");
             return;
@@ -262,13 +264,15 @@ public class LogHandler {
         var channel = guild.GetChannel(1482805129613938860) as ISocketMessageChannel;
         var before = beforeMessage.Value;
         var after = afterMessage;
+
+        if (before.Author.IsBot) return;
         
         if (before == null) {
             Console.WriteLine("Changed message was not cached.");
             return;
         }
         
-        if (before.Author.Id == 1477898638410911835) { return; }
+        if (before.Author.Id == 1477898638410911835) return;
         
         Embed embed = (new EmbedBuilder()
             .WithAuthor("|| " + after.Author.Username , after.Author.GetAvatarUrl())
