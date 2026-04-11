@@ -9,7 +9,6 @@ public class RewardSystem {
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandleRewardKoCommand(SocketSlashCommand command) {
         
-        SocketGuildUser assignee = (SocketGuildUser)command.User; 
         SocketGuildUser assignedTo = null;
         int item = 1;
 
@@ -67,9 +66,8 @@ public class RewardSystem {
         
         Embed finalEmbed = embedBuilder.Build();
         
-        await command.RespondAsync(text: "This message has been sent to both you and the other member: ",embed: finalEmbed, ephemeral: true);
+        await command.RespondAsync(text: "This message has been sent to the other member: ",embed: finalEmbed, ephemeral: true);
         await UserExtensions.SendMessageAsync(assignedTo, null, false, finalEmbed);
-        await UserExtensions.SendMessageAsync(assignee, null, false, finalEmbed);
     }
 
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
@@ -83,7 +81,6 @@ public class RewardSystem {
         string[] itemPackIdol1 = {"Thin Scarf", "Neck Headphones", "Neck Ribbon", "Cravat", "Sleeveless Shirt", "Longer Sleeves", "Heart Headphones", "Flowy Sleeves", "Skirt / Pants Change, Chest Acc. Change,"};
         string[] itemPackIdol2 = {"Circle Headphones", "No Mask Perms OR Chest Acc. Change", "No Headphones Perms", "Ear Acc. Change (Cannot Remove Them)", "Foreleg Pattern Change", "Spiked Collar", "Heart Front Socks", "No Mask Perms OR Chest Acc. Change", "Hindleg Acc. Change"};
         
-        SocketGuildUser assignee = (SocketGuildUser)command.User;
         SocketGuildUser assignedTo = null;
         int item = 0;
         int value = 0;
@@ -178,11 +175,10 @@ public class RewardSystem {
             .WithDescription("You may use " + itemPackIdol1[value - 1] + " and " + itemPackIdol2[value - 1] + " rather than the required items!")
             .WithFooter("Please send your updated uniforms in the typical uniform checks."));
         
-        await command.RespondAsync(text: "This message has been sent to both you and the other member.", ephemeral: true);
+        await command.RespondAsync(text: "This message has been sent to the other member.", ephemeral: true);
 
         foreach (var embed in embeds) {
             await UserExtensions.SendMessageAsync(assignedTo, "", false, embed.Build());
-            await UserExtensions.SendMessageAsync(assignee, "", false, embed.Build());
         }
         
         var channel = client.GetChannel(1473209020285452360) as ITextChannel;
