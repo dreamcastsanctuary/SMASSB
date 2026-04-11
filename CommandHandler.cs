@@ -49,7 +49,8 @@ public class CommandHandler {
                 .WithName("item").WithDescription("The specific item / document that is to be rewarded.")
                 .WithRequired(true)
                 .AddChoice("Headphones", 1).AddChoice("Sword", 2).AddChoice("Uniform", 3)
-                .WithType(ApplicationCommandOptionType.Integer)));
+                .WithType(ApplicationCommandOptionType.Integer))
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         commands.Add(new SlashCommandBuilder()
             .WithName("rewardaccomp")
@@ -61,7 +62,8 @@ public class CommandHandler {
                 .AddChoice("TransferStudent", 1).AddChoice("Supporter", 2).AddChoice("HighScouter", 3).AddChoice("MAXScouter",4)
                 .AddChoice("PerfectPitch", 5).AddChoice("WorldClassIdol", 6)
                 .AddChoice("HonorsCollegeI", 7).AddChoice("HonorsCollegeII", 8).AddChoice("Rebirth", 9)
-                .WithType(ApplicationCommandOptionType.Integer)));
+                .WithType(ApplicationCommandOptionType.Integer))
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         // MEETINGSYSTEM.
 
@@ -69,23 +71,27 @@ public class CommandHandler {
             .WithName("meeting")
             .WithDescription("Creates a private meeting room with the staff and person provided.")
             .AddOption("person", ApplicationCommandOptionType.User, "The @ of the person.", isRequired: true)
-            .AddOption("meeting_name", ApplicationCommandOptionType.String, "What you want to call this meeting; add - instead of spaces.", isRequired: true));
+            .AddOption("meeting_name", ApplicationCommandOptionType.String, "What you want to call this meeting; add - instead of spaces.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("meetingblist")
             .WithDescription("Creates a private meeting room with our PR Liaison Officer and the person provided.")
             .AddOption("person", ApplicationCommandOptionType.User, "The @ of the person.", isRequired: true)
-            .AddOption("meeting_name", ApplicationCommandOptionType.String, "What you want to call this meeting; add - instead of spaces.", isRequired: true));
+            .AddOption("meeting_name", ApplicationCommandOptionType.String, "What you want to call this meeting; add - instead of spaces.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("meetingreprimand")
             .WithDescription("Creates a private meeting room with only the person provided, for use with discipline.")
             .AddOption("person", ApplicationCommandOptionType.User, "The @ of the person.", isRequired: true)
-            .AddOption("meeting_name", ApplicationCommandOptionType.String, "What you want to call this meeting; add - instead of spaces.", isRequired: true));
+            .AddOption("meeting_name", ApplicationCommandOptionType.String, "What you want to call this meeting; add - instead of spaces.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("meetingclose")
-            .WithDescription("Closes the current thread if it is a meeting room."));
+            .WithDescription("Closes the current thread if it is a meeting room.")
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         // ROLESYSTEM.
 
@@ -93,31 +99,36 @@ public class CommandHandler {
             .WithName("preenlist")
             .WithDescription("Pre-enlists a civilian into a prospective student; to be used during in-server uniform check.")
             .AddOption("civilian", ApplicationCommandOptionType.User, "The @ of the civilian.", isRequired: true)
-            .AddOption("claim_name", ApplicationCommandOptionType.String, "The claim name of the civilian.", isRequired: true));
+            .AddOption("claim_name", ApplicationCommandOptionType.String, "The claim name of the civilian.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("enlist")
             .WithDescription("Enlists a kōhosei into a student.")
-            .AddOption("kōhosei", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: true));
+            .AddOption("kōhosei", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("forceenlist")
             .WithDescription("Force enlists a user.")
             .AddOption("civilian", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
             .AddOption("claim_name", ApplicationCommandOptionType.String, "The claim name of the civilian.", isRequired: true)
-            .AddOption("rank_name", ApplicationCommandOptionType.String, "The rank to be placed in the database.", isRequired: true));
+            .AddOption("rank_name", ApplicationCommandOptionType.String, "The rank to be placed in the database.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
 
         commands.Add(new SlashCommandBuilder()
             .WithName("forceremove")
             .WithDescription("Force removes a user.")
-            .AddOption("civilian", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true));
+            .AddOption("civilian", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("promote")
             .WithDescription("Promotes the given list of students to the specific rank.")
             .AddOption("add_rank", ApplicationCommandOptionType.Role, "The role to be given.", isRequired: true).AddOption("add_rank_category", ApplicationCommandOptionType.Role, "If needed, the next rank category (IE: Enlisted, Non-Commissioned Officer, etc.", isRequired: false)
             .AddOption("remove_rank", ApplicationCommandOptionType.Role, "The role to be taken away.", isRequired: true).AddOption("remove_rank_category", ApplicationCommandOptionType.Role, "If needed, the previous rank category (IE: Enlisted, Non-Commissioned Officer, etc.", isRequired: false)
-            .AddOption("student1", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: true).AddOption("student2", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student3", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student4", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student5", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student6", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student7", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student8", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student9", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student10", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false));
+            .AddOption("student1", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: true).AddOption("student2", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student3", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student4", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student5", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student6", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student7", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student8", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student9", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student10", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         // IDSYSTEM.
         
@@ -155,23 +166,27 @@ public class CommandHandler {
             .WithName("addpoints")
             .WithDescription("Adds points to a member.")
             .AddOption("member", ApplicationCommandOptionType.User, "The aforementioned member.", isRequired: false)
-            .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to add.", isRequired: true));
+            .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to add.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("removepoints")
             .WithDescription("Removes points from a member.")
             .AddOption("member", ApplicationCommandOptionType.User, "The aforementioned member.", isRequired: false)
-            .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to remove.", isRequired: true));
+            .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to remove.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         commands.Add(new SlashCommandBuilder()
             .WithName("restoreprogress")
             .WithDescription("Restores the progress of a previous member.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The member.", isRequired: true));
+            .AddOption("member", ApplicationCommandOptionType.User, "The member.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("massremove")
             .WithDescription("Deletes a specified number of messages from this channel.")
-            .AddOption("amount", ApplicationCommandOptionType.Integer, "Number of messages to delete (1-100).", isRequired: true));
+            .AddOption("amount", ApplicationCommandOptionType.Integer, "Number of messages to delete (1-100).", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
