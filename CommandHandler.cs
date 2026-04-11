@@ -44,7 +44,7 @@ public class CommandHandler {
         commands.Add(new SlashCommandBuilder()
             .WithName("rewardko")
             .WithDescription("Rewards a kosohei a specific item / document.")
-            .AddOption("kosohei", ApplicationCommandOptionType.User, "The name of the kosohei.", isRequired: true)
+            .AddOption("student1", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: true).AddOption("student2", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student3", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student4", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student5", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student6", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student7", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student8", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student9", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student10", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false)
             .AddOption(new SlashCommandOptionBuilder()
                 .WithName("item").WithDescription("The specific item / document that is to be rewarded.")
                 .WithRequired(true)

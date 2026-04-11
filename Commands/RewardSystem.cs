@@ -9,15 +9,42 @@ public class RewardSystem {
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandleRewardKoCommand(SocketSlashCommand command) {
         
-        SocketGuildUser assignedTo = null;
+        List<SocketGuildUser> students = new List<SocketGuildUser>();
         int item = 1;
 
         foreach (var option in command.Data.Options)
         {
             switch (option.Name) {
                 
-                case "kosohei":
-                    assignedTo = ((SocketGuildUser)option.Value);
+                case "student1":
+                    students.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "student2":
+                    students.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "student3":
+                    students.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "student4":
+                    students.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "student5":
+                    students.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "student6":
+                    students.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "student7":
+                    students.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "student8":
+                    students.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "student9":
+                    students.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "student10":
+                    students.Add(((SocketGuildUser)option.Value));
                     break;
                 case "item":
                     item = (int)(long)option.Value;
@@ -26,11 +53,6 @@ public class RewardSystem {
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);
                     break;
             }
-        }
-
-        if (assignedTo == null) {
-            await command.RespondAsync("Unrecognized account.", ephemeral: true);
-            return;
         }
 
         var embedBuilder = new EmbedBuilder();
@@ -67,7 +89,10 @@ public class RewardSystem {
         Embed finalEmbed = embedBuilder.Build();
         
         await command.RespondAsync(text: "This message has been sent to the other member: ",embed: finalEmbed, ephemeral: true);
-        await UserExtensions.SendMessageAsync(assignedTo, null, false, finalEmbed);
+
+        foreach (SocketGuildUser student in students) {
+            await UserExtensions.SendMessageAsync(student, null, false, finalEmbed);
+        }
     }
 
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
