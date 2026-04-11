@@ -161,6 +161,7 @@ public class RoleSystem {
                 await Promote(student, addedRank);
             }
         }
+        command.RespondAsync("Completed task.", ephemeral: true);
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
