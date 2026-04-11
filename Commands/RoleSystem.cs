@@ -85,7 +85,7 @@ public class RoleSystem {
         
         var updated = guild.GetUser(civilian.Id);
         await command.RespondAsync("Sent welcome message to new enlisted.");
-        await UserExtensions.SendMessageAsync(civilian, "Welcome to your new life as an enlisted, " + updated.Nickname + "! Let's make bright memories together!");
+        await UserExtensions.SendMessageAsync(civilian, "Welcome to your new life as an enlisted, " + updated.Nickname + "!\nYour first order of business is to check out your new uniform channel, and make the other two!\nThey're necessary for most of our events, so get to it soon!");
     }
 
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
