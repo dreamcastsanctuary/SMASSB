@@ -208,7 +208,7 @@ public class RoleSystem {
         int spaceIndex = nickname.IndexOf(' ');
         string claim = spaceIndex >= 0 ? nickname.Substring(spaceIndex + 1) : nickname;
 
-        await student.ModifyAsync(x => x.Nickname = fixedNick + ". " + claim);
+        await student.ModifyAsync(x => x.Nickname = fixedNick + " " + claim);
         await _db.SetRank(student.Id, fixedRank);
     }
 
