@@ -48,7 +48,7 @@ public class RoleSystem {
 
         await command.RespondAsync("Processing Student into Database . . .");
         await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Kōsohei",0,"N/A","Go Strike!", civilian.Username);
-        await channel.SendMessageAsync("Welcome to SMA, **Kō. " + claim + "**! We're very happy to have you.\nYour first event *must* be of type SCS101. Please be on the lookout for it.");
+        await UserExtensions.SendMessageAsync(civilian, "Welcome to SMA, **Kō. " + claim + "**! We're very happy to have you.\nYour first event *must* be of type **SCS101**. Please be on the lookout for it.");
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]

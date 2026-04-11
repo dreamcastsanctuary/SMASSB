@@ -220,7 +220,13 @@ public class IdSystem {
         var channel = command.Channel;
         
         clone.Save(output);
-        await channel.SendFileAsync(output, "Loaded Student ID . . !");
+        
+        if (member != command.User) {
+            await UserExtensions.SendFileAsync(member, output, "Here you are, your brand new Student ID!");
+        } else {
+            await channel.SendFileAsync(output, "Loaded Student ID . . !"); 
+        }
+        
         File.Delete(output);
     }
     
