@@ -62,7 +62,7 @@ public class RewardSystem {
                 .WithAuthor("Dear Prospective Student, you have been awarded . . .")
                 .WithTitle("TRIAL HEADPHONES")
                 .WithThumbnailUrl("https://64.media.tumblr.com/bca2cc2f79769603271b08c771604ff8/e0c197076de26732-2b/s540x810/6ba9914651ae690969cd4c896a9f566527fa90a0.pnj")
-                .WithDescription("These are your first step into enlisting into our ranks.\n\n0 1  ∥  040506 | LOCKED\n0 2  ∥  222f2f | LOCKED\n0 3  ∥  0d0f12 | LOCKED")
+                .WithDescription("These headphones are your first step towards enlistment.\n\n0 1  ∥  040506 | LOCKED\n0 2  ∥  222f2f | LOCKED\n0 3  ∥  0d0f12 | LOCKED")
                 .WithImageUrl("https://64.media.tumblr.com/3477f610c193e36e7dec89cdd4950dc9/e0c197076de26732-d9/s1280x1920/77b23df058976d98915498920e55feb130d55470.pnj")
                 .WithFooter("Send your finished uniform in BCGch. Kamikawa Hiromi's DMs to be checked and be able to move onto SCS102!\n\nSing for hope | Strike for all!")
                 .WithColor(new Color(0x44786F));
