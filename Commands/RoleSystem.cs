@@ -203,7 +203,7 @@ public class RoleSystem {
         string rankName = rank.Name;
 
         int dotIndex = rankName.IndexOf('.');
-        string fixedNick = rankName.Substring(-1, dotIndex);
+        string fixedNick = rankName.Substring(1, dotIndex);
         string fixedRank = rankName.Substring(dotIndex + 2);
         int spaceIndex = nickname.IndexOf(' ');
         string claim = spaceIndex >= 0 ? nickname.Substring(spaceIndex + 1) : nickname;
