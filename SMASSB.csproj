@@ -20,8 +20,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Fonts\" />
-      <Folder Include="Images\" />
+      <None Include="Fonts\**\*">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Include="Images\**\*">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

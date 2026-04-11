@@ -327,30 +327,32 @@ public class LogHandler {
         SocketVoiceChannel? channel = null;
         
         await guild.DownloadUsersAsync();
-
+        var memberCount = guild.Users.Count(u => !u.IsBot); // count once, after download
+        
         var channelId = _db.GetStatChannel(guild.Id);
         if (channelId != null)
             channel = guild.GetChannel(channelId.Value) as SocketVoiceChannel;
-
         if (channel == null) {
-            var created = await guild.CreateVoiceChannelAsync("✦ idols : 0", props => {
+            var created = await guild.CreateVoiceChannelAsync($"✦ idols : {memberCount}", props => {
                 props.CategoryId = 1473208155210252381;
             });
             _db.SetStatChannel(guild.Id, created.Id);
             channel = guild.GetChannel(created.Id) as SocketVoiceChannel;
         }
-
-        await UpdateStatChannel(guild);
+        await UpdateStatChannel(guild, memberCount);
     }
-
-    private async Task UpdateStatChannel(SocketGuild guild) {
+    
+    private async Task UpdateStatChannel(SocketGuild guild, int? memberCount = null) {
         var channelId = _db.GetStatChannel(guild.Id);
         if (channelId == null) return;
-
         if (guild.GetChannel(channelId.Value) is SocketVoiceChannel channel) {
-            var memberCount = guild.Users.Count(u => !u.IsBot);
+            memberCount ??= guild.Users.Count(u => !u.IsBot);
+            var expectedName = $"✦ idols : {memberCount}";
+            
+            if (channel.Name == expectedName) return;
+            
             await channel.ModifyAsync((VoiceChannelProperties props) => {
-                props.Name = $"✦ idols : {memberCount}";
+                props.Name = expectedName;
             });
         }
     }
