@@ -199,16 +199,15 @@ public class RoleSystem {
     }
 
     private async Task Promote(SocketGuildUser student, IRole rank) {
-    
         string nickname = student.Nickname;
-    
-        int cutRank = rank.ToString().IndexOf('.');
-        int cutNick = nickname.IndexOf(' ');
-    
-        string claim = nickname.Remove(0, cutNick);
-        string fixedRank = rank.ToString().Remove(1, cutRank - 1);
-        string fixedNick = rank.ToString().Substring(1, cutRank - 1);
-    
+        string rankName = rank.Name;
+
+        int dotIndex = rankName.IndexOf('.');
+        string fixedRank = rankName.Substring(0, dotIndex);
+        string fixedNick = rankName.Substring(dotIndex + 2);
+        int spaceIndex = nickname.IndexOf(' ');
+        string claim = spaceIndex >= 0 ? nickname.Substring(spaceIndex + 1) : nickname;
+
         await student.ModifyAsync(x => x.Nickname = fixedNick + ". " + claim);
         await _db.SetRank(student.Id, fixedRank);
     }
