@@ -346,11 +346,14 @@ public class LogHandler {
     private async Task UpdateStatChannel(SocketGuild guild) {
         var channelId = _db.GetStatChannel(guild.Id);
         if (channelId == null) return;
-
         if (guild.GetChannel(channelId.Value) is SocketVoiceChannel channel) {
             var memberCount = guild.Users.Count(u => !u.IsBot);
+            var expectedName = $"✦ idols : {memberCount}";
+            
+            if (channel.Name == expectedName) return;
+            
             await channel.ModifyAsync((VoiceChannelProperties props) => {
-                props.Name = $"✦ idols : {memberCount}";
+                props.Name = expectedName;
             });
         }
     }
