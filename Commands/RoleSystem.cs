@@ -47,7 +47,7 @@ public class RoleSystem {
         await civilian.ModifyAsync(x => x.Nickname = "Kō. " + claim);
 
         await command.RespondAsync("Processing Student into Database . . .");
-        await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Kōsohei",0,"N/A","Go Strike!", civilian.Username);
+        await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Kōhosei",0,"N/A","Go Strike!", civilian.Username);
         await UserExtensions.SendMessageAsync(civilian, "Welcome to SMA, **Kō. " + claim + "**! We're very happy to have you.\nYour first event *must* be of type **SCS101**. Please be on the lookout for it.");
     }
     
@@ -62,7 +62,7 @@ public class RoleSystem {
         {
             switch (option.Name) {
                 
-                case "kōsohei":
+                case "kōhosei":
                     civilian = ((SocketGuildUser)option.Value);
                     break;
                 default:

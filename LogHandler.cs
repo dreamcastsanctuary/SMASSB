@@ -198,7 +198,7 @@ public class LogHandler {
             var storedUsername = await _db.GetUsername(user.Id);
             
             if (!string.IsNullOrEmpty(storedUsername)) {
-                if (await _db.GetRank(user.Id) != "Kōsohei") {
+                if (await _db.GetRank(user.Id) != "Kōhosei") {
                     await _db.TransferFromEnrolledToUnenrolled(user.Id);
                 } else {
                     await _db.Remove(user.Id);
