@@ -187,7 +187,7 @@ public class RewardSystem {
         embeds.Add(new EmbedBuilder()
             .WithTitle("Wearable for Parade Dress!")
             .WithColor(0xBFA55F)
-            .WithDescription("- Please place this code on your dress on the " + paradeLocation[value - 1] + ". \n- " + paradeHex[value - 1]));
+            .WithDescription("Please place this code on your dress on the " + paradeLocation[value - 1] + ". \n✦ " + paradeHex[value - 1]));
 
         embeds.Add(new EmbedBuilder()
             .WithTitle("Custom Colorpack" + itemPackTrack1[value - 1] + " for Tracksuit!")
