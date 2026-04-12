@@ -113,7 +113,12 @@ public class MeetingSystem {
         
         await person.AddRoleAsync(1492674198345224293);
         await person.AddRoleAsync(1492678150025379860);
-        await person.RemoveRoleAsync(1473368797023961139);
+
+        if (person.Roles.All(r => r.Id == 1475886792174604484)) {
+            await person.RemoveRoleAsync(1473369036766052445);
+        } else {
+            await person.RemoveRoleAsync(1473368797023961139);
+        }
         
         var name = "meeting-repri-" + meeting_name;
         
@@ -179,7 +184,12 @@ public class MeetingSystem {
                     SocketGuildUser guildUser = (SocketGuildUser)user;
                     if (guildUser.Roles.Any(r => r.Id == 1492678150025379860)) {
                         await guildUser.RemoveRoleAsync(1492678150025379860);
-                        await guildUser.AddRoleAsync(1473368797023961139);
+                        
+                        if (guildUser.Roles.All(r => r.Id == 1475886792174604484)) {
+                            await guildUser.AddRoleAsync(1473369036766052445);
+                        } else {
+                            await guildUser.AddRoleAsync(1473368797023961139);
+                        }
                     }
                 }
             }
