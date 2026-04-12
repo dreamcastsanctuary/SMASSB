@@ -130,6 +130,11 @@ public class MeetingSystem {
             var thread = guild.GetThreadChannel(channel.Id);
             IReadOnlyCollection<SocketThreadUser> users = await thread.GetUsersAsync();
 
+            await thread.ModifyAsync(t => {
+                t.Archived = true;
+                t.Locked = true;
+            });
+            
             if (((SocketTextChannel)channel).Name.Contains("meeting-repri-")) {
                 foreach (SocketThreadUser user in users) {
                     
@@ -150,11 +155,6 @@ public class MeetingSystem {
                 await thread.RemoveUserAsync(user);
             }
             await thread.LeaveAsync();
-            
-            await thread.ModifyAsync(t => {
-                t.Archived = true;
-                t.Locked = true;
-            });
         } else {
             await command.RespondAsync("This channel wasn't made by the SSB!", ephemeral: true);
         }
