@@ -39,7 +39,7 @@ public class MeetingSystem {
         
         var name = "meeting-" + meeting_name;
         
-        var thread = await channel.CreateThreadAsync(name, autoArchiveDuration: ThreadArchiveDuration.OneHour);
+        var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
         await thread.SendMessageAsync("<@&1473508563887329447>, <@" + person.Id + ">.");
     }
     
@@ -76,7 +76,7 @@ public class MeetingSystem {
         
         var name = "meeting-blist-" + meeting_name;
         
-        var thread = await channel.CreateThreadAsync(name, autoArchiveDuration: ThreadArchiveDuration.OneHour);
+        var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
         await thread.SendMessageAsync("<@" + command.User.Id + ">, <@1436617424379318282>, <@" + person.Id + ">.");
     }
     
@@ -115,7 +115,7 @@ public class MeetingSystem {
         
         var name = "meeting-repri-" + meeting_name;
         
-        var thread = await channel.CreateThreadAsync(name, autoArchiveDuration: ThreadArchiveDuration.OneHour);
+        var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
         await thread.SendMessageAsync("<@" + command.User.Id + ">, <@" + person.Id + ">.");
     }
     
@@ -144,6 +144,7 @@ public class MeetingSystem {
                 SocketGuildUser guildUser = (SocketGuildUser) user;
                 if (guildUser.Roles.Any(r => r.Id == 1492674198345224293)) {
                     await user.RemoveRoleAsync(1492674198345224293);
+                    await thread.RemoveUserAsync(user);
                     await thread.RemoveUserAsync(user);
                 }
                 await thread.RemoveUserAsync(user);
