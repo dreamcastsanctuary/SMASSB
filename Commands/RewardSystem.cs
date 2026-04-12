@@ -187,17 +187,17 @@ public class RewardSystem {
         embeds.Add(new EmbedBuilder()
             .WithTitle("Wearable for Parade Dress!")
             .WithColor(0xBFA55F)
-            .WithDescription("Please place this code on your dress on the " + paradeLocation[value - 1] + ". \n✦ " + paradeHex[value - 1]));
+            .WithDescription("Please place this code on your dress on the *" + paradeLocation[value - 1] + "*. \n✦ **" + paradeHex[value - 1] + "**"));
 
         embeds.Add(new EmbedBuilder()
             .WithTitle("Custom Colorpack" + itemPackTrack1[value - 1] + " for Tracksuit!")
             .WithColor(0xBFA55F)
-            .WithDescription("You may change *two* colors on your tracksuit." + itemPackTrack2[value - 1] + "\n\n✦ 181615 and 070a0c are the same code when recoloring.\n✦ 888375 and 6b6051 are the same code when recoloring.\n✦ Colors and outlines are treated as two separate values, so don't change a main color and it's outline and say that it is one color!"));
+            .WithDescription("You may change *two* colors on your tracksuit." + itemPackTrack2[value - 1] + "\n\n✦ **181615** and **070a0c** are the same code when recoloring.\n✦ **888375** and **6b6051** are the same code when recoloring.\n✦ Colors and outlines are treated as two separate values, so don't change a main color and it's outline and say that it is one color!"));
 
         embeds.Add(new EmbedBuilder()
             .WithTitle("New Itempack for Idol Outfit!")
             .WithColor(0xBFA55F)
-            .WithDescription("You may use " + itemPackIdol1[value - 1] + " and " + itemPackIdol2[value - 1] + " rather than the required items!")
+            .WithDescription("You may use **" + itemPackIdol1[value - 1] + "** and **" + itemPackIdol2[value - 1] + "** rather than the required items!")
             .WithFooter("Please send your updated uniforms in the typical uniform checks."));
         
         await command.RespondAsync(text: "This message has been sent to the other member.", ephemeral: true);
