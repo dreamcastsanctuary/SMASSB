@@ -125,37 +125,70 @@ public class MeetingSystem {
         var guild = client.GetGuild(command.GuildId.Value);
         SocketChannel channel = client.GetChannel(command.ChannelId.Value);
         
-        if (((SocketTextChannel)channel).Name.Contains("meeting-") & channel is IThreadChannel) {
+        if (((SocketTextChannel)channel).Name.Contains("meeting-") && channel is IThreadChannel) {
             await command.RespondAsync("Closing meeting room.", ephemeral: true);
             var thread = guild.GetThreadChannel(channel.Id);
             IReadOnlyCollection<SocketThreadUser> users = await thread.GetUsersAsync();
+            
+            var messages = (await thread.GetMessagesAsync(500).FlattenAsync())
+                .OrderBy(m => m.Timestamp)
+                .ToList();
 
-            await thread.ModifyAsync(t => {
+            var logChannel = guild.GetTextChannel(1482455836776333322);
+            var logThread = await logChannel.CreateThreadAsync(
+                name: thread.Name + "-log",
+                type: ThreadType.PrivateThread,
+                autoArchiveDuration: ThreadArchiveDuration.OneWeek
+            );
+
+            using var httpClient = new HttpClient();
+            foreach (var message in messages) {
+                
+                if (!string.IsNullOrWhiteSpace(message.Content)) {
+                    await logThread.SendMessageAsync(
+                        $"**{message.Author.Username}** at {message.Timestamp}:\n{message.Content}"
+                    );
+                    await Task.Delay(500);
+                }
+
+                foreach (var attachment in message.Attachments) {
+                    try {
+                        var bytes = await httpClient.GetByteArrayAsync(attachment.Url);
+                        using var stream = new MemoryStream(bytes);
+                        await logThread.SendFileAsync(stream, attachment.Filename, $"**{message.Author.Username}** at {message.Timestamp}:");
+                    } catch (Exception ex) {
+                        await logThread.SendMessageAsync(
+                            $"Could not re-upload `{attachment.Filename}` — {ex.Message}"
+                        );
+                    }
+                    await Task.Delay(500);
+                }
+            }
+            
+            await logThread.ModifyAsync(t => {
                 t.Archived = true;
                 t.Locked = true;
             });
             
             if (((SocketTextChannel)channel).Name.Contains("meeting-repri-")) {
                 foreach (SocketThreadUser user in users) {
-                    
-                    SocketGuildUser guildUser = (SocketGuildUser) user;
+                    SocketGuildUser guildUser = (SocketGuildUser)user;
                     if (guildUser.Roles.Any(r => r.Id == 1492678150025379860)) {
                         await guildUser.RemoveRoleAsync(1492678150025379860);
                         await guildUser.AddRoleAsync(1473368797023961139);
                     }
                 }
             }
+            
             foreach (SocketThreadUser user in users) {
-                SocketGuildUser guildUser = (SocketGuildUser) user;
+                SocketGuildUser guildUser = (SocketGuildUser)user;
                 if (guildUser.Roles.Any(r => r.Id == 1492674198345224293)) {
-                    await user.RemoveRoleAsync(1492674198345224293);
-                    await thread.RemoveUserAsync(user);
-                    await thread.RemoveUserAsync(user);
+                    await guildUser.RemoveRoleAsync(1492674198345224293);
                 }
-                await thread.RemoveUserAsync(user);
             }
-            await thread.LeaveAsync();
-            await Task.Delay(1000);
+
+            await thread.DeleteAsync();
+
         } else {
             await command.RespondAsync("This channel wasn't made by the SSB!", ephemeral: true);
         }
