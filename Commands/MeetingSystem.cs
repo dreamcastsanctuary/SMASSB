@@ -155,6 +155,7 @@ public class MeetingSystem {
                 await thread.RemoveUserAsync(user);
             }
             await thread.LeaveAsync();
+            await Task.Delay(1000);
         } else {
             await command.RespondAsync("This channel wasn't made by the SSB!", ephemeral: true);
         }
