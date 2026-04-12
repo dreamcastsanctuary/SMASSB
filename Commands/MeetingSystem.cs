@@ -149,6 +149,10 @@ public class MeetingSystem {
             }
             await thread.LeaveAsync();
             
+            await thread.ModifyAsync(t => {
+                t.Archived = true;
+                t.Locked = true;
+            });
         } else {
             await command.RespondAsync("This channel wasn't made by the SSB!", ephemeral: true);
         }
