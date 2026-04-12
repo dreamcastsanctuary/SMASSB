@@ -40,6 +40,7 @@ public class MeetingSystem {
         var name = "meeting-" + meeting_name;
         
         var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
+        await thread.AddUserAsync(person);
         await Task.Delay(1000);
         await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name +".\nPlease wait here and be patient as our <@&1473508563887329447> prepare to assist you, <@" + person.Id + ">.");
     }
@@ -78,6 +79,7 @@ public class MeetingSystem {
         var name = "meeting-blist-" + meeting_name;
         
         var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
+        await thread.AddUserAsync(person);
         await Task.Delay(1000);
         await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name + ".\nPlease wait here and be patient as <@" + command.User.Id + "> and <@1436617424379318282> prepare to assist you, <@" + person.Id + ">.");
     }
@@ -118,6 +120,7 @@ public class MeetingSystem {
         var name = "meeting-repri-" + meeting_name;
         
         var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
+        await thread.AddUserAsync(person);
         await Task.Delay(1000);
         await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name +".\nPlease wait here and be patient as <@" + command.User.Id + "> prepares to speak to you, <@" + person.Id + ">.");
     }
