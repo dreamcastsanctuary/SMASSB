@@ -41,7 +41,7 @@ public class MeetingSystem {
         
         var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
         await Task.Delay(500);
-        await thread.SendMessageAsync("<@&1473508563887329447>, <@" + person.Id + ">.");
+        await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name +".\nPlease wait here and be patient as our <@&1473508563887329447> prepare to assist you, <@" + person.Id + ">.");
     }
     
     [DefaultMemberPermissions(GuildPermission.Administrator)]
@@ -79,7 +79,7 @@ public class MeetingSystem {
         
         var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
         await Task.Delay(500);
-        await thread.SendMessageAsync("<@" + command.User.Id + ">, <@1436617424379318282>, <@" + person.Id + ">.");
+        await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name + ".\nPlease wait here and be patient as <@" + command.User.Id + "> and <@1436617424379318282> prepare to assist you, <@" + person.Id + ">.");
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
@@ -119,7 +119,7 @@ public class MeetingSystem {
         
         var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
         await Task.Delay(500);
-        await thread.SendMessageAsync("<@" + command.User.Id + ">, <@" + person.Id + ">.");
+        await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name +".\nPlease wait here and be patient as <@" + command.User.Id + "> prepares to speak to you, <@" + person.Id + ">.");
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
@@ -137,7 +137,7 @@ public class MeetingSystem {
                 .OrderBy(m => m.Timestamp)
                 .ToList();
 
-            var logChannel = guild.GetTextChannel(1482455836776333322);
+            var logChannel = guild.GetTextChannel(1482805129613938860);
             var logThread = await logChannel.CreateThreadAsync(
                 name: thread.Name + "-log",
                 type: ThreadType.PrivateThread,
