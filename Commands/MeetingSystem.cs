@@ -40,9 +40,8 @@ public class MeetingSystem {
         var name = "meeting-" + meeting_name;
         
         var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
-        await thread.AddUserAsync(person);
-        await Task.Delay(3000);
-        await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name +".\nPlease wait here and be patient as our <@&1473508563887329447> prepare to assist you, <@" + person.Id + ">.");
+        await Task.Delay(500);
+        await thread.SendMessageAsync("<@&1473508563887329447>, <@" + person.Id + ">.");
     }
     
     [DefaultMemberPermissions(GuildPermission.Administrator)]
@@ -79,9 +78,8 @@ public class MeetingSystem {
         var name = "meeting-blist-" + meeting_name;
         
         var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
-        await thread.AddUserAsync(person);
-        await Task.Delay(3000);
-        await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name + ".\nPlease wait here and be patient as <@" + command.User.Id + "> and <@1436617424379318282> prepare to assist you, <@" + person.Id + ">.");
+        await Task.Delay(500);
+        await thread.SendMessageAsync("<@" + command.User.Id + ">, <@1436617424379318282>, <@" + person.Id + ">.");
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
@@ -120,9 +118,8 @@ public class MeetingSystem {
         var name = "meeting-repri-" + meeting_name;
         
         var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
-        await thread.AddUserAsync(person);
-        await Task.Delay(3000);
-        await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name +".\nPlease wait here and be patient as <@" + command.User.Id + "> prepares to speak to you, <@" + person.Id + ">.");
+        await Task.Delay(500);
+        await thread.SendMessageAsync("<@" + command.User.Id + ">, <@" + person.Id + ">.");
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
@@ -150,9 +147,10 @@ public class MeetingSystem {
             using var httpClient = new HttpClient();
             foreach (var message in messages) {
                 
+                var user = message.Author as IGuildUser;
+                
                 if (!string.IsNullOrWhiteSpace(message.Content)) {
-                    await logThread.SendMessageAsync(
-                        $"**{message.Author.Username}** at {message.Timestamp}:\n{message.Content}"
+                    await logThread.SendMessageAsync($"**{user.Nickname ?? message.Author.Username}** at {message.Timestamp:M/d/yyyy g}:\n\t{message.Content}"
                     );
                     await Task.Delay(500);
                 }
@@ -161,7 +159,7 @@ public class MeetingSystem {
                     try {
                         var bytes = await httpClient.GetByteArrayAsync(attachment.Url);
                         using var stream = new MemoryStream(bytes);
-                        await logThread.SendFileAsync(stream, attachment.Filename, $"**{message.Author.Username}** at {message.Timestamp}:");
+                        await logThread.SendFileAsync(stream, attachment.Filename, $"**{user.Nickname ?? message.Author.Username}** at {message.Timestamp:M/d/yyyy g}:");
                     } catch (Exception ex) {
                         await logThread.SendMessageAsync(
                             $"Could not re-upload `{attachment.Filename}` — {ex.Message}"
