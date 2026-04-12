@@ -159,7 +159,7 @@ public class MeetingSystem {
                     try {
                         var bytes = await httpClient.GetByteArrayAsync(attachment.Url);
                         using var stream = new MemoryStream(bytes);
-                        await logThread.SendFileAsync(stream, attachment.Filename, $"**{user.Nickname ?? message.Author.Username}** at {message.Timestamp:M/d/yyyy g}:");
+                        await logThread.SendFileAsync(stream, attachment.Filename, $"**{user.Nickname ?? message.Author.Username}** : {message.Timestamp:M/d/yyyy g}:");
                     } catch (Exception ex) {
                         await logThread.SendMessageAsync(
                             $"Could not re-upload `{attachment.Filename}` — {ex.Message}"
