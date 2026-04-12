@@ -150,7 +150,7 @@ public class MeetingSystem {
                 var user = message.Author as IGuildUser;
                 
                 if (!string.IsNullOrWhiteSpace(message.Content)) {
-                    await logThread.SendMessageAsync($"**{user.Nickname ?? message.Author.Username}** at {message.Timestamp:M/d/yyyy g}:\n\t{message.Content}"
+                    await logThread.SendMessageAsync($"**{user.Nickname ?? message.Author.Username}** at {message.Timestamp:M/d/yyyy HH:mm:ss tt}\n\t{message.Content}"
                     );
                     await Task.Delay(500);
                 }
