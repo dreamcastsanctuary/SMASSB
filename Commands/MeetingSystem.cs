@@ -144,6 +144,7 @@ public class MeetingSystem {
                 SocketGuildUser guildUser = (SocketGuildUser) user;
                 if (guildUser.Roles.Any(r => r.Id == 1492674198345224293)) {
                     await user.RemoveRoleAsync(1492674198345224293);
+                    await thread.RemoveUserAsync(user);
                 }
                 await thread.RemoveUserAsync(user);
             }
