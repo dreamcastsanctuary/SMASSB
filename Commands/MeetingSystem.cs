@@ -34,6 +34,8 @@ public class MeetingSystem {
             await command.RespondAsync("Unrecognized account.", ephemeral: true);
             return;
         }
+
+        await person.AddRoleAsync(1492674198345224293);
         
         var name = "meeting-" + meeting_name;
         
@@ -70,6 +72,8 @@ public class MeetingSystem {
             return;
         }
         
+        await person.AddRoleAsync(1492674198345224293);
+        
         var name = "meeting-blist-" + meeting_name;
         
         var thread = await channel.CreateThreadAsync(name, autoArchiveDuration: ThreadArchiveDuration.OneHour);
@@ -105,6 +109,10 @@ public class MeetingSystem {
             return;
         }
         
+        await person.AddRoleAsync(1492674198345224293);
+        await person.AddRoleAsync(1492678150025379860);
+        await person.RemoveRoleAsync(1473368797023961139);
+        
         var name = "meeting-repri-" + meeting_name;
         
         var thread = await channel.CreateThreadAsync(name, autoArchiveDuration: ThreadArchiveDuration.OneHour);
@@ -121,8 +129,22 @@ public class MeetingSystem {
             await command.RespondAsync("Closing meeting room.", ephemeral: true);
             var thread = guild.GetThreadChannel(channel.Id);
             IReadOnlyCollection<SocketThreadUser> users = await thread.GetUsersAsync();
-            
+
+            if (((SocketTextChannel)channel).Name.Contains("meeting-repri-")) {
+                foreach (SocketThreadUser user in users) {
+                    
+                    SocketGuildUser guildUser = (SocketGuildUser) user;
+                    if (guildUser.Roles.Any(r => r.Id == 1492678150025379860)) {
+                        await guildUser.RemoveRoleAsync(1492678150025379860);
+                        await guildUser.AddRoleAsync(1473368797023961139);
+                    }
+                }
+            }
             foreach (SocketThreadUser user in users) {
+                SocketGuildUser guildUser = (SocketGuildUser) user;
+                if (guildUser.Roles.Any(r => r.Id == 1492674198345224293)) {
+                    await user.RemoveRoleAsync(1492674198345224293);
+                }
                 await thread.RemoveUserAsync(user);
             }
             await thread.LeaveAsync();
