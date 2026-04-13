@@ -274,7 +274,8 @@ public class LogHandler {
             }
         }
         if (fileAttachments.Count > 0) {
-            await logChannel.SendFilesAsync(fileAttachments, embed: embedBuilder.Build());
+            await logChannel.SendMessageAsync(embed: embedBuilder.Build());
+            await logChannel.SendFilesAsync(fileAttachments);
             foreach (var f in fileAttachments) f.Dispose();
         } else {
             await logChannel.SendMessageAsync(embed: embedBuilder.Build());
