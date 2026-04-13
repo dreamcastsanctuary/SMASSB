@@ -262,8 +262,8 @@ public class LogHandler {
             try {
                 var bytes = await httpClient.GetByteArrayAsync(attachment.Url);
                 var stream = new MemoryStream(bytes);
-                fileAttachments.Add(new FileAttachment(stream, attachment.Filename));
-                embedBuilder.WithImageUrl("attachment://" + attachment.Filename);
+                fileAttachments.Add(new FileAttachment(stream, "SPOILER_" + attachment.Filename));
+                embedBuilder.WithImageUrl("attachment://SPOILER_" + attachment.Filename);
             } catch (Exception ex) {
                 Console.WriteLine(ex);
             }
