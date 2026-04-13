@@ -336,6 +336,8 @@ public class LogHandler {
         
         if (before.Author.Id == 1477898638410911835) return;
         
+        if (before.Content.Trim().Equals(after.Content.Trim())) return;
+        
         Embed embed = (new EmbedBuilder()
             .WithAuthor("|| " + authorName, author.GetGuildAvatarUrl() ?? after.Author.GetAvatarUrl())
             .WithTitle("❖﹒Message edited in <#" + messageChannel.Id + "> . .")
