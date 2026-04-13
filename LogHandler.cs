@@ -255,7 +255,7 @@ public class LogHandler {
 
         var embedBuilder = new EmbedBuilder()
             .WithAuthor("|| " + msg.Author.Username, msg.Author.GetAvatarUrl())
-            .WithTitle("❖﹒Message removed in #" + chnl.Name + " . .")
+            .WithTitle("❖﹒Message removed in <#" + chnl.Id + "> . .")
             .WithDescription(string.IsNullOrEmpty(msg.Content) ? "*No text content*" : msg.Content)
             .WithFooter(msg.Author.Id.ToString())
             .WithCurrentTimestamp()
@@ -334,7 +334,7 @@ public class LogHandler {
         
         Embed embed = (new EmbedBuilder()
             .WithAuthor("|| " + after.Author.Username , after.Author.GetAvatarUrl())
-            .WithTitle("❖﹒Message edited in #" + messageChannel.Name + " . .")
+            .WithTitle("❖﹒Message edited in <#" + messageChannel.Id + "> . .")
             .WithDescription("### BEFORE : \n" + before.Content + "\n\n### AFTER : \n" + after.Content)
             .WithFooter(after.Author.Id.ToString())
             .WithCurrentTimestamp()
