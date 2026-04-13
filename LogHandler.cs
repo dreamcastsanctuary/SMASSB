@@ -241,6 +241,7 @@ public class LogHandler {
         var msg = message.Value;
         var chnl = messageChannel.Value;
         var author = msg.Author as SocketGuildUser;
+        var authorName = author.Nickname ?? author.Username;
 
         if (msg == null) {
             Console.WriteLine("Deleted message was not cached.");
@@ -255,7 +256,7 @@ public class LogHandler {
         }
 
         var embedBuilder = new EmbedBuilder()
-            .WithAuthor("|| " + author.Nickname, author.GetGuildAvatarUrl() ?? msg.Author.GetAvatarUrl())
+            .WithAuthor("|| " + authorName, author.GetGuildAvatarUrl() ?? msg.Author.GetAvatarUrl())
             .WithTitle("❖﹒Message removed in <#" + chnl.Id + "> . .")
             .WithDescription(string.IsNullOrEmpty(msg.Content) ? "*No text content*" : msg.Content)
             .WithFooter(msg.Author.Id.ToString())
@@ -324,6 +325,7 @@ public class LogHandler {
         var before = beforeMessage.Value;
         var after = afterMessage;
         var author = before.Author as SocketGuildUser;
+        var authorName = author.Nickname ?? author.Username;
         
         if (before == null) {
             Console.WriteLine("Changed message was not cached.");
@@ -335,7 +337,7 @@ public class LogHandler {
         if (before.Author.Id == 1477898638410911835) return;
         
         Embed embed = (new EmbedBuilder()
-            .WithAuthor("|| " + author.Nickname, author.GetGuildAvatarUrl() ?? after.Author.GetAvatarUrl())
+            .WithAuthor("|| " + authorName, author.GetGuildAvatarUrl() ?? after.Author.GetAvatarUrl())
             .WithTitle("❖﹒Message edited in <#" + messageChannel.Id + "> . .")
             .WithDescription("### BEFORE : \n" + before.Content + "\n\n### AFTER : \n" + after.Content)
             .WithFooter(after.Author.Id.ToString())
