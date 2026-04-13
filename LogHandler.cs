@@ -245,9 +245,9 @@ public class LogHandler {
             Console.WriteLine("Deleted message was not cached.");
             return;
         }
-        
+
         if (msg.Author.IsBot) return;
-        
+
         if (chnl == null) {
             Console.WriteLine("Channel was not cached.");
             return;
@@ -267,6 +267,7 @@ public class LogHandler {
 
         var fileAttachments = new List<FileAttachment>();
         var attachmentUrls = new List<string>();
+        var seenNames = new HashSet<string>();
 
         using var httpClient = new HttpClient();
 
@@ -278,10 +279,18 @@ public class LogHandler {
                     continue;
                 }
 
+                var filename = attachment.Filename;
+                if (!seenNames.Add(filename)) {
+                    var ext = Path.GetExtension(filename);
+                    var name = Path.GetFileNameWithoutExtension(filename);
+                    filename = $"{name}_{seenNames.Count}{ext}";
+                    seenNames.Add(filename);
+                }
+
                 var bytes = await httpClient.GetByteArrayAsync(attachment.Url);
-                var fa = new FileAttachment(new MemoryStream(bytes), attachment.Filename, isSpoiler: true);
+                var fa = new FileAttachment(new MemoryStream(bytes), filename, isSpoiler: true);
                 fileAttachments.Add(fa);
-                attachmentUrls.Add(fa.GetAttachmentUrl());
+                attachmentUrls.Add($"attachment://{filename}");
             } catch (Exception ex) {
                 Console.WriteLine(ex);
             }
