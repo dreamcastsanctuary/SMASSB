@@ -248,10 +248,15 @@ public class LogHandler {
         }
         if (msg.Author.IsBot) return;
         
+        if (chnl == null) {
+            Console.WriteLine("Channel was not cached.");
+            return;
+        }
+        
         EmbedBuilder embedBuilder = new EmbedBuilder()
             .WithAuthor("|| " + msg.Author.Username , msg.Author.GetAvatarUrl())
             .WithTitle("❖﹒Message removed in #" + chnl.Name + " . .")
-            .WithDescription(msg.Content)
+            .WithDescription(string.IsNullOrEmpty(msg.Content) ? "*No text content*" : msg.Content)
             .WithFooter(msg.Author.Id.ToString())
             .WithCurrentTimestamp()
             .WithColor(0xFF312C);
@@ -262,13 +267,12 @@ public class LogHandler {
             try {
                 var bytes = await httpClient.GetByteArrayAsync(attachment.Url);
                 var stream = new MemoryStream(bytes);
+                
                 fileAttachments.Add(new FileAttachment(stream, "SPOILER_" + attachment.Filename));
-                embedBuilder.WithImageUrl("attachment://SPOILER_" + attachment.Filename);
             } catch (Exception ex) {
                 Console.WriteLine(ex);
             }
         }
-
         if (fileAttachments.Count > 0) {
             await logChannel.SendFilesAsync(fileAttachments, embed: embedBuilder.Build());
             foreach (var f in fileAttachments) f.Dispose();
@@ -282,13 +286,13 @@ public class LogHandler {
         var channel = guild.GetChannel(1482805129613938860) as ISocketMessageChannel;
         var before = beforeMessage.Value;
         var after = afterMessage;
-
-        if (before.Author.IsBot) return;
         
         if (before == null) {
             Console.WriteLine("Changed message was not cached.");
             return;
         }
+        
+        if (before.Author.IsBot) return;
         
         if (before.Author.Id == 1477898638410911835) return;
         
