@@ -236,56 +236,75 @@ public class LogHandler {
     }
 
     public async Task LogMessageDelete(Cacheable<IMessage, ulong> message, Cacheable<IMessageChannel, ulong> messageChannel, SocketGuild guild) {
-        
+
         var logChannel = guild.GetChannel(1482805129613938860) as ISocketMessageChannel;
         var msg = message.Value;
         var chnl = messageChannel.Value;
-        using var httpClient = new HttpClient();
-        
+
         if (msg == null) {
             Console.WriteLine("Deleted message was not cached.");
             return;
         }
+        
         if (msg.Author.IsBot) return;
         
         if (chnl == null) {
             Console.WriteLine("Channel was not cached.");
             return;
         }
-        
-        EmbedBuilder embedBuilder = new EmbedBuilder()
-            .WithAuthor("|| " + msg.Author.Username , msg.Author.GetAvatarUrl())
+
+        var embedBuilder = new EmbedBuilder()
+            .WithAuthor("|| " + msg.Author.Username, msg.Author.GetAvatarUrl())
             .WithTitle("❖﹒Message removed in #" + chnl.Name + " . .")
             .WithDescription(string.IsNullOrEmpty(msg.Content) ? "*No text content*" : msg.Content)
             .WithFooter(msg.Author.Id.ToString())
             .WithCurrentTimestamp()
             .WithColor(0xFF312C);
-        
+
+        await logChannel.SendMessageAsync(embed: embedBuilder.Build());
+
+        if (msg.Attachments.Count == 0) return;
+
         var fileAttachments = new List<FileAttachment>();
+        var attachmentUrls = new List<string>();
+
+        using var httpClient = new HttpClient();
 
         foreach (var attachment in msg.Attachments) {
             try {
-                
                 if (attachment.Size > 8 * 1024 * 1024) {
-                    embedBuilder.AddField("Attachment too large to log", 
-                        $"`{attachment.Filename}` ({attachment.Size / 1024 / 1024}MB) — [original link]({attachment.Url})");
+                    await logChannel.SendMessageAsync(
+                        $"Attachment too large to log! : `{attachment.Filename}` ({attachment.Size / 1024 / 1024}MB)");
                     continue;
                 }
-                
+
                 var bytes = await httpClient.GetByteArrayAsync(attachment.Url);
-                var stream = new MemoryStream(bytes);
-                
-                fileAttachments.Add(new FileAttachment(stream, "SPOILER_" + attachment.Filename));
+                var fa = new FileAttachment(new MemoryStream(bytes), attachment.Filename, isSpoiler: true);
+                fileAttachments.Add(fa);
+                attachmentUrls.Add(fa.GetAttachmentUrl());
             } catch (Exception ex) {
                 Console.WriteLine(ex);
             }
         }
-        if (fileAttachments.Count > 0) {
-            await logChannel.SendMessageAsync(embed: embedBuilder.Build());
-            await logChannel.SendFilesAsync(fileAttachments);
+
+        if (fileAttachments.Count == 0) return;
+
+        var container = new ContainerBuilder()
+            .WithSpoiler(true)
+            .WithMediaGallery(attachmentUrls);
+
+        var components = new ComponentBuilderV2()
+            .AddComponent(container)
+            .Build();
+
+        try {
+            await logChannel.SendFilesAsync(
+                fileAttachments,
+                components: components,
+                flags: MessageFlags.ComponentsV2
+            );
+        } finally {
             foreach (var f in fileAttachments) f.Dispose();
-        } else {
-            await logChannel.SendMessageAsync(embed: embedBuilder.Build());
         }
     }
     
