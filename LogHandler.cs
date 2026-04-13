@@ -265,10 +265,17 @@ public class LogHandler {
 
         foreach (var attachment in msg.Attachments) {
             try {
+                
+                if (attachment.Size > 8 * 1024 * 1024) {
+                    embedBuilder.AddField("Attachment too large to log", 
+                        $"`{attachment.Filename}` ({attachment.Size / 1024 / 1024}MB) — [original link]({attachment.Url})");
+                    continue;
+                }
+                
                 var bytes = await httpClient.GetByteArrayAsync(attachment.Url);
                 var stream = new MemoryStream(bytes);
                 
-                fileAttachments.Add(new FileAttachment(stream, "SPOILER_" + attachment.Filename));
+                fileAttachments.Add(new FileAttachment(stream, attachment.Filename));
             } catch (Exception ex) {
                 Console.WriteLine(ex);
             }
