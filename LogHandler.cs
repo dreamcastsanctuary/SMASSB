@@ -240,6 +240,7 @@ public class LogHandler {
         var logChannel = guild.GetChannel(1482805129613938860) as ISocketMessageChannel;
         var msg = message.Value;
         var chnl = messageChannel.Value;
+        var author = msg.Author as SocketGuildUser;
 
         if (msg == null) {
             Console.WriteLine("Deleted message was not cached.");
@@ -254,7 +255,7 @@ public class LogHandler {
         }
 
         var embedBuilder = new EmbedBuilder()
-            .WithAuthor("|| " + msg.Author.Username, msg.Author.GetAvatarUrl())
+            .WithAuthor("|| " + author.Nickname, author.GetGuildAvatarUrl() ?? msg.Author.GetAvatarUrl())
             .WithTitle("❖﹒Message removed in <#" + chnl.Id + "> . .")
             .WithDescription(string.IsNullOrEmpty(msg.Content) ? "*No text content*" : msg.Content)
             .WithFooter(msg.Author.Id.ToString())
@@ -322,6 +323,7 @@ public class LogHandler {
         var channel = guild.GetChannel(1482805129613938860) as ISocketMessageChannel;
         var before = beforeMessage.Value;
         var after = afterMessage;
+        var author = before.Author as SocketGuildUser;
         
         if (before == null) {
             Console.WriteLine("Changed message was not cached.");
@@ -333,7 +335,7 @@ public class LogHandler {
         if (before.Author.Id == 1477898638410911835) return;
         
         Embed embed = (new EmbedBuilder()
-            .WithAuthor("|| " + after.Author.Username , after.Author.GetAvatarUrl())
+            .WithAuthor("|| " + author.Nickname, author.GetGuildAvatarUrl() ?? after.Author.GetAvatarUrl())
             .WithTitle("❖﹒Message edited in <#" + messageChannel.Id + "> . .")
             .WithDescription("### BEFORE : \n" + before.Content + "\n\n### AFTER : \n" + after.Content)
             .WithFooter(after.Author.Id.ToString())
@@ -362,13 +364,13 @@ public class LogHandler {
     public async Task LogMassRemove(SocketSlashCommand command, int amount) {
         try {
             var guild = _client.GetGuild(command.GuildId.Value);
-            var user = command.User;
+            var user = command.User as  SocketGuildUser;
             var chnl = command.Channel;
             
             var channel = guild.GetChannel(1482805129613938860) as ISocketMessageChannel;
      
             Embed embed = (new EmbedBuilder()
-                .WithAuthor("|| " + user.Username, user.GetAvatarUrl())
+                .WithAuthor("|| " + user.Nickname, user.GetGuildAvatarUrl() ?? user.GetAvatarUrl())
                 .WithTitle("❖﹒Mass Message Removal")
                 .WithDescription(user.Mention + " removed **" + amount + "** messages in <#" + chnl.Id + ">.")
                 .WithFooter(user.Id.ToString())
