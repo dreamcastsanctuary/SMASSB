@@ -240,23 +240,41 @@ public class LogHandler {
         var logChannel = guild.GetChannel(1482805129613938860) as ISocketMessageChannel;
         var msg = message.Value;
         var chnl = messageChannel.Value;
-        
-        if (msg.Author.IsBot) return;
+        using var httpClient = new HttpClient();
         
         if (msg == null) {
             Console.WriteLine("Deleted message was not cached.");
             return;
         }
+        if (msg.Author.IsBot) return;
         
-        Embed embed = (new EmbedBuilder()
+        EmbedBuilder embedBuilder = new EmbedBuilder()
             .WithAuthor("|| " + msg.Author.Username , msg.Author.GetAvatarUrl())
             .WithTitle("❖﹒Message removed in #" + chnl.Name + " . .")
             .WithDescription(msg.Content)
             .WithFooter(msg.Author.Id.ToString())
             .WithCurrentTimestamp()
-            .WithColor(0xFF312C)).Build();
+            .WithColor(0xFF312C);
         
-        await logChannel.SendMessageAsync(embed: embed);
+        var fileAttachments = new List<FileAttachment>();
+
+        foreach (var attachment in msg.Attachments) {
+            try {
+                var bytes = await httpClient.GetByteArrayAsync(attachment.Url);
+                var stream = new MemoryStream(bytes);
+                fileAttachments.Add(new FileAttachment(stream, attachment.Filename));
+                embedBuilder.WithImageUrl("attachment://" + attachment.Filename);
+            } catch (Exception ex) {
+                Console.WriteLine(ex);
+            }
+        }
+
+        if (fileAttachments.Count > 0) {
+            await logChannel.SendFilesAsync(fileAttachments, embed: embedBuilder.Build());
+            foreach (var f in fileAttachments) f.Dispose();
+        } else {
+            await logChannel.SendMessageAsync(embed: embedBuilder.Build());
+        }
     }
     
     public async Task LogMessageUpdate(Cacheable<IMessage, ulong> beforeMessage, SocketMessage afterMessage, ISocketMessageChannel messageChannel, SocketGuild guild) {

@@ -320,7 +320,7 @@ public class CommandHandler {
             }
         }
         
-        if (reaction.MessageId is 1486206688137842800) { // syllabus
+        if (reaction.MessageId is 1493093435706703993) { // syllabus
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
 
@@ -333,7 +333,7 @@ public class CommandHandler {
                 }
             }
             
-        } else if (reaction.MessageId is 1486210194324324373) { // roles, personal
+        } else if (reaction.MessageId is 1493088668557115403) { // roles, personal
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
                     
@@ -358,7 +358,7 @@ public class CommandHandler {
                 }
             }
             
-        } else if (reaction.MessageId is 1486210196417019945) { // roles, pings
+        } else if (reaction.MessageId is 1493088669924462592) { // roles, pings
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
                     
@@ -440,7 +440,7 @@ public class CommandHandler {
             }
         }
 
-        if (reaction.MessageId is 1486206688137842800) { // syllabus
+        if (reaction.MessageId is 1493093435706703993) { // syllabus
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
 
@@ -453,7 +453,7 @@ public class CommandHandler {
                 }
             }
             
-        } else if (reaction.MessageId is 1486210194324324373) { // roles, personal
+        } else if (reaction.MessageId is 1493088668557115403) { // roles, personal
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
                     
@@ -477,7 +477,7 @@ public class CommandHandler {
                         break;
                 }
             }
-        } else if (reaction.MessageId is 1486210196417019945) { // roles, pings
+        } else if (reaction.MessageId is 1493088669924462592) { // roles, pings
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
                     
