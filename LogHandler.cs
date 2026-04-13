@@ -275,7 +275,7 @@ public class LogHandler {
             try {
                 if (attachment.Size > 8 * 1024 * 1024) {
                     await logChannel.SendMessageAsync(
-                        $"Attachment too large to log! : `{attachment.Filename}` ({attachment.Size / 1024 / 1024}MB)");
+                        $"Attachment too large to log! : `{attachment.Filename}` ({attachment.Size / 1024 / 1024}MB) [O__G LIN__K]({attachment.Url}");
                     continue;
                 }
 
