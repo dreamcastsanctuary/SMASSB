@@ -109,10 +109,10 @@ public class DatabaseService
 
                 return "This user was " + await GetUClaim(userId) + "before, had ***" + await GetUPoints(userId) +
                        "*** points, and was ranked ***" + await GetURank(userId) +
-                       "***.\nRanks, points, automatically, anything else can be done by the student / faculty.";
+                       "***.\nRanks, points, automatically, anything else can be done by the enlistee / staff.";
             }
         }
-        return "This user was not enrolled fully!";
+        return "This user was not enlisted fully!";
     }
 
     private async Task<int> GetUPoints(ulong userId) {

@@ -156,7 +156,7 @@ public class LogHandler {
                 // else { ordinal = "th"; }
                 
                 Embed embed = (new EmbedBuilder()
-                    .WithAuthor("Welcome to the Sangō Military-Idol Academy!")
+                    .WithAuthor("Welcome to the Sangō Idol-Defense Force!")
                     .WithThumbnailUrl(user.GetAvatarUrl())
                     .WithDescription("Step right in, we've been waiting for you. || <:sango_emblem_mono:1492222638980989138>\n\n✦ Grab your https://discord.com/channels/1471660035854569505/1473208251100299337, read it *f__ront to bac__k*!\n✦ Tell us more about yourself in https://discord.com/channels/1471660035854569505/1473208770216591422.")
                     .WithColor(color)

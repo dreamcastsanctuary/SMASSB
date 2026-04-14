@@ -46,9 +46,9 @@ public class RoleSystem {
         
         await civilian.ModifyAsync(x => x.Nickname = "Kō. " + claim);
 
-        await command.RespondAsync("Processing Student into Database . . .");
+        await command.RespondAsync("Processing Prospect into Database . . .");
         await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Kōhosei",0,"N/A","Go Strike!", civilian.Username);
-        await UserExtensions.SendMessageAsync(civilian, "Welcome to SMA, **Kō. " + claim + "**! We're very happy to have you.\nYour first event *must* be of type **SCS101**. Please be on the lookout for it.");
+        await UserExtensions.SendMessageAsync(civilian, "Welcome to SANGŌ, **Kō. " + claim + "**! We're very happy to have you.\nYour first event *must* be of type **CIVT101**. Please be on the lookout for it.");
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
@@ -91,42 +91,42 @@ public class RoleSystem {
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandlePromoteCommand(SocketSlashCommand command) {
 
-        List<SocketGuildUser> students = new List<SocketGuildUser>();
+        List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
         IRole addedRank = null; IRole addedRankCategory = null; IRole removedRank = null; IRole removedRankCategory = null;
         
         foreach (var option in command.Data.Options)
         {
             switch (option.Name) {
                 
-                case "student1":
-                    students.Add(((SocketGuildUser)option.Value));
+                case "enlisted1":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
                     break;
-                case "student2":
-                    students.Add(((SocketGuildUser)option.Value));
+                case "enlisted2":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
                     break;
-                case "student3":
-                    students.Add(((SocketGuildUser)option.Value));
+                case "enlisted3":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
                     break;
-                case "student4":
-                    students.Add(((SocketGuildUser)option.Value));
+                case "enlisted4":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
                     break;
-                case "student5":
-                    students.Add(((SocketGuildUser)option.Value));
+                case "enlisted5":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
                     break;
-                case "student6":
-                    students.Add(((SocketGuildUser)option.Value));
+                case "enlisted6":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
                     break;
-                case "student7":
-                    students.Add(((SocketGuildUser)option.Value));
+                case "enlisted7":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
                     break;
-                case "student8":
-                    students.Add(((SocketGuildUser)option.Value));
+                case "enlisted8":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
                     break;
-                case "student9":
-                    students.Add(((SocketGuildUser)option.Value));
+                case "enlisted9":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
                     break;
-                case "student10":
-                    students.Add(((SocketGuildUser)option.Value));
+                case "enlisted10":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
                     break;
                 case "add_rank":
                     addedRank = (IRole)option.Value;
@@ -147,18 +147,18 @@ public class RoleSystem {
         }
 
         if (addedRank != null) {
-            foreach (SocketGuildUser student in students) {
+            foreach (SocketGuildUser enlisted in enlisteds) {
                 
-                await student.AddRoleAsync(addedRank);
+                await enlisted.AddRoleAsync(addedRank);
                 if (addedRankCategory != null) {
-                    await student.AddRoleAsync(addedRankCategory);
+                    await enlisted.AddRoleAsync(addedRankCategory);
                 } if (removedRank != null) {
-                    await student.RemoveRoleAsync(removedRank);
+                    await enlisted.RemoveRoleAsync(removedRank);
                 } if (removedRankCategory != null) {
-                    await student.RemoveRoleAsync(removedRankCategory);
+                    await enlisted.RemoveRoleAsync(removedRankCategory);
                 }
 
-                await Promote(student, addedRank);
+                await Promote(enlisted, addedRank);
             }
         }
         command.RespondAsync("Completed task.", ephemeral: true);
@@ -195,12 +195,12 @@ public class RoleSystem {
             return;
         }
 
-        await command.RespondAsync("Processing Student into Database . . .");
+        await command.RespondAsync("Processing Prospect into Database . . .");
         await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, rank,0,"N/A","Go Strike!", civilian.Username); 
     }
 
-    private async Task Promote(SocketGuildUser student, IRole rank) {
-        string nickname = student.Nickname;
+    private async Task Promote(SocketGuildUser enlisted, IRole rank) {
+        string nickname = enlisted.Nickname;
         string rankName = rank.Name;
 
         int dotIndex = rankName.IndexOf('.');
@@ -209,8 +209,8 @@ public class RoleSystem {
         int spaceIndex = nickname.IndexOf(' ');
         string claim = spaceIndex >= 0 ? nickname.Substring(spaceIndex + 1) : nickname;
 
-        await student.ModifyAsync(x => x.Nickname = fixedNick + " " + claim);
-        await _db.SetRank(student.Id, fixedRank);
+        await enlisted.ModifyAsync(x => x.Nickname = fixedNick + " " + claim);
+        await _db.SetRank(enlisted.Id, fixedRank);
     }
 
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]

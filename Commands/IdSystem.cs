@@ -104,7 +104,7 @@ public class IdSystem {
             ipc.DrawText($"{catchphrase}", font, golden, catchphrasePos);
             ipc.DrawText($"{date:M/d/yyyy}", font, golden, datePos);
             if (rank.Contains("taru")) {
-                rank = "Bakuryō-chō\ntaru Gakuchō";
+                rank = "Bakuryōchō\ntaru Onchō";
                 ipc.DrawText($"{rank}", fontRank, golden, rankPos);
             } else {
                 ipc.DrawText($"{rank}", font, golden, rankPos);
@@ -222,9 +222,9 @@ public class IdSystem {
         clone.Save(output);
         
         if (member != command.User) {
-            await UserExtensions.SendFileAsync(member, output, "Here you are, your brand new Student ID!");
+            await UserExtensions.SendFileAsync(member, output, "Here you are, your brand new Idol ID!");
         } else {
-            await channel.SendFileAsync(output, "Loaded Student ID . . !"); 
+            await channel.SendFileAsync(output, "Loaded Idol ID . . !"); 
         }
         
         File.Delete(output);
@@ -233,7 +233,7 @@ public class IdSystem {
     [DefaultMemberPermissions(GuildPermission.CreatePublicThreads)]
     public async Task EditId(SocketSlashCommand command, DiscordSocketClient client) {
 
-        SocketGuildUser student = (SocketGuildUser)command.User;
+        SocketGuildUser enlisted = (SocketGuildUser)command.User;
         string claim = null;
         string avatarUrl = null;
         string catchphrase = null;
@@ -258,39 +258,39 @@ public class IdSystem {
             }
         }
         
-        await _db.SetClaim(student.Id, claim);
-        await _db.SetAvatarUrl(student.Id, avatarUrl);
-        await _db.SetBloodtype(student.Id, bloodtype);
+        await _db.SetClaim(enlisted.Id, claim);
+        await _db.SetAvatarUrl(enlisted.Id, avatarUrl);
+        await _db.SetBloodtype(enlisted.Id, bloodtype);
         
-        string claimParam = await _db.GetClaim(student.Id);
-        string avatarUrlParam = await _db.GetAvatarUrl(student.Id);
-        string accIdParam = student.Id.ToString();
-        DateTimeOffset dateParam = student.JoinedAt ?? student.CreatedAt;
-        string rankParam = await _db.GetRank(student.Id);
-        int pointsParam = await _db.GetPoints(student.Id);
-        string bloodtypeParam = await _db.GetBloodtype(student.Id);
-        string usernameParam = await _db.GetUsername(student.Id);
+        string claimParam = await _db.GetClaim(enlisted.Id);
+        string avatarUrlParam = await _db.GetAvatarUrl(enlisted.Id);
+        string accIdParam = enlisted.Id.ToString();
+        DateTimeOffset dateParam = enlisted.JoinedAt ?? enlisted.CreatedAt;
+        string rankParam = await _db.GetRank(enlisted.Id);
+        int pointsParam = await _db.GetPoints(enlisted.Id);
+        string bloodtypeParam = await _db.GetBloodtype(enlisted.Id);
+        string usernameParam = await _db.GetUsername(enlisted.Id);
         
-        await command.RespondAsync("Loading Student ID . .", ephemeral: true);
-        await BuildId(command, student, claimParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam);
+        await command.RespondAsync("Loading Idol ID . .", ephemeral: true);
+        await BuildId(command, enlisted, claimParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam);
 
     }
     
     [DefaultMemberPermissions(GuildPermission.CreatePublicThreads)]
     public async Task ShowId(SocketSlashCommand command, DiscordSocketClient client) {
         
-        SocketGuildUser student = (SocketGuildUser)command.User;
+        SocketGuildUser enlisted = (SocketGuildUser)command.User;
         
-        string claimParam = await _db.GetClaim(student.Id);
-        string avatarUrlParam = await _db.GetAvatarUrl(student.Id);
-        string accIdParam = student.Id.ToString();
-        DateTimeOffset dateParam = student.JoinedAt ?? student.CreatedAt;
-        string rankParam = await _db.GetRank(student.Id);
-        int pointsParam = await _db.GetPoints(student.Id);
-        string bloodtypeParam = await _db.GetBloodtype(student.Id);
-        string usernameParam = await _db.GetUsername(student.Id);
+        string claimParam = await _db.GetClaim(enlisted.Id);
+        string avatarUrlParam = await _db.GetAvatarUrl(enlisted.Id);
+        string accIdParam = enlisted.Id.ToString();
+        DateTimeOffset dateParam = enlisted.JoinedAt ?? enlisted.CreatedAt;
+        string rankParam = await _db.GetRank(enlisted.Id);
+        int pointsParam = await _db.GetPoints(enlisted.Id);
+        string bloodtypeParam = await _db.GetBloodtype(enlisted.Id);
+        string usernameParam = await _db.GetUsername(enlisted.Id);
         
-        await command.RespondAsync("Loading Student ID . .", ephemeral: true);
-        await BuildId(command, student, claimParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam);
+        await command.RespondAsync("Loading Idol ID . .", ephemeral: true);
+        await BuildId(command, enlisted, claimParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam);
     }
 }

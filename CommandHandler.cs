@@ -44,7 +44,7 @@ public class CommandHandler {
         commands.Add(new SlashCommandBuilder()
             .WithName("rewardko")
             .WithDescription("Rewards a kohosei a specific item / document.")
-            .AddOption("student1", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: true).AddOption("student2", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student3", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student4", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student5", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student6", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student7", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student8", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student9", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student10", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false)
+            .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
             .AddOption(new SlashCommandOptionBuilder()
                 .WithName("item").WithDescription("The specific item / document that is to be rewarded.")
                 .WithRequired(true)
@@ -54,12 +54,12 @@ public class CommandHandler {
 
         commands.Add(new SlashCommandBuilder()
             .WithName("rewardaccomp")
-            .WithDescription("Gives a student a specific award after achieving an accomplishment.")
-            .AddOption("student", ApplicationCommandOptionType.User, "The name of the student.", isRequired: true)
+            .WithDescription("Gives a enlisted a specific award after achieving an accomplishment.")
+            .AddOption("enlisted", ApplicationCommandOptionType.User, "The name of the enlisted.", isRequired: true)
             .AddOption(new SlashCommandOptionBuilder()
                 .WithName("item").WithDescription("The specific item / document that is to be rewarded.")
                 .WithRequired(true)
-                .AddChoice("TransferStudent", 1).AddChoice("Supporter", 2).AddChoice("HighScouter", 3).AddChoice("MAXScouter",4)
+                .AddChoice("Transfer", 1).AddChoice("Supporter", 2).AddChoice("HighScouter", 3).AddChoice("MAXScouter",4)
                 .AddChoice("PerfectPitch", 5).AddChoice("WorldClassIdol", 6)
                 .AddChoice("HonorsCollegeI", 7).AddChoice("HonorsCollegeII", 8).AddChoice("Rebirth", 9)
                 .WithType(ApplicationCommandOptionType.Integer))
@@ -97,15 +97,15 @@ public class CommandHandler {
 
         commands.Add(new SlashCommandBuilder()
             .WithName("preenlist")
-            .WithDescription("Pre-enlists a civilian into a prospective student; to be used during in-server uniform check.")
+            .WithDescription("Pre-enlists a civilian into a prospect; to be used during in-server uniform check.")
             .AddOption("civilian", ApplicationCommandOptionType.User, "The @ of the civilian.", isRequired: true)
             .AddOption("claim_name", ApplicationCommandOptionType.String, "The claim name of the civilian.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("enlist")
-            .WithDescription("Enlists a kōhosei into a student.")
-            .AddOption("kōhosei", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: true)
+            .WithDescription("Enlists a kōhosei into a enlisted.")
+            .AddOption("kōhosei", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
         commands.Add(new SlashCommandBuilder()
@@ -124,21 +124,21 @@ public class CommandHandler {
         
         commands.Add(new SlashCommandBuilder()
             .WithName("promote")
-            .WithDescription("Promotes the given list of students to the specific rank.")
+            .WithDescription("Promotes the given list of enlisteds to the specific rank.")
             .AddOption("add_rank", ApplicationCommandOptionType.Role, "The role to be given.", isRequired: true).AddOption("add_rank_category", ApplicationCommandOptionType.Role, "If needed, the next rank category (IE: Enlisted, Non-Commissioned Officer, etc.", isRequired: false)
             .AddOption("remove_rank", ApplicationCommandOptionType.Role, "The role to be taken away.", isRequired: true).AddOption("remove_rank_category", ApplicationCommandOptionType.Role, "If needed, the previous rank category (IE: Enlisted, Non-Commissioned Officer, etc.", isRequired: false)
-            .AddOption("student1", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: true).AddOption("student2", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student3", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student4", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student5", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student6", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student7", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student8", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student9", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false).AddOption("student10", ApplicationCommandOptionType.User, "The @ of the student.", isRequired: false)
+            .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         // IDSYSTEM.
         
         commands.Add(new SlashCommandBuilder()
             .WithName("showid")
-            .WithDescription("Shows your School ID."));
+            .WithDescription("Shows your Idol ID."));
 
         commands.Add(new SlashCommandBuilder()
             .WithName("editid")
-            .WithDescription("Edits your School ID and displays it.")
+            .WithDescription("Edits your Idol ID and displays it.")
             .AddOption("claim", ApplicationCommandOptionType.String, "The name of the claim / character.", isRequired: false)
             .AddOption("avatar_url", ApplicationCommandOptionType.String, "The profile of the member / character.", isRequired: false)
             .AddOption(new SlashCommandOptionBuilder()
@@ -320,7 +320,7 @@ public class CommandHandler {
             }
         }
         
-        if (reaction.MessageId is 1493093435706703993) { // syllabus
+        if (reaction.MessageId is 1493093435706703993) { // roe
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
 
@@ -440,7 +440,7 @@ public class CommandHandler {
             }
         }
 
-        if (reaction.MessageId is 1493093435706703993) { // syllabus
+        if (reaction.MessageId is 1493093435706703993) { // roe
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
 
@@ -558,7 +558,7 @@ public class CommandHandler {
                     if ((isUnenlistedProspect || isCivilian) && isInactive) {
                         try {
                             
-                            await UserExtensions.SendMessageAsync(user, "Hello! This is the *Automatic Messaging System* at the Sangō Military-Idol Academy.\n\nWe are messaging you in regards to your activity. As outlined in our syllabus, prospective students and civilians (who are NOT fans) are to be kicked from the server in the case that they are inactive for more than 2 months in order to keep member counts accurate.\nWe thank you for attempting to experience Sangō! If you feel this is a mistake, please friend request and send a message to @fastestthingalive in order to regain access to the server. If it is not, yet you still wish to join back, please give yourself a week or so and do as previously instructed. Just to make sure you *really* want to!\n\nPlease have a good day, " + user.Username + "!\n\n— The Faculty at SMA");
+                            await UserExtensions.SendMessageAsync(user, "Hello! This is the *Automatic Messaging System* at the Sangō Idol-Defense Force.\n\nWe are messaging you in regards to your activity. As outlined in our syllabus, prospects and civilians (who are NOT fans) are to be kicked from the server in the case that they are inactive for more than 2 months in order to keep member counts accurate.\nWe thank you for attempting to experience Sangō! If you feel this is a mistake, please friend request and send a message to @fastestthingalive in order to regain access to the server. If it is not, yet you still wish to join back, please give yourself a week or so and do as previously instructed. Just to make sure you *really* want to!\n\nPlease have a good day, " + user.Username + "!\n\n— The Staff at SANGŌ");
                             await UserExtensions.SendFileAsync(user,"https://64.media.tumblr.com/51b15f41ee5f58c722ebac09ae3d165e/6a794ae0ea17c706-cc/s2048x3072/39b7a663a13e95d68c46239534bea85f9e008f26.pnj");
                             await Task.Delay(1500); 
                             await user.KickAsync("Inactive for 2+ months");
