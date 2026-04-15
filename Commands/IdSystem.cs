@@ -17,8 +17,16 @@ public class IdSystem {
     private DatabaseService _db;
     private static readonly HttpClient _httpClient = new HttpClient();
     
+    static IdSystem() {
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        );
+        _httpClient.DefaultRequestHeaders.Referrer = new Uri("https://www.tumblr.com/");
+    }
+    
     public IdSystem(DatabaseService db) {
         _db = db;
+        
     }
 
     public static async Task BuildId(SocketSlashCommand command,
@@ -32,10 +40,6 @@ public class IdSystem {
                                      string bloodtypeParam,
                                      string catchphraseParam,
                                      string usernameParam) {
-        
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        );
         
         var fontCollection = new FontCollection();
         var fontPath = Path.Combine(AppContext.BaseDirectory, "Fonts", "MonaspaceArgon-Bold.otf");
