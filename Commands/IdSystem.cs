@@ -40,8 +40,11 @@ public class IdSystem {
         var font = fontFamily.CreateFont(50);
         var fontId = fontFamily.CreateFont(35);
         var fontRank = fontFamily.CreateFont(35);
+        
         var imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "id-template.png");
         var idImg = Image.Load(imgPath);
+        var background = new Image<Rgba32>(idImg.Width, idImg.Height, new Rgba32(0, 0, 0, 255));
+        background.Mutate(x => x.DrawImage(idImg, new Point(0, 0), 1f));
         
         string sizedAvatarUrl = avatarUrlParam + "?size=4096";
         var avatarBytes = await _httpClient.GetByteArrayAsync(sizedAvatarUrl);
