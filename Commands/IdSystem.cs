@@ -101,7 +101,7 @@ public class IdSystem {
         if (roleIds.Contains(1475899269335744564)) badgesToDraw.Add((LoadBadges("badge8.png", 135, 135), new Point(1427, 626)));
         if (roleIds.Contains(1477926845184872531)) badgesToDraw.Add((LoadBadges("badge9.png", 135, 135), new Point(1520, 600)));
         
-        var clone = idImg.Clone(ipc => {
+        var clone = background.Clone(ipc => {
             
             ipc.DrawImage(avatar, avatarPos, 1);
             ipc.DrawImage(redBarcode, barcodePos, 1);
