@@ -121,6 +121,7 @@ public class LogHandler {
     }
     
     public async Task LogUserJoined(SocketGuildUser user, SocketGuild guild) {
+        
         try {
             var welcomeChannel = _client.GetChannel(1473208226278408275) as ISocketMessageChannel;
             var logChannel = guild.GetChannel(1482805129613938860) as ISocketMessageChannel;
@@ -179,6 +180,8 @@ public class LogHandler {
         } catch (Exception e) {
             Console.WriteLine(e);
         }
+        
+        await user.AddRolesAsync([1473369716792885402, 1473370059950002318, 1473370439526125599, 1473371454790832304]);
     }
 
     public async Task LogMemberLeft(SocketGuild guild, SocketUser user) {
