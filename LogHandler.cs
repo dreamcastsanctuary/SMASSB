@@ -411,7 +411,7 @@ public class LogHandler {
         if (channelId == null) return;
         if (guild.GetChannel(channelId.Value) is SocketVoiceChannel channel) {
             memberCount ??= guild.Users.Count(u => !u.IsBot);
-            var expectedName = $"✦ idols : {memberCount}";
+            var expectedName = $"✦ idols : {memberCount} !";
             
             if (channel.Name == expectedName) return;
             
