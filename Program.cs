@@ -11,6 +11,7 @@ public class Program {
     private CommandHandler _commandHandler;
     private LogHandler _logHandler;
     private static IServiceProvider _serviceProvider;
+    private Dictionary<string, int> _inviteCache = new();
 
     public static async Task Main()
         => await new Program().RunAsync();
@@ -30,6 +31,9 @@ public class Program {
         _client.Ready += async () => {
             
             var guild = _client.GetGuild(_guildId); 
+            var invites = await guild.GetInvitesAsync();
+            _inviteCache = invites.ToDictionary(i => i.Code, i => i.Uses ?? 0);
+            
             _client.ReactionAdded += async (cache, channel, reaction) => { await _commandHandler.ReactionAddedHandler(guild, cache, channel, reaction); };
             _client.ReactionRemoved += async (cache, channel, reaction) => { await _commandHandler.ReactionRemovedHandler(guild, cache, channel, reaction); };
             _client.UserVoiceStateUpdated += async (user, before, after) => await _commandHandler.VoiceStateUpdatedAsync(user, before, after, guild);
@@ -37,7 +41,7 @@ public class Program {
             
             _client.GuildMemberUpdated += async (before, after) => await _logHandler.LogMemberUpdate(before, after, guild);
             _client.InviteCreated += async (invite) => await _logHandler.LogInvite(invite, guild);
-            _client.UserJoined += async (user) => await _logHandler.LogUserJoined(user, guild);
+            _client.UserJoined += async (user) => await _logHandler.LogUserJoined(user, guild, _inviteCache);
             _client.UserLeft += async (userGuild, user) => await _logHandler.LogMemberLeft(userGuild, user);
             _client.UserBanned += async (user, userGuild) => await _logHandler.LogMemberBanned(user, userGuild);
             _client.MessageDeleted += async (message, messageChannel) => await _logHandler.LogMessageDelete(message, messageChannel, guild);

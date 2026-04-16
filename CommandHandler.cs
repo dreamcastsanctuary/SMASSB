@@ -320,7 +320,7 @@ public class CommandHandler {
             }
         }
         
-        if (reaction.MessageId is 1493093435706703993) { // roe
+        if (reaction.MessageId is 1494398646035156992) { // roe
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
 
@@ -440,7 +440,7 @@ public class CommandHandler {
             }
         }
 
-        if (reaction.MessageId is 1493093435706703993) { // roe
+        if (reaction.MessageId is 1494398646035156992) { // roe
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
 
@@ -558,8 +558,7 @@ public class CommandHandler {
                     if ((isUnenlistedProspect || isCivilian) && isInactive) {
                         try {
                             
-                            await UserExtensions.SendMessageAsync(user, "Hello! This is the *Automatic Messaging System* at the Sangō Idol-Defense Force.\n\nWe are messaging you in regards to your activity. As outlined in our syllabus, prospects and civilians (who are NOT fans) are to be kicked from the server in the case that they are inactive for more than 2 months in order to keep member counts accurate.\nWe thank you for attempting to experience Sangō! If you feel this is a mistake, please friend request and send a message to @fastestthingalive in order to regain access to the server. If it is not, yet you still wish to join back, please give yourself a week or so and do as previously instructed. Just to make sure you *really* want to!\n\nPlease have a good day, " + user.Username + "!\n\n— The Staff at SANGŌ");
-                            await UserExtensions.SendFileAsync(user,"https://64.media.tumblr.com/51b15f41ee5f58c722ebac09ae3d165e/6a794ae0ea17c706-cc/s2048x3072/39b7a663a13e95d68c46239534bea85f9e008f26.pnj");
+                            await UserExtensions.SendMessageAsync(user, "Hello! This is the *Automatic Messaging System* at the Sangō Idol-Defense Force.\n\n... \n\nhttps://64.media.tumblr.com/51b15f41ee5f58c722ebac09ae3d165e/6a794ae0ea17c706-cc/s2048x3072/39b7a663a13e95d68c46239534bea85f9e008f26.pnj");
                             await Task.Delay(1500); 
                             await user.KickAsync("Inactive for 2+ months");
                             await Task.Delay(1000); 

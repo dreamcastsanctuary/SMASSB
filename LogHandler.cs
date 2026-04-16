@@ -120,16 +120,25 @@ public class LogHandler {
         }
     }
     
-    public async Task LogUserJoined(SocketGuildUser user, SocketGuild guild) {
+    public async Task LogUserJoined(SocketGuildUser user, SocketGuild guild, Dictionary<string, int> inviteCache) {
         
         try {
             var welcomeChannel = _client.GetChannel(1473208226278408275) as ISocketMessageChannel;
             var logChannel = guild.GetChannel(1482805129613938860) as ISocketMessageChannel;
+            var newInvites = await guild.GetInvitesAsync();
+            var usedInvite = newInvites.FirstOrDefault(newInv =>
+                inviteCache.TryGetValue(newInv.Code, out int oldUses) &&
+                newInv.Uses > oldUses
+            );
+            
+            inviteCache = newInvites.ToDictionary(i => i.Code, i => i.Uses ?? 0);
                 
             Random rnd = new Random();
             int random = rnd.Next(0, 3);
             Color color;
-
+            
+            var embedBuilder = new EmbedBuilder();
+            
             switch (random) {
                 
                 case 0:
@@ -145,6 +154,30 @@ public class LogHandler {
                     color = 0xFF312C;
                     break;
             }
+            
+            if (usedInvite != null) {
+                if (usedInvite.Code == "SjtaFZDqWp") {
+                    
+                    embedBuilder = new EmbedBuilder()
+                        .WithAuthor("Welcome to the Sangō Idol-Defense Force!")
+                        .WithThumbnailUrl(user.GetAvatarUrl())
+                        .WithDescription("So, you're here to watch us, right? || <:sango_emblem_mono:1492222638980989138>\n\n✦ Head down to our voice channel and join! There's no time to waste!\n✦ After you're done, read https://discord.com/channels/1471660035854569505/1473208251100299337 and grab yourself some roles here! -> https://discord.com/channels/1471660035854569505/1473208770216591422.")
+                        .WithColor(color)
+                        .WithImageUrl("https://64.media.tumblr.com/9ff44cc9eefff3ebc32bb2dd6424071f/6a794ae0ea17c706-b9/s2048x3072/4038508ea9f2a1eb9787108100babedadae1306d.pnj")
+                        .WithFooter("『 太陽はまた昇る！GO STRIKE! 』");
+
+                    await user.AddRoleAsync(1475720710910382310);
+                }
+                else {
+                    embedBuilder = new EmbedBuilder()
+                        .WithAuthor("Welcome to the Sangō Idol-Defense Force!")
+                        .WithThumbnailUrl(user.GetAvatarUrl())
+                        .WithDescription("Step right in, we've been waiting for you. || <:sango_emblem_mono:1492222638980989138>\n\n✦ Grab your https://discord.com/channels/1471660035854569505/1473208251100299337, read it *f__ront to bac__k*!\n✦ Tell us more about yourself in https://discord.com/channels/1471660035854569505/1473208770216591422.")
+                        .WithColor(color)
+                        .WithImageUrl("https://64.media.tumblr.com/51b15f41ee5f58c722ebac09ae3d165e/6a794ae0ea17c706-cc/s2048x3072/39b7a663a13e95d68c46239534bea85f9e008f26.pnj")
+                        .WithFooter("『 太陽はまた昇る！GO STRIKE! 』");
+                }
+            }
 
             if (welcomeChannel != null) {
                 
@@ -156,13 +189,7 @@ public class LogHandler {
                 // else if ( memberCount % 10 == 3) { ordinal = "rd"; }
                 // else { ordinal = "th"; }
                 
-                Embed embed = (new EmbedBuilder()
-                    .WithAuthor("Welcome to the Sangō Idol-Defense Force!")
-                    .WithThumbnailUrl(user.GetAvatarUrl())
-                    .WithDescription("Step right in, we've been waiting for you. || <:sango_emblem_mono:1492222638980989138>\n\n✦ Grab your https://discord.com/channels/1471660035854569505/1473208251100299337, read it *f__ront to bac__k*!\n✦ Tell us more about yourself in https://discord.com/channels/1471660035854569505/1473208770216591422.")
-                    .WithColor(color)
-                    .WithImageUrl("https://64.media.tumblr.com/51b15f41ee5f58c722ebac09ae3d165e/6a794ae0ea17c706-cc/s2048x3072/39b7a663a13e95d68c46239534bea85f9e008f26.pnj")
-                    .WithFooter("『 太陽はまた昇る！GO STRIKE! 』")).Build();
+                Embed embed = embedBuilder.Build();
                 
                 await welcomeChannel.SendMessageAsync(embed: embed);
             }
