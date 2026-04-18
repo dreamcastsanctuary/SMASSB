@@ -555,9 +555,14 @@ public class CommandHandler {
                     
                     bool isUnenlistedProspect = user.RoleIds.Contains((ulong)1473369383471677461) && !user.RoleIds.Contains((ulong)1475720710910382310);
                     bool isCivilian = user.RoleIds.Contains((ulong)1473369036766052445);
-                    bool isUnverified = guildUser.Roles.All(r => r.IsEveryone);
                     bool isInactive = user.JoinedAt < DateTimeOffset.Now.AddMinutes(-5);
                 
+                    ulong[] unverifiedRoles = [1473369716792885402, 1473370059950002318, 1473370439526125599, 1473371454790832304];
+
+                    bool isUnverified = guildUser.Roles
+                        .Where(r => !r.IsEveryone)
+                        .All(r => unverifiedRoles.Contains(r.Id));
+                    
                     if ((isUnenlistedProspect || isCivilian || isUnverified) && isInactive) {
                         try {
                             
