@@ -551,11 +551,14 @@ public class CommandHandler {
             await foreach (var members in collection) {
                 foreach (var user in members) {
                 
+                    var guildUser = user as SocketGuildUser;
+                    
                     bool isUnenlistedProspect = user.RoleIds.Contains((ulong)1473369383471677461) && !user.RoleIds.Contains((ulong)1475720710910382310);
                     bool isCivilian = user.RoleIds.Contains((ulong)1473369036766052445);
-                    bool isInactive = user.JoinedAt < DateTimeOffset.Now.AddMonths(-2);
+                    bool isUnverified = guildUser.Roles.All(r => r.IsEveryone);
+                    bool isInactive = user.JoinedAt < DateTimeOffset.Now.AddMinutes(-5);
                 
-                    if ((isUnenlistedProspect || isCivilian) && isInactive) {
+                    if ((isUnenlistedProspect || isCivilian || isUnverified) && isInactive) {
                         try {
                             
                             await UserExtensions.SendMessageAsync(user, "Hello! This is the *Automatic Messaging System* at the Sangō Idol-Defense Force.\n\n... \n\nhttps://64.media.tumblr.com/51b15f41ee5f58c722ebac09ae3d165e/6a794ae0ea17c706-cc/s2048x3072/39b7a663a13e95d68c46239534bea85f9e008f26.pnj");
