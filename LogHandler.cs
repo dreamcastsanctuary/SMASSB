@@ -132,6 +132,11 @@ public class LogHandler {
                 newInv.Uses > oldUses
             );
             
+            foreach (var inv in newInvites)
+                Console.WriteLine($">>>>>>>>>>>>>>>>> New invite snapshot: {inv.Code} ({inv.Uses} uses)");
+            foreach (var kv in inviteCache)
+                Console.WriteLine($"\">>>>>>>>>>>>>>>>> Cached: {kv.Key} ({kv.Value} uses)");
+            
             Random rnd = new Random();
             int random = rnd.Next(0, 3);
             Color color;
@@ -214,10 +219,6 @@ public class LogHandler {
             
             await logChannel.SendMessageAsync(embed: logEmbed);
             await UpdateStatChannel(guild);
-            foreach (var inv in newInvites)
-                Console.WriteLine($">>>>>>>>>>>>>>>>> New invite snapshot: {inv.Code} ({inv.Uses} uses)");
-            foreach (var kv in inviteCache)
-                Console.WriteLine($"\">>>>>>>>>>>>>>>>> Cached: {kv.Key} ({kv.Value} uses)");
         } catch (Exception e) {
             Console.WriteLine(e);
         }
