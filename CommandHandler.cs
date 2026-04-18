@@ -320,7 +320,7 @@ public class CommandHandler {
             }
         }
         
-        if (reaction.MessageId is 1494398646035156992) { // roe
+        if (reaction.MessageId is 1495182123924197396) { // roe
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
 
@@ -440,7 +440,7 @@ public class CommandHandler {
             }
         }
 
-        if (reaction.MessageId is 1494398646035156992) { // roe
+        if (reaction.MessageId is 1495182123924197396) { // roe
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
 
