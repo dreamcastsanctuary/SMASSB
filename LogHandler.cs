@@ -1,4 +1,5 @@
-﻿using System.Drawing.Printing;
+﻿using System.Collections.Concurrent;
+using System.Drawing.Printing;
 using Discord;
 using Discord.WebSocket;
 using SixLabors.ImageSharp;
@@ -121,7 +122,7 @@ public class LogHandler {
         }
     }
     
-    public async Task LogUserJoined(SocketGuildUser user, SocketGuild guild, Dictionary<string, int> inviteCache, IReadOnlyCollection<IInviteMetadata> newInvites) {
+    public async Task LogUserJoined(SocketGuildUser user, SocketGuild guild, ConcurrentDictionary<string, int> inviteCache, IReadOnlyCollection<IInviteMetadata> newInvites) {
         
         try {
             var welcomeChannel = _client.GetChannel(1473208226278408275) as ISocketMessageChannel;

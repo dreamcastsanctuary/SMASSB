@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using System.Collections.Concurrent;
+using Discord;
 using Discord.WebSocket;
 using SMASSB.Commands;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,8 +12,7 @@ public class Program {
     private CommandHandler _commandHandler;
     private LogHandler _logHandler;
     private static IServiceProvider _serviceProvider;
-    private Dictionary<string, int> _inviteCache = new();
-    private bool _handlersRegistered = false;
+    private ConcurrentDictionary<string, int> _inviteCache = new();
 
     public static async Task Main()
         => await new Program().RunAsync();
@@ -33,11 +33,12 @@ public class Program {
     
         var guild = _client.GetGuild(_guildId); 
         var invites = await guild.GetInvitesAsync();
-        _inviteCache = invites.ToDictionary(i => i.Code, i => i.Uses ?? 0);
+        _inviteCache = new ConcurrentDictionary<string, int>(
+            invites.ToDictionary(i => i.Code, i => i.Uses ?? 0)
+        );
         
-        if (!_handlersRegistered) {
-            _handlersRegistered = true;
-        }
+        foreach (var inv in invites)
+            Console.WriteLine($"Cached invite: {inv.Code} ({inv.Uses} uses)");
         
         _client.ButtonExecuted += _commandHandler.ButtonHandler;
         _client.ReactionAdded += (cache, channel, reaction) => { _ = Task.Run(async () => await _commandHandler.ReactionAddedHandler(guild, cache, channel, reaction)); return Task.CompletedTask; };
@@ -45,12 +46,18 @@ public class Program {
         _client.UserVoiceStateUpdated += (user, before, after) => { _ = Task.Run(async () => await _commandHandler.VoiceStateUpdatedAsync(user, before, after, guild)); return Task.CompletedTask; };
 
         _client.GuildMemberUpdated += (before, after) => { _ = Task.Run(async () => await _logHandler.LogMemberUpdate(before, after, guild)); return Task.CompletedTask; };
-        _client.InviteCreated += (invite) => { _ = Task.Run(async () => await _logHandler.LogInvite(invite, guild)); return Task.CompletedTask; };
+        _client.InviteCreated += (invite) => { _ = Task.Run(async () =>
+        {
+            _inviteCache[invite.Code] = invite.Uses;
+            await _logHandler.LogInvite(invite, guild);
+        }); return Task.CompletedTask; };
         _client.UserJoined += (user) => {
             _ = Task.Run(async () => {
                 var newInvites = await guild.GetInvitesAsync();
                 await _logHandler.LogUserJoined(user, guild, _inviteCache, newInvites);
-                _inviteCache = newInvites.ToDictionary(i => i.Code, i => i.Uses ?? 0);
+                _inviteCache = new ConcurrentDictionary<string, int>(
+                    newInvites.ToDictionary(i => i.Code, i => i.Uses ?? 0)
+                );
             });
             return Task.CompletedTask;
         };
