@@ -183,7 +183,7 @@ public class LogHandler {
             //             .WithFooter("『 太陽はまた昇る！GO STRIKE! 』");
             //     }
             // } else {
-                Console.WriteLine(">>>>>>>>>>>>>>>> INVITE CACHE FAIL.");
+            //    Console.WriteLine(">>>>>>>>>>>>>>>> INVITE CACHE FAIL.");
                 
                 embedBuilder = new EmbedBuilder()
                     .WithAuthor("Welcome to the Sangō Idol-Defense Force!")
