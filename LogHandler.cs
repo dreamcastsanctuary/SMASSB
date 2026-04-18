@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using System.Drawing.Printing;
+using Discord;
 using Discord.WebSocket;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -153,6 +154,7 @@ public class LogHandler {
             }
             
             if (usedInvite != null) {
+                Console.WriteLine(">>>>>>>>>>>>>>>> INVITE CACHE SUCCEED.");
                 if (usedInvite.Code == "SjtaFZDqWp") {
                     
                     embedBuilder = new EmbedBuilder()
@@ -175,6 +177,8 @@ public class LogHandler {
                         .WithFooter("『 太陽はまた昇る！GO STRIKE! 』");
                 }
             } else {
+                Console.WriteLine(">>>>>>>>>>>>>>>> INVITE CACHE FAIL.");
+                
                 embedBuilder = new EmbedBuilder()
                     .WithAuthor("Welcome to the Sangō Idol-Defense Force!")
                     .WithThumbnailUrl(user.GetAvatarUrl())
