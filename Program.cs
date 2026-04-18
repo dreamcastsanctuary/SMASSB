@@ -12,6 +12,7 @@ public class Program {
     private LogHandler _logHandler;
     private static IServiceProvider _serviceProvider;
     private Dictionary<string, int> _inviteCache = new();
+    private bool _handlersRegistered = false;
 
     public static async Task Main()
         => await new Program().RunAsync();
@@ -29,37 +30,44 @@ public class Program {
         _client.Log += Log;
         
         _client.Ready += async () => {
-            
-            var guild = _client.GetGuild(_guildId); 
-            var invites = await guild.GetInvitesAsync();
-            _inviteCache = invites.ToDictionary(i => i.Code, i => i.Uses ?? 0);
-            
-            _client.ReactionAdded += async (cache, channel, reaction) => { await _commandHandler.ReactionAddedHandler(guild, cache, channel, reaction); };
-            _client.ReactionRemoved += async (cache, channel, reaction) => { await _commandHandler.ReactionRemovedHandler(guild, cache, channel, reaction); };
-            _client.UserVoiceStateUpdated += async (user, before, after) => await _commandHandler.VoiceStateUpdatedAsync(user, before, after, guild);
-            _client.ButtonExecuted += _commandHandler.ButtonHandler;
-            
-            _client.GuildMemberUpdated += async (before, after) => await _logHandler.LogMemberUpdate(before, after, guild);
-            _client.InviteCreated += async (invite) => await _logHandler.LogInvite(invite, guild);
-            _client.UserJoined += async (user) => {
+    
+        var guild = _client.GetGuild(_guildId); 
+        var invites = await guild.GetInvitesAsync();
+        _inviteCache = invites.ToDictionary(i => i.Code, i => i.Uses ?? 0);
+        
+        if (!_handlersRegistered) {
+            _handlersRegistered = true;
+        }
+        
+        _client.ButtonExecuted += _commandHandler.ButtonHandler;
+        _client.ReactionAdded += (cache, channel, reaction) => { _ = Task.Run(async () => await _commandHandler.ReactionAddedHandler(guild, cache, channel, reaction)); return Task.CompletedTask; };
+        _client.ReactionRemoved += (cache, channel, reaction) => { _ = Task.Run(async () => await _commandHandler.ReactionRemovedHandler(guild, cache, channel, reaction)); return Task.CompletedTask; };
+        _client.UserVoiceStateUpdated += (user, before, after) => { _ = Task.Run(async () => await _commandHandler.VoiceStateUpdatedAsync(user, before, after, guild)); return Task.CompletedTask; };
+
+        _client.GuildMemberUpdated += (before, after) => { _ = Task.Run(async () => await _logHandler.LogMemberUpdate(before, after, guild)); return Task.CompletedTask; };
+        _client.InviteCreated += (invite) => { _ = Task.Run(async () => await _logHandler.LogInvite(invite, guild)); return Task.CompletedTask; };
+        _client.UserJoined += (user) => {
+            _ = Task.Run(async () => {
                 var newInvites = await guild.GetInvitesAsync();
                 await _logHandler.LogUserJoined(user, guild, _inviteCache, newInvites);
                 _inviteCache = newInvites.ToDictionary(i => i.Code, i => i.Uses ?? 0);
-            };
-            _client.UserLeft += async (userGuild, user) => await _logHandler.LogMemberLeft(userGuild, user);
-            _client.UserBanned += async (user, userGuild) => await _logHandler.LogMemberBanned(user, userGuild);
-            _client.MessageDeleted += async (message, messageChannel) => await _logHandler.LogMessageDelete(message, messageChannel, guild);
-            _client.MessageUpdated += async (beforemessage, aftermessage, messageChannel) => await _logHandler.LogMessageUpdate(beforemessage, aftermessage, messageChannel, guild);
-            _client.WebhooksUpdated += async (userGuild, channel) => await _logHandler.LogWebhookUpdate(userGuild, channel);
-            
-            _ = Task.Run(async () => {
-                await _logHandler.CreateOrUpdateStatChannel(guild);
-                await _commandHandler.RegisterCommands(guild);
-                await _client.SetActivityAsync(new CustomStatusGame("Helping " +  guild.Users.Count(u => !u.IsBot) + " students..."));
-                _ = _commandHandler.KickUnEnlisted(guild);
             });
-            
+            return Task.CompletedTask;
         };
+        _client.UserLeft += (userGuild, user) => { _ = Task.Run(async () => await _logHandler.LogMemberLeft(userGuild, user)); return Task.CompletedTask; };
+        _client.UserBanned += (user, userGuild) => { _ = Task.Run(async () => await _logHandler.LogMemberBanned(user, userGuild)); return Task.CompletedTask; };
+        _client.MessageDeleted += (message, messageChannel) => { _ = Task.Run(async () => await _logHandler.LogMessageDelete(message, messageChannel, guild)); return Task.CompletedTask; };
+        _client.MessageUpdated += (beforemessage, aftermessage, messageChannel) => { _ = Task.Run(async () => await _logHandler.LogMessageUpdate(beforemessage, aftermessage, messageChannel, guild)); return Task.CompletedTask; };
+        _client.WebhooksUpdated += (userGuild, channel) => { _ = Task.Run(async () => await _logHandler.LogWebhookUpdate(userGuild, channel)); return Task.CompletedTask; };
+
+        _ = Task.Run(async () => {
+            await _logHandler.CreateOrUpdateStatChannel(guild);
+            await _commandHandler.RegisterCommands(guild);
+            await _client.SetActivityAsync(new CustomStatusGame("Helping " + guild.Users.Count(u => !u.IsBot) + " students..."));
+            _ = _commandHandler.KickUnEnlisted(guild);
+        });
+        
+    };
         
         await _client.LoginAsync(TokenType.Bot, token);
         await _client.StartAsync();
