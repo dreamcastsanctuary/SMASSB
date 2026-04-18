@@ -188,7 +188,7 @@ public class LogHandler {
                 embedBuilder = new EmbedBuilder()
                     .WithAuthor("Welcome to the Sangō Idol-Defense Force!")
                     .WithThumbnailUrl(user.GetAvatarUrl())
-                    .WithDescription("Step right in, we've been waiting for you. || <:sango_emblem_mono:1492222638980989138>\n\n✦ Grab your https://discord.com/channels/1471660035854569505/1473208251100299337, \nㅤㅤㅤread it *f__ront to bac__k*!\n✦ Tell us more about yourself in https://discord.com/channels/1471660035854569505/1473208770216591422.")
+                    .WithDescription("Step right in, we've been waiting for you. || <:sango_emblem_mono:1492222638980989138>\n\n✦ Grab your https://discord.com/channels/1471660035854569505/1473208251100299337, \nㅤㅤㅤread it *f__ront to bac__k*!\n✦ Tell us more about yourself in https://discord.com/channels/1471660035854569505/1473208770216591422.\n✦ If you're here because of a live event,\nㅤㅤㅤskip all of that and just join the populated VC!")
                     .WithColor(color)
                     .WithImageUrl("https://64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj")
                     .WithFooter("『 太陽はまた昇る！GO STRIKE! 』");
