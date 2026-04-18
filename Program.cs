@@ -37,9 +37,6 @@ public class Program {
             invites.ToDictionary(i => i.Code, i => i.Uses ?? 0)
         );
         
-        foreach (var inv in invites)
-            Console.WriteLine($"Cached invite: {inv.Code} ({inv.Uses} uses)");
-        
         _client.ButtonExecuted += _commandHandler.ButtonHandler;
         _client.ReactionAdded += (cache, channel, reaction) => { _ = Task.Run(async () => await _commandHandler.ReactionAddedHandler(guild, cache, channel, reaction)); return Task.CompletedTask; };
         _client.ReactionRemoved += (cache, channel, reaction) => { _ = Task.Run(async () => await _commandHandler.ReactionRemovedHandler(guild, cache, channel, reaction)); return Task.CompletedTask; };
@@ -48,16 +45,16 @@ public class Program {
         _client.GuildMemberUpdated += (before, after) => { _ = Task.Run(async () => await _logHandler.LogMemberUpdate(before, after, guild)); return Task.CompletedTask; };
         _client.InviteCreated += (invite) => { _ = Task.Run(async () =>
         {
-            _inviteCache[invite.Code] = invite.Uses;
+            // _inviteCache[invite.Code] = invite.Uses;
             await _logHandler.LogInvite(invite, guild);
         }); return Task.CompletedTask; };
         _client.UserJoined += (user) => {
             _ = Task.Run(async () => {
                 var newInvites = await guild.GetInvitesAsync();
                 await _logHandler.LogUserJoined(user, guild, _inviteCache, newInvites);
-                _inviteCache = new ConcurrentDictionary<string, int>(
-                    newInvites.ToDictionary(i => i.Code, i => i.Uses ?? 0)
-                );
+                // _inviteCache = new ConcurrentDictionary<string, int>(
+                //    newInvites.ToDictionary(i => i.Code, i => i.Uses ?? 0)
+                //);
             });
             return Task.CompletedTask;
         };

@@ -127,15 +127,15 @@ public class LogHandler {
         try {
             var welcomeChannel = _client.GetChannel(1473208226278408275) as ISocketMessageChannel;
             var logChannel = guild.GetChannel(1482805129613938860) as ISocketMessageChannel;
-            var usedInvite = newInvites.FirstOrDefault(newInv =>
-                inviteCache.TryGetValue(newInv.Code, out int oldUses) &&
-                newInv.Uses > oldUses
-            );
-            
-            foreach (var inv in newInvites)
-                Console.WriteLine($">>>>>>>>>>>>>>>>> New invite snapshot: {inv.Code} ({inv.Uses} uses)");
-            foreach (var kv in inviteCache)
-                Console.WriteLine($"\">>>>>>>>>>>>>>>>> Cached: {kv.Key} ({kv.Value} uses)");
+            // var usedInvite = newInvites.FirstOrDefault(newInv =>
+            //     inviteCache.TryGetValue(newInv.Code, out int oldUses) &&
+            //     newInv.Uses > oldUses
+            // );
+            //
+            // foreach (var inv in newInvites)
+            //     Console.WriteLine($">>>>>>>>>>>>>>>>> New invite snapshot: {inv.Code} ({inv.Uses} uses)");
+            // foreach (var kv in inviteCache)
+            //     Console.WriteLine($"\">>>>>>>>>>>>>>>>> Cached: {kv.Key} ({kv.Value} uses)");
             
             Random rnd = new Random();
             int random = rnd.Next(0, 3);
@@ -159,30 +159,30 @@ public class LogHandler {
                     break;
             }
             
-            if (usedInvite != null) {
-                Console.WriteLine(">>>>>>>>>>>>>>>> INVITE CACHE SUCCEED.");
-                if (usedInvite.Code == "SjtaFZDqWp") {
-                    
-                    embedBuilder = new EmbedBuilder()
-                        .WithAuthor("Welcome to the Sangō Idol-Defense Force!")
-                        .WithThumbnailUrl(user.GetAvatarUrl())
-                        .WithDescription("So, you're here to watch us, right? || <:sango_emblem_mono:1492222638980989138>\n\n✦ Head down to our voice channel and join! There's no time to waste!\n✦ After you're done, read https://discord.com/channels/1471660035854569505/1473208251100299337 and grab yourself some roles here! -> https://discord.com/channels/1471660035854569505/1473208770216591422.")
-                        .WithColor(color)
-                        .WithImageUrl("https://64.media.tumblr.com/21c82a6e53d59335955b70197c129b12/c6b43c8a326634f0-7c/s2048x3072/7d052288ea61a62bca28f4d79b760240779a44e1.pnj")
-                        .WithFooter("『 太陽はまた昇る！GO STRIKE! 』");
-
-                    await user.AddRoleAsync(1475720710910382310);
-                }
-                else {
-                    embedBuilder = new EmbedBuilder()
-                        .WithAuthor("Welcome to the Sangō Idol-Defense Force!")
-                        .WithThumbnailUrl(user.GetAvatarUrl())
-                        .WithDescription("Step right in, we've been waiting for you. || <:sango_emblem_mono:1492222638980989138>\n\n✦ Grab your https://discord.com/channels/1471660035854569505/1473208251100299337, read it *f__ront to bac__k*!\n✦ Tell us more about yourself in https://discord.com/channels/1471660035854569505/1473208770216591422.")
-                        .WithColor(color)
-                        .WithImageUrl("https://64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj")
-                        .WithFooter("『 太陽はまた昇る！GO STRIKE! 』");
-                }
-            } else {
+            // if (usedInvite != null) {
+            //     Console.WriteLine(">>>>>>>>>>>>>>>> INVITE CACHE SUCCEED.");
+            //     if (usedInvite.Code == "SjtaFZDqWp") {
+            //         
+            //         embedBuilder = new EmbedBuilder()
+            //             .WithAuthor("Welcome to the Sangō Idol-Defense Force!")
+            //             .WithThumbnailUrl(user.GetAvatarUrl())
+            //             .WithDescription("So, you're here to watch us, right? || <:sango_emblem_mono:1492222638980989138>\n\n✦ Head down to our voice channel and join! There's no time to waste!\n✦ After you're done, read https://discord.com/channels/1471660035854569505/1473208251100299337 and grab yourself some roles here! -> https://discord.com/channels/1471660035854569505/1473208770216591422.")
+            //             .WithColor(color)
+            //             .WithImageUrl("https://64.media.tumblr.com/21c82a6e53d59335955b70197c129b12/c6b43c8a326634f0-7c/s2048x3072/7d052288ea61a62bca28f4d79b760240779a44e1.pnj")
+            //             .WithFooter("『 太陽はまた昇る！GO STRIKE! 』");
+            //
+            //         await user.AddRoleAsync(1475720710910382310);
+            //     }
+            //     else {
+            //         embedBuilder = new EmbedBuilder()
+            //             .WithAuthor("Welcome to the Sangō Idol-Defense Force!")
+            //             .WithThumbnailUrl(user.GetAvatarUrl())
+            //             .WithDescription("Step right in, we've been waiting for you. || <:sango_emblem_mono:1492222638980989138>\n\n✦ Grab your https://discord.com/channels/1471660035854569505/1473208251100299337, read it *f__ront to bac__k*!\n✦ Tell us more about yourself in https://discord.com/channels/1471660035854569505/1473208770216591422.")
+            //             .WithColor(color)
+            //             .WithImageUrl("https://64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj")
+            //             .WithFooter("『 太陽はまた昇る！GO STRIKE! 』");
+            //     }
+            // } else {
                 Console.WriteLine(">>>>>>>>>>>>>>>> INVITE CACHE FAIL.");
                 
                 embedBuilder = new EmbedBuilder()
@@ -192,7 +192,7 @@ public class LogHandler {
                     .WithColor(color)
                     .WithImageUrl("https://64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj")
                     .WithFooter("『 太陽はまた昇る！GO STRIKE! 』");
-            }
+            // }
 
             if (welcomeChannel != null) {
                 
