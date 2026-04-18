@@ -543,7 +543,7 @@ public class CommandHandler {
     }
     
     public async Task KickUnEnlisted(SocketGuild guild) {
-        using var timer = new PeriodicTimer(TimeSpan.FromDays(3));
+        using var timer = new PeriodicTimer(TimeSpan.FromMinutes(6)); // FromDays(3)
     
         while (await timer.WaitForNextTickAsync()) {
             IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> collection = guild.GetUsersAsync();
