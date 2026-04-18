@@ -33,8 +33,10 @@ public class LogHandler {
             var channel = guild.GetChannel(1482805129613938860) as ISocketMessageChannel;
             
             if (beforeUser.Nickname != after.Nickname) {
+                var name = after.Nickname ?? "@" + after.Username;
+                
                 embedBuilder.WithTitle("❖﹒Nickname change . .");
-                embedBuilder.WithDescription("### BEFORE : \n" + beforeUser.Nickname + "\n### AFTER : \n" + after.Nickname);
+                embedBuilder.WithDescription("### BEFORE : \n" + beforeUser.Nickname + "\n### AFTER : \n" + name);
                 embedBuilder.WithCurrentTimestamp();
                 await channel.SendMessageAsync(embed: embedBuilder.Build());
                 return;
