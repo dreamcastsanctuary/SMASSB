@@ -214,6 +214,10 @@ public class LogHandler {
             
             await logChannel.SendMessageAsync(embed: logEmbed);
             await UpdateStatChannel(guild);
+            foreach (var inv in newInvites)
+                Console.WriteLine($">>>>>>>>>>>>>>>>> New invite snapshot: {inv.Code} ({inv.Uses} uses)");
+            foreach (var kv in inviteCache)
+                Console.WriteLine($"\">>>>>>>>>>>>>>>>> Cached: {kv.Key} ({kv.Value} uses)");
         } catch (Exception e) {
             Console.WriteLine(e);
         }
