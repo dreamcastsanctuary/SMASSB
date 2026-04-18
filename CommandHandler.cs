@@ -543,7 +543,7 @@ public class CommandHandler {
     }
     
     public async Task KickUnEnlisted(SocketGuild guild) {
-        using var timer = new PeriodicTimer(TimeSpan.FromMinutes(6)); // FromDays(3)
+        using var timer = new PeriodicTimer(TimeSpan.FromDays(3));
     
         while (await timer.WaitForNextTickAsync()) {
             IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> collection = guild.GetUsersAsync();
@@ -555,7 +555,7 @@ public class CommandHandler {
                     
                     bool isUnenlistedProspect = user.RoleIds.Contains((ulong)1473369383471677461) && !user.RoleIds.Contains((ulong)1475720710910382310);
                     bool isCivilian = user.RoleIds.Contains((ulong)1473369036766052445);
-                    bool isInactive = user.JoinedAt < DateTimeOffset.Now.AddMinutes(-5);
+                    bool isInactive = user.JoinedAt < DateTimeOffset.Now.AddMonths(-2);
                 
                     ulong[] unverifiedRoles = [1473369716792885402, 1473370059950002318, 1473370439526125599, 1473371454790832304];
 
@@ -567,7 +567,7 @@ public class CommandHandler {
                         try {
                             
                             await UserExtensions.SendMessageAsync(user, "Hello! This is the *Automatic Messaging System* at the Sangō Idol-Defense Force.\n\nWe are messaging you in regards to your activity. As outlined in our syllabus, prospects and civilians (who are NOT fans) are to be kicked from the server in the case that they are inactive for more than 2 months in order to keep member counts accurate.\n\nWe thank you for attempting to experience Sangō!\n\nIf you feel this is a mistake, please friend request and send a message to *@fastestthingalive* in order to regain access to the server. If it is not, yet you still wish to join back, please give yourself __a week or so__ and do as previously instructed. Just to make sure you *really* want to!\n\nPlease have a good day, " + user.Username + "!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
-                            await UserExtensions.SendMessageAsync(user, "https://64.media.tumblr.com/51b15f41ee5f58c722ebac09ae3d165e/6a794ae0ea17c706-cc/s2048x3072/39b7a663a13e95d68c46239534bea85f9e008f26.pnj");
+                            await UserExtensions.SendMessageAsync(user, "https://64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj");
                             await Task.Delay(1500); 
                             await user.KickAsync("Inactive for 2+ months");
                             await Task.Delay(1000); 
