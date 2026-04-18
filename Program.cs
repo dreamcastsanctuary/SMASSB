@@ -41,7 +41,11 @@ public class Program {
             
             _client.GuildMemberUpdated += async (before, after) => await _logHandler.LogMemberUpdate(before, after, guild);
             _client.InviteCreated += async (invite) => await _logHandler.LogInvite(invite, guild);
-            _client.UserJoined += async (user) => await _logHandler.LogUserJoined(user, guild, _inviteCache);
+            _client.UserJoined += async (user) => {
+                var newInvites = await guild.GetInvitesAsync();
+                await _logHandler.LogUserJoined(user, guild, _inviteCache, newInvites);
+                _inviteCache = newInvites.ToDictionary(i => i.Code, i => i.Uses ?? 0);
+            };
             _client.UserLeft += async (userGuild, user) => await _logHandler.LogMemberLeft(userGuild, user);
             _client.UserBanned += async (user, userGuild) => await _logHandler.LogMemberBanned(user, userGuild);
             _client.MessageDeleted += async (message, messageChannel) => await _logHandler.LogMessageDelete(message, messageChannel, guild);
