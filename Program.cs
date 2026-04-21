@@ -67,7 +67,6 @@ public class Program {
         _ = Task.Run(async () => {
             await _logHandler.CreateOrUpdateStatChannel(guild);
             await _commandHandler.RegisterCommands(guild);
-            await _client.SetActivityAsync(new CustomStatusGame("Helping " + guild.Users.Count(u => !u.IsBot) + " students..."));
             _ = _commandHandler.KickUnEnlisted(guild);
         });
         

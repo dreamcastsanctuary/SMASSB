@@ -451,6 +451,9 @@ public class LogHandler {
             channel = guild.GetChannel(created.Id) as SocketVoiceChannel;
         }
         await UpdateStatChannel(guild, memberCount);
+        
+        await _client.SetActivityAsync(new CustomStatusGame("Helping " + memberCount + " idols..."));
+
     }
     
     private async Task UpdateStatChannel(SocketGuild guild, int? memberCount = null) {
