@@ -119,40 +119,42 @@ public class MeetingSystem {
         
         await person.AddRoleAsync(1492674198345224293);
         await person.AddRoleAsync(1492678150025379860);
+        
+        var freshPerson = guild.GetUser(person.Id);
 
-        await _db.SetIsCivilian(person.Id, person.Roles.Contains(guild.GetRole(1473369383471677461)));
-        await _db.SetIsEnlisted(person.Id, person.Roles.Contains(guild.GetRole(1473368797023961139)));
-        await _db.SetIsFan(person.Id, person.Roles.Contains(guild.GetRole(1475720710910382310)));
-        await _db.SetIsPartner(person.Id, person.Roles.Contains(guild.GetRole(1473514553240322148)));
-        await _db.SetIsProspect(person.Id, person.Roles.Contains(guild.GetRole(1473369036766052445)));
+        await _db.SetIsCivilian(freshPerson.Id, freshPerson.Roles.Contains(guild.GetRole(1473369383471677461)));
+        await _db.SetIsEnlisted(freshPerson.Id, freshPerson.Roles.Contains(guild.GetRole(1473368797023961139)));
+        await _db.SetIsFan(freshPerson.Id, person.Roles.Contains(guild.GetRole(1475720710910382310)));
+        await _db.SetIsPartner(freshPerson.Id, freshPerson.Roles.Contains(guild.GetRole(1473514553240322148)));
+        await _db.SetIsProspect(freshPerson.Id, freshPerson.Roles.Contains(guild.GetRole(1473369036766052445)));
 
-        Console.WriteLine(await _db.GetIsCivilian(person.Id));
+        Console.WriteLine(await _db.GetIsCivilian(freshPerson.Id));
         
-        if (await _db.GetIsCivilian(person.Id)) {
-            await person.RemoveRoleAsync(1473369383471677461);
+        if (await _db.GetIsCivilian(freshPerson.Id)) {
+            await freshPerson.RemoveRoleAsync(1473369383471677461);
         }
         
-        if (await _db.GetIsEnlisted(person.Id)) {
-            await person.RemoveRoleAsync(1473368797023961139);
+        if (await _db.GetIsEnlisted(freshPerson.Id)) {
+            await freshPerson.RemoveRoleAsync(1473368797023961139);
         }
         
-        if (await _db.GetIsFan(person.Id)) {
-            await person.RemoveRoleAsync(1475720710910382310);
+        if (await _db.GetIsFan(freshPerson.Id)) {
+            await freshPerson.RemoveRoleAsync(1475720710910382310);
         }
         
-        if (await _db.GetIsPartner(person.Id)) {
-            await person.RemoveRoleAsync(1473514553240322148);
+        if (await _db.GetIsPartner(freshPerson.Id)) {
+            await freshPerson.RemoveRoleAsync(1473514553240322148);
         }
         
-        if (await _db.GetIsProspect(person.Id)) {
-            await person.RemoveRoleAsync(1473369036766052445);
+        if (await _db.GetIsProspect(freshPerson.Id)) {
+            await freshPerson.RemoveRoleAsync(1473369036766052445);
         }
         
         var name = "meeting-repri-" + meeting_name;
         
         var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
         await Task.Delay(500);
-        await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name +".\nPlease wait here and be patient as <@" + command.User.Id + "> prepares to speak to you, <@" + person.Id + ">.");
+        await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name +".\nPlease wait here and be patient as <@" + command.User.Id + "> prepares to speak to you, <@" + freshPerson.Id + ">.");
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
@@ -177,29 +179,52 @@ public class MeetingSystem {
                 autoArchiveDuration: ThreadArchiveDuration.OneWeek
             );
 
-            using var httpClient = new HttpClient();
-            foreach (var message in messages) {
-                
-                var user = message.Author as IGuildUser;
-                
-                if (!string.IsNullOrWhiteSpace(message.Content)) {
-                    await logThread.SendMessageAsync($"**{user.Nickname ?? message.Author.Username}** at {message.Timestamp:M/d/yyyy HH:mm:ss tt}\n\t{message.Content}\n_ _"
-                    );
-                    await Task.Delay(500);
-                }
+            var webhook = await logChannel.CreateWebhookAsync("MeetingLogger");
+            var webhookClient = new Discord.Webhook.DiscordWebhookClient(webhook);
 
-                foreach (var attachment in message.Attachments) {
-                    try {
-                        var bytes = await httpClient.GetByteArrayAsync(attachment.Url);
-                        using var stream = new MemoryStream(bytes);
-                        await logThread.SendFileAsync(stream, attachment.Filename, $"**{user.Nickname ?? message.Author.Username}** : {message.Timestamp:M/d/yyyy g}:");
-                    } catch (Exception ex) {
-                        await logThread.SendMessageAsync(
-                            $"Could not re-upload `{attachment.Filename}` — {ex.Message}"
+            using var httpClient = new HttpClient();
+            try {
+                foreach (var message in messages) {
+                    var user = message.Author as IGuildUser;
+                    var guildUser = guild.GetUser(message.Author.Id);
+                    var displayName = guildUser?.Nickname ?? message.Author.Username;
+                    var avatarUrl = message.Author.GetAvatarUrl() ?? message.Author.GetDefaultAvatarUrl();
+
+                    if (!string.IsNullOrWhiteSpace(message.Content)) {
+                        await webhookClient.SendMessageAsync(
+                            text: message.Content,
+                            username: displayName,
+                            avatarUrl: avatarUrl,
+                            threadId: logThread.Id
                         );
+                        await Task.Delay(500);
                     }
-                    await Task.Delay(500);
+
+                    foreach (var attachment in message.Attachments) {
+                        try {
+                            var bytes = await httpClient.GetByteArrayAsync(attachment.Url);
+                            using var stream = new MemoryStream(bytes);
+                            var fileAttachment = new FileAttachment(stream, attachment.Filename);
+                            await webhookClient.SendFilesAsync(
+                                [fileAttachment],
+                                text: null,
+                                isTTS: false,
+                                embeds: null,
+                                username: displayName,
+                                avatarUrl: avatarUrl,
+                                flags: MessageFlags.None,
+                                threadId: logThread.Id
+                            );
+                        } catch (Exception ex) {
+                            await logThread.SendMessageAsync(
+                                $"Could not re-upload `{attachment.Filename}` from **{displayName}** — {ex.Message}"
+                            );
+                        }
+                        await Task.Delay(500);
+                    }
                 }
+            } finally {
+                await webhook.DeleteAsync();
             }
             
             await logThread.ModifyAsync(t => {
