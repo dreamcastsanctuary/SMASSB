@@ -526,7 +526,8 @@ public class DatabaseService
         await using var connection = new SqliteConnection(_connectionString);
         connection.Open();
         var command = connection.CreateCommand();
-        command.CommandText = @"UPDATE Addons SET IsProspect = $hit WHERE UserId = $id;";
+        command.CommandText = @"INSERT INTO Addons (UserId, IsProspect) VALUES ($id, $hit)
+                                ON CONFLICT(UserId) DO UPDATE SET IsProspect = $hit";
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$hit", hit ? 1 : 0);
         
@@ -551,7 +552,8 @@ public class DatabaseService
         await using var connection = new SqliteConnection(_connectionString);
         connection.Open();
         var command = connection.CreateCommand();
-        command.CommandText = @"UPDATE Addons SET IsEnlisted = $hit WHERE UserId = $id;";
+        command.CommandText = @"INSERT INTO Addons (UserId, IsEnlisted) VALUES ($id, $hit)
+                                ON CONFLICT(UserId) DO UPDATE SET IsEnlisted = $hit";
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$hit", hit ? 1 : 0);
         
@@ -576,7 +578,8 @@ public class DatabaseService
         await using var connection = new SqliteConnection(_connectionString);
         connection.Open();
         var command = connection.CreateCommand();
-        command.CommandText = @"UPDATE Addons SET IsPartner = $hit WHERE UserId = $id;";
+        command.CommandText = @"INSERT INTO Addons (UserId, IsPartner) VALUES ($id, $hit)
+                                ON CONFLICT(UserId) DO UPDATE SET IsPartner = $hit";
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$hit", hit ? 1 : 0);
         
@@ -601,7 +604,8 @@ public class DatabaseService
         await using var connection = new SqliteConnection(_connectionString);
         connection.Open();
         var command = connection.CreateCommand();
-        command.CommandText = @"UPDATE Addons SET IsCivilian = $hit WHERE UserId = $id;";
+        command.CommandText = @"INSERT INTO Addons (UserId, IsCivilian) VALUES ($id, $hit)
+                                ON CONFLICT(UserId) DO UPDATE SET IsCivilian = $hit";
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$hit", hit ? 1 : 0);
         
@@ -627,7 +631,8 @@ public class DatabaseService
         connection.Open();
         
         var command = connection.CreateCommand();
-        command.CommandText = @"UPDATE Addons SET IsFan = $hit WHERE UserId = $id;";
+        command.CommandText = @"INSERT INTO Addons (UserId, IsFan) VALUES ($id, $hit)
+                                ON CONFLICT(UserId) DO UPDATE SET IsFan = $hit";
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$hit", hit ? 1 : 0);
         
