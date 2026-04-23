@@ -126,6 +126,8 @@ public class MeetingSystem {
         await _db.SetIsPartner(person.Id, person.Roles.Contains(guild.GetRole(1473514553240322148)));
         await _db.SetIsProspect(person.Id, person.Roles.Contains(guild.GetRole(1473369036766052445)));
 
+        Console.WriteLine(await _db.GetIsCivilian(person.Id));
+        
         if (await _db.GetIsCivilian(person.Id)) {
             await person.RemoveRoleAsync(1473369383471677461);
         }
@@ -181,7 +183,7 @@ public class MeetingSystem {
                 var user = message.Author as IGuildUser;
                 
                 if (!string.IsNullOrWhiteSpace(message.Content)) {
-                    await logThread.SendMessageAsync($"**{user.Nickname ?? message.Author.Username}** at {message.Timestamp:M/d/yyyy HH:mm:ss tt}\n\t{message.Content}"
+                    await logThread.SendMessageAsync($"**{user.Nickname ?? message.Author.Username}** at {message.Timestamp:M/d/yyyy HH:mm:ss tt}\n\t{message.Content}\n_ _"
                     );
                     await Task.Delay(500);
                 }
