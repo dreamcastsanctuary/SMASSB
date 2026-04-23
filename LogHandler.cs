@@ -234,7 +234,7 @@ public class LogHandler {
 
             Embed embed = (new EmbedBuilder()
                 .WithAuthor("|| " + user.Username, user.GetAvatarUrl())
-                .WithTitle("❖﹒Prospect Unenrolled . .")
+                .WithTitle("❖﹒Prospect Left . .")
                 .WithDescription(user.Mention)
                 .WithFooter(user.Id.ToString())
                 .WithCurrentTimestamp()
