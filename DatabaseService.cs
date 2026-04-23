@@ -32,6 +32,15 @@ public class DatabaseService
                 Username TEXT NOT NULL
             );
 
+            CREATE TABLE IF NOT EXISTS Addons (
+                UserId TEXT PRIMARY KEY,
+                IsProspect TINYINT NOT NULL DEFAULT 0,
+                IsEnlisted TINYINT NOT NULL DEFAULT 0,
+                IsPartner TINYINT NOT NULL DEFAULT 0,
+                IsCivilian TINYINT NOT NULL DEFAULT 0,
+                IsFan TINYINT NOT NULL DEFAULT 0
+            );
+
             CREATE TABLE IF NOT EXISTS Unenrolled (
                 UserId TEXT PRIMARY KEY,
                 Claim TEXT,
@@ -267,7 +276,7 @@ public class DatabaseService
 
     public async Task<int> SetClaim(ulong userId, string claim) {
         
-        if (claim == null) return -1;
+        if (String.IsNullOrEmpty(claim)) return -1;
         
         using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
@@ -295,7 +304,7 @@ public class DatabaseService
 
     public async Task<int> SetAvatarUrl(ulong userId, string avatarUrl) {
         
-        if (avatarUrl == null) return -1;
+        if (String.IsNullOrEmpty(avatarUrl)) return -1;
         
         using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
@@ -323,7 +332,7 @@ public class DatabaseService
 
     public async Task<int> SetRank(ulong userId, string rank) {
         
-        if (rank == null) return -1;
+        if (String.IsNullOrEmpty(rank)) return -1;
         
         using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
@@ -351,9 +360,9 @@ public class DatabaseService
 
     public async Task<int> SetBloodtype(ulong userId, string bloodtype) {
         
-        if (bloodtype == null) return -1;
+        if (String.IsNullOrEmpty(bloodtype)) return -1;
         
-        using var connection = new SqliteConnection(_connectionString);
+        await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
@@ -366,7 +375,7 @@ public class DatabaseService
 
     public async Task<string> GetUsername(ulong userId) {
         
-        using var connection = new SqliteConnection(_connectionString);
+        await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
@@ -379,7 +388,7 @@ public class DatabaseService
 
     public async Task<int> SetUsername(ulong userId, string username) {
         
-        using var connection = new SqliteConnection(_connectionString);
+        await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
@@ -392,7 +401,7 @@ public class DatabaseService
 
     public async Task<string> GetUClaim(ulong userId) {
         
-        using var connection = new SqliteConnection(_connectionString);
+        await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
@@ -405,7 +414,7 @@ public class DatabaseService
 
     public async Task<string> GetURank(ulong userId) {
         
-        using var connection = new SqliteConnection(_connectionString);
+        await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
@@ -418,7 +427,7 @@ public class DatabaseService
 
     public async Task<string> GetUUsername(ulong userId) {
         
-        using var connection = new SqliteConnection(_connectionString);
+        await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
@@ -508,5 +517,133 @@ public class DatabaseService
         cmd.Parameters.AddWithValue("$channelId", channelId.ToString());
 
         cmd.ExecuteNonQuery();
+    }
+    
+// ADDONS
+    
+    public async Task<int> SetIsProspect(ulong userId, bool hit) {
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = @"UPDATE Addons SET IsProspect = $hit WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$hit", hit ? 1 : 0);
+        
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<bool> GetIsProspect(ulong userId) {
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT IsProspect FROM Addons WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
+    }
+    
+    public async Task<int> SetIsEnlisted(ulong userId, bool hit) {
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = @"UPDATE Addons SET IsEnlisted = $hit WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$hit", hit ? 1 : 0);
+        
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<bool> GetIsEnlisted(ulong userId) {
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT IsEnlisted FROM Addons WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
+    }
+    
+    public async Task<int> SetIsPartner(ulong userId, bool hit) {
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = @"UPDATE Addons SET IsPartner = $hit WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$hit", hit ? 1 : 0);
+        
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<bool> GetIsPartner(ulong userId) {
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT IsPartner FROM Addons WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
+    }
+    
+    public async Task<int> SetIsCivilian(ulong userId, bool hit) {
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = @"UPDATE Addons SET IsCivilian = $hit WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$hit", hit ? 1 : 0);
+        
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<bool> GetIsCivilian(ulong userId) {
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT IsCivilian FROM Addons WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
+    }
+    
+    public async Task<int> SetIsFan(ulong userId, bool hit) {
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+        
+        var command = connection.CreateCommand();
+        command.CommandText = @"UPDATE Addons SET IsFan = $hit WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$hit", hit ? 1 : 0);
+        
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<bool> GetIsFan(ulong userId) {
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT IsFan FROM Addons WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToInt32(result) > 0;
     }
 }

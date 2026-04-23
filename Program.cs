@@ -17,7 +17,7 @@ public class Program {
     public static async Task Main()
         => await new Program().RunAsync();
 
-    public async Task RunAsync() {
+    private async Task RunAsync() {
         
         _serviceProvider = CreateProvider();
         _client = _serviceProvider.GetRequiredService<DiscordSocketClient>();
@@ -69,7 +69,6 @@ public class Program {
             await _commandHandler.RegisterCommands(guild);
             _ = _commandHandler.KickUnEnlisted(guild);
         });
-        
     };
         
         await _client.LoginAsync(TokenType.Bot, token);

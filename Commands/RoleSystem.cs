@@ -16,7 +16,6 @@ public class RoleSystem {
     public async Task HandlePreEnlistCommand(SocketSlashCommand command) {
         
         SocketGuildUser civilian = null;
-        var channel = command.Channel;
         var claim = "";
         
         foreach (var option in command.Data.Options)
@@ -55,7 +54,6 @@ public class RoleSystem {
     public async Task HandleEnlistCommand(SocketSlashCommand command, DiscordSocketClient client) {
         
         SocketGuildUser civilian = null;
-        var channel = command.Channel;
         var guild = client.GetGuild((ulong)command.GuildId);
         
         foreach (var option in command.Data.Options)

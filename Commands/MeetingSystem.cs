@@ -5,6 +5,12 @@ using Discord.WebSocket;
 namespace SMASSB.Commands;
 
 public class MeetingSystem {
+    
+    private DatabaseService _db;
+    
+    public MeetingSystem (DatabaseService db) {
+        _db = db;
+    }
 
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandleMeetingCommand(SocketSlashCommand command, DiscordSocketClient client) {
@@ -114,10 +120,30 @@ public class MeetingSystem {
         await person.AddRoleAsync(1492674198345224293);
         await person.AddRoleAsync(1492678150025379860);
 
-        if (person.Roles.Any(r => r.Id == 1475886792174604484)) {
-            await person.RemoveRoleAsync(1473369036766052445);
-        } else {
+        await _db.SetIsCivilian(person.Id, person.Roles.Contains(guild.GetRole(1473369383471677461)));
+        await _db.SetIsEnlisted(person.Id, person.Roles.Contains(guild.GetRole(1473368797023961139)));
+        await _db.SetIsFan(person.Id, person.Roles.Contains(guild.GetRole(1475720710910382310)));
+        await _db.SetIsPartner(person.Id, person.Roles.Contains(guild.GetRole(1473514553240322148)));
+        await _db.SetIsProspect(person.Id, person.Roles.Contains(guild.GetRole(1473369036766052445)));
+
+        if (await _db.GetIsCivilian(person.Id)) {
+            await person.RemoveRoleAsync(1473369383471677461);
+        }
+        
+        if (await _db.GetIsEnlisted(person.Id)) {
             await person.RemoveRoleAsync(1473368797023961139);
+        }
+        
+        if (await _db.GetIsFan(person.Id)) {
+            await person.RemoveRoleAsync(1475720710910382310);
+        }
+        
+        if (await _db.GetIsPartner(person.Id)) {
+            await person.RemoveRoleAsync(1473514553240322148);
+        }
+        
+        if (await _db.GetIsProspect(person.Id)) {
+            await person.RemoveRoleAsync(1473369036766052445);
         }
         
         var name = "meeting-repri-" + meeting_name;
@@ -183,12 +209,27 @@ public class MeetingSystem {
                 foreach (SocketThreadUser user in users) {
                     SocketGuildUser guildUser = (SocketGuildUser)user;
                     if (guildUser.Roles.Any(r => r.Id == 1492678150025379860)) {
+                        
                         await guildUser.RemoveRoleAsync(1492678150025379860);
                         
-                        if (guildUser.Roles.Any(r => r.Id == 1475886792174604484)) {
-                            await guildUser.AddRoleAsync(1473369036766052445);
-                        } else {
+                        if (await _db.GetIsCivilian(guildUser.Id)) {
+                            await guildUser.AddRoleAsync(1473369383471677461);
+                        }
+        
+                        if (await _db.GetIsEnlisted(guildUser.Id)) {
                             await guildUser.AddRoleAsync(1473368797023961139);
+                        }
+        
+                        if (await _db.GetIsFan(guildUser.Id)) {
+                            await guildUser.AddRoleAsync(1475720710910382310);
+                        }
+        
+                        if (await _db.GetIsPartner(guildUser.Id)) {
+                            await guildUser.AddRoleAsync(1473514553240322148);
+                        }
+        
+                        if (await _db.GetIsProspect(guildUser.Id)) {
+                            await guildUser.AddRoleAsync(1473369036766052445);
                         }
                     }
                 }
@@ -204,7 +245,7 @@ public class MeetingSystem {
             await thread.DeleteAsync();
 
         } else {
-            await command.RespondAsync("This channel wasn't made by the SSB!", ephemeral: true);
+            await command.RespondAsync("This channel wasn't made by the Assistant!", ephemeral: true);
         }
     }
 }
