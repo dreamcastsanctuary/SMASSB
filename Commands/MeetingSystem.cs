@@ -179,52 +179,29 @@ public class MeetingSystem {
                 autoArchiveDuration: ThreadArchiveDuration.OneWeek
             );
 
-            var webhook = await logChannel.CreateWebhookAsync("MeetingLogger");
-            var webhookClient = new Discord.Webhook.DiscordWebhookClient(webhook);
-
             using var httpClient = new HttpClient();
-            try {
-                foreach (var message in messages) {
-                    var user = message.Author as IGuildUser;
-                    var guildUser = guild.GetUser(message.Author.Id);
-                    var displayName = guildUser?.Nickname ?? message.Author.Username;
-                    var avatarUrl = message.Author.GetAvatarUrl() ?? message.Author.GetDefaultAvatarUrl();
-
-                    if (!string.IsNullOrWhiteSpace(message.Content)) {
-                        await webhookClient.SendMessageAsync(
-                            text: message.Content,
-                            username: displayName,
-                            avatarUrl: avatarUrl,
-                            threadId: logThread.Id
-                        );
-                        await Task.Delay(500);
-                    }
-
-                    foreach (var attachment in message.Attachments) {
-                        try {
-                            var bytes = await httpClient.GetByteArrayAsync(attachment.Url);
-                            using var stream = new MemoryStream(bytes);
-                            var fileAttachment = new FileAttachment(stream, attachment.Filename);
-                            await webhookClient.SendFilesAsync(
-                                [fileAttachment],
-                                text: null,
-                                isTTS: false,
-                                embeds: null,
-                                username: displayName,
-                                avatarUrl: avatarUrl,
-                                flags: MessageFlags.None,
-                                threadId: logThread.Id
-                            );
-                        } catch (Exception ex) {
-                            await logThread.SendMessageAsync(
-                                $"Could not re-upload `{attachment.Filename}` from **{displayName}** — {ex.Message}"
-                            );
-                        }
-                        await Task.Delay(500);
-                    }
+            foreach (var message in messages) {
+                
+                var user = message.Author as IGuildUser;
+                
+                if (!string.IsNullOrWhiteSpace(message.Content)) {
+                    await logThread.SendMessageAsync($"**{user.Nickname ?? message.Author.Username}** at {message.Timestamp:M/d/yyyy HH:mm:ss tt}\n\t{message.Content}\n_ _"
+                    );
+                    await Task.Delay(500);
                 }
-            } finally {
-                await webhook.DeleteAsync();
+
+                foreach (var attachment in message.Attachments) {
+                    try {
+                        var bytes = await httpClient.GetByteArrayAsync(attachment.Url);
+                        using var stream = new MemoryStream(bytes);
+                        await logThread.SendFileAsync(stream, attachment.Filename, $"**{user.Nickname ?? message.Author.Username}** : {message.Timestamp:M/d/yyyy g}:");
+                    } catch (Exception ex) {
+                        await logThread.SendMessageAsync(
+                            $"Could not re-upload `{attachment.Filename}` — {ex.Message}"
+                        );
+                    }
+                    await Task.Delay(500);
+                }
             }
             
             await logThread.ModifyAsync(t => {
