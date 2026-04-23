@@ -128,7 +128,7 @@ public class MeetingSystem {
         await _db.SetIsPartner(freshPerson.Id, freshPerson.Roles.Contains(guild.GetRole(1473514553240322148)));
         await _db.SetIsProspect(freshPerson.Id, freshPerson.Roles.Contains(guild.GetRole(1473369036766052445)));
 
-        Console.WriteLine(await _db.GetIsCivilian(freshPerson.Id));
+        Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>> " + await _db.GetIsCivilian(freshPerson.Id));
         
         if (await _db.GetIsCivilian(freshPerson.Id)) {
             await freshPerson.RemoveRoleAsync(1473369383471677461);
