@@ -297,8 +297,8 @@ public class CommandHandler {
             var author = message.Author as SocketGuildUser;
             
             Embed embed = (new EmbedBuilder()
-                .WithAuthor(author.Nickname + " || ", author.GetGuildAvatarUrl() ?? author.GetAvatarUrl())
-                .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ <#" + message.Channel.Id + ">")
+                .WithAuthor("|| " + author.Nickname + "", author.GetGuildAvatarUrl() ?? author.GetAvatarUrl())
+                .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ <#" + message.Channel.Id + $">\n\n[Source ! !](https://discordapp.com/channels/{guild.Id}/{message.Channel.Id}/{message.Id})")
                 .WithDescription(message.Content)
                 .WithColor(0xBFA55F)).Build();
 
