@@ -298,8 +298,9 @@ public class CommandHandler {
             
             Embed embed = (new EmbedBuilder()
                 .WithAuthor("|| " + author.Nickname + "", author.GetGuildAvatarUrl() ?? author.GetAvatarUrl())
-                .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ <#" + message.Channel.Id + $">\n\n[Source ! !](https://discordapp.com/channels/{guild.Id}/{message.Channel.Id}/{message.Id})")
+                .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ https://discordapp.com/channels/{guild.Id}/{message.Channel.Id}/{message.Id}")
                 .WithDescription(message.Content)
+                .WithFooter(message.Timestamp.ToString())
                 .WithColor(0xBFA55F)).Build();
 
             var starboard = guild.GetChannel(1473214696109903883) as ITextChannel;
@@ -428,9 +429,10 @@ public class CommandHandler {
                 var author = message.Author as SocketGuildUser;
                 
                 Embed embed = (new EmbedBuilder()
-                    .WithAuthor(author.Nickname + " || ", author.GetGuildAvatarUrl() ?? author.GetAvatarUrl())
-                    .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ <#" + message.Channel.Id + ">")
+                    .WithAuthor("|| " + author.Nickname, author.GetGuildAvatarUrl() ?? author.GetAvatarUrl())
+                    .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ https://discordapp.com/channels/{guild.Id}/{message.Channel.Id}/{message.Id}")
                     .WithDescription(message.Content)
+                    .WithFooter(message.Timestamp.ToString())
                     .WithColor(0xBFA55F)).Build();
 
                 if (await starboard.GetMessageAsync(existingUlong) is IUserMessage existing)

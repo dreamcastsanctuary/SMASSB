@@ -90,11 +90,11 @@ public class LogHandler {
             string content = "";
 
             foreach (var role in addedRoles) {
-                content += "- Added " + role.Name + "\n";
+                content += "- Added <&" + role.Id + ">\n";
             }
 
             foreach (var role in removedRoles) {
-                content += "- Removed " + role.Name + "\n";
+                content += "- Removed <&" + role.Id + ">\n";
             }
             
             if (string.IsNullOrEmpty(content)) return;
