@@ -76,7 +76,7 @@ public class IdSystem {
         System.Drawing.Image barcode = Code128Rendering.MakeBarcodeImage(usernameParam, 1, true);
 
         var namePos = new Point(827, 452);
-        var avatarPos = new Point(93,374);
+        var avatarPos = new Point(93,373);
         var idPos = new Point(1219,154);
         var datePos = new Point(827,529);
         var rankPos = new Point(827,602);
