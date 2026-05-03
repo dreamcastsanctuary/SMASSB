@@ -133,7 +133,7 @@ public class IdSystem {
             } else ipc.DrawText($"{name}", font, golden, namePos);
             
             if (rank.Contains("taru")) {
-                rank = "Bakuryōchō\ntaru Onchō";
+                rank = "Bakuryōchō\ntaru Onshō";
                 ipc.DrawText($"{rank}", fontSmall, golden, rankPos);
                 
             } else ipc.DrawText($"{rank}", font, golden, rankPos);
