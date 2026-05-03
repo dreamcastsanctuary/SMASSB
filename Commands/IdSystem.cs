@@ -50,7 +50,7 @@ public class IdSystem {
             using var avatarStream = new MemoryStream(avatarImageParam);
             avatar = Image.Load(avatarStream);
         } else {
-            // fallback: fetch live (for old records that have no stored image yet)
+            
             string sizedAvatarUrl = avatarUrlParam.Contains('?')
                 ? avatarUrlParam + "&size=4096"
                 : avatarUrlParam + "?size=4096";
@@ -76,7 +76,7 @@ public class IdSystem {
         System.Drawing.Image barcode = Code128Rendering.MakeBarcodeImage(usernameParam, 1, true);
 
         var namePos = new Point(827, 452);
-        var avatarPos = new Point(93,372);
+        var avatarPos = new Point(93,374);
         var idPos = new Point(1219,154);
         var datePos = new Point(827,529);
         var rankPos = new Point(827,602);
