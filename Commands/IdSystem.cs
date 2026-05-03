@@ -129,7 +129,7 @@ public class IdSystem {
                     name = $"{firstName}\n{lastName}";
                 }
                 
-                ipc.DrawText($"{name}", fontSmall, golden, new Point(namePos.X, namePos.Y + 5));
+                ipc.DrawText($"{name}", fontSmall, golden, new Point(namePos.X, namePos.Y + 8));
             } else ipc.DrawText($"{name}", font, golden, namePos);
             
             if (rank.Contains("taru")) {
