@@ -21,16 +21,8 @@ public class DatabaseService
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            CREATE TABLE IF NOT EXISTS Enrolled (
-                UserId TEXT PRIMARY KEY,
-                Claim TEXT,
-                AvatarUrl TEXT NOT NULL,
-                Rank TEXT NOT NULL,
-                Points INTEGER DEFAULT 0,
-                Bloodtype TEXT NOT NULL,
-                Catchphrase TEXT NOT NULL,
-                Username TEXT NOT NULL
-            );
+
+            ALTER TABLE Enrolled ADD COLUMN AvatarImage BLOB;
 
             CREATE TABLE IF NOT EXISTS Addons (
                 UserId TEXT PRIMARY KEY,
@@ -89,7 +81,7 @@ public class DatabaseService
         cmd.Parameters.AddWithValue("$usernameParam", usernameParam);
         
         cmd.ExecuteNonQuery();
-        await IdSystem.BuildId(command, member, claimParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, catchphraseParam, usernameParam);
+        await IdSystem.BuildId(command, member, claimParam, null, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, catchphraseParam, usernameParam);
     }
     
 // UNENROLL CHECK COMMANDS.
@@ -545,6 +537,30 @@ public class DatabaseService
 
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result) > 0;
+    }
+    
+    public async Task SetAvatarImage(ulong userId, byte[] imageBytes) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE Enrolled SET AvatarImage = $img WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$img", imageBytes);
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<byte[]?> GetAvatarImage(ulong userId) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT AvatarImage FROM Enrolled WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+        return result is byte[] bytes ? bytes : null;
     }
     
     public async Task<int> SetIsEnlisted(ulong userId, bool hit) {

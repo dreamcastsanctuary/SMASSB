@@ -25,6 +25,7 @@ public class IdSystem {
     public static async Task BuildId(SocketSlashCommand command,
                                      SocketGuildUser member,
                                      string claimParam, 
+                                     byte[]? avatarImageParam,
                                      string avatarUrlParam,
                                      string accIdParam,
                                      DateTimeOffset dateParam,
@@ -44,10 +45,20 @@ public class IdSystem {
         var imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "id-template.png");
         var idImg = Image.Load(imgPath);
         
-        string sizedAvatarUrl = avatarUrlParam + "?size=4096";
-        var avatarBytes = await _httpClient.GetByteArrayAsync(sizedAvatarUrl);
-        using var avatarStream = new MemoryStream(avatarBytes);
-        var avatar = Image.Load(avatarStream);
+        Image avatar;
+        if (avatarImageParam != null) {
+            using var avatarStream = new MemoryStream(avatarImageParam);
+            avatar = Image.Load(avatarStream);
+        } else {
+            // fallback: fetch live (for old records that have no stored image yet)
+            string sizedAvatarUrl = avatarUrlParam.Contains('?')
+                ? avatarUrlParam + "&size=4096"
+                : avatarUrlParam + "?size=4096";
+            var avatarBytes = await _httpClient.GetByteArrayAsync(sizedAvatarUrl);
+            using var avatarStream = new MemoryStream(avatarBytes);
+            avatar = Image.Load(avatarStream);
+        }
+
         avatar.Mutate(x => x.Resize(new ResizeOptions {
             Size = new Size(250, 250),
             Mode = ResizeMode.Crop,
@@ -164,9 +175,20 @@ public class IdSystem {
             }
         }
         
-        await _db.SetClaim(enlisted.Id, claim);
-        await _db.SetAvatarUrl(enlisted.Id, avatarUrl);
-        await _db.SetBloodtype(enlisted.Id, bloodtype);
+        if (!string.IsNullOrEmpty(avatarUrl)) {
+            await _db.SetAvatarUrl(enlisted.Id, avatarUrl);
+    
+            var bytes = await _httpClient.GetByteArrayAsync(avatarUrl);
+            await _db.SetAvatarImage(enlisted.Id, bytes);
+        }
+
+        if (!string.IsNullOrEmpty(claim)) {
+            await _db.SetClaim(enlisted.Id, claim);
+        }
+        
+        if (!string.IsNullOrEmpty(bloodtype)) {
+            await _db.SetBloodtype(enlisted.Id, bloodtype);
+        }
         
         string claimParam = await _db.GetClaim(enlisted.Id);
         string avatarUrlParam = await _db.GetAvatarUrl(enlisted.Id);
@@ -176,9 +198,10 @@ public class IdSystem {
         int pointsParam = await _db.GetPoints(enlisted.Id);
         string bloodtypeParam = await _db.GetBloodtype(enlisted.Id);
         string usernameParam = await _db.GetUsername(enlisted.Id);
+        byte[]? avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
         
         await command.RespondAsync("Loading Idol ID . .", ephemeral: true);
-        await BuildId(command, enlisted, claimParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam);
+        await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam);
 
     }
     
@@ -195,9 +218,10 @@ public class IdSystem {
         int pointsParam = await _db.GetPoints(enlisted.Id);
         string bloodtypeParam = await _db.GetBloodtype(enlisted.Id);
         string usernameParam = await _db.GetUsername(enlisted.Id);
+        byte[]? avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
         
         await command.RespondAsync("Loading Idol ID . .", ephemeral: true);
-        await BuildId(command, enlisted, claimParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam);
+        await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam);
     }
     
     static Image LoadBadges(string filename, int w, int h) {
