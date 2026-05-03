@@ -21,8 +21,17 @@ public class DatabaseService
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-
-            ALTER TABLE Enrolled ADD COLUMN AvatarImage BLOB;
+            CREATE TABLE IF NOT EXISTS Enrolled (
+                UserId TEXT PRIMARY KEY,
+                Claim TEXT,
+                AvatarUrl TEXT NOT NULL,
+                AvatarImage BLOB,
+                Rank TEXT NOT NULL,
+                Points INTEGER DEFAULT 0,
+                Bloodtype TEXT NOT NULL,
+                Catchphrase TEXT NOT NULL,
+                Username TEXT NOT NULL
+            );
 
             CREATE TABLE IF NOT EXISTS Addons (
                 UserId TEXT PRIMARY KEY,
