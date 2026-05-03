@@ -40,7 +40,7 @@ public class IdSystem {
         var fontFamily = fontCollection.Add(fontPath);
         var font = fontFamily.CreateFont(50);
         var fontId = fontFamily.CreateFont(35);
-        var fontRank = fontFamily.CreateFont(35);
+        var fontSmall = fontFamily.CreateFont(35);
         
         var imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "id-template.png");
         var idImg = Image.Load(imgPath);
@@ -114,18 +114,29 @@ public class IdSystem {
             
             ipc.DrawImage(avatar, avatarPos, 1);
             ipc.DrawImage(redBarcode, barcodePos, 1);
-            ipc.DrawText($"{name}", font, golden, namePos);
             ipc.DrawText($"{points}", font, golden, pointsPos);
             ipc.DrawText($"{bloodtype}", font, golden, bloodtypePos);
             ipc.DrawText($"{catchphrase}", font, golden, catchphrasePos);
             ipc.DrawText($"{date:M/d/yyyy}", font, golden, datePos);
+            ipc.DrawText($"{accId}", fontId, golden, idPos);
+
+            if (name.Length > 15) {
+                
+                var spaceIndex = name.IndexOf(' ');
+                if (spaceIndex > 0) {
+                    var firstName = name.Substring(0, spaceIndex);
+                    var lastName = name.Substring(spaceIndex + 1);
+                    name = $"{firstName}\n{lastName}";
+                }
+                
+                ipc.DrawText($"{name}", fontSmall, golden, namePos);
+            } else ipc.DrawText($"{name}", font, golden, namePos);
+            
             if (rank.Contains("taru")) {
                 rank = "Bakuryōchō\ntaru Onchō";
-                ipc.DrawText($"{rank}", fontRank, golden, rankPos);
-            } else {
-                ipc.DrawText($"{rank}", font, golden, rankPos);
-            }
-            ipc.DrawText($"{accId}", fontId, golden, idPos);
+                ipc.DrawText($"{rank}", fontSmall, golden, rankPos);
+                
+            } else ipc.DrawText($"{rank}", font, golden, rankPos);
             
             foreach (var (img, pos) in badgesToDraw)
                 ipc.DrawImage(img, pos, 1);
