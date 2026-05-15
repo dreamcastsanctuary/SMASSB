@@ -300,7 +300,7 @@ public class CommandHandler {
                 .WithAuthor("|| " + author.Nickname + "", author.GetGuildAvatarUrl() ?? author.GetAvatarUrl())
                 .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ https://discordapp.com/channels/{guild.Id}/{message.Channel.Id}/{message.Id}")
                 .WithDescription(message.Content)
-                .WithFooter(message.Timestamp.ToString())
+                .WithFooter($"{message.Timestamp:M/d/yyyy HH:mm:ss tt}")
                 .WithColor(0xBFA55F)).Build();
 
             var starboard = guild.GetChannel(1473214696109903883) as ITextChannel;
@@ -416,7 +416,7 @@ public class CommandHandler {
 
             if (!ulong.TryParse(existingId, out var existingUlong)) return;
 
-            if (starCount == 0) {
+            if (starCount < 3) {
         
                 if (await starboard.GetMessageAsync(existingUlong) is IUserMessage existing)
                 {
@@ -432,7 +432,7 @@ public class CommandHandler {
                     .WithAuthor("|| " + author.Nickname, author.GetGuildAvatarUrl() ?? author.GetAvatarUrl())
                     .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ https://discordapp.com/channels/{guild.Id}/{message.Channel.Id}/{message.Id}")
                     .WithDescription(message.Content)
-                    .WithFooter(message.Timestamp.ToString())
+                    .WithFooter($"{message.Timestamp:M/d/yyyy HH:mm:ss tt}")
                     .WithColor(0xBFA55F)).Build();
 
                 if (await starboard.GetMessageAsync(existingUlong) is IUserMessage existing)
