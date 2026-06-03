@@ -532,7 +532,7 @@ public class CommandHandler {
                 await guildUser.ModifyAsync(x => x.Channel = vc);
             }
 
-            await vc.SetStatusAsync("Change the status to the topic of the VC!");
+            await vc.SetStatusAsync("✦ Change the status to the topic of the VC!");
         }
         
         if (before.VoiceChannel != null && before.VoiceChannel.Id != 1473221413749129367) {
