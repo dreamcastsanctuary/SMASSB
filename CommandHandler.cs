@@ -521,7 +521,7 @@ public class CommandHandler {
                 _ => voiceChannelCount.ToString()
             };
 
-            var name = "∥﹒mic﹒ready﹒" + nameCount;
+            var name = "∥・mic・ready・" + nameCount;
 
             var vc = await guild.CreateVoiceChannelAsync(name, props => {
                 props.CategoryId = category.Id;
