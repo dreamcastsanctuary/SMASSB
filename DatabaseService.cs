@@ -431,6 +431,22 @@ public class DatabaseService
         
         return await command.ExecuteNonQueryAsync();
     }
+    
+    public List<string> GetEnlisted() {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT UserId FROM Enrolled ORDER BY Points DESC;";
+
+        var userIds = new List<string>();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read()) {
+            userIds.Add(reader.GetString(0));
+        }
+
+        return userIds;
+    }
 
     public async Task<string> GetUClaim(ulong userId) {
         

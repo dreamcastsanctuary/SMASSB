@@ -80,10 +80,109 @@ public class RoleSystem {
 
         IRole niShi = guild.GetRole(1475886748268625962);
         await Promote(civilian, niShi);
+        await _db.RemovePoints(civilian.Id, 14);
         
         var updated = guild.GetUser(civilian.Id);
         await command.RespondAsync("Sent welcome message to new enlisted.");
         await UserExtensions.SendMessageAsync(civilian, "Welcome to your new life as an enlisted, **" + updated.Nickname + "**!\nYour first order of business is to check out your new uniform channel, and make the other two!\nThey're necessary for most of our events, so get to it soon!");
+    }
+
+    public async Task HandleCheckPromosCommand(SocketSlashCommand command, DiscordSocketClient client) {
+
+        bool promote = false;
+        
+        foreach (var option in command.Data.Options)
+        {
+            switch (option.Name) {
+                
+                case "auto_promote":
+                    promote = option.Value.ToString() == "True";
+                    break;
+                default:
+                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    break;
+            }
+        }
+
+        Dictionary<ulong, int> ranks  = new Dictionary<ulong, int>();
+        
+        ranks.Add(1475886748268625962, 250);
+        ranks.Add(1475886729561899212, 500);
+        ranks.Add(1475886715368509753, 750);
+        ranks.Add(1475886697118957660, 1000);
+        ranks.Add(1475886671919579310, 1250);
+        ranks.Add(1475886657545961472, 1500);
+
+        List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
+        SocketGuild guild = client.GetGuild((ulong)command.GuildId);
+        List<SocketGuildUser> promotable = new List<SocketGuildUser>();
+        List<SocketGuildUser> kouPromo = new List<SocketGuildUser>();
+        
+        foreach (var userId in _db.GetEnlisted()) {
+            
+            enlisteds.Add(guild.GetUser(ulong.Parse(userId)));
+        }
+
+        foreach (var enlisted in enlisteds) {
+            foreach (var rank in ranks) {
+                if (guild.GetRole(rank.Key).Name.Contains(await _db.GetRank(enlisted.Id)) & await _db.GetPoints(enlisted.Id) >= rank.Value) {
+                    promotable.Add(enlisted);
+                }
+            }
+
+            var potentialKou = await _db.GetRank(enlisted.Id);
+            
+            if (potentialKou.Contains("hosei", StringComparison.OrdinalIgnoreCase) && await _db.GetPoints(enlisted.Id) > 14) {
+                kouPromo.Add(enlisted);
+            }
+        }
+
+        if (promotable.Count == 0 && kouPromo.Count == 0) return;
+
+        var description = "";
+
+        if (kouPromo.Count > 0) {
+            description += "KOUHOSEI GRADUATES . .\n++++++++++++++++++++\n";
+            
+            foreach (var kou in kouPromo)
+            {
+                description += "" + kou.Nickname + " || " + await _db.GetPoints(kou.Id) + "pts.\n";
+            }
+            description += "\n";
+        }
+        
+        if (promotable.Count > 0) {
+            description += "GENERAL RANKUPs . .\n++++++++++++++++++++\n";
+            
+            foreach (var promo in promotable)
+            {
+                description += "" + promo.Nickname + " || " + await _db.GetPoints(promo.Id) + "pts.\n";
+            }
+        }
+
+        EmbedBuilder builder = new EmbedBuilder()
+            .WithTitle("Viable Promotions . .")
+            .WithDescription(description)
+            .WithColor(0xBFA55F);
+        
+        if (promote) {
+            foreach (var enlisted in promotable) {
+                var rankList = ranks.ToList();
+                
+                for (int i = 0; i < rankList.Count; i++) {
+                    if (guild.GetRole(rankList[i].Key).Name.Contains(await _db.GetRank(enlisted.Id))) {
+                        if (i + 1 < rankList.Count) {
+                            await Promote(enlisted, guild.GetRole(rankList[i + 1].Key));
+                        }
+                        break;
+                    }
+                }
+            }
+
+            builder.WithTitle("Viable Promotions Completed!");
+        }
+        
+        await command.RespondAsync(embed: builder.Build());
     }
 
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]

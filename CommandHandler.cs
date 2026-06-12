@@ -194,6 +194,12 @@ public class CommandHandler {
             .WithDescription("Deletes a specified number of messages from this channel.")
             .AddOption("amount", ApplicationCommandOptionType.Integer, "Number of messages to delete (1-100).", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("checkpromotions")
+            .WithDescription("Checks whether the promotions of this channel is enabled.")
+            .AddOption("auto_promote", ApplicationCommandOptionType.Boolean, "Automatically promote everyone here to the next rank.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
@@ -240,6 +246,9 @@ public class CommandHandler {
                 break;
             case "promote":
                 await _roleSystem.HandlePromoteCommand(command);
+                break;
+            case "checkpromotions":
+                await _roleSystem.HandleCheckPromosCommand(command, _client);
                 break;
             
             case "showid":
@@ -341,7 +350,7 @@ public class CommandHandler {
                 }
             }
             
-        } else if (reaction.MessageId is 1493088668557115403) { // roles, personal
+        } else if (reaction.MessageId is 1515073043184226555) { // roles, personal
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
                     
@@ -366,7 +375,7 @@ public class CommandHandler {
                 }
             }
             
-        } else if (reaction.MessageId is 1493088669924462592) { // roles, pings
+        } else if (reaction.MessageId is 1515073044773736528) { // roles, pings
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
                     
