@@ -46,7 +46,7 @@ public class RoleSystem {
         await civilian.ModifyAsync(x => x.Nickname = "Kō. " + claim);
 
         await command.RespondAsync("Processing Prospect into Database . . .");
-        await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Kōhosei",0,"N/A","Go Strike!", civilian.Username);
+        await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Kōhosei",0,"N/A","Go Strike!", civilian.Username, "ENLISTEDMAIN");
         await UserExtensions.SendMessageAsync(civilian, "Welcome to SANGŌ, **Kō. " + claim + "**! We're very happy to have you.\nYour first event *must* be of type **CIVT101**. Please be on the lookout for it.");
     }
     
@@ -168,6 +168,7 @@ public class RoleSystem {
         SocketGuildUser civilian = null;
         var claim = "";
         var rank = "";
+        bool isStaff = false;
         
         foreach (var option in command.Data.Options)
         {
@@ -182,6 +183,9 @@ public class RoleSystem {
                 case "rank_name":
                     rank = option.Value.ToString();
                     break;
+                case "is_staff":
+                    isStaff = option.Value.ToString() == "True";
+                    break;
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);
                     break;
@@ -193,8 +197,11 @@ public class RoleSystem {
             return;
         }
 
+        var idType = "ENLISTEDMAIN";
+        if (isStaff) { idType = "STAFFMAIN"; }
+
         await command.RespondAsync("Processing Prospect into Database . . .");
-        await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, rank,0,"N/A","Go Strike!", civilian.Username); 
+        await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, rank,0,"N/A","Go Strike!", civilian.Username, idType); 
     }
 
     private async Task Promote(SocketGuildUser enlisted, IRole rank) {

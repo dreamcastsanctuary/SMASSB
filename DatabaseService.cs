@@ -19,26 +19,20 @@ public class DatabaseService
         using var connection = new SqliteConnection(_connectionString);
         connection.Open();
 
-        // CREATE TABLE IF NOT EXISTS Enrolled (
-        //         UserId TEXT PRIMARY KEY,
-        //         Claim TEXT,
-        //         AvatarUrl TEXT NOT NULL,
-        //         AvatarImage BLOB,
-        //         Rank TEXT NOT NULL,
-        //         Points INTEGER DEFAULT 0,
-        //         Bloodtype TEXT NOT NULL,
-        //         Catchphrase TEXT NOT NULL,
-        //         Username TEXT NOT NULL,
-        //         IDType TEXT NOT NULL
-        //     );
-        // add ts back after
-
-        
         var command = connection.CreateCommand();
         command.CommandText = @"
-            
-            ALTER TABLE Enrolled 
-            ADD IDType TEXT NOT NULL;
+            CREATE TABLE IF NOT EXISTS Enrolled (
+                UserId TEXT PRIMARY KEY,
+                Claim TEXT,
+                AvatarUrl TEXT NOT NULL,
+                AvatarImage BLOB,
+                Rank TEXT NOT NULL,
+                Points INTEGER DEFAULT 0,
+                Bloodtype TEXT NOT NULL,
+                Catchphrase TEXT NOT NULL,
+                Username TEXT NOT NULL,
+                IDType TEXT NOT NULL
+            );
 
             CREATE TABLE IF NOT EXISTS Addons (
                 UserId TEXT PRIMARY KEY,
@@ -81,13 +75,14 @@ public class DatabaseService
                           int pointsParam,
                           string bloodtypeParam,
                           string catchphraseParam,
-                          string usernameParam) {
+                          string usernameParam,
+                          string idTypeParam) {
         
         using var connection = new SqliteConnection(_connectionString);
         connection.Open();
         
         var cmd = connection.CreateCommand();
-        cmd.CommandText = "INSERT INTO Enrolled (UserId, Claim, AvatarUrl, Rank, Points, Bloodtype, Catchphrase, Username) VALUES ($accIdParam, $claimParam, $avatarUrlParam, $rankParam, $pointsParam, $bloodtypeParam, $catchphraseParam, $usernameParam);";
+        cmd.CommandText = "INSERT INTO Enrolled (UserId, Claim, AvatarUrl, Rank, Points, Bloodtype, Catchphrase, Username, IDType) VALUES ($accIdParam, $claimParam, $avatarUrlParam, $rankParam, $pointsParam, $bloodtypeParam, $catchphraseParam, $usernameParam, $idType);";
         cmd.Parameters.AddWithValue("$accIdParam", accIdParam);
         cmd.Parameters.AddWithValue("$claimParam", claimParam);
         cmd.Parameters.AddWithValue("$avatarUrlParam", avatarUrlParam);
@@ -96,9 +91,10 @@ public class DatabaseService
         cmd.Parameters.AddWithValue("$bloodtypeParam", bloodtypeParam);
         cmd.Parameters.AddWithValue("$catchphraseParam", catchphraseParam);
         cmd.Parameters.AddWithValue("$usernameParam", usernameParam);
+        cmd.Parameters.AddWithValue("$idTypeParam", idTypeParam);
         
         cmd.ExecuteNonQuery();
-        await IdSystem.BuildId(command, member, claimParam, null, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, catchphraseParam, usernameParam);
+        await IdSystem.BuildId(command, member, claimParam, null, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, catchphraseParam, usernameParam, idTypeParam);
     }
     
 // UNENROLL CHECK COMMANDS.
@@ -378,6 +374,34 @@ public class DatabaseService
         command.CommandText = "UPDATE Enrolled SET Bloodtype = $bloodtype WHERE UserId = $id;";
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$bloodtype", bloodtype);
+        
+        return await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task<string> GetIdType(ulong userId) {
+        
+        using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT IDType FROM Enrolled WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToString(result) ?? "";
+    }
+
+    public async Task<int> SetIdType(ulong userId, string idType) {
+        
+        if (String.IsNullOrEmpty(idType)) return -1;
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE Enrolled SET IDType = $idType WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$idType", idType);
         
         return await command.ExecuteNonQueryAsync();
     }

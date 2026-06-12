@@ -33,7 +33,8 @@ public class IdSystem {
                                      int pointsParam,
                                      string bloodtypeParam,
                                      string catchphraseParam,
-                                     string usernameParam) {
+                                     string usernameParam,
+                                     string idType) {
         
         var fontCollection = new FontCollection();
         var fontPath = Path.Combine(AppContext.BaseDirectory, "Fonts", "MonaspaceArgon-Bold.otf");
@@ -41,16 +42,14 @@ public class IdSystem {
         var font = fontFamily.CreateFont(50);
         var fontId = fontFamily.CreateFont(35);
         var fontSmall = fontFamily.CreateFont(35);
-        
-        var imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "id-template.png");
-        var idImg = Image.Load(imgPath);
+
+        var idImg = LoadID(idType);
         
         Image avatar;
         if (avatarImageParam != null) {
             using var avatarStream = new MemoryStream(avatarImageParam);
             avatar = Image.Load(avatarStream);
         } else {
-            
             string sizedAvatarUrl = avatarUrlParam.Contains('?')
                 ? avatarUrlParam + "&size=4096"
                 : avatarUrlParam + "?size=4096";
@@ -58,7 +57,7 @@ public class IdSystem {
             using var avatarStream = new MemoryStream(avatarBytes);
             avatar = Image.Load(avatarStream);
         }
-
+        
         avatar.Mutate(x => x.Resize(new ResizeOptions {
             Size = new Size(250, 250),
             Mode = ResizeMode.Crop,
@@ -72,8 +71,6 @@ public class IdSystem {
         var points = pointsParam;
         var bloodtype = bloodtypeParam;
         var catchphrase = catchphraseParam;
-        Color golden = Color.FromRgba(190, 164, 95, 255);
-        System.Drawing.Image barcode = Code128Rendering.MakeBarcodeImage(usernameParam, 1, true);
 
         var namePos = new Point(827, 452);
         var avatarPos = new Point(93,373);
@@ -85,13 +82,19 @@ public class IdSystem {
         var catchphrasePos = new Point(70,953);
         var barcodePos = new Point(95,688);
         
+        List<Color> colors = LoadColors(idType);
+        System.Drawing.Image barcode = Code128Rendering.MakeBarcodeImage(usernameParam, 1, true);
+        
+        
         var stream = new MemoryStream();
         barcode.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
         stream.Position = 0;
+        
         var barcodeImg = Image.Load(stream);
-        using var redBarcode = new Image<Rgba32>(barcodeImg.Width, barcodeImg.Height, new Rgba32(255, 49, 44, 255));
-        redBarcode.Mutate(ctx => ctx.DrawImage(barcodeImg, new Point(0, 0), PixelColorBlendingMode.Multiply, PixelAlphaCompositionMode.SrcOver, 1f));
-        redBarcode.Mutate(x => x.Resize(new ResizeOptions {
+        using var coloredBarcode = new Image<Rgba32>(barcodeImg.Width, barcodeImg.Height, colors[3]);
+        
+        coloredBarcode.Mutate(ctx => ctx.DrawImage(barcodeImg, new Point(0, 0), PixelColorBlendingMode.Multiply, PixelAlphaCompositionMode.SrcOver, 1f));
+        coloredBarcode.Mutate(x => x.Resize(new ResizeOptions {
             Size = new Size(250, 50),
             Mode = ResizeMode.Crop,
             Sampler = KnownResamplers.Lanczos3
@@ -113,12 +116,12 @@ public class IdSystem {
         var clone = idImg.Clone(ipc => {
             
             ipc.DrawImage(avatar, avatarPos, 1);
-            ipc.DrawImage(redBarcode, barcodePos, 1);
-            ipc.DrawText($"{points}", font, golden, pointsPos);
-            ipc.DrawText($"{bloodtype}", font, golden, bloodtypePos);
-            ipc.DrawText($"{catchphrase}", font, golden, catchphrasePos);
-            ipc.DrawText($"{date:M/d/yyyy}", font, golden, datePos);
-            ipc.DrawText($"{accId}", fontId, golden, idPos);
+            ipc.DrawImage(coloredBarcode, barcodePos, 1);
+            ipc.DrawText($"{points}", font, colors[2], pointsPos);
+            ipc.DrawText($"{bloodtype}", font, colors[2], bloodtypePos);
+            ipc.DrawText($"{catchphrase}", font, colors[1], catchphrasePos);
+            ipc.DrawText($"{date:M/d/yyyy}", font, colors[2], datePos);
+            ipc.DrawText($"{accId}", fontId, colors[0], idPos);
 
             if (name.Length > 15) {
                 
@@ -129,14 +132,14 @@ public class IdSystem {
                     name = $"{firstName}\n{lastName}";
                 }
                 
-                ipc.DrawText($"{name}", fontSmall, golden, new Point(namePos.X, namePos.Y + 8));
-            } else ipc.DrawText($"{name}", font, golden, namePos);
+                ipc.DrawText($"{name}", fontSmall, colors[2], new Point(namePos.X, namePos.Y + 8));
+            } else ipc.DrawText($"{name}", font, colors[2], namePos);
             
             if (rank.Contains("taru")) {
                 rank = "Bakuryōchō\ntaru Onshō";
-                ipc.DrawText($"{rank}", fontSmall, golden, rankPos);
+                ipc.DrawText($"{rank}", fontSmall, colors[2], rankPos);
                 
-            } else ipc.DrawText($"{rank}", font, golden, rankPos);
+            } else ipc.DrawText($"{rank}", font, colors[2], rankPos);
             
             foreach (var (img, pos) in badgesToDraw)
                 ipc.DrawImage(img, pos, 1);
@@ -166,6 +169,7 @@ public class IdSystem {
         string avatarUrl = null;
         string catchphrase = null;
         string bloodtype = null;
+        string idType = null;
         
         foreach (var option in command.Data.Options) {
             switch (option.Name)
@@ -179,6 +183,9 @@ public class IdSystem {
                     break;
                 case "bloodtype":
                     bloodtype = option.Value.ToString();
+                    break;
+                case "id_type":
+                    idType = option.Value.ToString();
                     break;
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);
@@ -201,6 +208,10 @@ public class IdSystem {
             await _db.SetBloodtype(enlisted.Id, bloodtype);
         }
         
+        if (!string.IsNullOrEmpty(idType)) {
+            await _db.SetIdType(enlisted.Id, idType);
+        }
+        
         string claimParam = await _db.GetClaim(enlisted.Id);
         string avatarUrlParam = await _db.GetAvatarUrl(enlisted.Id);
         string accIdParam = enlisted.Id.ToString();
@@ -210,9 +221,10 @@ public class IdSystem {
         string bloodtypeParam = await _db.GetBloodtype(enlisted.Id);
         string usernameParam = await _db.GetUsername(enlisted.Id);
         byte[]? avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
+        string idTypeParam = await _db.GetIdType(enlisted.Id);
         
         await command.RespondAsync("Loading Idol ID . .", ephemeral: true);
-        await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam);
+        await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam, idTypeParam);
 
     }
     
@@ -230,9 +242,10 @@ public class IdSystem {
         string bloodtypeParam = await _db.GetBloodtype(enlisted.Id);
         string usernameParam = await _db.GetUsername(enlisted.Id);
         byte[]? avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
+        string idTypeParam = await _db.GetIdType(enlisted.Id);
         
         await command.RespondAsync("Loading Idol ID . .", ephemeral: true);
-        await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam);
+        await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam, idTypeParam);
     }
     
     static Image LoadBadges(string filename, int w, int h) {
@@ -244,5 +257,54 @@ public class IdSystem {
             Sampler = KnownResamplers.Lanczos3
         }));
         return img;
+    }
+
+    static Image LoadID(string idType) {
+        
+        string imgPath = "";
+
+        switch (idType) {
+            
+            case "ENLISTEDMAIN":
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "enlisted-main-template.png");
+                break;
+            case "STAFFMAIN":
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "staff-main-template.png");
+                break;
+            case "NEWGAMEPLUS":
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "ngplus-template.png");
+                break;
+        }
+        
+        return Image.Load(imgPath);
+    }
+
+    static List<Color> LoadColors(string idType) {
+
+        List<Color> colors = new List<Color>();
+        
+        switch (idType) {
+            
+            case "ENLISTEDMAIN":
+                colors.Add(Color.FromRgba(190, 164, 95, 255)); // Heading
+                colors.Add(Color.FromRgba(190, 164, 95, 255)); // Catchphrase
+                colors.Add(Color.FromRgba(190, 164, 95, 255)); // Details
+                colors.Add(Color.FromRgba(255, 61, 54, 255)); // Barcode
+                break;
+            case "STAFFMAIN":
+                colors.Add(Color.FromRgba(37, 75, 75, 255));
+                colors.Add(Color.FromRgba(253, 205, 120, 255));
+                colors.Add(Color.FromRgba(35, 1, 0, 255));
+                colors.Add(Color.FromRgba(136, 20, 18, 255));
+                break;
+            case "NEWGAMEPLUS":
+                colors.Add(Color.FromRgba(255, 215, 156, 255));
+                colors.Add(Color.FromRgba(33, 25, 22, 255));
+                colors.Add(Color.FromRgba(238, 228, 212, 255));
+                colors.Add(Color.FromRgba(254, 232, 195, 255));
+                break;
+        }
+        
+        return colors;
     }
 }
