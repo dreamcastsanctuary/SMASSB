@@ -51,13 +51,14 @@ public class MeetingSystem {
     }
     
     [DefaultMemberPermissions(GuildPermission.Administrator)]
-    public async Task HandleMeetingBListCommand(SocketSlashCommand command, DiscordSocketClient client) {
+    public async Task HandleMeetingPRCommand(SocketSlashCommand command, DiscordSocketClient client) {
         
         await command.RespondAsync("Creating blacklist meeting room.", ephemeral: true);
         var guild = client.GetGuild(command.GuildId.Value);
         var channel = guild.GetChannel(1482455836776333322) as SocketTextChannel;
         SocketGuildUser person = null;
         var meeting_name = "";
+        var type = "";
         
         foreach (var option in command.Data.Options) {
             switch (option.Name) {
@@ -67,6 +68,9 @@ public class MeetingSystem {
                     break;
                 case "meeting_name":
                     meeting_name = option.Value.ToString();
+                    break;
+                case "type":
+                    type = option.Value.ToString();
                     break;
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);
@@ -80,12 +84,27 @@ public class MeetingSystem {
         }
         
         await person.AddRoleAsync(1492674198345224293);
+
+        switch (type) {
+            case "Partnering":
+                type = "partner";
+                break;
+            case "Blacklist":
+                type = "blist";
+                break;
+            case "Other":
+                type = "pr-gen";
+                break;
+            default:
+                await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                return;
+        }
         
-        var name = "meeting-blist-" + meeting_name;
+        var name = "meeting-" + type + "-" + meeting_name;
         
         var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
         await Task.Delay(500);
-        await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name + ".\nPlease wait here and be patient as <@" + command.User.Id + "> and <@1436617424379318282> prepare to assist you, <@" + person.Id + ">.");
+        await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name + ".\nPlease wait here and be patient as <@" + command.User.Id + "> and <@&1473371232060702781> prepare to assist you, <@" + person.Id + ">.");
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
@@ -127,8 +146,6 @@ public class MeetingSystem {
         await _db.SetIsFan(freshPerson.Id, person.Roles.Contains(guild.GetRole(1475720710910382310)));
         await _db.SetIsPartner(freshPerson.Id, freshPerson.Roles.Contains(guild.GetRole(1473514553240322148)));
         await _db.SetIsProspect(freshPerson.Id, freshPerson.Roles.Contains(guild.GetRole(1473369036766052445)));
-
-        Console.WriteLine(">>>>>>>>>>>>>>>>>>>>>>>>>> " + await _db.GetIsCivilian(freshPerson.Id));
         
         if (await _db.GetIsCivilian(freshPerson.Id)) {
             await freshPerson.RemoveRoleAsync(1473369383471677461);

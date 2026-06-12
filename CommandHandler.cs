@@ -75,11 +75,17 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
-            .WithName("meetingblist")
-            .WithDescription("Creates a private meeting room with our PR Liaison Officer and the person provided.")
+            .WithName("meetingpr")
+            .WithDescription("Creates a private meeting room with our PR Officer and the person provided.")
             .AddOption("person", ApplicationCommandOptionType.User, "The @ of the person.", isRequired: true)
             .AddOption("meeting_name", ApplicationCommandOptionType.String, "What you want to call this meeting; add - instead of spaces.", isRequired: true)
-            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("type")
+                .WithDescription("What kind of PR Meeting will this be?")
+                .WithType(ApplicationCommandOptionType.String)
+                .WithRequired(true)
+                .AddChoice("Partnering", "Partnering").AddChoice("Blacklist", "Blacklist").AddChoice("Other", "Other"))
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("meetingreprimand")
@@ -200,7 +206,7 @@ public class CommandHandler {
     private async Task SlashCommandHandler(SocketSlashCommand command) {
         switch(command.Data.Name) {
             case "rewardko":
-                await _rewardSystem.HandleRewardKoCommand(command);
+                await _rewardSystem.HandleRewardKoCommand(command, _client);
                 break;
             case "rewardaccomp":
                 await _rewardSystem.HandleRewardAccompCommand(command, _client);
@@ -209,8 +215,8 @@ public class CommandHandler {
             case "meeting":
                 await _meetingSystem.HandleMeetingCommand(command, _client);
                 break;
-            case "meetingblist":
-                await _meetingSystem.HandleMeetingBListCommand(command, _client);
+            case "meetingpr":
+                await _meetingSystem.HandleMeetingPRCommand(command, _client);
                 break;
             case "meetingreprimand":
                 await _meetingSystem.HandleMeetingReprimandCommand(command, _client);

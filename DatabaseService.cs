@@ -19,19 +19,26 @@ public class DatabaseService
         using var connection = new SqliteConnection(_connectionString);
         connection.Open();
 
+        // CREATE TABLE IF NOT EXISTS Enrolled (
+        //         UserId TEXT PRIMARY KEY,
+        //         Claim TEXT,
+        //         AvatarUrl TEXT NOT NULL,
+        //         AvatarImage BLOB,
+        //         Rank TEXT NOT NULL,
+        //         Points INTEGER DEFAULT 0,
+        //         Bloodtype TEXT NOT NULL,
+        //         Catchphrase TEXT NOT NULL,
+        //         Username TEXT NOT NULL,
+        //         IDType TEXT NOT NULL
+        //     );
+        // add ts back after
+
+        
         var command = connection.CreateCommand();
         command.CommandText = @"
-            CREATE TABLE IF NOT EXISTS Enrolled (
-                UserId TEXT PRIMARY KEY,
-                Claim TEXT,
-                AvatarUrl TEXT NOT NULL,
-                AvatarImage BLOB,
-                Rank TEXT NOT NULL,
-                Points INTEGER DEFAULT 0,
-                Bloodtype TEXT NOT NULL,
-                Catchphrase TEXT NOT NULL,
-                Username TEXT NOT NULL
-            );
+            
+            ALTER TABLE Enrolled 
+            ADD IDType TEXT NOT NULL;
 
             CREATE TABLE IF NOT EXISTS Addons (
                 UserId TEXT PRIMARY KEY,
@@ -55,10 +62,11 @@ public class DatabaseService
                 StarboardId TEXT NOT NULL
             );
 
-        CREATE TABLE IF NOT EXISTS StatChannel (
-            GuildId TEXT PRIMARY KEY,
-            ChannelId TEXT NOT NULL
-            );";
+            CREATE TABLE IF NOT EXISTS StatChannel (
+                GuildId TEXT PRIMARY KEY,
+                ChannelId TEXT NOT NULL
+            );
+        ";
         
         command.ExecuteNonQuery();
     }

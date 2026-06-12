@@ -124,7 +124,7 @@ public class LogHandler {
         }
     }
     
-    public async Task LogUserJoined(SocketGuildUser user, SocketGuild guild, ConcurrentDictionary<string, int> inviteCache, IReadOnlyCollection<IInviteMetadata> newInvites) {
+    public async Task LogUserJoined(SocketGuildUser user, SocketGuild guild) {
         
         try {
             var welcomeChannel = _client.GetChannel(1473208226278408275) as ISocketMessageChannel;

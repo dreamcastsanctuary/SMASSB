@@ -7,7 +7,7 @@ namespace SMASSB.Commands;
 public class RewardSystem {
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
-    public async Task HandleRewardKoCommand(SocketSlashCommand command) {
+    public async Task HandleRewardKoCommand(SocketSlashCommand command, DiscordSocketClient client) {
         
         List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
         int item = 1;
@@ -84,6 +84,13 @@ public class RewardSystem {
                 .WithImageUrl("https://64.media.tumblr.com/616bce1d6e1a6d7a2123c76d6f249404/2ecded076fd064e9-c6/s1280x1920/11d327bf242c41a07ca122757d050c6c6ce52da1.pnj")
                 .WithFooter("Send your finished uniform in Onshō. Kamikawa Hiromi's DMs to be checked. We're all proud of you!\n\nSing for hope | Strike for all!")
                 .WithColor(new Color(0xFF312C));
+
+            SocketGuild guild = client.GetGuild((ulong)command.GuildId);
+            var channel = guild.GetTextChannel(1473516609397063680);
+
+            foreach (SocketGuildUser enlisted in enlisteds) {
+                await channel.AddPermissionOverwriteAsync(enlisted, new OverwritePermissions(viewChannel: PermValue.Allow));
+            }
         }
         
         Embed finalEmbed = embedBuilder.Build();
