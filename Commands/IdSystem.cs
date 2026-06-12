@@ -292,10 +292,10 @@ public class IdSystem {
                 colors.Add(Color.FromRgba(255, 61, 54, 255)); // Barcode
                 break;
             case "STAFFMAIN":
-                colors.Add(Color.FromRgba(37, 75, 75, 255));
-                colors.Add(Color.FromRgba(253, 205, 120, 255));
+                colors.Add(Color.FromRgba(244, 227, 194, 255));
+                colors.Add(Color.FromRgba(244, 227, 194, 255));
                 colors.Add(Color.FromRgba(35, 1, 0, 255));
-                colors.Add(Color.FromRgba(136, 20, 18, 255));
+                colors.Add(Color.FromRgba(229, 58, 59, 255));
                 break;
             case "NEWGAMEPLUS":
                 colors.Add(Color.FromRgba(255, 215, 156, 255));
