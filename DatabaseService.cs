@@ -82,7 +82,7 @@ public class DatabaseService
         connection.Open();
         
         var cmd = connection.CreateCommand();
-        cmd.CommandText = "INSERT INTO Enrolled (UserId, Claim, AvatarUrl, Rank, Points, Bloodtype, Catchphrase, Username, IDType) VALUES ($accIdParam, $claimParam, $avatarUrlParam, $rankParam, $pointsParam, $bloodtypeParam, $catchphraseParam, $usernameParam, $idType);";
+        cmd.CommandText = "INSERT INTO Enrolled (UserId, Claim, AvatarUrl, Rank, Points, Bloodtype, Catchphrase, Username, IDType) VALUES ($accIdParam, $claimParam, $avatarUrlParam, $rankParam, $pointsParam, $bloodtypeParam, $catchphraseParam, $usernameParam, $idTypeParam);";
         cmd.Parameters.AddWithValue("$accIdParam", accIdParam);
         cmd.Parameters.AddWithValue("$claimParam", claimParam);
         cmd.Parameters.AddWithValue("$avatarUrlParam", avatarUrlParam);
