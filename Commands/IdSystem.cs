@@ -147,7 +147,6 @@ public class IdSystem {
         });
 
         var output = Path.Combine(Path.GetTempPath(), $"id_{accId}.png");
-        var channel = command.Channel;
         
         clone.Save(output);
         foreach (var (img, _) in badgesToDraw) img.Dispose();
@@ -155,7 +154,7 @@ public class IdSystem {
         if (member != command.User) {
             await UserExtensions.SendFileAsync(member, output, "Here you are, your brand new Idol ID!");
         } else {
-            await channel.SendFileAsync(output, "Loaded Idol ID . . !"); 
+            await command.FollowupWithFileAsync(output, text: "Loaded Idol ID . . !");
         }
         
         File.Delete(output);
