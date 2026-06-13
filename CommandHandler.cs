@@ -177,7 +177,7 @@ public class CommandHandler {
         commands.Add(new SlashCommandBuilder()
             .WithName("forcegainid")
             .WithDescription("Force give a user an ID.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The member the ID will go to.")
+            .AddOption("member", ApplicationCommandOptionType.User, "The member the ID will go to.", isRequired: true)
             .AddOption(idOption)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
         );

@@ -270,6 +270,12 @@ public class IdSystem {
         }
 
         await _db.GiveNewId(member.Id, id);
+
+        var description = "";
+        foreach (var idType in await _db.GetIds(member.Id)) {
+            description += idType + "\n";
+        }
+        await command.RespondAsync(description);
     }
     
     static Image LoadBadges(string filename, int w, int h) {
