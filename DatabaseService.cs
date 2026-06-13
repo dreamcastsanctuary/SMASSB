@@ -38,7 +38,7 @@ public class DatabaseService
             CREATE TABLE IF NOT EXISTS Id (
                 UserId TEXT PRIMARY KEY,
                 Collected TEXT NOT NULL
-            )
+            );
 
             CREATE TABLE IF NOT EXISTS Addons (
                 UserId TEXT PRIMARY KEY,
