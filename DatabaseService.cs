@@ -103,6 +103,7 @@ public class DatabaseService
 
         await GiveNewId(ulong.Parse(accIdParam), idTypeParam);
         await IdSystem.BuildId(command, member, claimParam, null, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, catchphraseParam, usernameParam, idTypeParam);
+        await command.RespondAsync("Processed Prospect into Database.");
     }
     
 // UNENROLL CHECK COMMANDS.
