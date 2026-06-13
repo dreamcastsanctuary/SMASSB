@@ -207,7 +207,8 @@ public class DatabaseService
         await connection.OpenAsync();
         
         var command = connection.CreateCommand();
-        command.CommandText = "DELETE FROM Enrolled WHERE UserId = $id;";
+        command.CommandText = @"DELETE FROM Enrolled WHERE UserId = $id;
+                                DELETE FROM Id WHERE UserId = $id;";
         command.Parameters.AddWithValue("$id", userId.ToString());
         await command.ExecuteNonQueryAsync();
     }
