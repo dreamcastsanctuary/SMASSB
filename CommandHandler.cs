@@ -159,7 +159,7 @@ public class CommandHandler {
                 .AddChoice("AB (Rational)", "AB (Rational)")
                 .WithType(ApplicationCommandOptionType.String))
             .AddOption(new SlashCommandOptionBuilder()
-                .WithName("idtype")
+                .WithName("id_type")
                 .WithDescription("The ID to display.")
                 .WithRequired(false)
                 .WithType(ApplicationCommandOptionType.String)
