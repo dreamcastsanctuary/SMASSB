@@ -44,10 +44,10 @@ public class RoleSystem {
         await civilian.RemoveRoleAsync(1473369383471677461);
         
         await civilian.ModifyAsync(x => x.Nickname = "Kō. " + claim);
-
-        await command.RespondAsync("Processing Prospect into Database . . .");
+        
         await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Kōhosei",0,"N/A","Go Strike!", civilian.Username, "ENLISTEDMAIN");
         await UserExtensions.SendMessageAsync(civilian, "Welcome to SANGŌ, **Kō. " + claim + "**! We're very happy to have you.\nYour first event *must* be of type **CIVT101**. Please be on the lookout for it.");
+        await command.RespondAsync("Processed Prospect into Database.");
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
@@ -298,9 +298,9 @@ public class RoleSystem {
 
         var idType = "ENLISTEDMAIN";
         if (isStaff) { idType = "STAFFMAIN"; }
-
-        await command.RespondAsync("Processing Prospect into Database . . .");
+        
         await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, rank,0,"N/A","Go Strike!", civilian.Username, idType); 
+        await command.RespondAsync("Processed Prospect into Database.");
     }
 
     private async Task Promote(SocketGuildUser enlisted, IRole rank) {

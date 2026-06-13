@@ -244,7 +244,7 @@ public class IdSystem {
         byte[]? avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
         string idTypeParam = await _db.GetIdType(enlisted.Id);
         
-        await command.RespondAsync("Loading Idol ID . .", ephemeral: true);
+        await command.RespondAsync("Loading Idol ID . .");
         await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam, idTypeParam);
     }
     
