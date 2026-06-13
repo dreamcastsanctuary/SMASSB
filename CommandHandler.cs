@@ -652,6 +652,8 @@ public class CommandHandler {
         var collected = await _db.GetIds(interaction.User.Id);
         var typed = (string)interaction.Data.Current.Value;
 
+        Console.WriteLine($"[Autocomplete] UserId: {interaction.User.Id}, Collected: {collected.Count}, Typed: '{typed}'");
+        
         var results = collected
             .Where(id => string.IsNullOrEmpty(typed) || id.Contains(typed, StringComparison.OrdinalIgnoreCase))
             .Select(id => new AutocompleteResult(id, id));
