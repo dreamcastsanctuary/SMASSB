@@ -45,7 +45,7 @@ public class Program {
         
         _client.AutocompleteExecuted += async (interaction) => {
             if (interaction.Data.CommandName != "editid") return;
-            if (interaction.Data.Current.Name != "id") return;
+            if (interaction.Data.Current.Name != "id_type") return;
             
             await _commandHandler.IdAutocompleteHandler(interaction);
         };
