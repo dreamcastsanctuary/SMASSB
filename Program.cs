@@ -44,6 +44,9 @@ public class Program {
         _client.WebhooksUpdated += (userGuild, channel) => { _ = Task.Run(async () => await _logHandler.LogWebhookUpdate(userGuild, channel)); return Task.CompletedTask; };
         
         _client.AutocompleteExecuted += async (interaction) => {
+            
+            Console.WriteLine($"Autocomplete executed: {interaction.User.Username}");
+            
             if (interaction.Data.CommandName != "editid") return;
             if (interaction.Data.Current.Name != "id_type") return;
             
