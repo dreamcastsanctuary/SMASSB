@@ -247,6 +247,30 @@ public class IdSystem {
         await command.RespondAsync("Loading Idol ID . .");
         await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam, idTypeParam);
     }
+
+    public async Task ForceGainId(SocketSlashCommand command, DiscordSocketClient client) {
+        
+        SocketGuildUser member = null;
+        var id = "";
+        
+        foreach (var option in command.Data.Options) {
+            switch (option.Name)
+            {
+
+                case "member":
+                    member = (SocketGuildUser)option.Value;
+                    break;
+                case "id":
+                    id = option.Value.ToString();
+                    break;
+                default:
+                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    return;
+            }
+        }
+
+        await _db.GiveNewId(member.Id, id);
+    }
     
     static Image LoadBadges(string filename, int w, int h) {
         var path = Path.Combine(AppContext.BaseDirectory, "Images", filename);
@@ -271,8 +295,11 @@ public class IdSystem {
             case "STAFFMAIN":
                 imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "staff-main-template.png");
                 break;
-            case "NEWGAMEPLUS":
+            case "NEWGAMEPLUSENLISTED":
                 imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "ngplus-template.png");
+                break;
+            case "NEWGAMEPLUSSTAFF":
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "ngplus-staff-template.png");
                 break;
         }
         
@@ -297,7 +324,13 @@ public class IdSystem {
                 colors.Add(Color.FromRgba(35, 1, 0, 255));
                 colors.Add(Color.FromRgba(229, 58, 59, 255));
                 break;
-            case "NEWGAMEPLUS":
+            case "NEWGAMEPLUSENLISTED":
+                colors.Add(Color.FromRgba(255, 215, 156, 255));
+                colors.Add(Color.FromRgba(33, 25, 22, 255));
+                colors.Add(Color.FromRgba(238, 228, 212, 255));
+                colors.Add(Color.FromRgba(254, 232, 195, 255));
+                break;
+            case "NEWGAMEPLUSSTAFF":
                 colors.Add(Color.FromRgba(255, 215, 156, 255));
                 colors.Add(Color.FromRgba(33, 25, 22, 255));
                 colors.Add(Color.FromRgba(238, 228, 212, 255));

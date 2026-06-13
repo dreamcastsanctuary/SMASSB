@@ -43,6 +43,13 @@ public class Program {
         _client.MessageUpdated += (beforemessage, aftermessage, messageChannel) => { _ = Task.Run(async () => await _logHandler.LogMessageUpdate(beforemessage, aftermessage, messageChannel, _client.GetGuild(_guildId))); return Task.CompletedTask; };
         _client.WebhooksUpdated += (userGuild, channel) => { _ = Task.Run(async () => await _logHandler.LogWebhookUpdate(userGuild, channel)); return Task.CompletedTask; };
         
+        _client.AutocompleteExecuted += async (interaction) => {
+            if (interaction.Data.CommandName != "editid") return;
+            if (interaction.Data.Current.Name != "id") return;
+            
+            await _commandHandler.IdAutocompleteHandler(interaction);
+        };
+        
         _client.Ready += async () => {
     
         var guild = _client.GetGuild(_guildId); 

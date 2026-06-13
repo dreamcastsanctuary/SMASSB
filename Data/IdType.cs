@@ -1,0 +1,9 @@
+﻿namespace SMASSB.Data;
+
+public enum IdType
+{
+    ENLISTEDMAIN,
+    STAFFMAIN,
+    NEWGAMEPLUSENLISTED,
+    NEWGAMEPLUSSTAFF
+}

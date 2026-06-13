@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using System.Text.Json;
+using Discord.WebSocket;
 using SMASSB.Commands;
 
 namespace SMASSB;
@@ -33,6 +34,11 @@ public class DatabaseService
                 Username TEXT NOT NULL,
                 IDType TEXT NOT NULL
             );
+
+            CREATE TABLE IF NOT EXISTS Id (
+                UserId TEXT PRIMARY KEY,
+                Collected TEXT NOT NULL
+            )
 
             CREATE TABLE IF NOT EXISTS Addons (
                 UserId TEXT PRIMARY KEY,
@@ -94,6 +100,8 @@ public class DatabaseService
         cmd.Parameters.AddWithValue("$idTypeParam", idTypeParam);
         
         cmd.ExecuteNonQuery();
+
+        await GiveNewId(ulong.Parse(accIdParam), idTypeParam);
         await IdSystem.BuildId(command, member, claimParam, null, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, catchphraseParam, usernameParam, idTypeParam);
     }
     
@@ -723,5 +731,44 @@ public class DatabaseService
 
         var result = await command.ExecuteScalarAsync();
         return Convert.ToInt32(result) > 0;
+    }
+    
+    // IDS
+
+    public async Task<List<string>> GetIds(ulong userId) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT Collected FROM Id WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+    
+        if (result == null || result == DBNull.Value)
+            return new List<string>();
+
+        return JsonSerializer.Deserialize<List<string>>((string)result) ?? new List<string>();
+    }
+
+    public async Task GiveNewId(ulong userId, string id) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var existing = await GetIds(userId);
+        existing.Add(id);
+    
+        var json = JsonSerializer.Serialize(existing);
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO Id (UserId, Collected)
+                              VALUES ($id, $collected)
+                              ON CONFLICT(UserId) DO UPDATE SET Collected = $collected;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$collected", json);
+
+        await command.ExecuteNonQueryAsync();
     }
 }

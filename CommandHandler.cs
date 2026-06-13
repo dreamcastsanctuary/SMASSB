@@ -3,6 +3,7 @@ using Discord.Net;
 using Discord.WebSocket;
 using SMASSB.Commands;
 using Newtonsoft.Json;
+using SMASSB.Data;
 
 namespace SMASSB;
 public class CommandHandler {
@@ -156,7 +157,30 @@ public class CommandHandler {
                 .AddChoice("A (Patient)", "A (Patient)")
                 .AddChoice("B (Active)", "B (Active)")
                 .AddChoice("AB (Rational)", "AB (Rational)")
-                .WithType(ApplicationCommandOptionType.String)));
+                .WithType(ApplicationCommandOptionType.String))
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("idtype")
+                .WithDescription("The ID to display.")
+                .WithRequired(false)
+                .WithType(ApplicationCommandOptionType.String)
+                .WithAutocomplete(true)));
+        
+        var idOption = new SlashCommandOptionBuilder()
+            .WithName("id")
+            .WithDescription("The ID to give.")
+            .WithType(ApplicationCommandOptionType.String)
+            .WithRequired(true);
+
+        foreach (var name in Enum.GetNames<IdType>())
+            idOption.AddChoice(name, name);
+
+        commands.Add(new SlashCommandBuilder()
+            .WithName("forcegainid")
+            .WithDescription("Force give a user an ID.")
+            .AddOption("member", ApplicationCommandOptionType.User, "The member the ID will go to.")
+            .AddOption(idOption)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
+        );
         
         // POINTSYSTEM.
 
@@ -256,6 +280,9 @@ public class CommandHandler {
                 break;
             case "editid":
                 await _idSystem.EditId(command, _client);
+                break;
+            case "forcegainid":
+                await _idSystem.ForceGainId(command, _client);
                 break;
             
             case "showpoints":
@@ -618,5 +645,17 @@ public class CommandHandler {
                 x.Components = components;
             });
         }
+    }
+    
+    public async Task IdAutocompleteHandler(SocketAutocompleteInteraction interaction) {
+        
+        var collected = await _db.GetIds(interaction.User.Id);
+        var typed = (string)interaction.Data.Current.Value;
+
+        var results = collected
+            .Where(id => string.IsNullOrEmpty(typed) || id.Contains(typed, StringComparison.OrdinalIgnoreCase))
+            .Select(id => new AutocompleteResult(id, id));
+
+        await interaction.RespondAsync(results);
     }
 }
