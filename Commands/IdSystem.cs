@@ -222,7 +222,6 @@ public class IdSystem {
         byte[]? avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
         string idTypeParam = await _db.GetIdType(enlisted.Id);
         
-        await command.RespondAsync("Loading Idol ID . .", ephemeral: true);
         await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam, idTypeParam);
 
     }
@@ -243,7 +242,6 @@ public class IdSystem {
         byte[]? avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
         string idTypeParam = await _db.GetIdType(enlisted.Id);
         
-        await command.RespondAsync("Loading Idol ID . .");
         await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam, idTypeParam);
     }
 
@@ -269,12 +267,7 @@ public class IdSystem {
         }
 
         await _db.GiveNewId(member.Id, id);
-
-        var description = "";
-        foreach (var idType in await _db.GetIds(member.Id)) {
-            description += idType + "\n";
-        }
-        await command.RespondAsync(description);
+        await command.RespondAsync("Done.", ephemeral: true);
     }
     
     static Image LoadBadges(string filename, int w, int h) {
