@@ -113,7 +113,7 @@ public class CommandHandler {
             .WithName("enlist")
             .WithDescription("Enlists a kōhosei into a enlisted.")
             .AddOption("kōhosei", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true)
-            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("forceenlist")
@@ -131,8 +131,8 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
         commands.Add(new SlashCommandBuilder()
-            .WithName("promote")
-            .WithDescription("Promotes the given list of enlisted to the specific rank.")
+            .WithName("forcepromote")
+            .WithDescription("Should only be used in situations where Database doesn't update properly (can be seen with IDs.) || Promotes the given list of enlisted to the specific rank.")
             .AddOption("add_rank", ApplicationCommandOptionType.Role, "The role to be given.", isRequired: true).AddOption("add_rank_category", ApplicationCommandOptionType.Role, "If needed, the next rank category (IE: Enlisted, Non-Commissioned Officer, etc.", isRequired: false)
             .AddOption("remove_rank", ApplicationCommandOptionType.Role, "The role to be taken away.", isRequired: true).AddOption("remove_rank_category", ApplicationCommandOptionType.Role, "If needed, the previous rank category (IE: Enlisted, Non-Commissioned Officer, etc.", isRequired: false)
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
@@ -268,7 +268,7 @@ public class CommandHandler {
             case "forceremove":
                 await _roleSystem.HandleForceRemoveCommand(command);
                 break;
-            case "promote":
+            case "forcepromote":
                 await _roleSystem.HandlePromoteCommand(command);
                 break;
             case "checkpromotions":

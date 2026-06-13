@@ -28,8 +28,9 @@ public class PointSystem {
                     break;
             }
         }
-        
-        var points = _db.GetPoints(member.Id);
+
+        int points;
+        try { points = await _db.GetPoints(member.Id); } catch { await command.RespondAsync("Forgot to enlist someone?"); return; }
 
         Embed embed = (new EmbedBuilder()
             .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())

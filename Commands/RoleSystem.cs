@@ -137,31 +137,35 @@ public class RoleSystem {
             }
         }
 
-        if (promotable.Count == 0 && kouPromo.Count == 0) return;
+        if (promotable.Count == 0 && kouPromo.Count == 0) {
+            await command.RespondAsync("No promotions found.");
+            return;
+        }
 
         var description = "";
 
         if (kouPromo.Count > 0) {
-            description += "KOUHOSEI GRADUATES . .\n++++++++++++++++++++\n";
+            description += ":sango_emblem_mono: ∥ KŌHOSEI GRADUATES . .\n・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・\n";
             
             foreach (var kou in kouPromo)
             {
-                description += "" + kou.Nickname + " || " + await _db.GetPoints(kou.Id) + "pts.\n";
+                description += "" + kou.Nickname + " ∥ " + await _db.GetPoints(kou.Id) + "pts.\n";
             }
             description += "\n";
         }
         
         if (promotable.Count > 0) {
-            description += "GENERAL RANKUPs . .\n++++++++++++++++++++\n";
+            description += ":sango_emblem_mono: ∥ GENERAL RANKUPs . .\n・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・\n";
             
             foreach (var promo in promotable)
             {
-                description += "" + promo.Nickname + " || " + await _db.GetPoints(promo.Id) + "pts.\n";
+                description += "" + promo.Nickname + " ∥ " + await _db.GetPoints(promo.Id) + "pts.\n";
             }
         }
 
         EmbedBuilder builder = new EmbedBuilder()
-            .WithTitle("Viable Promotions . .")
+            .WithTitle("❖﹒Viable Promotions . .")
+            .WithThumbnailUrl("https://media.discordapp.net/attachments/1084260632142024784/1514408846259523606/Untitled384_20260410170520.png?ex=6a2e8e65&is=6a2d3ce5&hm=c05da8c7af19869b1745e4024aa09d0ba8a119d1c0ee397c6d02d6f9a381ff9a&=&format=webp&quality=lossless&width=1265&height=1265")
             .WithDescription(description)
             .WithColor(0xBFA55F);
         
@@ -171,17 +175,24 @@ public class RoleSystem {
                 
                 for (int i = 0; i < rankList.Count; i++) {
                     if (guild.GetRole(rankList[i].Key).Name.Contains(await _db.GetRank(enlisted.Id))) {
+                        
                         if (i + 1 < rankList.Count) {
                             await Promote(enlisted, guild.GetRole(rankList[i + 1].Key));
+                            
+                            await enlisted.RemoveRoleAsync(guild.GetRole(rankList[i].Key));
+                            if (i != 0) {
+                                await enlisted.RemoveRoleAsync(guild.GetRole(rankList[i - 1].Key));
+                                if ((i - 1) != 0) await enlisted.RemoveRoleAsync(guild.GetRole(rankList[i - 2].Key));
+                                if ((i - 2) != 0) await enlisted.RemoveRoleAsync(guild.GetRole(rankList[i - 3].Key));
+                            }
+                            await enlisted.AddRoleAsync(guild.GetRole(rankList[i + 1].Key));
                         }
                         break;
                     }
                 }
             }
-
             builder.WithTitle("Viable Promotions Completed!");
         }
-        
         await command.RespondAsync(embed: builder.Build());
     }
 
@@ -258,7 +269,7 @@ public class RoleSystem {
                 await Promote(enlisted, addedRank);
             }
         }
-        command.RespondAsync("Completed task.", ephemeral: true);
+        await command.RespondAsync("Completed task.", ephemeral: true);
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]

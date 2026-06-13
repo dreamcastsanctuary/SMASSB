@@ -43,7 +43,10 @@ public class IdSystem {
         var fontId = fontFamily.CreateFont(35);
         var fontSmall = fontFamily.CreateFont(35);
 
-        var idImg = LoadID(idType);
+        Image idImg = null;
+        
+        try { idImg = LoadID(idType); } catch { await command.RespondAsync("Did you forget to pre/enlist this person? ;)"); return; }
+        
         
         Image avatar;
         if (avatarImageParam != null) {
