@@ -209,12 +209,12 @@ public class CommandHandler {
 
         commands.Add(new SlashCommandBuilder()
             .WithName("restoreprogress")
-            .WithDescription("Restores the progress of a previous member.")
+            .WithDescription("DO NOT USE THIS. UNTESTED AND VERY, VERY SCARY. || Restores the progress of a previous member.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
         commands.Add(new SlashCommandBuilder()
-            .WithName("massremove")
+            .WithName("purgemessages")
             .WithDescription("Deletes a specified number of messages from this channel.")
             .AddOption("amount", ApplicationCommandOptionType.Integer, "Number of messages to delete (1-100).", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
@@ -300,7 +300,7 @@ public class CommandHandler {
             case "restoreprogress":
                 await _pointSystem.RestoreProgress(command, _client);
                 break;
-            case "massremove":
+            case "purgemessages":
                 await _generalSystem.HandleMassRemoveCommand(command);
                 break;
             
