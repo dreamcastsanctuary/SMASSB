@@ -300,7 +300,6 @@ public class RoleSystem {
         if (isStaff) { idType = "STAFFMAIN"; }
         
         await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, rank,0,"N/A","Go Strike!", civilian.Username, idType); 
-        await command.RespondAsync("Processed Prospect into Database.");
     }
 
     private async Task Promote(SocketGuildUser enlisted, IRole rank) {

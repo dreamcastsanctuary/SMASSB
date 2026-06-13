@@ -154,7 +154,7 @@ public class IdSystem {
         if (member != command.User) {
             await UserExtensions.SendFileAsync(member, output, "Here you are, your brand new Idol ID!");
         } else {
-            await command.FollowupWithFileAsync(output, text: "Loaded Idol ID . . !");
+            await command.RespondWithFileAsync(output, text: "Loaded Idol ID . . !");
         }
         
         File.Delete(output);
