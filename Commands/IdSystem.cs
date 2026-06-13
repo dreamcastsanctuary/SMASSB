@@ -326,13 +326,13 @@ public class IdSystem {
                 colors.Add(Color.FromRgba(255, 215, 156, 255));
                 colors.Add(Color.FromRgba(33, 25, 22, 255));
                 colors.Add(Color.FromRgba(238, 228, 212, 255));
-                colors.Add(Color.FromRgba(69, 9, 10, 255));
+                colors.Add(Color.FromRgba(134, 39, 36, 255));
                 break;
             case "NEWGAMEPLUSSTAFF":
                 colors.Add(Color.FromRgba(255, 215, 156, 255));
                 colors.Add(Color.FromRgba(33, 25, 22, 255));
                 colors.Add(Color.FromRgba(238, 228, 212, 255));
-                colors.Add(Color.FromRgba(69, 9, 10, 255));
+                colors.Add(Color.FromRgba(134, 39, 36, 255));
                 break;
         }
         
