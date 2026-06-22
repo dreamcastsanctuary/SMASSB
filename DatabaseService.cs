@@ -22,18 +22,8 @@ public class DatabaseService
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            CREATE TABLE IF NOT EXISTS Enrolled (
-                UserId TEXT PRIMARY KEY,
-                Claim TEXT,
-                AvatarUrl TEXT NOT NULL,
-                AvatarImage BLOB,
-                Rank TEXT NOT NULL,
-                Points INTEGER DEFAULT 0,
-                Bloodtype TEXT NOT NULL,
-                Catchphrase TEXT NOT NULL,
-                Username TEXT NOT NULL,
-                IDType TEXT NOT NULL
-            );
+
+            ALTER TABLE Enrolled ADD COLUMN KoNotes TEXT;
 
             CREATE TABLE IF NOT EXISTS Id (
                 UserId TEXT PRIMARY KEY,
