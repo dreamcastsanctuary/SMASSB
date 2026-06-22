@@ -347,4 +347,57 @@ public class RoleSystem {
         await _db.Remove(civilian.Id);
         await command.RespondAsync("Completed task.");
     }
+
+    public async Task HandleFinishCeremony(SocketSlashCommand command, DiscordSocketClient client) {
+        
+        List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
+
+        foreach (var option in command.Data.Options)
+        {
+            switch (option.Name) {
+                
+                case "enlisted1":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted2":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted3":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted4":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted5":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted6":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted7":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted8":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted9":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted10":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                default:
+                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    break;
+            }
+        }
+        
+        SocketGuild guild = client.GetGuild((ulong)command.GuildId);
+        var channel = guild.GetTextChannel(1473516609397063680);
+
+        foreach (SocketGuildUser enlisted in enlisteds) {
+            await channel.AddPermissionOverwriteAsync(enlisted, new OverwritePermissions(viewChannel: PermValue.Allow));
+            await enlisted.SendMessageAsync("Congratulations on the ceremony. We hope to see much more from you in the future.\nYou've earned your final uniforms, which you can find in the new \"ENLISTED\" uniform channel.\n\nNote that you've already got the Parade Dress uniform, so skip that unless you're making a new claim.");
+        }
+    }
 }
