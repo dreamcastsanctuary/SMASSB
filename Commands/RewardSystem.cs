@@ -71,7 +71,7 @@ public class RewardSystem {
                 .WithAuthor("Dear Prospect, you have been awarded . . .")
                 .WithTitle("TRIAL SWORD")
                 .WithThumbnailUrl("https://64.media.tumblr.com/0af3a5ffef90e7bd73441f53fff50d8a/e0c197076de26732-f7/s540x810/0a2a680a38dd2882a33e6acd700b0849ac5b9d80.pnj")
-                .WithDescription("You've made it past your mandatory lectures! Good going.\nYou can attend Downtown Patrols now that you have this sword in hand.\n\n0 1  ∥  08090a | 192126\n0 2  ∥  151618 | LOCKED\n0 3  ∥  260c0c | 08090a\n0 4  ∥  504029 | 08090a")
+                .WithDescription("You've made it past your mandatory lectures! Good going.\nYou can attend Downtown Patrols and Scoutings now that you have this sword in hand.\n\n0 1  ∥  08090a | 192126\n0 2  ∥  151618 | LOCKED\n0 3  ∥  260c0c | 08090a\n0 4  ∥  504029 | 08090a")
                 .WithImageUrl("https://64.media.tumblr.com/f4e68447a8cc190693797e5563c51d1b/e0c197076de26732-c8/s1280x1920/8b27f009674e970061ce55f34d35e6c136b17d00.pnj")
                 .WithFooter("Send your finished uniform in Onshō. Kamikawa Hiromi's DMs to be checked and get on out there!\n\n 太陽はまた昇る！・❖")
                 .WithColor(new Color(0xBFA55F));
@@ -82,7 +82,7 @@ public class RewardSystem {
                 .WithThumbnailUrl("https://64.media.tumblr.com/9c0494481ed62afa3249222b17ae5610/e0c197076de26732-f5/s2048x3072/b325d552629a22c6c61896c9fc83c03311e0e7d7.pnj")
                 .WithDescription("Wow! Take a look at you, finally ready to move up in the ranks!\nYou'll have to complete this uniform and submit it in order to attend the upcoming enlistment ceremony.\nPlease be on time!\n\n[. . PRE-ENLISTED PARADE DRESS . .](<https://docs.google.com/document/d/1mQN15_Rxn1VtBBWSjVgqo8x1_zpSh0iDTtrfbcvyNNk/edit?tab=t.0>)")
                 .WithImageUrl("https://64.media.tumblr.com/616bce1d6e1a6d7a2123c76d6f249404/2ecded076fd064e9-c6/s1280x1920/11d327bf242c41a07ca122757d050c6c6ce52da1.pnj")
-                .WithFooter("Send your finished uniform in Onshō. Kamikawa Hiromi's DMs to be checked. We're all proud of you!\n\n 太陽はまた昇る！・❖")
+                .WithFooter("Send your finished uniform in Onshō. Kamikawa Hiromi's DMs to be checked and given more information. We're all proud of you!\n\n 太陽はまた昇る！・❖")
                 .WithColor(new Color(0xFF312C));
 
             SocketGuild guild = client.GetGuild((ulong)command.GuildId);
