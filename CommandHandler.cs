@@ -144,6 +144,12 @@ public class CommandHandler {
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
+        commands.Add(new SlashCommandBuilder()
+            .WithName("konotes")
+            .WithDescription("Read or write a note for a pre-enlisted member. Just send the name of the member to read.")
+            .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
+            .AddOption("write", ApplicationCommandOptionType.String, "What new note would you like to write for this member?", isRequired: false));
+        
         // IDSYSTEM.
         
         commands.Add(new SlashCommandBuilder()
@@ -282,6 +288,9 @@ public class CommandHandler {
                 break;
             case "finishceremony":
                 await _roleSystem.HandleFinishCeremony(command, _client);
+                break;
+            case "konotes":
+                await _roleSystem.HandleKoNotes(command);
                 break;
             
             case "showid":

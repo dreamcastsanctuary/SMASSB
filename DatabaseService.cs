@@ -22,8 +22,19 @@ public class DatabaseService
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-
-            ALTER TABLE Enrolled ADD COLUMN KoNotes TEXT;
+            CREATE TABLE IF NOT EXISTS Enrolled (
+                UserId TEXT PRIMARY KEY,
+                Claim TEXT,
+                AvatarUrl TEXT NOT NULL,
+                AvatarImage BLOB,
+                Rank TEXT NOT NULL,
+                Points INTEGER DEFAULT 0,
+                Bloodtype TEXT NOT NULL,
+                Catchphrase TEXT NOT NULL,
+                Username TEXT NOT NULL,
+                IDType TEXT NOT NULL,
+                KoNotes TEXT
+            );
 
             CREATE TABLE IF NOT EXISTS Id (
                 UserId TEXT PRIMARY KEY,
@@ -402,6 +413,32 @@ public class DatabaseService
         command.CommandText = "UPDATE Enrolled SET IDType = $idType WHERE UserId = $id;";
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$idType", idType);
+        
+        return await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task<string> GetKoNotes(ulong userId) {
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT KoNotes FROM Enrolled WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToString(result) ?? "";
+    }
+
+    public async Task<int> SetKoNotes(ulong userId, string koNotes) {
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE Enrolled SET KoNotes = $koNotes WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("koNotes", koNotes);
         
         return await command.ExecuteNonQueryAsync();
     }
