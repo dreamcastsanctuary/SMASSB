@@ -148,7 +148,8 @@ public class CommandHandler {
             .WithName("konotes")
             .WithDescription("Read or write a note for a pre-enlisted member. Just send the name of the member to read.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
-            .AddOption("write", ApplicationCommandOptionType.String, "What new note would you like to write for this member?", isRequired: false));
+            .AddOption("write", ApplicationCommandOptionType.String, "What new note would you like to write for this member?", isRequired: false)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         // IDSYSTEM.
         
