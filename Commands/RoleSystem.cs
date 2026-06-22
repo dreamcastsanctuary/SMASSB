@@ -145,21 +145,21 @@ public class RoleSystem {
         var description = "";
 
         if (kouPromo.Count > 0) {
-            description += ":sango_emblem_mono: ∥ KŌHOSEI GRADUATES . .\n・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・\n";
+            description += "<:sango_emblem_mono:1492222638980989138> ∥ KŌHOSEI GRADUATES . .\n・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・\n";
             
             foreach (var kou in kouPromo)
             {
-                description += "" + kou.Nickname + " ∥ " + await _db.GetPoints(kou.Id) + "pts.\n";
+                description += "<@" + kou.Id + "> ∥ " + await _db.GetPoints(kou.Id) + "pts.\n";
             }
             description += "\n";
         }
         
         if (promotable.Count > 0) {
-            description += ":sango_emblem_mono: ∥ GENERAL RANKUPs . .\n・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・\n";
+            description += "<:sango_emblem_mono:1492222638980989138> ∥ GENERAL RANKUPs . .\n・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・\n";
             
             foreach (var promo in promotable)
             {
-                description += "" + promo.Nickname + " ∥ " + await _db.GetPoints(promo.Id) + "pts.\n";
+                description += "<@" + promo.Id + "> ∥ " + await _db.GetPoints(promo.Id) + "pts.\n";
             }
         }
 
