@@ -428,7 +428,7 @@ public class RoleSystem {
 
         if (member == null) return;
         
-        var note = await _db.GetKoNotes(member.Id) + add + "\n\n";
+        var note = await _db.GetKoNotes(member.Id) + add + "\n";
         await _db.SetKoNotes(member.Id, note);
         
         await command.RespondAsync(note, ephemeral: true);
