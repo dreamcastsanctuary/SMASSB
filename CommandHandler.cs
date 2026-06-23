@@ -148,7 +148,7 @@ public class CommandHandler {
         
         commands.Add(new SlashCommandBuilder()
             .WithName("forcepromote")
-            .WithDescription("Should only be used in situations where Database doesn't update properly (can be seen with IDs.) || Promotes the given list of enlisted to the specific rank.")
+            .WithDescription("Use ONLY if DB doesn't update properly. || Force promotes enlisted to a specific rank.")
             .AddOption("add_rank", ApplicationCommandOptionType.Role, "The role to be given.", isRequired: true).AddOption("add_rank_category", ApplicationCommandOptionType.Role, "If needed, the next rank category (IE: Enlisted, Non-Commissioned Officer, etc.", isRequired: false)
             .AddOption("remove_rank", ApplicationCommandOptionType.Role, "The role to be taken away.", isRequired: true).AddOption("remove_rank_category", ApplicationCommandOptionType.Role, "If needed, the previous rank category (IE: Enlisted, Non-Commissioned Officer, etc.", isRequired: false)
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
@@ -248,7 +248,7 @@ public class CommandHandler {
 
         commands.Add(new SlashCommandBuilder()
             .WithName("restoreprogress")
-            .WithDescription("DO NOT USE THIS. UNTESTED AND VERY, VERY SCARY. || Restores the progress of a previous member.")
+            .WithDescription("DON'T USE THIS. UNTESTED AND SCARY. || Restores the progress of a previous member.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
