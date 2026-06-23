@@ -238,13 +238,14 @@ public class CommandHandler {
             .AddOption("auto_promote", ApplicationCommandOptionType.Boolean, "Automatically promote everyone here to the next rank.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
+        Console.WriteLine($"Registering {commands.Count} commands to guild {guild.Id}...");
+        
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
             await ((IGuild)guild).BulkOverwriteApplicationCommandsAsync(builtCommands);
             
-        } catch (ApplicationCommandException exception) {
-            var json = JsonConvert.SerializeObject(exception.Errors, Formatting.Indented);
-            Console.WriteLine(json);
+        } catch (Exception ex) {
+            Console.WriteLine($"Command registration failed: {ex}");
         }
     }
     private async Task SlashCommandHandler(SocketSlashCommand command) {
