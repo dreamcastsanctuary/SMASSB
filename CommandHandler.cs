@@ -44,6 +44,8 @@ public class CommandHandler {
         
         // REWARDSYSTEM.
         
+        Console.WriteLine("RewardSystem started.");
+        
         commands.Add(new SlashCommandBuilder()
             .WithName("rewardko")
             .WithDescription("Rewards a kohosei a specific item / document.")
@@ -68,7 +70,11 @@ public class CommandHandler {
                 .WithType(ApplicationCommandOptionType.Integer))
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
+        Console.WriteLine("RewardSystem ended.");
+        
         // MEETINGSYSTEM.
+        
+        Console.WriteLine("MeetingSystem started.");
 
         commands.Add(new SlashCommandBuilder()
             .WithName("meeting")
@@ -102,7 +108,11 @@ public class CommandHandler {
             .WithDescription("Closes the current thread if it is a meeting room.")
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
+        Console.WriteLine("MeetinSystem ended.");
+        
         // ROLESYSTEM.
+        
+        Console.WriteLine("RoleSystem started.");
 
         commands.Add(new SlashCommandBuilder()
             .WithName("preenlist")
@@ -140,6 +150,8 @@ public class CommandHandler {
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
+        Console.WriteLine("RoleSystem HALF started.");
+        
         commands.Add(new SlashCommandBuilder()
             .WithName("finishceremony")
             .WithDescription("Gives graduates access to the enlisted channel.")
@@ -153,7 +165,11 @@ public class CommandHandler {
             .AddOption("write", ApplicationCommandOptionType.String, "What new note would you like to write for this member?", isRequired: false)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
+        Console.WriteLine("RoleSystem ended.");
+        
         // IDSYSTEM.
+        
+        Console.WriteLine("IdSystem started.");
         
         commands.Add(new SlashCommandBuilder()
             .WithName("showid")
@@ -197,7 +213,11 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
         );
         
+        Console.WriteLine("IdSystem ended.");
+        
         // POINTSYSTEM.
+        
+        Console.WriteLine("PointSystem started.");
 
         commands.Add(new SlashCommandBuilder()
             .WithName("showpoints")
@@ -239,6 +259,8 @@ public class CommandHandler {
             .WithDescription("Checks whether the promotions of this channel is enabled.")
             .AddOption("auto_promote", ApplicationCommandOptionType.Boolean, "Automatically promote everyone here to the next rank.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        Console.WriteLine("PointSystem ended.");
 
         Console.WriteLine($"Registering {commands.Count} commands to guild {guild.Id}...");
         
