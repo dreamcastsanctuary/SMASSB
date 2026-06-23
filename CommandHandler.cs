@@ -108,7 +108,7 @@ public class CommandHandler {
             .WithDescription("Closes the current thread if it is a meeting room.")
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
-        Console.WriteLine("MeetinSystem ended.");
+        Console.WriteLine("MeetingSystem ended.");
         
         // ROLESYSTEM.
         
@@ -136,6 +136,8 @@ public class CommandHandler {
             .AddOption("is_staff", ApplicationCommandOptionType.Boolean, "Are they a staff member, or an enlisted?", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
 
+        Console.WriteLine("RoleSystem HALF started.");
+        
         commands.Add(new SlashCommandBuilder()
             .WithName("forceremove")
             .WithDescription("Force removes a user.")
@@ -150,7 +152,7 @@ public class CommandHandler {
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
-        Console.WriteLine("RoleSystem HALF started.");
+        Console.WriteLine("RoleSystem ALMOST ended.");
         
         commands.Add(new SlashCommandBuilder()
             .WithName("finishceremony")
