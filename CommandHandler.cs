@@ -144,6 +144,8 @@ public class CommandHandler {
             .AddOption("civilian", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
+        Console.WriteLine("Okay fucker. Let's play this game.");
+        
         commands.Add(new SlashCommandBuilder()
             .WithName("forcepromote")
             .WithDescription("Should only be used in situations where Database doesn't update properly (can be seen with IDs.) || Promotes the given list of enlisted to the specific rank.")
