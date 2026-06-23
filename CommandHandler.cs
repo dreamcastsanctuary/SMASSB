@@ -37,6 +37,8 @@ public class CommandHandler {
         _db = db;
     }
     public async Task RegisterCommands(SocketGuild guild) {
+        
+        Console.WriteLine("RegisterCommands called.");
 
         List<SlashCommandBuilder> commands = new List<SlashCommandBuilder>();
         

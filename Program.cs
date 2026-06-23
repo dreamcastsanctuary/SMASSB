@@ -56,7 +56,6 @@ public class Program {
         var guild = _client.GetGuild(_guildId); 
         
         _ = Task.Run(async () => {
-            Console.WriteLine(guild == null);
             await _logHandler.CreateOrUpdateStatChannel(guild);
             await _commandHandler.RegisterCommands(guild);
             _ = _commandHandler.KickUnEnlisted(guild);
