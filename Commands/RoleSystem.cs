@@ -348,6 +348,7 @@ public class RoleSystem {
         await command.RespondAsync("Completed task.");
     }
 
+    [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandleFinishCeremony(SocketSlashCommand command, DiscordSocketClient client) {
         
         List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
@@ -403,6 +404,7 @@ public class RoleSystem {
         await command.RespondAsync("Completed task.");
     }
 
+    [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandleKoNotes(SocketSlashCommand command) {
         
         SocketGuildUser member = null;
