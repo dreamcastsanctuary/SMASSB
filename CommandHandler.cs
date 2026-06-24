@@ -178,6 +178,12 @@ public class CommandHandler {
         commands.Add(new SlashCommandBuilder()
             .WithName("showid")
             .WithDescription("Shows your Idol ID."));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("showotherid")
+            .WithDescription("Shows another member's Idol ID.")
+            .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         commands.Add(new SlashCommandBuilder()
             .WithName("editid")
@@ -324,6 +330,9 @@ public class CommandHandler {
                 break;
             
             case "showid":
+                await _idSystem.ShowId(command, _client);
+                break;
+            case "showotherid":
                 await _idSystem.ShowId(command, _client);
                 break;
             case "editid":

@@ -154,7 +154,7 @@ public class IdSystem {
         clone.Save(output);
         foreach (var (img, _) in badgesToDraw) img.Dispose();
         
-        if (member != command.User) {
+        if (member != command.User && !command.CommandName.Contains("other")) {
             await UserExtensions.SendFileAsync(member, output, "Here you are, your brand new Idol ID!");
         } else {
             await command.RespondWithFileAsync(output, text: "Loaded Idol ID . . !");
@@ -233,6 +233,18 @@ public class IdSystem {
     public async Task ShowId(SocketSlashCommand command, DiscordSocketClient client) {
         
         SocketGuildUser enlisted = (SocketGuildUser)command.User;
+        
+        foreach (var option in command.Data.Options) {
+            switch (option.Name)
+            {
+                case "member":
+                    enlisted = (SocketGuildUser)option.Value;
+                    break;
+                default:
+                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    return;
+            }
+        }
         
         string claimParam = await _db.GetClaim(enlisted.Id);
         string avatarUrlParam = await _db.GetAvatarUrl(enlisted.Id);
