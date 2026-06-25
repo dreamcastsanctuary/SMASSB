@@ -80,7 +80,7 @@ public class RewardSystem {
                 .WithAuthor("Dear Prospect, you have been awarded . . .")
                 .WithTitle("【 PARADE DRESS 】")
                 .WithThumbnailUrl("https://64.media.tumblr.com/9c0494481ed62afa3249222b17ae5610/e0c197076de26732-f5/s2048x3072/b325d552629a22c6c61896c9fc83c03311e0e7d7.pnj")
-                .WithDescription("Wow! Take a look at you, finally ready to move up in the ranks!\nYou'll have to complete this uniform and submit it in order to attend the upcoming enlistment ceremony.\nPlease be on time!\n\n[. . PRE-ENLISTED PARADE DRESS . .](<https://docs.google.com/document/d/1mQN15_Rxn1VtBBWSjVgqo8x1_zpSh0iDTtrfbcvyNNk/edit?tab=t.0>)")
+                .WithDescription("Wow! Take a look at you, finally ready to move up in the ranks!\nYou'll have to complete this uniform and submit it in order to attend the upcoming enlistment ceremony.\nPlease be on time!\n\n[. . PRE-ENLISTED PARADE DRESS . .](<https://sangoidoldefenseforce.vercel.app/ceremony>)")
                 .WithImageUrl("https://64.media.tumblr.com/616bce1d6e1a6d7a2123c76d6f249404/2ecded076fd064e9-c6/s1280x1920/11d327bf242c41a07ca122757d050c6c6ce52da1.pnj")
                 .WithFooter("Send your finished uniform in Onshō. Kamikawa Hiromi's DMs to be checked and given more information. We're all proud of you!\n\n 太陽はまた昇る！・❖")
                 .WithColor(new Color(0xFF312C));
