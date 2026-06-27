@@ -38,13 +38,9 @@ public class CommandHandler {
     }
     public async Task RegisterCommands(SocketGuild guild) {
         
-        Console.WriteLine("RegisterCommands called.");
-
         List<SlashCommandBuilder> commands = new List<SlashCommandBuilder>();
         
         // REWARDSYSTEM.
-        
-        Console.WriteLine("RewardSystem started.");
         
         commands.Add(new SlashCommandBuilder()
             .WithName("rewardko")
@@ -70,12 +66,8 @@ public class CommandHandler {
                 .WithType(ApplicationCommandOptionType.Integer))
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
-        Console.WriteLine("RewardSystem ended.");
-        
         // MEETINGSYSTEM.
         
-        Console.WriteLine("MeetingSystem started.");
-
         commands.Add(new SlashCommandBuilder()
             .WithName("meeting")
             .WithDescription("Creates a private meeting room with the staff and person provided.")
@@ -108,12 +100,8 @@ public class CommandHandler {
             .WithDescription("Closes the current thread if it is a meeting room.")
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
-        Console.WriteLine("MeetingSystem ended.");
-        
         // ROLESYSTEM.
         
-        Console.WriteLine("RoleSystem started.");
-
         commands.Add(new SlashCommandBuilder()
             .WithName("preenlist")
             .WithDescription("Pre-enlists a civilian into a prospect; to be used during in-server uniform check.")
@@ -136,15 +124,11 @@ public class CommandHandler {
             .AddOption("is_staff", ApplicationCommandOptionType.Boolean, "Are they a staff member, or an enlisted?", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
 
-        Console.WriteLine("RoleSystem HALF started.");
-        
         commands.Add(new SlashCommandBuilder()
             .WithName("forceremove")
             .WithDescription("Force removes a user.")
             .AddOption("civilian", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
-        
-        Console.WriteLine("Okay fucker. Let's play this game.");
         
         commands.Add(new SlashCommandBuilder()
             .WithName("forcepromote")
@@ -153,8 +137,6 @@ public class CommandHandler {
             .AddOption("remove_rank", ApplicationCommandOptionType.Role, "The role to be taken away.", isRequired: true).AddOption("remove_rank_category", ApplicationCommandOptionType.Role, "If needed, the previous rank category (IE: Enlisted, Non-Commissioned Officer, etc.", isRequired: false)
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
-        
-        Console.WriteLine("RoleSystem ALMOST ended.");
         
         commands.Add(new SlashCommandBuilder()
             .WithName("finishceremony")
@@ -166,14 +148,10 @@ public class CommandHandler {
             .WithName("konotes")
             .WithDescription("Read or write a note for a pre-enlisted member. Just send the name of the member to read.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
-            .AddOption("write", ApplicationCommandOptionType.String, "What new note would you like to write for this member?", isRequired: false)
+            .AddOption("writenote", ApplicationCommandOptionType.String, "What new note would you like to write for this member?", isRequired: false)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
-        Console.WriteLine("RoleSystem ended.");
-        
         // IDSYSTEM.
-        
-        Console.WriteLine("IdSystem started.");
         
         commands.Add(new SlashCommandBuilder()
             .WithName("showid")
@@ -223,12 +201,8 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
         );
         
-        Console.WriteLine("IdSystem ended.");
-        
         // POINTSYSTEM.
         
-        Console.WriteLine("PointSystem started.");
-
         commands.Add(new SlashCommandBuilder()
             .WithName("showpoints")
             .WithDescription("Shows the points of a member.")
@@ -243,6 +217,7 @@ public class CommandHandler {
             .WithDescription("Adds points to a member.")
             .AddOption("member", ApplicationCommandOptionType.User, "The aforementioned member.", isRequired: false)
             .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to add.", isRequired: true)
+            .AddOption("writenote", ApplicationCommandOptionType.String, "What new konote would you like to write for this member?", isRequired: false)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
@@ -269,10 +244,6 @@ public class CommandHandler {
             .WithDescription("Checks whether the promotions of this channel is enabled.")
             .AddOption("auto_promote", ApplicationCommandOptionType.Boolean, "Automatically promote everyone here to the next rank.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
-        
-        Console.WriteLine("PointSystem ended.");
-
-        Console.WriteLine($"Registering {commands.Count} commands to guild {guild.Id}...");
         
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
@@ -325,9 +296,6 @@ public class CommandHandler {
             case "finishceremony":
                 await _roleSystem.HandleFinishCeremony(command, _client);
                 break;
-            case "konotes":
-                await _roleSystem.HandleKoNotes(command);
-                break;
             
             case "showid":
                 await _idSystem.ShowId(command, _client);
@@ -353,6 +321,9 @@ public class CommandHandler {
                 break;
             case "leaderboard":
                 await _pointSystem.Leaderboard(command);
+                break;
+            case "konotes":
+                await _pointSystem.HandleKoNotes(command);
                 break;
             case "restoreprogress":
                 await _pointSystem.RestoreProgress(command, _client);

@@ -403,34 +403,4 @@ public class RoleSystem {
         
         await command.RespondAsync("Completed task.");
     }
-
-    [DefaultMemberPermissions(GuildPermission.ManageRoles)]
-    public async Task HandleKoNotes(SocketSlashCommand command) {
-        
-        SocketGuildUser member = null;
-        var add = "";
-        
-        foreach (var option in command.Data.Options)
-        {
-            switch (option.Name) {
-                
-                case "member":
-                    member = ((SocketGuildUser)option.Value);
-                    break;
-                case "write":
-                    add = option.Value.ToString();
-                    break;
-                default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
-                    break;
-            }
-        }
-
-        if (member == null) return;
-        
-        var note = await _db.GetKoNotes(member.Id) + add + "\n";
-        await _db.SetKoNotes(member.Id, note);
-        
-        await command.RespondAsync(note, ephemeral: true);
-    }
 }
