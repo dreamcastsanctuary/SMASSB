@@ -46,6 +46,7 @@ public class PointSystem {
         
         SocketGuildUser member = (SocketGuildUser)command.User;
         int points = 0;
+        bool note = false;
         
         foreach (var option in command.Data.Options)
         {
@@ -58,6 +59,7 @@ public class PointSystem {
                     points = (int)(long) option.Value;
                     break;
                 case "writenote":
+                    note = true;
                     break;
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);
@@ -74,7 +76,7 @@ public class PointSystem {
             if (current == 1) { s = ""; }
             
             embedBuilder.WithDescription("This member has been given ***" + points + "*** points,\nand now has ***" + current + "*** point" + s + ".");
-            await HandleKoNotes(command);
+            if (note) await HandleKoNotes(command);
 
         } else {
             await _db.RemovePoints(member.Id, points);
@@ -167,6 +169,7 @@ public class PointSystem {
         
         SocketGuildUser member = null;
         var add = "";
+        bool amount = false;
         
         foreach (var option in command.Data.Options)
         {
@@ -179,6 +182,7 @@ public class PointSystem {
                     add = option.Value.ToString();
                     break;
                 case "amount":
+                    amount = true;
                     break;
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);
@@ -190,7 +194,11 @@ public class PointSystem {
         
         var note = await _db.GetKoNotes(member.Id) + add + "\n";
         await _db.SetKoNotes(member.Id, note);
-        
+
+        if (amount) {
+            await command.FollowupAsync(note, ephemeral: true);
+            return;
+        }
         await command.RespondAsync(note, ephemeral: true);
     }
 }
