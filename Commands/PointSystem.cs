@@ -66,6 +66,8 @@ public class PointSystem {
                     break;
             }
         }
+
+        await command.DeferAsync(ephemeral: true);
         
         EmbedBuilder embedBuilder = new EmbedBuilder();
         if (add) {
@@ -93,7 +95,7 @@ public class PointSystem {
             .WithTitle("❖﹒Done and done!")
             .WithColor(0xBFA55F);
         
-        await command.RespondAsync(embed: embedBuilder.Build());
+        await command.FollowupAsync(embed: embedBuilder.Build());
     }
     
     public async Task Leaderboard(SocketSlashCommand command) {
