@@ -215,7 +215,7 @@ public class CommandHandler {
         commands.Add(new SlashCommandBuilder()
             .WithName("addpoints")
             .WithDescription("Adds points to a member.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The aforementioned member.", isRequired: false)
+            .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "If you're planning on *writing* a konote, don't use these.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
             .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to add.", isRequired: true)
             .AddOption("writenote", ApplicationCommandOptionType.String, "What new konote would you like to write for this member?", isRequired: false)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
@@ -223,7 +223,7 @@ public class CommandHandler {
         commands.Add(new SlashCommandBuilder()
             .WithName("removepoints")
             .WithDescription("Removes points from a member.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The aforementioned member.", isRequired: false)
+            .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
             .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to remove.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
@@ -526,7 +526,7 @@ public class CommandHandler {
                 }
             }
             
-        } else if (reaction.MessageId is 1493088668557115403) { // roles, personal
+        } else if (reaction.MessageId is 1515073043184226555) { // roles, personal
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
                     
@@ -550,7 +550,7 @@ public class CommandHandler {
                         break;
                 }
             }
-        } else if (reaction.MessageId is 1493088669924462592) { // roles, pings
+        } else if (reaction.MessageId is 1515073044773736528) { // roles, pings
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
                     

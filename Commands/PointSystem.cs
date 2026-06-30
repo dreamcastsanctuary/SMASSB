@@ -44,7 +44,7 @@ public class PointSystem {
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task EditPoints(SocketSlashCommand command, bool add) {
         
-        SocketGuildUser member = (SocketGuildUser)command.User;
+        List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
         int points = 0;
         bool note = false;
         
@@ -52,8 +52,35 @@ public class PointSystem {
         {
             switch (option.Name) {
                 
-                case "member":
-                    member = ((SocketGuildUser)option.Value);
+                case "enlisted1":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted2":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted3":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted4":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted5":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted6":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted7":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted8":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted9":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted10":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
                     break;
                 case "amount":
                     points = (int)(long) option.Value;
@@ -67,35 +94,38 @@ public class PointSystem {
             }
         }
 
-        await command.DeferAsync(ephemeral: true);
+        await command.DeferAsync();
         
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        if (add) {
-            await _db.AddPoints(member.Id, points);
-            var current = await _db.GetPoints(member.Id);
+        foreach (SocketGuildUser member in enlisteds)
+        {
+            EmbedBuilder embedBuilder = new EmbedBuilder();
+            if (add) {
+                await _db.AddPoints(member.Id, points);
+                var current = await _db.GetPoints(member.Id);
             
-            var s = "s";
-            if (current == 1) { s = ""; }
+                var s = "s";
+                if (current == 1) { s = ""; }
             
-            embedBuilder.WithDescription("This member has been given ***" + points + "*** points,\nand now has ***" + current + "*** point" + s + ".");
-            if (note) await HandleKoNotes(command);
+                embedBuilder.WithDescription("This member has been given ***" + points + "*** points,\nand now has ***" + current + "*** point" + s + ".");
+                if (note) await HandleKoNotes(command);
 
-        } else {
-            await _db.RemovePoints(member.Id, points);
-            var current = await _db.GetPoints(member.Id);
+            } else {
+                await _db.RemovePoints(member.Id, points);
+                var current = await _db.GetPoints(member.Id);
             
-            var s = "s";
-            if (current == 1) { s = ""; }
+                var s = "s";
+                if (current == 1) { s = ""; }
             
-            embedBuilder.WithDescription("You have removed ***" + points + "*** points from this member.\nThey now have ***" + current + "*** point" + s + ".");
+                embedBuilder.WithDescription("You have removed ***" + points + "*** points from this member.\nThey now have ***" + current + "*** point" + s + ".");
+            }
+
+            embedBuilder
+                .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())
+                .WithTitle("❖﹒Done and done!")
+                .WithColor(0xBFA55F);
+        
+            await command.FollowupAsync(embed: embedBuilder.Build());
         }
-
-        embedBuilder
-            .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())
-            .WithTitle("❖﹒Done and done!")
-            .WithColor(0xBFA55F);
-        
-        await command.FollowupAsync(embed: embedBuilder.Build());
     }
     
     public async Task Leaderboard(SocketSlashCommand command) {
