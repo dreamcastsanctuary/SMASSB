@@ -73,7 +73,7 @@ public class Program {
         return Task.CompletedTask;
     }
     
-    static IServiceProvider CreateProvider() {
+    private static ServiceProvider CreateProvider() {
         
         var config = new DiscordSocketConfig
         {
