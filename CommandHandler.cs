@@ -337,25 +337,29 @@ public class CommandHandler {
                 break;
         }
     }
-    
-    
-    
-    
-    
-    
 
-    public async Task ReactionAddedHandler(SocketGuild guild, Cacheable<IUserMessage, ulong> cache, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction) {
-        
+
+
+
+
+
+
+    public async Task ReactionAddedHandler(SocketGuild guild, Cacheable<IUserMessage, ulong> cache,
+        Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction)
+    {
+
         var user = guild.GetUser(reaction.UserId);
-        if (user is null) {
+        if (user is null)
+        {
             return;
         }
-        
-        if (reaction.Emote.Name == "⭐") {
+
+        if (reaction.Emote.Name == "⭐")
+        {
 
             var message = await cache.GetOrDownloadAsync();
             if (message.Channel.Id == 1473214696109909883) return;
-            
+
             var starEmote = new Emoji("⭐");
 
             var freshMessage = await message.Channel.GetMessageAsync(message.Id) as IUserMessage;
@@ -364,12 +368,13 @@ public class CommandHandler {
                 : 1;
 
             if (starCount < 3) return;
-            
+
             var author = message.Author as SocketGuildUser;
-            
+
             Embed embed = (new EmbedBuilder()
                 .WithAuthor("|| " + author.Nickname + "", author.GetGuildAvatarUrl() ?? author.GetAvatarUrl())
-                .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ https://discordapp.com/channels/{guild.Id}/{message.Channel.Id}/{message.Id}")
+                .WithTitle(
+                    $"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ https://discordapp.com/channels/{guild.Id}/{message.Channel.Id}/{message.Id}")
                 .WithDescription(message.Content)
                 .WithFooter($"{message.Timestamp:M/d/yyyy HH:mm:ss tt}")
                 .WithColor(0xBFA55F)).Build();
@@ -379,22 +384,30 @@ public class CommandHandler {
 
             string? existingId = _db.GetStarboardMessageId(message.Id);
 
-            if (existingId is null) {
+            if (existingId is null)
+            {
 
                 var sent = await starboard.SendMessageAsync(embed: embed);
                 _db.SaveStarboardMessageId(message.Id, sent.Id);
-            } else {
+            }
+            else
+            {
 
                 if (ulong.TryParse(existingId, out var existingUlong) &&
-                    await starboard.GetMessageAsync(existingUlong) is IUserMessage existing) {
+                    await starboard.GetMessageAsync(existingUlong) is IUserMessage existing)
+                {
                     await existing.ModifyAsync(m => m.Embed = embed);
                 }
             }
         }
-        
-        if (reaction.MessageId is 1495182123924197396) { // roe
-            if (reaction.Emote is Emote emote) {
-                switch (emote.Id) {
+
+        if (reaction.MessageId is 1495182123924197396)
+        {
+            // roe
+            if (reaction.Emote is Emote emote)
+            {
+                switch (emote.Id)
+                {
 
                     case 1481753776745611505:
                         await user.AddRoleAsync(1473369383471677461);
@@ -404,11 +417,16 @@ public class CommandHandler {
                         break;
                 }
             }
-            
-        } else if (reaction.MessageId is 1515073043184226555) { // roles, personal
-            if (reaction.Emote is Emote emote) {
-                switch (emote.Id) {
-                    
+
+        }
+        else if (reaction.MessageId is 1515073043184226555)
+        {
+            // roles, personal
+            if (reaction.Emote is Emote emote)
+            {
+                switch (emote.Id)
+                {
+
                     case 1481753776745611505:
                         await user.AddRoleAsync(1473370170826428626);
                         break;
@@ -429,11 +447,16 @@ public class CommandHandler {
                         break;
                 }
             }
-            
-        } else if (reaction.MessageId is 1515073044773736528) { // roles, pings
-            if (reaction.Emote is Emote emote) {
-                switch (emote.Id) {
-                    
+
+        }
+        else if (reaction.MessageId is 1515073044773736528)
+        {
+            // roles, pings
+            if (reaction.Emote is Emote emote)
+            {
+                switch (emote.Id)
+                {
+
                     case 1481753776745611505:
                         await user.AddRoleAsync(1473370497524699382);
                         break;
@@ -458,8 +481,25 @@ public class CommandHandler {
                 }
             }
         }
+        else if (reaction.MessageId is 1521910643408506901)
+        {
+            // tanabata
+            if (reaction.Emote is Emote emote)
+            {
+                switch (emote.Id)
+                {
+
+                    case 1481753776745611505:
+                        await user.AddRoleAsync(1521908472344743976);
+                        break;
+                    case 1481753799071633499:
+                        await user.AddRoleAsync(1521908373992378539);
+                        break;
+                }
+            }
+        }
     }
-    
+
     public async Task ReactionRemovedHandler(SocketGuild guild, Cacheable<IUserMessage, ulong> cache, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction) {
         
         var user = guild.GetUser(reaction.UserId);
@@ -574,6 +614,22 @@ public class CommandHandler {
                         break;
                     case 1481753919624446063:
                         await user.RemoveRoleAsync(1473371104604061768);
+                        break;
+                }
+            }
+        } else if (reaction.MessageId is 1521910643408506901)
+        {
+            // tanabata
+            if (reaction.Emote is Emote emote)
+            {
+                switch (emote.Id)
+                {
+
+                    case 1481753776745611505:
+                        await user.RemoveRoleAsync(1521908472344743976);
+                        break;
+                    case 1481753799071633499:
+                        await user.RemoveRoleAsync(1521908373992378539);
                         break;
                 }
             }
