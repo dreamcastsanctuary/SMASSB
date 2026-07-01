@@ -46,7 +46,7 @@ public class PointSystem {
         
         List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
         int points = 0;
-        bool note = false;
+        var noteText = "";
         
         foreach (var option in command.Data.Options)
         {
@@ -86,7 +86,7 @@ public class PointSystem {
                     points = (int)(long) option.Value;
                     break;
                 case "writenote":
-                    note = true;
+                    noteText = option.Value.ToString();
                     break;
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);
@@ -107,7 +107,7 @@ public class PointSystem {
                 if (current == 1) { s = ""; }
             
                 embedBuilder.WithDescription("This member has been given ***" + points + "*** points,\nand now has ***" + current + "*** point" + s + ".");
-                if (note) await HandleKoNotes(command);
+                if (!String.IsNullOrEmpty(noteText)) await HandleKoNotes(command, true, member, noteText);
 
             } else {
                 await _db.RemovePoints(member.Id, points);
@@ -197,28 +197,29 @@ public class PointSystem {
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
-    public async Task HandleKoNotes(SocketSlashCommand command) {
+    public async Task HandleKoNotes(SocketSlashCommand command, bool alreadyDeferred = false, SocketGuildUser member = null, string add = "") {
         
-        SocketGuildUser member = null;
-        var add = "";
-        bool amount = false;
-        
-        foreach (var option in command.Data.Options)
+        if (!alreadyDeferred) await command.DeferAsync(ephemeral: true);
+
+        if (member == null)
         {
-            switch (option.Name) {
-                
-                case "member":
-                    member = ((SocketGuildUser)option.Value);
-                    break;
-                case "writenote":
-                    add = option.Value.ToString();
-                    break;
-                case "amount":
-                    amount = true;
-                    break;
-                default:
-                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
-                    break;
+            foreach (var option in command.Data.Options)
+            {
+                switch (option.Name)
+                {
+
+                    case "member":
+                        member = ((SocketGuildUser)option.Value);
+                        break;
+                    case "writenote":
+                        add = option.Value.ToString();
+                        break;
+                    case "amount":
+                        break;
+                    default:
+                        await command.FollowupAsync("Unrecognized command.", ephemeral: true);
+                        break;
+                }
             }
         }
 
@@ -226,11 +227,7 @@ public class PointSystem {
         
         var note = await _db.GetKoNotes(member.Id) + add + "\n";
         await _db.SetKoNotes(member.Id, note);
-
-        if (amount) {
-            await command.FollowupAsync(note, ephemeral: true);
-            return;
-        }
+        
         await command.FollowupAsync(note, ephemeral: true);
     }
 }
