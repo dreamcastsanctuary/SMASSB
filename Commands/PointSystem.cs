@@ -90,7 +90,7 @@ public class PointSystem {
                     break;
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);
-                    break;
+                    return;
             }
         }
 
@@ -217,7 +217,7 @@ public class PointSystem {
                     amount = true;
                     break;
                 default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                     break;
             }
         }
@@ -231,6 +231,6 @@ public class PointSystem {
             await command.FollowupAsync(note, ephemeral: true);
             return;
         }
-        await command.RespondAsync(note, ephemeral: true);
+        await command.FollowupAsync(note, ephemeral: true);
     }
 }

@@ -101,11 +101,12 @@ public class DatabaseService
         cmd.Parameters.AddWithValue("$idTypeParam", idTypeParam);
         
         cmd.ExecuteNonQuery();
+        
+        await command.RespondAsync("Processed Prospect into Database.");
 
         await GiveNewId(ulong.Parse(accIdParam), idTypeParam);
         await IdSystem.BuildId(command, member, claimParam, null, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, catchphraseParam, usernameParam, idTypeParam);
-        await command.RespondAsync("Processed Prospect into Database.");
-    }
+        }
     
 // UNENROLL CHECK COMMANDS.
     
