@@ -395,12 +395,13 @@ public class RoleSystem {
         
         SocketGuild guild = client.GetGuild((ulong)command.GuildId);
         var channel = guild.GetTextChannel(1473516609397063680);
+        
+        await command.RespondAsync("Completed task.");
 
         foreach (SocketGuildUser enlisted in enlisteds) {
             await channel.AddPermissionOverwriteAsync(enlisted, new OverwritePermissions(viewChannel: PermValue.Allow));
             await enlisted.SendMessageAsync("Congratulations on the ceremony. We hope to see much more from you in the future.\nYou've earned your final uniforms, which you can find in the new \"ENLISTED\" uniform channel.\n\nNote that you've already got the Parade Dress uniform, so skip that unless you're making a new claim.");
         }
         
-        await command.RespondAsync("Completed task.");
     }
 }
