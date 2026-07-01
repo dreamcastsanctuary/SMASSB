@@ -481,7 +481,7 @@ public class CommandHandler {
                 }
             }
         }
-        else if (reaction.MessageId is 1521910643408506901)
+        else if (reaction.MessageId is 1521924159284969534)
         {
             // tanabata
             if (reaction.Emote is Emote emote)
@@ -617,7 +617,7 @@ public class CommandHandler {
                         break;
                 }
             }
-        } else if (reaction.MessageId is 1521910643408506901)
+        } else if (reaction.MessageId is 1521924159284969534)
         {
             // tanabata
             if (reaction.Emote is Emote emote)
