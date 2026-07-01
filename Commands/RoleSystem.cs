@@ -79,12 +79,8 @@ public class RoleSystem {
         await civilian.RemoveRoleAsync(1475886792174604484);
 
         IRole niShi = guild.GetRole(1475886748268625962);
-        await Promote(civilian, niShi);
+        await Promote(civilian, niShi, command);
         await _db.RemovePoints(civilian.Id, 14);
-        
-        var updated = guild.GetUser(civilian.Id);
-        await command.RespondAsync("Sent welcome message to new enlisted.");
-        await UserExtensions.SendMessageAsync(civilian, "Welcome to your new life as an enlisted, **" + updated.Nickname + "**!\nYour first order of business is to check out your new uniform channel, and make the other two!\nThey're necessary for most of our events, so get to it soon!");
     }
 
     public async Task HandleCheckPromosCommand(SocketSlashCommand command, DiscordSocketClient client) {
@@ -313,7 +309,7 @@ public class RoleSystem {
         await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, rank,0,"N/A","Go Strike!", civilian.Username, idType); 
     }
 
-    private async Task Promote(SocketGuildUser enlisted, IRole rank) {
+    private async Task Promote(SocketGuildUser enlisted, IRole rank, SocketSlashCommand command = null) {
         string nickname = enlisted.Nickname;
         string rankName = rank.Name;
 
@@ -324,6 +320,9 @@ public class RoleSystem {
         string claim = spaceIndex >= 0 ? nickname.Substring(spaceIndex + 1) : nickname;
 
         await enlisted.ModifyAsync(x => x.Nickname = fixedNick + " " + claim);
+        if (command != null) {
+            await command.RespondAsync("Welcome to your new life as an enlisted, **" + claim + "**!");
+        }
         await _db.SetRank(enlisted.Id, fixedRank);
     }
 
