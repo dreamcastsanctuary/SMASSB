@@ -538,17 +538,26 @@ public class CommandHandler {
             } else {
         
                 var author = message.Author as SocketGuildUser;
-                
-                Embed embed = (new EmbedBuilder()
+                var builder = new EmbedBuilder()
                     .WithAuthor("|| " + author.Nickname, author.GetGuildAvatarUrl() ?? author.GetAvatarUrl())
                     .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ https://discordapp.com/channels/{guild.Id}/{message.Channel.Id}/{message.Id}")
                     .WithDescription(message.Content)
                     .WithFooter($"{message.Timestamp:M/d/yyyy HH:mm:ss tt}")
-                    .WithColor(0xBFA55F)).Build();
+                    .WithColor(0xBFA55F);
+
+                if (message.Attachments.Count > 0) {
+                    var attachment = message.Attachments.First();
+                    if (attachment.IsSpoiler())
+                    {
+                        builder.WithDescription(message.Content + "\n\n**Spoilered image:**" + attachment.Url);
+                    } else {
+                        builder.WithImageUrl(attachment.Url);
+                    }
+                }
 
                 if (await starboard.GetMessageAsync(existingUlong) is IUserMessage existing)
                 {
-                    await existing.ModifyAsync(m => m.Embed = embed);
+                    await existing.ModifyAsync(m => m.Embed = builder.Build());
                 }
             }
         }
