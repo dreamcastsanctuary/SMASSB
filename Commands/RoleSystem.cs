@@ -128,7 +128,7 @@ public class RoleSystem {
 
             var potentialKou = await _db.GetRank(enlisted.Id);
             
-            if (potentialKou.Contains("hosei", StringComparison.OrdinalIgnoreCase) && await _db.GetPoints(enlisted.Id) > 14) {
+            if (potentialKou.Contains("hosei", StringComparison.OrdinalIgnoreCase) && await _db.GetPoints(enlisted.Id) >= 14) {
                 kouPromo.Add(enlisted);
             }
         }
