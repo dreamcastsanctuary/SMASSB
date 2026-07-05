@@ -80,7 +80,6 @@ public class RoleSystem {
 
         IRole niShi = guild.GetRole(1475886748268625962);
         await Promote(civilian, niShi, command);
-        await _db.RemovePoints(civilian.Id, 14);
     }
 
     public async Task HandleCheckPromosCommand(SocketSlashCommand command, DiscordSocketClient client) {
@@ -400,6 +399,7 @@ public class RoleSystem {
         foreach (SocketGuildUser enlisted in enlisteds) {
             await channel.AddPermissionOverwriteAsync(enlisted, new OverwritePermissions(viewChannel: PermValue.Allow));
             await enlisted.SendMessageAsync("Congratulations on the ceremony. We hope to see much more from you in the future.\nYou've earned your final uniforms, which you can find in the new \"ENLISTED\" uniform channel.\n\nNote that you've already got the Parade Dress uniform, so skip that unless you're making a new claim.");
+            await _db.RemovePoints(enlisted.Id, 14);
         }
         
     }
