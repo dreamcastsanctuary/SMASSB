@@ -198,7 +198,7 @@ public class CommandHandler {
         
         commands.Add(new SlashCommandBuilder()
             .WithName("forceupdateid")
-            .WithDescription("Force updates a user's ID. Use when changing someone's claim or if their rank doesn't auto-change on ID.")
+            .WithDescription("Force updates a user's ID. Use when changing someone's claim.")
             .AddOption("member", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
             .AddOption("claim_name", ApplicationCommandOptionType.String, "The claim name of the user.", isRequired: false)
             .AddOption("rank_name", ApplicationCommandOptionType.String, "The rank to be placed in the database.", isRequired: false));
@@ -243,7 +243,7 @@ public class CommandHandler {
         
         commands.Add(new SlashCommandBuilder()
             .WithName("checkpromotions")
-            .WithDescription("Checks whether the promotions of this channel is enabled.")
+            .WithDescription("Checks if we have any promotions.")
             .AddOption("auto_promote", ApplicationCommandOptionType.Boolean, "Automatically promote everyone here to the next rank.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
