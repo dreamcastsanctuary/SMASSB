@@ -358,7 +358,7 @@ public class CommandHandler {
         {
 
             var message = await cache.GetOrDownloadAsync();
-            if (message.Channel.Id == 1473214696109909883) return;
+            if (message.Channel.Id == 1473214696109903883) return;
 
             var starEmote = new Emoji("⭐");
 
@@ -368,16 +368,24 @@ public class CommandHandler {
                 : 1;
 
             if (starCount < 3) return;
-
+            
             var author = message.Author as SocketGuildUser;
-
-            Embed embed = (new EmbedBuilder()
-                .WithAuthor("|| " + author.Nickname + "", author.GetGuildAvatarUrl() ?? author.GetAvatarUrl())
-                .WithTitle(
-                    $"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ https://discordapp.com/channels/{guild.Id}/{message.Channel.Id}/{message.Id}")
+            var builder = new EmbedBuilder()
+                .WithAuthor("|| " + author.Nickname, author.GetGuildAvatarUrl() ?? author.GetAvatarUrl())
+                .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ https://discordapp.com/channels/{guild.Id}/{message.Channel.Id}/{message.Id}")
                 .WithDescription(message.Content)
                 .WithFooter($"{message.Timestamp:M/d/yyyy HH:mm:ss tt}")
-                .WithColor(0xBFA55F)).Build();
+                .WithColor(0xBFA55F);
+
+            if (message.Attachments.Count > 0) {
+                var attachment = message.Attachments.First();
+                if (attachment.IsSpoiler())
+                {
+                    builder.WithDescription(message.Content + "\n\n**Spoilered image:**" + attachment.Url);
+                } else {
+                    builder.WithImageUrl(attachment.Url);
+                }
+            }
 
             var starboard = guild.GetChannel(1473214696109903883) as ITextChannel;
             if (starboard == null) return;
@@ -387,7 +395,7 @@ public class CommandHandler {
             if (existingId is null)
             {
 
-                var sent = await starboard.SendMessageAsync(embed: embed);
+                var sent = await starboard.SendMessageAsync(embed: builder.Build());
                 _db.SaveStarboardMessageId(message.Id, sent.Id);
             }
             else
@@ -396,7 +404,7 @@ public class CommandHandler {
                 if (ulong.TryParse(existingId, out var existingUlong) &&
                     await starboard.GetMessageAsync(existingUlong) is IUserMessage existing)
                 {
-                    await existing.ModifyAsync(m => m.Embed = embed);
+                    await existing.ModifyAsync(m => m.Embed = builder.Build());
                 }
             }
         }
@@ -510,7 +518,7 @@ public class CommandHandler {
         if (reaction.Emote.Name == "⭐") {
     
             var message = await cache.GetOrDownloadAsync();
-            if (message.Channel.Id == 1473214696109909883) return;
+            if (message.Channel.Id == 1473214696109903883) return;
     
             var starEmote = new Emoji("⭐");
     
@@ -519,7 +527,7 @@ public class CommandHandler {
                 ? meta.ReactionCount
                 : 0;
 
-            var starboard = guild.GetChannel(1473214696109909883) as ITextChannel;
+            var starboard = guild.GetChannel(1473214696109903883) as ITextChannel;
             if (starboard == null) return;
 
             string? existingId = _db.GetStarboardMessageId(message.Id);
