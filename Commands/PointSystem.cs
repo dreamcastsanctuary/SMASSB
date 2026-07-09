@@ -85,9 +85,6 @@ public class PointSystem {
                 case "amount":
                     points = (int)(long) option.Value;
                     break;
-                case "writenote":
-                    noteText = option.Value.ToString();
-                    break;
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);
                     return;

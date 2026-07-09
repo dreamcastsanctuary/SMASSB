@@ -285,6 +285,48 @@ public class IdSystem {
         await command.RespondAsync("Done.", ephemeral: true);
     }
     
+    public async Task HandleForceUpdateCommand(SocketSlashCommand command) {
+        
+        SocketGuildUser member = null;
+        var claim = "";
+        var rank = "";
+        bool isStaff = false;
+        
+        foreach (var option in command.Data.Options)
+        {
+            switch (option.Name) {
+                
+                case "member":
+                    member = ((SocketGuildUser)option.Value);
+                    break;
+                case "claim_name":
+                    claim = option.Value.ToString();
+                    break;
+                case "rank_name":
+                    rank = option.Value.ToString();
+                    break;
+                default:
+                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    break;
+            }
+        }
+
+        if (member == null) {
+            await command.RespondAsync("Unrecognized account.", ephemeral: true);
+            return;
+        }
+
+        if (String.IsNullOrWhiteSpace(claim) && String.IsNullOrWhiteSpace(rank))
+        {
+            await command.RespondAsync("Nothing needs to be set.", ephemeral: true);
+            return;
+        }
+        
+        await _db.SetClaim(member.Id, claim);
+        await _db.SetRank(member.Id, rank);
+        await command.RespondAsync("Completed task.");
+    }
+    
     static Image LoadBadges(string filename, int w, int h) {
         var path = Path.Combine(AppContext.BaseDirectory, "Images", filename);
         var img = Image.Load(path);

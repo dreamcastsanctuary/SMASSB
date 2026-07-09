@@ -44,13 +44,8 @@ public class CommandHandler {
         
         commands.Add(new SlashCommandBuilder()
             .WithName("rewardko")
-            .WithDescription("Rewards a kohosei a specific item / document.")
+            .WithDescription("Rewards a kohosei their sword and headphones.")
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
-            .AddOption(new SlashCommandOptionBuilder()
-                .WithName("item").WithDescription("The specific item / document that is to be rewarded.")
-                .WithRequired(true)
-                .AddChoice("Headphones", 1).AddChoice("Sword", 2).AddChoice("Uniform", 3)
-                .WithType(ApplicationCommandOptionType.Integer))
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         commands.Add(new SlashCommandBuilder()
@@ -130,26 +125,26 @@ public class CommandHandler {
             .AddOption("civilian", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
-        commands.Add(new SlashCommandBuilder()
-            .WithName("forcepromote")
-            .WithDescription("Use ONLY if DB doesn't update properly. || Force promotes enlisted to a specific rank.")
-            .AddOption("add_rank", ApplicationCommandOptionType.Role, "The role to be given.", isRequired: true).AddOption("add_rank_category", ApplicationCommandOptionType.Role, "If needed, the next rank category (IE: Enlisted, Non-Commissioned Officer, etc.", isRequired: false)
-            .AddOption("remove_rank", ApplicationCommandOptionType.Role, "The role to be taken away.", isRequired: true).AddOption("remove_rank_category", ApplicationCommandOptionType.Role, "If needed, the previous rank category (IE: Enlisted, Non-Commissioned Officer, etc.", isRequired: false)
-            .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        // commands.Add(new SlashCommandBuilder()
+        //     .WithName("forcepromote")
+        //     .WithDescription("Use ONLY if DB doesn't update properly. || Force promotes enlisted to a specific rank.")
+        //     .AddOption("add_rank", ApplicationCommandOptionType.Role, "The role to be given.", isRequired: true).AddOption("add_rank_category", ApplicationCommandOptionType.Role, "If needed, the next rank category (IE: Enlisted, Non-Commissioned Officer, etc.", isRequired: false)
+        //     .AddOption("remove_rank", ApplicationCommandOptionType.Role, "The role to be taken away.", isRequired: true).AddOption("remove_rank_category", ApplicationCommandOptionType.Role, "If needed, the previous rank category (IE: Enlisted, Non-Commissioned Officer, etc.", isRequired: false)
+        //     .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
+        //     .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
-        commands.Add(new SlashCommandBuilder()
-            .WithName("finishceremony")
-            .WithDescription("Gives graduates access to the enlisted channel.")
-            .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        // commands.Add(new SlashCommandBuilder()
+        //     .WithName("finishceremony")
+        //     .WithDescription("Gives graduates access to the enlisted channel.")
+        //     .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
+        //     .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
-        commands.Add(new SlashCommandBuilder()
-            .WithName("konotes")
-            .WithDescription("Read or write a note for a pre-enlisted member. Just send the name of the member to read.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
-            .AddOption("writenote", ApplicationCommandOptionType.String, "What new note would you like to write for this member?", isRequired: false)
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        // commands.Add(new SlashCommandBuilder()
+        //     .WithName("konotes")
+        //     .WithDescription("Read or write a note for a pre-enlisted member. Just send the name of the member to read.")
+        //     .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
+        //     .AddOption("writenote", ApplicationCommandOptionType.String, "What new note would you like to write for this member?", isRequired: false)
+        //     .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         // IDSYSTEM.
         
@@ -201,6 +196,14 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
         );
         
+        commands.Add(new SlashCommandBuilder()
+            .WithName("forceupdateid")
+            .WithDescription("Force updates a user's ID. Use when changing someone's claim or if their rank doesn't auto-change on ID.")
+            .AddOption("member", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
+            .AddOption("claim_name", ApplicationCommandOptionType.String, "The claim name of the user.", isRequired: false)
+            .AddOption("rank_name", ApplicationCommandOptionType.String, "The rank to be placed in the database.", isRequired: false));
+
+        
         // POINTSYSTEM.
         
         commands.Add(new SlashCommandBuilder()
@@ -217,7 +220,6 @@ public class CommandHandler {
             .WithDescription("Adds points to a member.")
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "If you're planning on *writing* a konote, don't use these.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
             .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to add.", isRequired: true)
-            .AddOption("writenote", ApplicationCommandOptionType.String, "What new konote would you like to write for this member?", isRequired: false)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
@@ -227,11 +229,11 @@ public class CommandHandler {
             .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to remove.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
-        commands.Add(new SlashCommandBuilder()
-            .WithName("restoreprogress")
-            .WithDescription("DON'T USE THIS. UNTESTED AND SCARY. || Restores the progress of a previous member.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The member.", isRequired: true)
-            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+        // commands.Add(new SlashCommandBuilder()
+        //     .WithName("restoreprogress")
+        //     .WithDescription("DON'T USE THIS. UNTESTED AND SCARY. || Restores the progress of a previous member.")
+        //     .AddOption("member", ApplicationCommandOptionType.User, "The member.", isRequired: true)
+        //     .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("purgemessages")
@@ -254,9 +256,11 @@ public class CommandHandler {
         }
     }
     private async Task SlashCommandHandler(SocketSlashCommand command) {
+        
         switch(command.Data.Name) {
+            
             case "rewardko":
-                await _rewardSystem.HandleRewardKoCommand(command, _client);
+                await _rewardSystem.HandleRewardKoCommand(command);
                 break;
             case "rewardaccomp":
                 await _rewardSystem.HandleRewardAccompCommand(command, _client);
@@ -287,15 +291,15 @@ public class CommandHandler {
             case "forceremove":
                 await _roleSystem.HandleForceRemoveCommand(command);
                 break;
-            case "forcepromote":
-                await _roleSystem.HandlePromoteCommand(command);
-                break;
+            // case "forcepromote":
+            //     await _roleSystem.HandlePromoteCommand(command);
+            //     break;
             case "checkpromotions":
                 await _roleSystem.HandleCheckPromosCommand(command, _client);
                 break;
-            case "finishceremony":
-                await _roleSystem.HandleFinishCeremony(command, _client);
-                break;
+            // case "finishceremony":
+            //     await _roleSystem.HandleFinishCeremony(command, _client);
+            //     break;
             
             case "showid":
                 await _idSystem.ShowId(command, _client);
@@ -308,6 +312,9 @@ public class CommandHandler {
                 break;
             case "forcegainid":
                 await _idSystem.ForceGainId(command, _client);
+                break;
+            case "forceupdateid":
+                await _idSystem.HandleForceUpdateCommand(command);
                 break;
             
             case "showpoints":
@@ -322,12 +329,12 @@ public class CommandHandler {
             case "leaderboard":
                 await _pointSystem.Leaderboard(command);
                 break;
-            case "konotes":
-                await _pointSystem.HandleKoNotes(command);
-                break;
-            case "restoreprogress":
-                await _pointSystem.RestoreProgress(command, _client);
-                break;
+            // case "konotes":
+            //     await _pointSystem.HandleKoNotes(command);
+            //     break;
+            // case "restoreprogress":
+            //     await _pointSystem.RestoreProgress(command, _client);
+            //     break;
             case "purgemessages":
                 await _generalSystem.HandleMassRemoveCommand(command);
                 break;
@@ -687,8 +694,39 @@ public class CommandHandler {
             }
         }
     }
+
+    public async Task AutoEnlistKohosei(SocketGuild guild) {
+        
+        using var timer = new PeriodicTimer(TimeSpan.FromHours(1));
+        var channel = guild.GetTextChannel(1473516609397063680);
+
+        while (await timer.WaitForNextTickAsync())
+        {
+            IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> collection = guild.GetUsersAsync();
+            var placeholder = "";
+
+            await foreach (var members in collection) {
+                foreach (var member in members) {
+                    
+                    var isUnenlisted = member.RoleIds.Contains((ulong)1473369036766052445);
+                    var isEligible = (await _db.GetPoints(member.Id) >= 15); 
+                    var overwrite = channel.GetPermissionOverwrite(member);
+
+                    if (isUnenlisted && isEligible && overwrite?.ViewChannel != PermValue.Allow) {
+                        await Task.Delay(1500);
+                        placeholder += "\n" + (member.Nickname ?? member.Username) + "\n";
+                        // await _roleSystem.HandleFinishKo(member, channel);
+                    }
+                }
+            }
+            
+            var channelLog = guild.GetTextChannel(1524630178641350807);
+            await channelLog.SendMessageAsync(placeholder);
+        }
+    }
     
     public async Task KickUnEnlisted(SocketGuild guild) {
+        
         using var timer = new PeriodicTimer(TimeSpan.FromDays(3));
     
         while (await timer.WaitForNextTickAsync()) {
@@ -699,8 +737,8 @@ public class CommandHandler {
                 
                     var guildUser = user as SocketGuildUser;
                     
-                    bool isUnenlistedProspect = user.RoleIds.Contains((ulong)1473369383471677461) && !user.RoleIds.Contains((ulong)1475720710910382310);
-                    bool isCivilian = user.RoleIds.Contains((ulong)1473369036766052445);
+                    bool isCivilian = user.RoleIds.Contains((ulong)1473369383471677461) && !user.RoleIds.Contains((ulong)1475720710910382310);
+                    bool isProspect = user.RoleIds.Contains((ulong)1473369036766052445);
                     bool isInactive = user.JoinedAt < DateTimeOffset.Now.AddMonths(-2);
                 
                     ulong[] unverifiedRoles = [1473369716792885402, 1473370059950002318, 1473370439526125599, 1473371454790832304];
@@ -709,7 +747,7 @@ public class CommandHandler {
                         .Where(r => !r.IsEveryone)
                         .All(r => unverifiedRoles.Contains(r.Id));
                     
-                    if ((isUnenlistedProspect || isCivilian || isUnverified) && isInactive) {
+                    if ((isCivilian || isProspect || isUnverified) && isInactive) {
                         try {
                             
                             await UserExtensions.SendMessageAsync(user, "Hello! This is the *Automatic Messaging System* at the Sangō Idol-Defense Force.\n\nWe are messaging you in regards to your activity. As outlined in our syllabus, prospects and civilians (who are NOT fans) are to be kicked from the server in the case that they are inactive for more than 2 months in order to keep member counts accurate.\n\nWe thank you for attempting to experience Sangō!\n\nIf you feel this is a mistake, please friend request and send a message to *@fastestthingalive* in order to regain access to the server. If it is not, yet you still wish to join back, please give yourself __a week or so__ and do as previously instructed. Just to make sure you *really* want to!\n\nPlease have a good day, " + user.Username + "!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");

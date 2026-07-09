@@ -46,7 +46,7 @@ public class RoleSystem {
         await civilian.ModifyAsync(x => x.Nickname = "Kō. " + claim);
         
         await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Kōhosei",0,"N/A","Go Strike!", civilian.Username, "ENLISTEDMAIN");
-        await UserExtensions.SendMessageAsync(civilian, "Welcome to SANGŌ, **Kō. " + claim + "**! We're very happy to have you.\nYour first event *must* be of type **CIVT101**. Please be on the lookout for it.");
+        await UserExtensions.SendMessageAsync(civilian, "Welcome to SANGŌ, **Kō. " + claim + "**! We're very happy to have you.\nYour first event *must* be of type **CIVT / Civilian Training**. Please be on the lookout for it.");
         await command.RespondAsync("Processed Prospect into Database.");
     }
     
@@ -320,7 +320,7 @@ public class RoleSystem {
 
         await enlisted.ModifyAsync(x => x.Nickname = fixedNick + " " + claim);
         if (command != null) {
-            await command.RespondAsync("Welcome to your new life as an enlisted, **" + claim + "**!");
+            await command.RespondAsync("Welcome to your new life as an enlisted, <@" + enlisted.Id + ">!");
         }
         await _db.SetRank(enlisted.Id, fixedRank);
     }
@@ -402,5 +402,12 @@ public class RoleSystem {
             await _db.RemovePoints(enlisted.Id, 14);
         }
         
+    }
+    
+    public async Task HandleFinishKo(IGuildUser kohosei, ITextChannel channel) {
+        
+        await channel.AddPermissionOverwriteAsync(kohosei, new OverwritePermissions(viewChannel: PermValue.Allow));
+        await kohosei.SendMessageAsync("Congratulations! You've successfully ranked up to **NiShi. Nitō Shi**. We hope to see much more from you in the future.\nYou've earned your final uniforms, which you can find in the new \"ENLISTED\" uniform channel.");
+        await _db.SetRank(kohosei.Id, "Nitō Shi");
     }
 }

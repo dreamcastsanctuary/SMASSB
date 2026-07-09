@@ -13,6 +13,8 @@ public class Program {
     private LogHandler _logHandler;
     private static IServiceProvider _serviceProvider;
     private ConcurrentDictionary<string, int> _inviteCache = new();
+    private static readonly HashSet<ulong> _startedLoops = new();
+    private static readonly object _startedLoopsLock = new();
 
     public static async Task Main()
         => await new Program().RunAsync();
@@ -51,6 +53,7 @@ public class Program {
             await _commandHandler.IdAutocompleteHandler(interaction);
         };
         
+        
         _client.Ready += async () => {
     
         var guild = _client.GetGuild(_guildId); 
@@ -58,7 +61,16 @@ public class Program {
         _ = Task.Run(async () => {
             await _logHandler.CreateOrUpdateStatChannel(guild);
             await _commandHandler.RegisterCommands(guild);
-            _ = _commandHandler.KickUnEnlisted(guild);
+            
+            bool shouldStartLoops;
+            lock (_startedLoopsLock) {
+                shouldStartLoops = _startedLoops.Add(guild.Id);
+            }
+
+            if (shouldStartLoops) {
+                _ = _commandHandler.KickUnEnlisted(guild);
+                _ = _commandHandler.AutoEnlistKohosei(guild);
+            }
         });
     };
         

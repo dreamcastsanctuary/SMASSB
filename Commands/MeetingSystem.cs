@@ -104,7 +104,7 @@ public class MeetingSystem {
         
         var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
         await Task.Delay(500);
-        await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name + ".\nPlease wait here and be patient as <@" + command.User.Id + "> and <@&1473371232060702781> prepare to assist you, <@" + person.Id + ">.");
+        await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name + ".\nPlease wait here and be patient as <@274990117163368448> and <@&1473371232060702781> prepare to assist you, <@" + person.Id + ">.");
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
@@ -171,7 +171,7 @@ public class MeetingSystem {
         
         var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
         await Task.Delay(500);
-        await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name +".\nPlease wait here and be patient as <@" + command.User.Id + "> prepares to speak to you, <@" + freshPerson.Id + ">.");
+        await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name +".\nPlease wait here and be patient as <@274990117163368448> prepares to speak to you, <@" + freshPerson.Id + ">.");
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
