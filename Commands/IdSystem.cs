@@ -47,7 +47,7 @@ public class IdSystem {
 
         Image idImg = null;
         
-        try { idImg = LoadID(idType); } catch { await command.FollowupAsync("Did you forget to pre/enlist this person? ;)"); return; }
+        try { idImg = LoadID(idType); } catch { await command.FollowupAsync("Did you forget to pre/enlist this person? ;)", ephemeral: true); return; }
         
         
         Image avatar;
@@ -71,13 +71,11 @@ public class IdSystem {
                 avatar = Image.Load(avatarStream);
                 
             } catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException) {
-                await command.FollowupAsync("Couldn't load the avatar image. Try again in a moment, or contact a staff member for assistance.");
+                await command.FollowupAsync("Couldn't load the avatar image. Try again in a moment, or contact a staff member for assistance.", ephemeral: true);
                 return;
                 
             } catch (UnknownImageFormatException) {
-                await command.FollowupAsync(
-                    "That avatar link doesn't point to a supported image format.",
-                    ephemeral: true);
+                await command.FollowupAsync("That avatar link doesn't point to a supported image format.", ephemeral: true);
                 return;
             }
         }
