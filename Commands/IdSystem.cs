@@ -137,12 +137,12 @@ public class IdSystem {
                     name = $"{firstName}\n{lastName}";
                 }
                 
-                ipc.DrawText($"{name}", fontSmall, colors[2], new Point(namePos.X, namePos.Y + 8));
+                ipc.DrawText($"{name}", fontSmall, colors[2], new Point(namePos.X, namePos.Y + 4));
             } else ipc.DrawText($"{name}", font, colors[2], namePos);
             
             if (rank.Contains("taru")) {
                 rank = "Bakuryōchō\ntaru Onshō";
-                ipc.DrawText($"{rank}", fontSmall, colors[2], rankPos);
+                ipc.DrawText($"{rank}", fontSmall, colors[2], new Point(rankPos.X, rankPos.Y + 2));
                 
             } else ipc.DrawText($"{rank}", font, colors[2], rankPos);
             
