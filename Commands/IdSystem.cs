@@ -15,11 +15,13 @@ namespace SMASSB.Commands;
 public class IdSystem {
     
     private DatabaseService _db;
+    private RoleSystem _roleSystem;
     private static readonly HttpClient _httpClient = new HttpClient();
     
-    public IdSystem(DatabaseService db) {
+    public IdSystem(DatabaseService db,
+                    RoleSystem roleSystem) {
         _db = db;
-        
+        _roleSystem = roleSystem;
     }
 
     public static async Task BuildId(SocketSlashCommand command,
@@ -317,24 +319,38 @@ public class IdSystem {
             return;
         }
 
-        if (String.IsNullOrWhiteSpace(claim) && rank == null)
-        {
-            await command.RespondAsync("Nothing needs to be set.", ephemeral: true);
-            return;
-        }
-        
-        string rankName = rank.Name;
-        int dotIndex = rankName.IndexOf('.');
-        string fixedRank = rankName.Substring(dotIndex + 2);
-        
-        await _db.SetClaim(member.Id, claim);
-        await _db.SetRank(member.Id, fixedRank);
-
-        if (String.IsNullOrWhiteSpace(claim)) {
+        if (!String.IsNullOrEmpty(claim) && rank != null) {
             
-            await command.RespondAsync("Completed task.");
-        } else {
+            await _roleSystem.Promote(member, rank, command, claim, "Changed claim.");
+
+        } else if (!String.IsNullOrEmpty(claim)) {
+            
+            string nickname = member.Nickname;
+            int dotIndex = nickname.IndexOf('.');
+            
+            string fixedRankNick = nickname.Substring(1, dotIndex);
+            await member.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claim);
+            
+            await _db.SetClaim(member.Id, claim);
             await command.RespondAsync("Changed claim.");
+            
+        } else if (rank != null) {
+            
+            string rankName = rank.Name;
+            
+            int dotIndex = rankName.IndexOf('.');
+            
+            string fixedRankNick = rankName.Substring(1, dotIndex);
+            string fixedRankFull = rankName.Substring(dotIndex + 2);
+            var oldClaim = await _db.GetClaim(member.Id);
+            
+            await member.ModifyAsync(x => x.Nickname = fixedRankNick + " " + oldClaim);
+            
+            await _db.SetRank(member.Id, fixedRankFull);
+            await command.RespondAsync("Completed task.");
+            
+        } else {
+            await command.RespondAsync("Nothing needs to be set.", ephemeral: true);
         }
     }
     

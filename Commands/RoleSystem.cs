@@ -188,7 +188,9 @@ public class RoleSystem {
             }
             builder.WithTitle("Viable Promotions Completed!");
         }
-        await command.RespondAsync(embed: builder.Build());
+        
+        var channel = command.Channel as ITextChannel;
+        await channel.SendMessageAsync(embed: builder.Build());
     }
 
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
@@ -308,21 +310,31 @@ public class RoleSystem {
         await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, rank,0,"N/A","Go Strike!", civilian.Username, idType); 
     }
 
-    private async Task Promote(SocketGuildUser enlisted, IRole rank, SocketSlashCommand command = null) {
+    public async Task Promote(SocketGuildUser enlisted, IRole rank, SocketSlashCommand command = null, string newClaim = null, string response = null) {
+        
         string nickname = enlisted.Nickname;
         string rankName = rank.Name;
 
         int dotIndex = rankName.IndexOf('.');
-        string fixedNick = rankName.Substring(1, dotIndex);
-        string fixedRank = rankName.Substring(dotIndex + 2);
+        string fixedRankNick = rankName.Substring(1, dotIndex);
+        string fixedRankFull = rankName.Substring(dotIndex + 2);
         int spaceIndex = nickname.IndexOf(' ');
-        string claim = spaceIndex >= 0 ? nickname.Substring(spaceIndex + 1) : nickname;
-
-        await enlisted.ModifyAsync(x => x.Nickname = fixedNick + " " + claim);
-        if (command != null) {
-            await command.RespondAsync("Welcome to your new life as an enlisted, <@" + enlisted.Id + ">!");
+        string claim = "";
+        
+        if (String.IsNullOrEmpty(newClaim)) {
+            claim = spaceIndex >= 0 ? nickname.Substring(spaceIndex + 1) : nickname;
         }
-        await _db.SetRank(enlisted.Id, fixedRank);
+        else {
+            claim = newClaim; 
+            await _db.SetClaim(enlisted.Id, claim);
+        }
+
+        await enlisted.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claim);
+        await _db.SetRank(enlisted.Id, fixedRankFull);
+
+        var message = String.IsNullOrEmpty(response) ? "Welcome to your new life as an enlisted, <@" + enlisted.Id + ">!" : response;
+        
+        if (command != null) { await command.RespondAsync(message); }
     }
 
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
