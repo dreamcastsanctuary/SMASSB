@@ -227,7 +227,7 @@ public class IdSystem {
         byte[]? avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
         string idTypeParam = await _db.GetIdType(enlisted.Id);
         
-        await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam, idTypeParam);
+        await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "", usernameParam, idTypeParam);
 
     }
     
@@ -259,7 +259,7 @@ public class IdSystem {
         byte[]? avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
         string idTypeParam = await _db.GetIdType(enlisted.Id);
         
-        await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "Go Strike!", usernameParam, idTypeParam);
+        await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "", usernameParam, idTypeParam);
     }
 
     public async Task ForceGainId(SocketSlashCommand command, DiscordSocketClient client) {
