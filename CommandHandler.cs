@@ -198,10 +198,12 @@ public class CommandHandler {
         
         commands.Add(new SlashCommandBuilder()
             .WithName("changeclaim")
-            .WithDescription("Updates a user's DB entries. Use when changing someone's claim or for force rankups.")
+            .WithDescription("Updates a user's DB entries. Use when changing someone's claim or for ID fixes.")
             .AddOption("member", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
             .AddOption("claim_name", ApplicationCommandOptionType.String, "The claim name of the user.", isRequired: false)
-            .AddOption("rank_name", ApplicationCommandOptionType.Role, "The rank to be placed in the database.", isRequired: false));
+            .AddOption("rank_name", ApplicationCommandOptionType.Role, "The rank to be placed in the database.", isRequired: false)
+            .AddOption("avatar_fix", ApplicationCommandOptionType.Boolean, "Got a borked avatar in the database? No you don't.")
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         
         // POINTSYSTEM.

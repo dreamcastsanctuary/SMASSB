@@ -47,7 +47,7 @@ public class IdSystem {
 
         Image idImg = null;
         
-        try { idImg = LoadID(idType); } catch { await command.RespondAsync("Did you forget to pre/enlist this person? ;)"); return; }
+        try { idImg = LoadID(idType); } catch { await command.FollowupAsync("Did you forget to pre/enlist this person? ;)"); return; }
         
         
         Image avatar;
@@ -58,9 +58,18 @@ public class IdSystem {
             string sizedAvatarUrl = avatarUrlParam.Contains('?')
                 ? avatarUrlParam + "&size=4096"
                 : avatarUrlParam + "?size=4096";
-            var avatarBytes = await _httpClient.GetByteArrayAsync(sizedAvatarUrl);
-            using var avatarStream = new MemoryStream(avatarBytes);
-            avatar = Image.Load(avatarStream);
+            
+            try {
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+                var avatarBytes = await _httpClient.GetByteArrayAsync(sizedAvatarUrl, cts.Token);
+                using var avatarStream = new MemoryStream(avatarBytes);
+                avatar = Image.Load(avatarStream);
+                
+            } catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException) {
+                
+                await command.FollowupAsync("Couldn't load the avatar image. Try again in a moment, or contact Kamikawa for assistance.");
+                return;
+            }
         }
         
         avatar.Mutate(x => x.Resize(new ResizeOptions {
@@ -159,7 +168,7 @@ public class IdSystem {
         if (member != command.User && !command.CommandName.Contains("other")) {
             await UserExtensions.SendFileAsync(member, output, "Here you are, your brand new Idol ID!");
         } else {
-            await command.RespondWithFileAsync(output, text: "Loaded Idol ID . . !");
+            await command.FollowupWithFileAsync(output, text: "Loaded Idol ID . . !");
         }
         
         File.Delete(output);
@@ -168,6 +177,8 @@ public class IdSystem {
     [DefaultMemberPermissions(GuildPermission.CreatePublicThreads)]
     public async Task EditId(SocketSlashCommand command, DiscordSocketClient client) {
 
+        await command.DeferAsync();
+        
         SocketGuildUser enlisted = (SocketGuildUser)command.User;
         string claim = null;
         string avatarUrl = null;
@@ -192,16 +203,24 @@ public class IdSystem {
                     idType = option.Value.ToString();
                     break;
                 default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                     return;
             }
         }
         
         if (!string.IsNullOrEmpty(avatarUrl)) {
-            await _db.SetAvatarUrl(enlisted.Id, avatarUrl);
-    
-            var bytes = await _httpClient.GetByteArrayAsync(avatarUrl);
-            await _db.SetAvatarImage(enlisted.Id, bytes);
+            
+            try {
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+                var bytes = await _httpClient.GetByteArrayAsync(avatarUrl, cts.Token);
+                await _db.SetAvatarImage(enlisted.Id, bytes);
+                await _db.SetAvatarUrl(enlisted.Id, avatarUrl);
+                
+            } catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException) {
+                
+                await command.FollowupAsync("Couldn't download that avatar image! The host may be slow or the URL invalid. Try again or use a different link.", ephemeral: true);
+                return;
+            }
         }
 
         if (!string.IsNullOrEmpty(claim)) {
@@ -234,6 +253,7 @@ public class IdSystem {
     [DefaultMemberPermissions(GuildPermission.CreatePublicThreads)]
     public async Task ShowId(SocketSlashCommand command, DiscordSocketClient client) {
         
+        await command.DeferAsync();
         SocketGuildUser enlisted = (SocketGuildUser)command.User;
         
         foreach (var option in command.Data.Options) {
@@ -243,7 +263,7 @@ public class IdSystem {
                     enlisted = (SocketGuildUser)option.Value;
                     break;
                 default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                     return;
             }
         }
@@ -284,7 +304,7 @@ public class IdSystem {
         }
 
         await _db.GiveNewId(member.Id, id);
-        await command.RespondAsync("Done.", ephemeral: true);
+        await command.RespondAsync("Completed task.", ephemeral: true);
     }
     
     public async Task HandleForceUpdateCommand(SocketSlashCommand command) {
@@ -292,7 +312,7 @@ public class IdSystem {
         SocketGuildUser member = null;
         var claim = "";
         IRole rank = null;
-        bool isStaff = false;
+        bool avatarBorked = false;
         
         foreach (var option in command.Data.Options)
         {
@@ -307,7 +327,9 @@ public class IdSystem {
                 case "rank_name":
                     rank = (IRole)option.Value;
                     break;
-                
+                case "avatar_fix":
+                    avatarBorked = option.Value.ToString() == "True";
+                    break;
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);
                     break;
@@ -317,6 +339,13 @@ public class IdSystem {
         if (member == null) {
             await command.RespondAsync("Unrecognized account.", ephemeral: true);
             return;
+        }
+
+        if (avatarBorked) {
+            var avatarUrl = member.GetGuildAvatarUrl() ??  member.GetAvatarUrl() ?? member.GetDefaultAvatarUrl();
+            var bytes = await _httpClient.GetByteArrayAsync(avatarUrl);
+            await _db.SetAvatarUrl(member.Id, avatarUrl);
+            await _db.SetAvatarImage(member.Id, bytes);
         }
 
         if (!String.IsNullOrEmpty(claim) && rank != null) {
