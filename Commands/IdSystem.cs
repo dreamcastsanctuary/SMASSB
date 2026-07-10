@@ -328,7 +328,7 @@ public class IdSystem {
             string nickname = member.Nickname;
             int dotIndex = nickname.IndexOf('.');
             
-            string fixedRankNick = nickname.Substring(1, dotIndex);
+            string fixedRankNick = nickname.Substring(0, dotIndex);
             await member.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claim);
             
             await _db.SetClaim(member.Id, claim);
