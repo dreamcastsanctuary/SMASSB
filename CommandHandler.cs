@@ -197,8 +197,8 @@ public class CommandHandler {
         );
         
         commands.Add(new SlashCommandBuilder()
-            .WithName("forceupdateid")
-            .WithDescription("Force updates a user's ID. Use when changing someone's claim.")
+            .WithName("changeclaim")
+            .WithDescription("Updates a user's DB entries. Use when changing someone's claim or for force rankups.")
             .AddOption("member", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
             .AddOption("claim_name", ApplicationCommandOptionType.String, "The claim name of the user.", isRequired: false)
             .AddOption("rank_name", ApplicationCommandOptionType.Role, "The rank to be placed in the database.", isRequired: false));
@@ -313,7 +313,7 @@ public class CommandHandler {
             case "forcegainid":
                 await _idSystem.ForceGainId(command, _client);
                 break;
-            case "forceupdateid":
+            case "changeclaim":
                 await _idSystem.HandleForceUpdateCommand(command);
                 break;
             

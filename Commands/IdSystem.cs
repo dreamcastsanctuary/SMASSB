@@ -329,7 +329,13 @@ public class IdSystem {
         
         await _db.SetClaim(member.Id, claim);
         await _db.SetRank(member.Id, fixedRank);
-        await command.RespondAsync("Completed task.");
+
+        if (String.IsNullOrWhiteSpace(claim)) {
+            
+            await command.RespondAsync("Completed task.");
+        } else {
+            await command.RespondAsync("Changed claim.");
+        }
     }
     
     static Image LoadBadges(string filename, int w, int h) {
