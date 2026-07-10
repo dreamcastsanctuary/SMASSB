@@ -289,7 +289,7 @@ public class IdSystem {
         
         SocketGuildUser member = null;
         var claim = "";
-        var rank = "";
+        IRole rank = null;
         bool isStaff = false;
         
         foreach (var option in command.Data.Options)
@@ -303,8 +303,9 @@ public class IdSystem {
                     claim = option.Value.ToString();
                     break;
                 case "rank_name":
-                    rank = option.Value.ToString();
+                    rank = (IRole)option.Value;
                     break;
+                
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);
                     break;
@@ -316,14 +317,18 @@ public class IdSystem {
             return;
         }
 
-        if (String.IsNullOrWhiteSpace(claim) && String.IsNullOrWhiteSpace(rank))
+        if (String.IsNullOrWhiteSpace(claim) && rank == null)
         {
             await command.RespondAsync("Nothing needs to be set.", ephemeral: true);
             return;
         }
         
+        string rankName = rank.Name;
+        int dotIndex = rankName.IndexOf('.');
+        string fixedRank = rankName.Substring(dotIndex + 2);
+        
         await _db.SetClaim(member.Id, claim);
-        await _db.SetRank(member.Id, rank);
+        await _db.SetRank(member.Id, fixedRank);
         await command.RespondAsync("Completed task.");
     }
     

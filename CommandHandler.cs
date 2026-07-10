@@ -201,7 +201,7 @@ public class CommandHandler {
             .WithDescription("Force updates a user's ID. Use when changing someone's claim.")
             .AddOption("member", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
             .AddOption("claim_name", ApplicationCommandOptionType.String, "The claim name of the user.", isRequired: false)
-            .AddOption("rank_name", ApplicationCommandOptionType.String, "The rank to be placed in the database.", isRequired: false));
+            .AddOption("rank_name", ApplicationCommandOptionType.Role, "The rank to be placed in the database.", isRequired: false));
 
         
         // POINTSYSTEM.
