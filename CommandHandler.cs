@@ -697,7 +697,7 @@ public class CommandHandler {
 
     public async Task AutoEnlistKohosei(SocketGuild guild) {
         
-        using var timer = new PeriodicTimer(TimeSpan.FromMinutes(2));
+        using var timer = new PeriodicTimer(TimeSpan.FromHours(1));
         var channel = guild.GetTextChannel(1473516609397063680);
 
         while (await timer.WaitForNextTickAsync())
