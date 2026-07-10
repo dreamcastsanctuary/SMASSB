@@ -703,7 +703,6 @@ public class CommandHandler {
         while (await timer.WaitForNextTickAsync())
         {
             IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> collection = guild.GetUsersAsync();
-            var placeholder = "";
 
             await foreach (var members in collection) {
                 foreach (var member in members) {
@@ -714,14 +713,10 @@ public class CommandHandler {
 
                     if (isUnenlisted && isEligible && overwrite?.ViewChannel != PermValue.Allow) {
                         await Task.Delay(1500);
-                        placeholder += "\n" + (member.Nickname ?? member.Username) + "\n";
-                        // await _roleSystem.HandleFinishKo(member, channel);
+                        await _roleSystem.HandleFinishKo(member, channel);
                     }
                 }
             }
-            
-            var channelLog = guild.GetTextChannel(1524630178641350807);
-            await channelLog.SendMessageAsync(placeholder);
         }
     }
     
