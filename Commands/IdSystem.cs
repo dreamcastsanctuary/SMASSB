@@ -219,17 +219,19 @@ public class IdSystem {
         }
         
         if (!string.IsNullOrEmpty(avatarUrl)) {
+            
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+            var resolvedUrl = await ResolveImgurUrlAsync(avatarUrl, _httpClient, cts.Token);
 
             try {
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-                var bytes = await _httpClient.GetByteArrayAsync(avatarUrl, cts.Token);
+                var bytes = await _httpClient.GetByteArrayAsync(resolvedUrl, cts.Token);
 
                 using (var testStream = new MemoryStream(bytes)) {
                     using var _ = Image.Load(testStream);
                 }
 
                 await _db.SetAvatarImage(enlisted.Id, bytes);
-                await _db.SetAvatarUrl(enlisted.Id, avatarUrl);
+                await _db.SetAvatarUrl(enlisted.Id, resolvedUrl);
 
             } catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException) {
                 await command.FollowupAsync("Couldn't download that avatar image! The host website may be slow or the URL invalid. Try again or use a different link.", ephemeral: true);
@@ -468,5 +470,25 @@ public class IdSystem {
         }
         
         return colors;
+    }
+    
+    private static async Task<string> ResolveImgurUrlAsync(string url, HttpClient httpClient, CancellationToken ct) {
+        
+        if (!url.Contains("imgur.com", StringComparison.OrdinalIgnoreCase))
+            return url;
+        
+        if (url.Contains("i.imgur.com", StringComparison.OrdinalIgnoreCase))
+            return url;
+
+        try {
+            var html = await httpClient.GetStringAsync(url, ct);
+            var match = System.Text.RegularExpressions.Regex.Match(
+                html, @"<meta\s+property=[""']og:image[""']\s+content=[""']([^""']+)[""']");
+
+            return match.Success ? match.Groups[1].Value : url;
+            
+        } catch {
+            return url;
+        }
     }
 }
