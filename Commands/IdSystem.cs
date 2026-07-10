@@ -52,13 +52,18 @@ public class IdSystem {
         
         Image avatar;
         if (avatarImageParam != null) {
-            using var avatarStream = new MemoryStream(avatarImageParam);
-            avatar = Image.Load(avatarStream);
+            try {
+                using var avatarStream = new MemoryStream(avatarImageParam);
+                avatar = Image.Load(avatarStream);
+            } catch (UnknownImageFormatException) {
+                await command.FollowupAsync("It seems like your avatar is corrupted. Please run /editid to fix it, or contact a staff member for assistance.", ephemeral: true);
+                return;
+            }
         } else {
             string sizedAvatarUrl = avatarUrlParam.Contains('?')
                 ? avatarUrlParam + "&size=4096"
                 : avatarUrlParam + "?size=4096";
-            
+
             try {
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
                 var avatarBytes = await _httpClient.GetByteArrayAsync(sizedAvatarUrl, cts.Token);
@@ -66,8 +71,13 @@ public class IdSystem {
                 avatar = Image.Load(avatarStream);
                 
             } catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException) {
+                await command.FollowupAsync("Couldn't load the avatar image. Try again in a moment, or contact a staff member for assistance.");
+                return;
                 
-                await command.FollowupAsync("Couldn't load the avatar image. Try again in a moment, or contact Kamikawa for assistance.");
+            } catch (UnknownImageFormatException) {
+                await command.FollowupAsync(
+                    "That avatar link doesn't point to a supported image format.",
+                    ephemeral: true);
                 return;
             }
         }
@@ -209,16 +219,24 @@ public class IdSystem {
         }
         
         if (!string.IsNullOrEmpty(avatarUrl)) {
-            
+
             try {
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
                 var bytes = await _httpClient.GetByteArrayAsync(avatarUrl, cts.Token);
+
+                using (var testStream = new MemoryStream(bytes)) {
+                    using var _ = Image.Load(testStream);
+                }
+
                 await _db.SetAvatarImage(enlisted.Id, bytes);
                 await _db.SetAvatarUrl(enlisted.Id, avatarUrl);
-                
+
             } catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException) {
+                await command.FollowupAsync("Couldn't download that avatar image! The host website may be slow or the URL invalid. Try again or use a different link.", ephemeral: true);
+                return;
                 
-                await command.FollowupAsync("Couldn't download that avatar image! The host may be slow or the URL invalid. Try again or use a different link.", ephemeral: true);
+            } catch (UnknownImageFormatException) {
+                await command.FollowupAsync("That link doesn't point to a supported image (PNG/JPEG/etc.) Make sure it's a direct image link, rather than a page containing one.", ephemeral: true);
                 return;
             }
         }
