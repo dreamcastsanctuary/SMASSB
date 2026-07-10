@@ -81,7 +81,7 @@ public class IdSystem {
         var datePos = new Point(827,531);
         var rankPos = new Point(827,609);
         var pointsPos = new Point(827,687);
-        var bloodtypePos = new Point(827,764);
+        var bloodtypePos = new Point(827,766);
         var catchphrasePos = new Point(70,953);
         var barcodePos = new Point(95,688);
         
