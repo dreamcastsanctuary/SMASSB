@@ -179,13 +179,7 @@ public class MeetingSystem {
         await Task.Delay(500);
         await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name +".\nPlease wait here and be patient as <@274990117163368448> prepares to speak to you, <@" + freshPerson.Id + ">.");
     }
-
-    /// <summary>
-    /// Fires on every message the bot can see (wire this up in your bot startup with
-    /// `client.MessageReceived += meetingSystem.HandleMeetingMessage;`). Live-logs
-    /// anything posted in a "meeting-" thread to the website as it happens, so a bot
-    /// restart mid-meeting doesn't lose what was said before it went down.
-    /// </summary>
+    
     public async Task HandleMeetingMessage(SocketMessage rawMessage) {
         if (rawMessage.Author.IsBot) return;
         if (rawMessage.Channel is not SocketThreadChannel thread) return;
@@ -194,18 +188,16 @@ public class MeetingSystem {
         await PostMessageToMeetingLog(thread.Name, rawMessage);
     }
 
-    /// <summary>
-    /// Sends a single Discord message (text + attachments) to /api/meeting.
-    /// Safe to call more than once for the same message — the server keys storage by
-    /// Discord message ID, so repeats just overwrite instead of duplicating.
-    /// </summary>
     private async Task PostMessageToMeetingLog(string meetingName, IMessage message) {
         if (string.IsNullOrWhiteSpace(message.Content) && message.Attachments.Count == 0)
             return;
-
+ 
         var user = message.Author as IGuildUser;
+        var displayName = (user?.Nickname != null && user.Nickname != message.Author.Username)
+            ? $"{user.Nickname} ・ {message.Author.Username}"
+            : message.Author.Username;
         var attachments = new List<object>();
-
+ 
         foreach (var attachment in message.Attachments) {
             if (attachment.Size > MaxEmbeddedAttachmentBytes) {
                 attachments.Add(new {
@@ -215,7 +207,7 @@ public class MeetingSystem {
                 });
                 continue;
             }
-
+ 
             try {
                 var bytes = await _httpClient.GetByteArrayAsync(attachment.Url);
                 attachments.Add(new {
@@ -231,21 +223,21 @@ public class MeetingSystem {
                 });
             }
         }
-
+ 
         var payload = new {
             name = meetingName,
             secret = MeetingApiSecret,
             action = "message",
             message = new {
                 id = message.Id.ToString(),
-                author = user?.Nickname ?? message.Author.Username,
+                author = displayName,
                 avatarUrl = message.Author.GetAvatarUrl() ?? message.Author.GetDefaultAvatarUrl(),
                 timestamp = message.Timestamp.ToUnixTimeMilliseconds(),
                 content = message.Content,
                 attachments
             }
         };
-
+ 
         await PostToMeetingApi(payload, $"message {message.Id}");
     }
 
