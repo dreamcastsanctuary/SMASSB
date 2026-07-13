@@ -110,13 +110,19 @@ public class PointSystem {
                 var s = "s";
                 if (current == 1) { s = ""; }
 
+                var sPre = "s";
+                if (points == 1) { sPre = ""; }
+
                 var sR = "s";
                 if (currentR == 1) { sR = ""; }
+                
+                var sPreR = "s";
+                if (recruits == 1) { sR = ""; }
 
                 if (recruits == 0) {
-                    embedBuilder.WithDescription("This member has been given ***" + points + "*** points,\nand now has ***" + current + "*** point" + s + ".");
+                    embedBuilder.WithDescription("This member has been given ***" + points + "*** point" + sPre + ", and now has ***" + current + "*** point" + s + ".");
                 } else {
-                    embedBuilder.WithDescription("This member has been given ***" + points + "*** point" + s +",\nand now has ***" + current + "*** point" + s + ".\n\nThey've also scouted ***" + recruits + "*** recruit" + s + ", and now has scouted ***" + currentR + "*** recruit" + s + " in total!");
+                    embedBuilder.WithDescription("This member has been given ***" + points + "*** point" + sPre +",\nand now has ***" + current + "*** point" + s + ".\n\nThey've also scouted ***" + recruits + "*** recruit" + sPreR + ", and now has scouted ***" + currentR + "*** recruit" + sR + " in total!");
                 }
                 
                 if (!String.IsNullOrEmpty(noteText)) await HandleKoNotes(command, true, member, noteText);
@@ -127,8 +133,11 @@ public class PointSystem {
             
                 var s = "s";
                 if (current == 1) { s = ""; }
+                
+                var sPre = "s";
+                if (points == 1) { sPre = ""; }
             
-                embedBuilder.WithDescription("You have removed ***" + points + "*** point" + s + " from this member.\nThey now have ***" + current + "*** point" + s + ".");
+                embedBuilder.WithDescription("You have removed ***" + points + "*** point" + sPre + " from this member.\nThey now have ***" + current + "*** point" + s + ".");
             }
 
             embedBuilder
@@ -178,7 +187,7 @@ public class PointSystem {
         } else {
             
             await _db.RemoveRecruits(member.Id, recruits);
-            var current = await _db.GetPoints(member.Id);
+            var current = await _db.GetRecruits(member.Id);
             
             var s = "s";
             if (current == 1) { s = ""; }

@@ -297,7 +297,7 @@ public class DatabaseService
         command.Parameters.AddWithValue("$recruits", recruits);
         await command.ExecuteNonQueryAsync();
 
-        return await Underflow(userId);
+        return await UnderflowRecruits(userId);
     }
 
     private async Task<int> Underflow(ulong userId) {
@@ -315,6 +315,28 @@ public class DatabaseService
         if (ans) {
             var command2 = connection.CreateCommand();
             command2.CommandText = "UPDATE Enrolled SET Points = 0 WHERE UserId = $id;";
+            command2.Parameters.AddWithValue("$id", userId.ToString());
+            return await command2.ExecuteNonQueryAsync();
+        }
+        
+        return -1;
+    }
+    
+    private async Task<int> UnderflowRecruits(ulong userId) {
+        
+        using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT COUNT(1) FROM Enrolled WHERE UserId = $id AND Recruits < 0;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        
+        var result = await command.ExecuteScalarAsync();
+        var ans = Convert.ToInt32(result) > 0;
+
+        if (ans) {
+            var command2 = connection.CreateCommand();
+            command2.CommandText = "UPDATE Enrolled SET Recruits = 0 WHERE UserId = $id;";
             command2.Parameters.AddWithValue("$id", userId.ToString());
             return await command2.ExecuteNonQueryAsync();
         }
