@@ -280,13 +280,18 @@ public class MeetingSystem {
                 await Task.Delay(250);
             }
 
-            await CloseMeetingLog(thread.Name);
+            var userList = "";
+            
+            foreach (var user in users)
+            {
+                userList += user.Username + "\n";
+            }
 
+            await CloseMeetingLog(thread.Name);
+            var logChannel = guild.GetChannel(1516597401287131176) as IThreadChannel;
+            
             try {
-                await command.FollowupAsync(
-                    $"Log saved: {SiteBaseUrl}/meeting/{thread.Name}",
-                    ephemeral: true
-                );
+                await logChannel.SendMessageAsync($"Meeting Log saved: {SiteBaseUrl}/meeting/{thread.Name}\n\nUsers:\n" + userList);
             } catch (Exception ex) {
                 Console.WriteLine($"[MeetingLog] Could not send followup: {ex.Message}");
             }
