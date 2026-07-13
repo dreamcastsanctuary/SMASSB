@@ -354,6 +354,15 @@ public class IdSystem {
         }
 
         await _db.RemoveId(member.Id, id);
+
+        if (id.Equals(await _db.GetIdType(member.Id))) {
+            if (member.Roles.Any(r => r.Id == 1473508563887329447)) {
+                await _db.SetIdType(member.Id, "STAFFMAIN");
+            } else {
+                await _db.SetIdType(member.Id, "ENLISTEDMAIN");
+            }
+        }
+        
         await command.RespondAsync("Completed task.", ephemeral: true);
     }
     
