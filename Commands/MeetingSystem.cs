@@ -1,13 +1,23 @@
-﻿using Discord;
+﻿using System.Text;
+using System.Text.Json;
+using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 
 namespace SMASSB.Commands;
 
 public class MeetingSystem {
-    
+
     private DatabaseService _db;
-    
+
+    private static readonly HttpClient _httpClient = new HttpClient();
+
+    private const string SiteBaseUrl = "https://sangoidoldefenseforce.vercel.app";
+
+    private const string MeetingApiSecret = "Ba11erySama!";
+
+    private const long MaxEmbeddedAttachmentBytes = 3 * 1024 * 1024;
+
     public MeetingSystem (DatabaseService db) {
         _db = db;
     }
@@ -173,7 +183,95 @@ public class MeetingSystem {
         await Task.Delay(500);
         await thread.SendMessageAsync("Welcome to Meeting Room " + meeting_name +".\nPlease wait here and be patient as <@274990117163368448> prepares to speak to you, <@" + freshPerson.Id + ">.");
     }
-    
+
+    /// <summary>
+    /// Fires on every message the bot can see (wire this up in your bot startup with
+    /// `client.MessageReceived += meetingSystem.HandleMeetingMessage;`). Live-logs
+    /// anything posted in a "meeting-" thread to the website as it happens, so a bot
+    /// restart mid-meeting doesn't lose what was said before it went down.
+    /// </summary>
+    public async Task HandleMeetingMessage(SocketMessage rawMessage) {
+        if (rawMessage.Author.IsBot) return;
+        if (rawMessage.Channel is not SocketThreadChannel thread) return;
+        if (!thread.Name.Contains("meeting-")) return;
+
+        await PostMessageToMeetingLog(thread.Name, rawMessage);
+    }
+
+    /// <summary>
+    /// Sends a single Discord message (text + attachments) to /api/meeting.
+    /// Safe to call more than once for the same message — the server keys storage by
+    /// Discord message ID, so repeats just overwrite instead of duplicating.
+    /// </summary>
+    private async Task PostMessageToMeetingLog(string meetingName, IMessage message) {
+        if (string.IsNullOrWhiteSpace(message.Content) && message.Attachments.Count == 0)
+            return;
+
+        var user = message.Author as IGuildUser;
+        var attachments = new List<object>();
+
+        foreach (var attachment in message.Attachments) {
+            if (attachment.Size > MaxEmbeddedAttachmentBytes) {
+                attachments.Add(new {
+                    url = attachment.Url,
+                    filename = attachment.Filename,
+                    contentType = attachment.ContentType
+                });
+                continue;
+            }
+
+            try {
+                var bytes = await _httpClient.GetByteArrayAsync(attachment.Url);
+                attachments.Add(new {
+                    filename = attachment.Filename,
+                    contentType = attachment.ContentType,
+                    dataBase64 = Convert.ToBase64String(bytes)
+                });
+            } catch (Exception ex) {
+                attachments.Add(new {
+                    url = (string)null,
+                    filename = attachment.Filename,
+                    error = ex.Message
+                });
+            }
+        }
+
+        var payload = new {
+            name = meetingName,
+            secret = MeetingApiSecret,
+            action = "message",
+            message = new {
+                id = message.Id.ToString(),
+                author = user?.Nickname ?? message.Author.Username,
+                avatarUrl = message.Author.GetAvatarUrl() ?? message.Author.GetDefaultAvatarUrl(),
+                timestamp = message.Timestamp.ToUnixTimeMilliseconds(),
+                content = message.Content,
+                attachments
+            }
+        };
+
+        await PostToMeetingApi(payload, $"message {message.Id}");
+    }
+
+    private async Task CloseMeetingLog(string meetingName) {
+        var payload = new { name = meetingName, secret = MeetingApiSecret, action = "close" };
+        await PostToMeetingApi(payload, $"close {meetingName}");
+    }
+
+    private async Task PostToMeetingApi(object payload, string label) {
+        var json = JsonSerializer.Serialize(payload);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        try {
+            var response = await _httpClient.PostAsync($"{SiteBaseUrl}/api/meeting", content);
+            if (!response.IsSuccessStatusCode) {
+                Console.WriteLine($"[MeetingLog] Failed to post {label}: {response.StatusCode}");
+            }
+        } catch (Exception ex) {
+            Console.WriteLine($"[MeetingLog] Error posting {label}: {ex.Message}");
+        }
+    }
+
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandleMeetingCloseCommand(SocketSlashCommand command, DiscordSocketClient client) {
 
@@ -184,48 +282,32 @@ public class MeetingSystem {
             await command.RespondAsync("Closing meeting room.", ephemeral: true);
             var thread = guild.GetThreadChannel(channel.Id);
             IReadOnlyCollection<SocketThreadUser> users = await thread.GetUsersAsync();
-            
+
+            // Final sweep: make sure every message currently in the thread has been
+            // logged to the website, in case the bot was offline for part of the
+            // conversation and missed some live posts. This is idempotent — messages
+            // already logged just get overwritten with the same content, keyed by
+            // Discord message ID on the server.
             var messages = (await thread.GetMessagesAsync(500).FlattenAsync())
                 .OrderBy(m => m.Timestamp)
                 .ToList();
 
-            var logChannel = guild.GetTextChannel(1482805129613938860);
-            var logThread = await logChannel.CreateThreadAsync(
-                name: thread.Name + "-log",
-                type: ThreadType.PrivateThread,
-                autoArchiveDuration: ThreadArchiveDuration.OneWeek
-            );
-
-            using var httpClient = new HttpClient();
             foreach (var message in messages) {
-                
-                var user = message.Author as IGuildUser;
-                
-                if (!string.IsNullOrWhiteSpace(message.Content)) {
-                    await logThread.SendMessageAsync($"**{user.Nickname ?? message.Author.Username}** at {message.Timestamp:M/d/yyyy HH:mm:ss tt}\n\t{message.Content}\n_ _"
-                    );
-                    await Task.Delay(500);
-                }
-
-                foreach (var attachment in message.Attachments) {
-                    try {
-                        var bytes = await httpClient.GetByteArrayAsync(attachment.Url);
-                        using var stream = new MemoryStream(bytes);
-                        await logThread.SendFileAsync(stream, attachment.Filename, $"**{user.Nickname ?? message.Author.Username}** : {message.Timestamp:M/d/yyyy g}:");
-                    } catch (Exception ex) {
-                        await logThread.SendMessageAsync(
-                            $"Could not re-upload `{attachment.Filename}` — {ex.Message}"
-                        );
-                    }
-                    await Task.Delay(500);
-                }
+                await PostMessageToMeetingLog(thread.Name, message);
+                await Task.Delay(250);
             }
-            
-            await logThread.ModifyAsync(t => {
-                t.Archived = true;
-                t.Locked = true;
-            });
-            
+
+            await CloseMeetingLog(thread.Name);
+
+            try {
+                await command.FollowupAsync(
+                    $"Log saved: {SiteBaseUrl}/meeting/{thread.Name}",
+                    ephemeral: true
+                );
+            } catch (Exception ex) {
+                Console.WriteLine($"[MeetingLog] Could not send followup: {ex.Message}");
+            }
+
             if (((SocketTextChannel)channel).Name.Contains("meeting-repri-")) {
                 foreach (SocketThreadUser user in users) {
                     SocketGuildUser guildUser = (SocketGuildUser)user;

@@ -11,6 +11,7 @@ public class Program {
     private ulong _guildId;
     private CommandHandler _commandHandler;
     private LogHandler _logHandler;
+    private MeetingSystem _meetingSystem;
     private static IServiceProvider _serviceProvider;
     private ConcurrentDictionary<string, int> _inviteCache = new();
     private static readonly HashSet<ulong> _startedLoops = new();
@@ -25,6 +26,7 @@ public class Program {
         _client = _serviceProvider.GetRequiredService<DiscordSocketClient>();
         _commandHandler = _serviceProvider.GetRequiredService<CommandHandler>();
         _logHandler = _serviceProvider.GetRequiredService<LogHandler>();
+        _meetingSystem = _serviceProvider.GetRequiredService<MeetingSystem>();
         
         var token = Environment.GetEnvironmentVariable("BOT_TOKEN") ?? throw new Exception("BOT_TOKEN environment variable not set.");
 
@@ -32,6 +34,7 @@ public class Program {
         _client.Log += Log;
         
         _client.ButtonExecuted += _commandHandler.ButtonHandler;
+        
         _client.ReactionAdded += (cache, channel, reaction) => { _ = Task.Run(async () => await _commandHandler.ReactionAddedHandler(_client.GetGuild(_guildId), cache, channel, reaction)); return Task.CompletedTask; };
         _client.ReactionRemoved += (cache, channel, reaction) => { _ = Task.Run(async () => await _commandHandler.ReactionRemovedHandler(_client.GetGuild(_guildId), cache, channel, reaction)); return Task.CompletedTask; };
         _client.UserVoiceStateUpdated += (user, before, after) => { _ = Task.Run(async () => await _commandHandler.VoiceStateUpdatedAsync(user, before, after, _client.GetGuild(_guildId))); return Task.CompletedTask; };
@@ -44,6 +47,8 @@ public class Program {
         _client.MessageDeleted += (message, messageChannel) => { _ = Task.Run(async () => await _logHandler.LogMessageDelete(message, messageChannel, _client.GetGuild(_guildId))); return Task.CompletedTask; };
         _client.MessageUpdated += (beforemessage, aftermessage, messageChannel) => { _ = Task.Run(async () => await _logHandler.LogMessageUpdate(beforemessage, aftermessage, messageChannel, _client.GetGuild(_guildId))); return Task.CompletedTask; };
         _client.WebhooksUpdated += (userGuild, channel) => { _ = Task.Run(async () => await _logHandler.LogWebhookUpdate(userGuild, channel)); return Task.CompletedTask; };
+        
+        _client.MessageReceived += _meetingSystem.HandleMeetingMessage;
         
         _client.AutocompleteExecuted += async (interaction) => {
             
