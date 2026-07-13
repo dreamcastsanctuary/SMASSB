@@ -129,14 +129,14 @@ public class CommandHandler {
             .WithName("addrecruits")
             .WithDescription("Add to a member's recruit counter.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
-            .AddOption("recruitpoints", ApplicationCommandOptionType.Integer, "How many recruits did this person get? (If applicable.)")
+            .AddOption("recruitpoints", ApplicationCommandOptionType.Integer, "How many recruits did this person get? (If applicable.)", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("removerecruits")
             .WithDescription("Subtract from a member's recruit counter.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
-            .AddOption("recruitpoints", ApplicationCommandOptionType.Integer, "Messed up with the count? www")
+            .AddOption("recruitpoints", ApplicationCommandOptionType.Integer, "Messed up with the count? www", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         // commands.Add(new SlashCommandBuilder()
@@ -342,15 +342,9 @@ public class CommandHandler {
             case "forceremove":
                 await _roleSystem.HandleForceRemoveCommand(command);
                 break;
-            // case "forcepromote":
-            //     await _roleSystem.HandlePromoteCommand(command);
-            //     break;
             case "checkpromotions":
                 await _roleSystem.HandleCheckPromosCommand(command, _client);
                 break;
-            // case "finishceremony":
-            //     await _roleSystem.HandleFinishCeremony(command, _client);
-            //     break;
             
             case "showid":
                 await _idSystem.ShowId(command, _client);
@@ -383,12 +377,12 @@ public class CommandHandler {
             case "leaderboard":
                 await _pointSystem.Leaderboard(command);
                 break;
-            // case "konotes":
-            //     await _pointSystem.HandleKoNotes(command);
-            //     break;
-            // case "restoreprogress":
-            //     await _pointSystem.RestoreProgress(command, _client);
-            //     break;
+            case "addrecruits":
+                await _pointSystem.EditRecruits(command, true);
+                break;
+            case "removerecruits":
+                await _pointSystem.EditRecruits(command, false);
+                break;
             case "purgemessages":
                 await _generalSystem.HandleMassRemoveCommand(command);
                 break;
@@ -396,6 +390,19 @@ public class CommandHandler {
             default:
                 await command.RespondAsync("Unrecognized command.", ephemeral: true);
                 break;
+            
+            // case "forcepromote":
+            //     await _roleSystem.HandlePromoteCommand(command);
+            //     break;
+            // case "finishceremony":
+            //     await _roleSystem.HandleFinishCeremony(command, _client);
+            //     break;
+            // case "konotes":
+            //     await _pointSystem.HandleKoNotes(command);
+            //     break;
+            // case "restoreprogress":
+            //     await _pointSystem.RestoreProgress(command, _client);
+            //     break;
         }
     }
 
