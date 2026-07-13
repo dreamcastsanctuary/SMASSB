@@ -36,7 +36,8 @@ public class PointSystem {
             .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())
             .WithTitle("❖﹒Points . .")
             .WithDescription("This member has earned ***" + points + "*** points.")
-            .WithColor(0xBFA55F)).Build();
+            .WithColor(0xBFA55F)
+            .WithFooter("Why not use /showid to look at your points? It's a lot cooler, we promise.")).Build();
         
         await command.RespondAsync(embed: embed);
     }
@@ -46,6 +47,7 @@ public class PointSystem {
         
         List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
         int points = 0;
+        int recruits = 0;
         var noteText = "";
         
         foreach (var option in command.Data.Options)
@@ -85,6 +87,9 @@ public class PointSystem {
                 case "amount":
                     points = (int)(long) option.Value;
                     break;
+                case "recruitpoints":
+                    recruits = (int)(long) option.Value;
+                    break;
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);
                     return;
@@ -98,12 +103,22 @@ public class PointSystem {
             EmbedBuilder embedBuilder = new EmbedBuilder();
             if (add) {
                 await _db.AddPoints(member.Id, points);
+                await _db.AddRecruits(member.Id, recruits);
                 var current = await _db.GetPoints(member.Id);
+                var currentR = await _db.GetRecruits(member.Id);
             
                 var s = "s";
                 if (current == 1) { s = ""; }
-            
-                embedBuilder.WithDescription("This member has been given ***" + points + "*** points,\nand now has ***" + current + "*** point" + s + ".");
+
+                var sR = "s";
+                if (currentR == 1) { sR = ""; }
+
+                if (recruits == 0) {
+                    embedBuilder.WithDescription("This member has been given ***" + points + "*** points,\nand now has ***" + current + "*** point" + s + ".");
+                } else {
+                    embedBuilder.WithDescription("This member has been given ***" + points + "*** point" + s +",\nand now has ***" + current + "*** point" + s + ".\n\nThey've also scouted ***" + recruits + "*** recruit" + s + ", and now has scouted ***" + currentR + "*** recruit" + s + " in total!");
+                }
+                
                 if (!String.IsNullOrEmpty(noteText)) await HandleKoNotes(command, true, member, noteText);
 
             } else {
@@ -113,7 +128,7 @@ public class PointSystem {
                 var s = "s";
                 if (current == 1) { s = ""; }
             
-                embedBuilder.WithDescription("You have removed ***" + points + "*** points from this member.\nThey now have ***" + current + "*** point" + s + ".");
+                embedBuilder.WithDescription("You have removed ***" + points + "*** point" + s + " from this member.\nThey now have ***" + current + "*** point" + s + ".");
             }
 
             embedBuilder
@@ -123,6 +138,60 @@ public class PointSystem {
         
             await command.FollowupAsync(embed: embedBuilder.Build());
         }
+    }
+
+    public async Task EditRecruits(SocketSlashCommand command, bool add) {
+        
+        SocketGuildUser member = null;
+        var recruits = 0;
+        
+        foreach (var option in command.Data.Options)
+        {
+            switch (option.Name)
+            {
+                case "member":
+                    member = ((SocketGuildUser)option.Value);
+                    break;
+                case "recruitpoints":
+                    recruits = (int)(long)option.Value;
+                    break;
+                case "amount":
+                    break;
+                default:
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
+                    break;
+            }
+        }
+
+        if (member == null) return;
+        
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        
+        if (add) {
+            await _db.AddRecruits(member.Id, recruits);
+            var current = await _db.GetRecruits(member.Id);
+            
+            var s = "s";
+            if (current == 1) { s = ""; }
+            
+            embedBuilder.WithDescription("This member has scouted ***" + recruits + "*** recruit" + s + ", and now has scouted ***" + current + "*** recruit" + s + " in total!");
+        } else {
+            
+            await _db.RemoveRecruits(member.Id, recruits);
+            var current = await _db.GetPoints(member.Id);
+            
+            var s = "s";
+            if (current == 1) { s = ""; }
+            
+            embedBuilder.WithDescription("You have removed ***" + recruits + "*** recruitpoint" + s + " from this member.\nThey now have ***" + current + "*** recruitpoint" + s + ".");
+        }
+
+        embedBuilder
+            .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())
+            .WithTitle("❖﹒Done and done!")
+            .WithColor(0x44786F);
+        
+        await command.FollowupAsync(embed: embedBuilder.Build());
     }
     
     public async Task Leaderboard(SocketSlashCommand command) {

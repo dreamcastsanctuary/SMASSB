@@ -129,7 +129,14 @@ public class CommandHandler {
             .WithName("addrecruits")
             .WithDescription("Add to a member's recruit counter.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
-            .AddOption("writenote", ApplicationCommandOptionType.String, "What new note would you like to write for this member?", isRequired: false)
+            .AddOption("recruitpoints", ApplicationCommandOptionType.Integer, "How many recruits did this person get? (If applicable.)")
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("removerecruits")
+            .WithDescription("Subtract from a member's recruit counter.")
+            .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
+            .AddOption("recruitpoints", ApplicationCommandOptionType.Integer, "Messed up with the count? www")
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         // commands.Add(new SlashCommandBuilder()
@@ -239,13 +246,15 @@ public class CommandHandler {
 
         commands.Add(new SlashCommandBuilder()
             .WithName("leaderboard")
-            .WithDescription("Shows the point leaderboard."));
+            .WithDescription("Shows the point leaderboard.")
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         commands.Add(new SlashCommandBuilder()
             .WithName("addpoints")
             .WithDescription("Adds points to a member.")
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "If you're planning on *writing* a konote, don't use these.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
             .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to add.", isRequired: true)
+            .AddOption("recruitpoints", ApplicationCommandOptionType.Integer, "How many recruits did this person get? (If applicable.)")
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()

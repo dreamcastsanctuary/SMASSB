@@ -111,7 +111,6 @@ public class RoleSystem {
         List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
         SocketGuild guild = client.GetGuild((ulong)command.GuildId);
         List<SocketGuildUser> promotable = new List<SocketGuildUser>();
-        List<SocketGuildUser> kouPromo = new List<SocketGuildUser>();
         
         foreach (var userId in _db.GetEnlisted()) {
             
@@ -124,30 +123,14 @@ public class RoleSystem {
                     promotable.Add(enlisted);
                 }
             }
-
-            var potentialKou = await _db.GetRank(enlisted.Id);
-            
-            if (potentialKou.Contains("hosei", StringComparison.OrdinalIgnoreCase) && await _db.GetPoints(enlisted.Id) >= 14) {
-                kouPromo.Add(enlisted);
-            }
         }
 
-        if (promotable.Count == 0 && kouPromo.Count == 0) {
+        if (promotable.Count == 0) {
             await command.RespondAsync("No promotions found.");
             return;
         }
 
         var description = "";
-
-        if (kouPromo.Count > 0) {
-            description += "<:sango_emblem_mono:1492222638980989138> ∥ KŌHOSEI GRADUATES . .\n・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・\n";
-            
-            foreach (var kou in kouPromo)
-            {
-                description += "<@" + kou.Id + "> ∥ " + await _db.GetPoints(kou.Id) + "pts.\n";
-            }
-            description += "\n";
-        }
         
         if (promotable.Count > 0) {
             description += "<:sango_emblem_mono:1492222638980989138> ∥ GENERAL RANKUPs . .\n・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・\n";
