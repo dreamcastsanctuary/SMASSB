@@ -862,12 +862,54 @@ public class DatabaseService
         await command.ExecuteNonQueryAsync();
     }
     
+    public async Task RemoveId(ulong userId, string id) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var existing = await GetIds(userId);
+        existing.Remove(id);
+    
+        var json = JsonSerializer.Serialize(existing);
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO Id (UserId, Collected)
+                              VALUES ($id, $collected)
+                              ON CONFLICT(UserId) DO UPDATE SET Collected = $collected;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$collected", json);
+
+        await command.ExecuteNonQueryAsync();
+    }
+    
     public async Task GiveNewFrame(ulong userId, string frame) {
         await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
 
         var existing = await GetFrames(userId);
         existing.Add(frame);
+    
+        var json = JsonSerializer.Serialize(existing);
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO Id (UserId, Frames)
+                              VALUES ($id, $frame)
+                              ON CONFLICT(UserId) DO UPDATE SET Frames = $frame;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$frame", json);
+
+        await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task RemoveFrame(ulong userId, string frame) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var existing = await GetFrames(userId);
+        existing.Remove(frame);
     
         var json = JsonSerializer.Serialize(existing);
 

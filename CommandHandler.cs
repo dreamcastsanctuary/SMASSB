@@ -210,6 +210,14 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
         );
         
+        commands.Add(new SlashCommandBuilder()
+            .WithName("removeidskin")
+            .WithDescription("Remove a member's ID skin.")
+            .AddOption("member", ApplicationCommandOptionType.User, "The member.", isRequired: true)
+            .AddOption(idOption)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
+        );
+        
         var frameOption = new SlashCommandOptionBuilder()
             .WithName("frame")
             .WithDescription("The frame to give.")
@@ -222,7 +230,15 @@ public class CommandHandler {
         commands.Add(new SlashCommandBuilder()
             .WithName("giveidframe")
             .WithDescription("Give a member an ID frame.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The member the ID will go to.", isRequired: true)
+            .AddOption("member", ApplicationCommandOptionType.User, "The member the frame will go to.", isRequired: true)
+            .AddOption(frameOption)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
+        );
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("removeidframe")
+            .WithDescription("Remove a member's ID frame.")
+            .AddOption("member", ApplicationCommandOptionType.User, "The member.", isRequired: true)
             .AddOption(frameOption)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
         );
@@ -347,6 +363,9 @@ public class CommandHandler {
                 break;
             case "giveidskin":
                 await _idSystem.GainId(command, _client);
+                break;
+            case "removeidskin":
+                await _idSystem.RemoveId(command, _client);
                 break;
             case "changeclaim":
                 await _idSystem.HandleForceUpdateCommand(command);

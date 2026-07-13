@@ -104,7 +104,7 @@ public class IdSystem {
         var rankPos = new Point(827,609);
         var pointsPos = new Point(827,690);
         var recruitsPos = new Point(827,769);
-        var bloodtypePos = new Point(827,840);
+        var bloodtypePos = new Point(827,851);
         var catchphrasePos = new Point(70,953);
         var barcodePos = new Point(95,688);
         
@@ -308,6 +308,31 @@ public class IdSystem {
     }
 
     public async Task GainId(SocketSlashCommand command, DiscordSocketClient client) {
+        
+        SocketGuildUser member = null;
+        var id = "";
+        
+        foreach (var option in command.Data.Options) {
+            switch (option.Name)
+            {
+
+                case "member":
+                    member = (SocketGuildUser)option.Value;
+                    break;
+                case "id":
+                    id = option.Value.ToString();
+                    break;
+                default:
+                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    return;
+            }
+        }
+
+        await _db.GiveNewId(member.Id, id);
+        await command.RespondAsync("Completed task.", ephemeral: true);
+    }
+    
+    public async Task RemoveId(SocketSlashCommand command, DiscordSocketClient client) {
         
         SocketGuildUser member = null;
         var id = "";
