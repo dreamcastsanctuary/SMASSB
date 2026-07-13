@@ -158,7 +158,7 @@ public class PointSystem {
                 case "amount":
                     break;
                 default:
-                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
+                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
                     break;
             }
         }
@@ -191,7 +191,7 @@ public class PointSystem {
             .WithTitle("❖﹒Done and done!")
             .WithColor(0x44786F);
         
-        await command.FollowupAsync(embed: embedBuilder.Build());
+        await command.RespondAsync(embed: embedBuilder.Build());
     }
     
     public async Task Leaderboard(SocketSlashCommand command) {
