@@ -125,6 +125,13 @@ public class CommandHandler {
             .AddOption("civilian", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
+        commands.Add(new SlashCommandBuilder()
+            .WithName("addrecruits")
+            .WithDescription("Add to a member's recruit counter.")
+            .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
+            .AddOption("writenote", ApplicationCommandOptionType.String, "What new note would you like to write for this member?", isRequired: false)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
         // commands.Add(new SlashCommandBuilder()
         //     .WithName("forcepromote")
         //     .WithDescription("Use ONLY if DB doesn't update properly. || Force promotes enlisted to a specific rank.")
@@ -189,10 +196,27 @@ public class CommandHandler {
             idOption.AddChoice(name, name);
 
         commands.Add(new SlashCommandBuilder()
-            .WithName("forcegainid")
-            .WithDescription("Force give a user an ID.")
+            .WithName("giveidskin")
+            .WithDescription("Give a member an ID skin.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member the ID will go to.", isRequired: true)
             .AddOption(idOption)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
+        );
+        
+        var frameOption = new SlashCommandOptionBuilder()
+            .WithName("frame")
+            .WithDescription("The frame to give.")
+            .WithType(ApplicationCommandOptionType.String)
+            .WithRequired(true);
+
+        foreach (var name in Enum.GetNames<FrameType>())
+            frameOption.AddChoice(name, name);
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("giveidframe")
+            .WithDescription("Give a member an ID frame.")
+            .AddOption("member", ApplicationCommandOptionType.User, "The member the ID will go to.", isRequired: true)
+            .AddOption(frameOption)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
         );
         
@@ -312,8 +336,8 @@ public class CommandHandler {
             case "editid":
                 await _idSystem.EditId(command, _client);
                 break;
-            case "forcegainid":
-                await _idSystem.ForceGainId(command, _client);
+            case "giveidskin":
+                await _idSystem.GainId(command, _client);
                 break;
             case "changeclaim":
                 await _idSystem.HandleForceUpdateCommand(command);

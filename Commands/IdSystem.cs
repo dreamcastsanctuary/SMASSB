@@ -33,6 +33,7 @@ public class IdSystem {
                                      DateTimeOffset dateParam,
                                      string rankParam,
                                      int pointsParam,
+                                     int recruitsParam,
                                      string bloodtypeParam,
                                      string catchphraseParam,
                                      string usernameParam,
@@ -48,6 +49,7 @@ public class IdSystem {
         Image idImg = null;
         
         try { idImg = LoadID(idType); } catch { await command.FollowupAsync("Did you forget to pre/enlist this person? ;)", ephemeral: true); return; }
+        
         
         
         Image avatar;
@@ -91,6 +93,7 @@ public class IdSystem {
         var date = dateParam;
         var rank = rankParam;
         var points = pointsParam;
+        var recruits = recruitsParam;
         var bloodtype = bloodtypeParam;
         var catchphrase = catchphraseParam;
 
@@ -100,7 +103,8 @@ public class IdSystem {
         var datePos = new Point(827,531);
         var rankPos = new Point(827,609);
         var pointsPos = new Point(827,690);
-        var bloodtypePos = new Point(827,766);
+        var recruitsPos = new Point(827,766);
+        var bloodtypePos = new Point(827,863);
         var catchphrasePos = new Point(70,953);
         var barcodePos = new Point(95,688);
         
@@ -140,6 +144,7 @@ public class IdSystem {
             ipc.DrawImage(avatar, avatarPos, 1);
             ipc.DrawImage(coloredBarcode, barcodePos, 1);
             ipc.DrawText($"{points}", font, colors[2], pointsPos);
+            ipc.DrawText($"{recruits}", font, colors[2], recruitsPos);
             ipc.DrawText($"{bloodtype}", font, colors[2], bloodtypePos);
             ipc.DrawText($"{catchphrase}", font, colors[1], catchphrasePos);
             ipc.DrawText($"{date:M/d/yyyy}", font, colors[2], datePos);
@@ -154,7 +159,7 @@ public class IdSystem {
                     name = $"{firstName}\n{lastName}";
                 }
                 
-                ipc.DrawText($"{name}", fontSmall, colors[2], new Point(namePos.X, namePos.Y + 4));
+                ipc.DrawText($"{name}", fontSmall, colors[2], new Point(namePos.X, namePos.Y - 5));
             } else ipc.DrawText($"{name}", font, colors[2], namePos);
             
             if (rank.Contains("taru")) {
@@ -259,12 +264,13 @@ public class IdSystem {
         DateTimeOffset dateParam = enlisted.JoinedAt ?? enlisted.CreatedAt;
         string rankParam = await _db.GetRank(enlisted.Id);
         int pointsParam = await _db.GetPoints(enlisted.Id);
+        int recruitsParam = await _db.GetRecruits(enlisted.Id);
         string bloodtypeParam = await _db.GetBloodtype(enlisted.Id);
         string usernameParam = await _db.GetUsername(enlisted.Id);
         byte[]? avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
         string idTypeParam = await _db.GetIdType(enlisted.Id);
         
-        await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "", usernameParam, idTypeParam);
+        await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, "", usernameParam, idTypeParam);
 
     }
     
@@ -292,15 +298,16 @@ public class IdSystem {
         DateTimeOffset dateParam = enlisted.JoinedAt ?? enlisted.CreatedAt;
         string rankParam = await _db.GetRank(enlisted.Id);
         int pointsParam = await _db.GetPoints(enlisted.Id);
+        int recruitsParam = await _db.GetRecruits(enlisted.Id);
         string bloodtypeParam = await _db.GetBloodtype(enlisted.Id);
         string usernameParam = await _db.GetUsername(enlisted.Id);
         byte[]? avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
         string idTypeParam = await _db.GetIdType(enlisted.Id);
         
-        await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, "", usernameParam, idTypeParam);
+        await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, "", usernameParam, idTypeParam);
     }
 
-    public async Task ForceGainId(SocketSlashCommand command, DiscordSocketClient client) {
+    public async Task GainId(SocketSlashCommand command, DiscordSocketClient client) {
         
         SocketGuildUser member = null;
         var id = "";
@@ -421,6 +428,9 @@ public class IdSystem {
             case "ENLISTEDMAIN":
                 imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "enlisted-main-template.png");
                 break;
+            case "ENLISTEDPRECIVT":
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "enlisted-precivt-template.png");
+                break;
             case "STAFFMAIN":
                 imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "staff-main-template.png");
                 break;
@@ -430,7 +440,20 @@ public class IdSystem {
             case "NEWGAMEPLUSSTAFF":
                 imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "ngplus-staff-template.png");
                 break;
+            case "ENLISTEDTANABATA":
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "enlisted-tanabata-template.png");
+                break;
+            case "STAFFTANABATA":
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "staff-tanabata-template.png");
+                break;
         }
+        
+        return Image.Load(imgPath);
+    }
+    
+    static Image LoadFrames(string frameType) {
+        
+        string imgPath = "";
         
         return Image.Load(imgPath);
     }
@@ -442,6 +465,12 @@ public class IdSystem {
         switch (idType) {
             
             case "ENLISTEDMAIN":
+                colors.Add(Color.FromRgba(190, 164, 95, 255)); // Heading
+                colors.Add(Color.FromRgba(190, 164, 95, 255)); // Catchphrase
+                colors.Add(Color.FromRgba(190, 164, 95, 255)); // Details
+                colors.Add(Color.FromRgba(255, 61, 54, 255)); // Barcode
+                break;
+            case "ENLISTEDPRECIVT":
                 colors.Add(Color.FromRgba(190, 164, 95, 255)); // Heading
                 colors.Add(Color.FromRgba(190, 164, 95, 255)); // Catchphrase
                 colors.Add(Color.FromRgba(190, 164, 95, 255)); // Details
@@ -464,6 +493,18 @@ public class IdSystem {
                 colors.Add(Color.FromRgba(33, 25, 22, 255));
                 colors.Add(Color.FromRgba(238, 228, 212, 255));
                 colors.Add(Color.FromRgba(134, 39, 36, 255));
+                break;
+            case "ENLISTEDTANABATA":
+                colors.Add(Color.FromRgba(255, 255, 255, 255));
+                colors.Add(Color.FromRgba(255, 255, 255, 255));
+                colors.Add(Color.FromRgba(255, 255, 255, 255));
+                colors.Add(Color.FromRgba(255, 255, 255, 255));
+                break;
+            case "STAFFTANABATA":
+                colors.Add(Color.FromRgba(255, 255, 255, 255));
+                colors.Add(Color.FromRgba(255, 255, 255, 255));
+                colors.Add(Color.FromRgba(255, 255, 255, 255));
+                colors.Add(Color.FromRgba(255, 255, 255, 255));
                 break;
         }
         

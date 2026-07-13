@@ -1,9 +1,12 @@
 ﻿namespace SMASSB.Data;
 
-public enum IdType
-{
+public enum IdType {
+    
     ENLISTEDMAIN,
+    ENLISTEDPRECIVT,
     STAFFMAIN,
     NEWGAMEPLUSENLISTED,
-    NEWGAMEPLUSSTAFF
+    NEWGAMEPLUSSTAFF,
+    ENLISTEDTANABATA,
+    STAFFTANABATA,
 }

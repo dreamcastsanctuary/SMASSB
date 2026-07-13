@@ -22,24 +22,10 @@ public class DatabaseService
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            CREATE TABLE IF NOT EXISTS Enrolled (
-                UserId TEXT PRIMARY KEY,
-                Claim TEXT,
-                AvatarUrl TEXT NOT NULL,
-                AvatarImage BLOB,
-                Rank TEXT NOT NULL,
-                Points INTEGER DEFAULT 0,
-                Bloodtype TEXT NOT NULL,
-                Catchphrase TEXT NOT NULL,
-                Username TEXT NOT NULL,
-                IDType TEXT NOT NULL,
-                KoNotes TEXT
-            );
 
-            CREATE TABLE IF NOT EXISTS Id (
-                UserId TEXT PRIMARY KEY,
-                Collected TEXT NOT NULL
-            );
+            ALTER TABLE Enrolled ADD COLUMN Recruits INTEGER NOT NULL DEFAULT 0;
+
+            ALTER TABLE Id ADD COLUMN Frames TEXT;
 
             CREATE TABLE IF NOT EXISTS Addons (
                 UserId TEXT PRIMARY KEY,
@@ -80,6 +66,7 @@ public class DatabaseService
                           DateTimeOffset dateParam,
                           string rankParam,
                           int pointsParam,
+                          int recruitsParam,
                           string bloodtypeParam,
                           string catchphraseParam,
                           string usernameParam,
@@ -89,12 +76,13 @@ public class DatabaseService
         connection.Open();
         
         var cmd = connection.CreateCommand();
-        cmd.CommandText = "INSERT INTO Enrolled (UserId, Claim, AvatarUrl, Rank, Points, Bloodtype, Catchphrase, Username, IDType) VALUES ($accIdParam, $claimParam, $avatarUrlParam, $rankParam, $pointsParam, $bloodtypeParam, $catchphraseParam, $usernameParam, $idTypeParam);";
+        cmd.CommandText = "INSERT INTO Enrolled (UserId, Claim, AvatarUrl, Rank, Points, Recruits, Bloodtype, Catchphrase, Username, IDType) VALUES ($accIdParam, $claimParam, $avatarUrlParam, $rankParam, $pointsParam, $recruitsParam, $bloodtypeParam, $catchphraseParam, $usernameParam, $idTypeParam);";
         cmd.Parameters.AddWithValue("$accIdParam", accIdParam);
         cmd.Parameters.AddWithValue("$claimParam", claimParam);
         cmd.Parameters.AddWithValue("$avatarUrlParam", avatarUrlParam);
         cmd.Parameters.AddWithValue("$rankParam", rankParam);
         cmd.Parameters.AddWithValue("$pointsParam", pointsParam);
+        cmd.Parameters.AddWithValue("$recruitsParam", recruitsParam);
         cmd.Parameters.AddWithValue("$bloodtypeParam", bloodtypeParam);
         cmd.Parameters.AddWithValue("$catchphraseParam", catchphraseParam);
         cmd.Parameters.AddWithValue("$usernameParam", usernameParam);
@@ -105,7 +93,7 @@ public class DatabaseService
         await command.RespondAsync("Processed Prospect into Database.");
 
         await GiveNewId(ulong.Parse(accIdParam), idTypeParam);
-        await IdSystem.BuildId(command, member, claimParam, null, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, bloodtypeParam, catchphraseParam, usernameParam, idTypeParam);
+        await IdSystem.BuildId(command, member, claimParam, null, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, catchphraseParam, usernameParam, idTypeParam);
         }
     
 // UNENROLL CHECK COMMANDS.
@@ -251,6 +239,46 @@ public class DatabaseService
         command.CommandText = "UPDATE Enrolled SET Points = Points - $points WHERE UserId = $id;";
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$points", points);
+        await command.ExecuteNonQueryAsync();
+
+        return await Underflow(userId);
+    }
+    
+    public async Task<int> GetRecruits(ulong userId) {
+        
+        using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT Recruits FROM Enrolled WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+        return result != null ? Convert.ToInt32(result) : 0;
+    }
+
+    public async Task<int> AddRecruits(ulong userId, int recruits) {
+        
+        using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+        
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE Enrolled SET Recruits = Recruits + $recruits WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$recruits", recruits);
+        
+        return await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task<int> RemoveRecruits(ulong userId, int recruits) {
+        
+        using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+        
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE Enrolled SET Recruits = Recruits - $recruits WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$recruits", recruits);
         await command.ExecuteNonQueryAsync();
 
         return await Underflow(userId);
@@ -780,6 +808,22 @@ public class DatabaseService
 
         return JsonSerializer.Deserialize<List<string>>((string)result) ?? new List<string>();
     }
+    
+    public async Task<List<string>> GetFrames(ulong userId) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT Frames FROM Id WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+    
+        if (result == null || result == DBNull.Value)
+            return new List<string>();
+
+        return JsonSerializer.Deserialize<List<string>>((string)result) ?? new List<string>();
+    }
 
     public async Task GiveNewId(ulong userId, string id) {
         await using var connection = new SqliteConnection(_connectionString);
@@ -798,6 +842,27 @@ public class DatabaseService
                               """;
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$collected", json);
+
+        await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task GiveNewFrame(ulong userId, string frame) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var existing = await GetFrames(userId);
+        existing.Add(frame);
+    
+        var json = JsonSerializer.Serialize(existing);
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO Id (UserId, Frames)
+                              VALUES ($id, $frame)
+                              ON CONFLICT(UserId) DO UPDATE SET Frames = $frame;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$frame", json);
 
         await command.ExecuteNonQueryAsync();
     }
