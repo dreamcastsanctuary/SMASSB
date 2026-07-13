@@ -9,13 +9,9 @@ namespace SMASSB.Commands;
 public class MeetingSystem {
 
     private DatabaseService _db;
-
     private static readonly HttpClient _httpClient = new HttpClient();
-
     private const string SiteBaseUrl = "https://sangoidoldefenseforce.vercel.app";
-
     private const string MeetingApiSecret = "Ba11erySama!";
-
     private const long MaxEmbeddedAttachmentBytes = 3 * 1024 * 1024;
 
     public MeetingSystem (DatabaseService db) {
@@ -282,12 +278,7 @@ public class MeetingSystem {
             await command.RespondAsync("Closing meeting room.", ephemeral: true);
             var thread = guild.GetThreadChannel(channel.Id);
             IReadOnlyCollection<SocketThreadUser> users = await thread.GetUsersAsync();
-
-            // Final sweep: make sure every message currently in the thread has been
-            // logged to the website, in case the bot was offline for part of the
-            // conversation and missed some live posts. This is idempotent — messages
-            // already logged just get overwritten with the same content, keyed by
-            // Discord message ID on the server.
+            
             var messages = (await thread.GetMessagesAsync(500).FlattenAsync())
                 .OrderBy(m => m.Timestamp)
                 .ToList();
