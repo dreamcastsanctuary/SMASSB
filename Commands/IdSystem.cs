@@ -353,7 +353,7 @@ public class IdSystem {
             }
         }
 
-        await _db.GiveNewId(member.Id, id);
+        await _db.RemoveId(member.Id, id);
         await command.RespondAsync("Completed task.", ephemeral: true);
     }
     
