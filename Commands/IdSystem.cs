@@ -356,7 +356,6 @@ public class IdSystem {
         await _db.RemoveId(member.Id, id);
 
         if (id.Equals(await _db.GetIdType(member.Id))) {
-            Console.WriteLine("HEY!! WE'RE HERE!!!");
             if (member.Roles.Any(r => r.Id == 1473508563887329447)) {
                 await _db.SetIdType(member.Id, "STAFFMAIN");
             } else {
