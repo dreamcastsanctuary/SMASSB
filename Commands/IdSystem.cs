@@ -103,8 +103,8 @@ public class IdSystem {
         var datePos = new Point(827,531);
         var rankPos = new Point(827,609);
         var pointsPos = new Point(827,690);
-        var recruitsPos = new Point(827,766);
-        var bloodtypePos = new Point(827,863);
+        var recruitsPos = new Point(827,769);
+        var bloodtypePos = new Point(827,830);
         var catchphrasePos = new Point(70,953);
         var barcodePos = new Point(95,688);
         
@@ -164,7 +164,7 @@ public class IdSystem {
             
             if (rank.Contains("taru")) {
                 rank = "Bakuryōchō\ntaru Onshō";
-                ipc.DrawText($"{rank}", fontSmall, colors[2], new Point(rankPos.X, rankPos.Y + 2));
+                ipc.DrawText($"{rank}", fontSmall, colors[2], new Point(rankPos.X, rankPos.Y - 3));
                 
             } else ipc.DrawText($"{rank}", font, colors[2], rankPos);
             

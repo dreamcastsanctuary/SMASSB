@@ -22,10 +22,26 @@ public class DatabaseService
 
         var command = connection.CreateCommand();
         command.CommandText = @"
+            CREATE TABLE IF NOT EXISTS Enrolled (
+                UserId TEXT PRIMARY KEY,
+                Claim TEXT,
+                AvatarUrl TEXT NOT NULL,
+                AvatarImage BLOB,
+                Rank TEXT NOT NULL,
+                Points INTEGER DEFAULT 0,
+                Bloodtype TEXT NOT NULL,
+                Catchphrase TEXT NOT NULL,
+                Username TEXT NOT NULL,
+                IDType TEXT NOT NULL,
+                KoNotes TEXT,
+                Recruits INTEGER NOT NULL DEFAULT 0
+            );
 
-            ALTER TABLE Enrolled ADD COLUMN Recruits INTEGER NOT NULL DEFAULT 0;
-
-            ALTER TABLE Id ADD COLUMN Frames TEXT;
+            CREATE TABLE IF NOT EXISTS Id (
+                UserId TEXT PRIMARY KEY,
+                Collected TEXT NOT NULL,
+                Frames TEXT
+            );
 
             CREATE TABLE IF NOT EXISTS Addons (
                 UserId TEXT PRIMARY KEY,
