@@ -117,7 +117,7 @@ public class PointSystem {
                 if (currentR == 1) { sR = ""; }
                 
                 var sPreR = "s";
-                if (recruits == 1) { sR = ""; }
+                if (recruits == 1) { sPreR = ""; }
 
                 if (recruits == 0) {
                     embedBuilder.WithDescription("This member has been given ***" + points + "*** point" + sPre + ", and now has ***" + current + "*** point" + s + ".");
@@ -175,6 +175,8 @@ public class PointSystem {
         if (member == null) return;
         
         EmbedBuilder embedBuilder = new EmbedBuilder();
+        var sPreR = "s";
+        if (recruits == 1) { sPreR = ""; }
         
         if (add) {
             await _db.AddRecruits(member.Id, recruits);
@@ -183,7 +185,7 @@ public class PointSystem {
             var s = "s";
             if (current == 1) { s = ""; }
             
-            embedBuilder.WithDescription("This member has scouted ***" + recruits + "*** recruit" + s + ", and now has scouted ***" + current + "*** recruit" + s + " in total!");
+            embedBuilder.WithDescription("This member has scouted ***" + recruits + "*** recruit" + sPreR + ", and now has scouted ***" + current + "*** recruit" + s + " in total!");
         } else {
             
             await _db.RemoveRecruits(member.Id, recruits);
@@ -192,7 +194,7 @@ public class PointSystem {
             var s = "s";
             if (current == 1) { s = ""; }
             
-            embedBuilder.WithDescription("You have removed ***" + recruits + "*** recruitpoint" + s + " from this member.\nThey now have ***" + current + "*** recruitpoint" + s + ".");
+            embedBuilder.WithDescription("You have removed ***" + recruits + "*** recruitpoint" + sPreR + " from this member.\nThey now have ***" + current + "*** recruitpoint" + s + ".");
         }
 
         embedBuilder
