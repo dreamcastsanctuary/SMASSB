@@ -183,7 +183,7 @@ public class PointSystem {
         {
             foreach (var e in currencyFailures)
             {
-                await command.FollowupAsync(e.Message);
+                await command.FollowupAsync(e.ToString());
             }
         }
     }
