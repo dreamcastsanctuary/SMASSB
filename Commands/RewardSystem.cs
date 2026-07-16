@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using SMASSB.Exceptions;
 
 namespace SMASSB.Commands;
 
@@ -8,7 +9,8 @@ public class RewardSystem {
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandleRewardKoCommand(SocketSlashCommand command) {
-        
+
+        await command.DeferAsync();
         List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
 
         foreach (var option in command.Data.Options)
@@ -46,7 +48,7 @@ public class RewardSystem {
                     enlisteds.Add(((SocketGuildUser)option.Value));
                     break;
                 default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                     break;
             }
         }
@@ -68,16 +70,27 @@ public class RewardSystem {
             .WithFooter("Send your finished uniform in Onshō. Kamikawa Hiromi's DMs to be checked and get on out there!\n\n 太陽はまた昇る！・❖")
             .WithColor(new Color(0xBFA55F)).Build());
         
-        await command.RespondAsync(text: "Headphones and Sword have been sent to the other member(s).");
-
+        await command.FollowupAsync("Headphones and Sword have been sent to the other member(s).");
+        var failures = new List<MessageSendException>();
+        
         foreach (SocketGuildUser enlisted in enlisteds) {
-            await UserExtensions.SendMessageAsync(enlisted, null, false, embedHeadphones);
-            await UserExtensions.SendMessageAsync(enlisted, null, false, embedSword);
+            try {
+                await UserExtensions.SendMessageAsync(enlisted, null, false, embedHeadphones);
+                await UserExtensions.SendMessageAsync(enlisted, null, false, embedSword);
+            } catch (Discord.Net.HttpException ex) {
+                failures.Add(new MessageSendException(enlisted.Username, ex));
+            }
+        }
+        
+        if (failures.Count > 0) {
+            foreach (var e in failures) { await command.FollowupAsync(e.Message); }
         }
     }
 
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandleRewardAccompCommand(SocketSlashCommand command, DiscordSocketClient client) {
+        
+        await command.DeferAsync();
         
         string[] accompName = {"TRANSFER", "SUPPORTER", "HIGH SCOUTER", "MAX SCOUTER", "PERFECT PITCH", "WORLD-CLASS IDOL", "RIKUGUN BUKŌSHŌ I", "RIKUGUN BUKŌSHŌ II", "REBIRTH"};
         string[] paradeLocation = {"Left Wing, Main Color 3", "Right Wing, Main Color 3", "Left Wing, Outline 2", "Right Wing, Outline 2", "Left Sleeve, Outline 1", "Left Sleeve, Main Color 5", "Right Sleeve, Outline 1", "Right Sleeve, Main Color 5", "Chest Acc., Color 5"};
@@ -152,7 +165,7 @@ public class RewardSystem {
                 await assignedTo.AddRoleAsync(1477926845184872531);
                 break;
             default:
-                await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                 return;
         }
 
@@ -181,10 +194,11 @@ public class RewardSystem {
             .WithDescription("You may use **" + itemPackIdol1[value - 1] + "** and **" + itemPackIdol2[value - 1] + "** rather than the required items!")
             .WithFooter("Please send your updated uniforms in the typical uniform checks."));
         
-        await command.RespondAsync(text: "This message has been sent to the other member.", ephemeral: true);
+        await command.FollowupAsync(text: "This message has been sent to the other member.", ephemeral: true);
 
         foreach (var embed in embeds) {
-            await UserExtensions.SendMessageAsync(assignedTo, "", false, embed.Build());
+            try { await UserExtensions.SendMessageAsync(assignedTo, "", false, embed.Build()); }
+            catch (Discord.Net.HttpException ex) { await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message); }
         }
         
         var channel = client.GetChannel(1473209020285452360) as ITextChannel;

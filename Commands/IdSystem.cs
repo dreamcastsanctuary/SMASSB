@@ -7,6 +7,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SMASSB.Exceptions;
 using Color = SixLabors.ImageSharp.Color;
 using Image = SixLabors.ImageSharp.Image;
 
@@ -179,7 +180,8 @@ public class IdSystem {
         foreach (var (img, _) in badgesToDraw) img.Dispose();
         
         if (member != command.User && !command.CommandName.Contains("other")) {
-            await UserExtensions.SendFileAsync(member, output, "Here you are, your brand new Idol ID!");
+            try { await UserExtensions.SendFileAsync(member, output, "Here you are, your brand new Idol ID!"); }
+            catch (Discord.Net.HttpException ex) { await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message); }
         } else {
             await command.FollowupWithFileAsync(output, text: "Loaded Idol ID . . !");
         }

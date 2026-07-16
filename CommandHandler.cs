@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using SMASSB.Commands;
 using Newtonsoft.Json;
 using SMASSB.Data;
+using SMASSB.Exceptions;
 
 namespace SMASSB;
 public class CommandHandler {
@@ -804,17 +805,25 @@ public class CommandHandler {
                         .All(r => unverifiedRoles.Contains(r.Id));
                     
                     if ((isCivilian || isProspect || isUnverified) && isInactive) {
+                        
+                        var channel = guild.GetChannel(1486431270941622363) as ITextChannel; 
+                        
                         try {
-                            
-                            await UserExtensions.SendMessageAsync(user, "Hello! This is the *Automatic Messaging System* at the Sangō Idol-Defense Force.\n\nWe are messaging you in regards to your activity. As outlined in our syllabus, prospects and civilians (who are NOT fans) are to be kicked from the server in the case that they are inactive for more than 2 months in order to keep member counts accurate.\n\nWe thank you for attempting to experience Sangō!\n\nIf you feel this is a mistake, please friend request and send a message to *@fastestthingalive* in order to regain access to the server. If it is not, yet you still wish to join back, please give yourself __a week or so__ and do as previously instructed. Just to make sure you *really* want to!\n\nPlease have a good day, " + user.Username + "!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
-                            await UserExtensions.SendMessageAsync(user, "https://64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj");
+                            await UserExtensions.SendMessageAsync(user,
+                                "Hello! This is the *Automatic Messaging System* at the Sangō Idol-Defense Force.\n\nWe are messaging you in regards to your activity. As outlined in our syllabus, prospects and civilians (who are NOT fans) are to be kicked from the server in the case that they are inactive for more than 2 months in order to keep member counts accurate.\n\nWe thank you for attempting to experience Sangō!\n\nIf you feel this is a mistake, please friend request and send a message to *@fastestthingalive* in order to regain access to the server. If it is not, yet you still wish to join back, please give yourself __a week or so__ and do as previously instructed. Just to make sure you *really* want to!\n\nPlease have a good day, " +
+                                user.Username +
+                                "!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
+                            await UserExtensions.SendMessageAsync(user,
+                                "https://64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj");
+                        }
+                        catch (HttpException ex)
+                        { await channel.SendMessageAsync(new MessageSendException(ex.Message, ex).Message); }
+                        
+                        try {
                             await Task.Delay(1500); 
                             await user.KickAsync("Inactive for 2+ months");
                             await Task.Delay(1000); 
-                        }
-                        catch (Exception ex) {
-                            Console.WriteLine($"Failed to kick {user.Username}: {ex.Message}");
-                        }
+                        } catch (Exception ex) { await channel.SendMessageAsync(ex.Message); }
                     }
                 }
             }
