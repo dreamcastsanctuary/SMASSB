@@ -1,12 +1,19 @@
-﻿using Discord;
+﻿using System.Net.Http.Json;
+using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using SMASSB.Exceptions;
+using SMASSB.Models;
 
 namespace SMASSB.Commands;
 
 public class PointSystem {
     
     private DatabaseService _db;
+    private static readonly HttpClient _internalClient = new HttpClient {
+        BaseAddress = new Uri("http://127.0.0.1:5050"),
+        DefaultRequestHeaders = { { "X-Internal-Key", Environment.GetEnvironmentVariable("INTERNAL_API_KEY") } }
+    };
     
     public PointSystem(DatabaseService db) {
         _db = db;
@@ -46,9 +53,9 @@ public class PointSystem {
     public async Task EditPoints(SocketSlashCommand command, bool add) {
         
         List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
-        int points = 0;
-        int recruits = 0;
-        var noteText = "";
+        var points = 0;
+        var recruits = 0;
+        var currency = 0;
         
         foreach (var option in command.Data.Options)
         {
@@ -90,6 +97,9 @@ public class PointSystem {
                 case "recruitpoints":
                     recruits = (int)(long) option.Value;
                     break;
+                case "currency":
+                    currency = (int)(long) option.Value;
+                    break;
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);
                     return;
@@ -97,6 +107,7 @@ public class PointSystem {
         }
 
         await command.DeferAsync();
+        var currencyFailures = new List<CurrencySyncException>();
         
         foreach (SocketGuildUser member in enlisteds)
         {
@@ -125,8 +136,6 @@ public class PointSystem {
                     embedBuilder.WithDescription("This member has been given ***" + points + "*** point" + sPre +",\nand now has ***" + current + "*** point" + s + ".\n\nThey've also scouted ***" + recruits + "*** recruit" + sPreR + ", and now has scouted ***" + currentR + "*** recruit" + sR + " in total!");
                 }
                 
-                if (!String.IsNullOrEmpty(noteText)) await HandleKoNotes(command, true, member, noteText);
-
             } else {
                 await _db.RemovePoints(member.Id, points);
                 var current = await _db.GetPoints(member.Id);
@@ -146,6 +155,36 @@ public class PointSystem {
                 .WithColor(0xBFA55F);
         
             await command.FollowupAsync(embed: embedBuilder.Build());
+            
+            if (currency != 0) {
+                
+                try {
+                    var response = await _internalClient.PostAsJsonAsync("/internal/currency",
+                        new CurrencyModels.CurrencyRequest(member.Id, currency));
+
+                    response.EnsureSuccessStatusCode();
+                    var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
+
+                    var currencyEmbed = new EmbedBuilder()
+                        .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())
+                        .WithTitle("★﹒I wish, and wish, and wish . .")
+                        .WithDescription($"This member has been given ***{currency}*** Star Piece{(currency == 1 ? "" : "s")},\nand now has ***{result.NewBalance}*** Star Piece{(result.NewBalance == 1 ? "" : "s")}.")
+                        .WithColor(0xBFA55F)
+                        .Build();
+
+                    await command.FollowupAsync(embed: currencyEmbed);
+                } catch (HttpRequestException ex) {
+                    currencyFailures.Add(new CurrencySyncException(member.Username, $"Failed to sync currency for '{member.Username}'.", ex));
+                }
+            }
+        }
+
+        if (currencyFailures.Count > 0)
+        {
+            foreach (var e in currencyFailures)
+            {
+                await command.FollowupAsync(e.Message);
+            }
         }
     }
 
