@@ -11,7 +11,7 @@ public class PointSystem {
     
     private DatabaseService _db;
     private static readonly HttpClient _internalClient = new HttpClient {
-        BaseAddress = new Uri("http://127.0.0.1:5050"),
+        BaseAddress = new Uri(Environment.GetEnvironmentVariable("BOT_B_API_URL") ?? throw new Exception("BOT_B_API_URL environment variable not set.")),
         DefaultRequestHeaders = { { "X-Internal-Key", Environment.GetEnvironmentVariable("INTERNAL_API_KEY") } }
     };
     
