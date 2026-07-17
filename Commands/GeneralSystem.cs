@@ -116,10 +116,8 @@ public class GeneralSystem {
             .WithColor(new Color(0xFF312C)).Build();
         
         foreach (var user in preCivt) {
-            if (user.Username.Equals("fastestthingalive")) {
-                await UserExtensions.SendMessageAsync(user, embed: embed);
-                await _db.GiveNewId(user.Id, "ENLISTEDPRECIVT");
-            }
+            await UserExtensions.SendMessageAsync(user, embed: embed);
+            await _db.GiveNewId(user.Id, "ENLISTEDPRECIVT");
         }
 
         await command.FollowupAsync("Completed task.");
