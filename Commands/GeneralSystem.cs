@@ -1,17 +1,19 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using SMASSB.Exceptions;
 
 namespace SMASSB.Commands;
 
-public class GeneralSystem
-{
+public class GeneralSystem {
 
     private LogHandler _logHandler;
+    private DatabaseService _db;
 
-    public GeneralSystem(LogHandler logHandler)
-    {
+    public GeneralSystem(LogHandler logHandler, DatabaseService db) {
+        
         _logHandler = logHandler;
+        _db = db;
     }
 
     [DefaultMemberPermissions(GuildPermission.ManageMessages)]
@@ -67,9 +69,52 @@ public class GeneralSystem
         await _logHandler.LogMassRemove(command, validMessages.Count);
     }
 
-    public async Task HandleParseCivtCommand(SocketSlashCommand command)
-    {
-        
-    }
+    public async Task HandleParseCivtCommand(SocketSlashCommand command, DiscordSocketClient client) {
 
+        await command.DeferAsync();
+        
+        List<SocketGuildUser> preCivt = new List<SocketGuildUser>();
+        List<SocketGuildUser> enlisted = new List<SocketGuildUser>();
+
+        var guild = client.GetGuild((ulong)command.GuildId);
+        await guild.DownloadUsersAsync();
+                    
+        var failures = new List<MessageSendException>();
+        var failures2 = new List<DmParseException>();
+
+        foreach (var userId in _db.GetEnlisted()) { enlisted.Add(guild.GetUser(ulong.Parse(userId))); }
+        
+        foreach (var user in enlisted) {
+            
+            try { if (user == null || user.IsBot) continue; } catch (Exception e) { await command.FollowupAsync(e.ToString()); }
+            
+            try {
+                var dmChannel = await user.CreateDMChannelAsync();
+                var found = false;
+                var batch = await dmChannel.GetMessagesAsync(100).FlattenAsync();
+                var messages = batch.ToList();
+                
+                try {
+                    if (messages.Count == 0) continue;
+                    if (messages.Any(m => m.Author.Id == client.CurrentUser.Id && m.Embeds.Any(e => e.Description != null && e.Description.Contains("You've made it past your mandatory lectures!", StringComparison.OrdinalIgnoreCase)))) {
+                        
+                        preCivt.Add(user);
+                    }
+                } catch (Exception e) {
+                    failures2.Add(new DmParseException(user.Nickname ?? user.Username));
+                }
+            } catch (Exception ex) { failures.Add(new MessageSendException(user.Username, ex)); }
+            await Task.Delay(250);
+        }
+
+        var description = "PRECIVT : \n"; 
+        
+        foreach (var user in preCivt) {
+            description += "<@" + user.Id + ">\n";
+        }
+        
+        await command.FollowupAsync(description);
+        await command.FollowupAsync(string.Join("FAILURES : \n", failures.Select(f => f.ToString())));
+        await command.FollowupAsync(string.Join("FAILURES : \n", failures2.Select(f => f.ToString())));
+    }
 }

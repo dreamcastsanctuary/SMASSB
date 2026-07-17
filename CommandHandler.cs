@@ -393,9 +393,8 @@ public class CommandHandler {
             case "purgemessages":
                 await _generalSystem.HandleMassRemoveCommand(command);
                 break;
-            
-            case "parsecivt":
-                await _generalSystem.HandleParseCivtCommand(command);
+            case "parseprecivt":
+                await _generalSystem.HandleParseCivtCommand(command, _client);
                 break;
             
             default:
