@@ -118,7 +118,7 @@ public class GeneralSystem {
         foreach (var user in preCivt) {
             if (user.Username.Equals("fastestthingalive"))
             {
-                await command.FollowupAsync(user.Nickname);
+                await UserExtensions.SendMessageAsync(user, embed: embed);
             }
         }
         
