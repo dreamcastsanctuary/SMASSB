@@ -110,18 +110,16 @@ public class GeneralSystem {
         var embed = new EmbedBuilder()
             .WithAuthor("Dear Enlisted, you have been given . . .")
             .WithTitle("【 PRE-CIVT PARADE DRESS 】")
-            .WithDescription("As was announced a few days ago, we've undergone changes made to the *Jieikan Kōhosei* role, and made it easier to enlist.\n\nWe figured that this was all well and good for those who hadn't enlisted yet, but felt it was unfair to those who went through the trouble of the original Kōhosei roadmap.\n\nThus, we've given you a complimentary uniform and ID skin, as we felt your hard work shouldn't go unnoticed!\n\n[. . PRE-CIVT PARADE DRESS . .](<https://sangoidoldefenseforce.vercel.app/precivt>)\n-# Your new ID skin can be found with the /editid command.")
+            .WithDescription("As was announced a few days ago, we've undergone changes made to the *Jieikan Kōhosei* role, and made it easier to enlist.\n\nWe figured that this was all well and good for those who hadn't enlisted yet, but felt it was unfair to those who went through the trouble of the original Kōhosei roadmap.\n\nThus, we've given you a complimentary uniform and ID skin, as we felt your hard work shouldn't go unnoticed!\n\n[. . PRE-CIVT PARADE DRESS . .](<https://sangoidoldefenseforce.vercel.app/precivt>)\n\n-# Your new ID skin can be found with the /editid command.")
             .WithImageUrl("https://64.media.tumblr.com/616bce1d6e1a6d7a2123c76d6f249404/2ecded076fd064e9-c6/s1280x1920/11d327bf242c41a07ca122757d050c6c6ce52da1.pnj")
             .WithFooter("Thank you for your support thus far! We love you!!\n\n 太陽はまた昇る！・❖")
             .WithColor(new Color(0xFF312C)).Build();
         
         foreach (var user in preCivt) {
-            if (user.Username.Equals("fastestthingalive"))
-            {
-                await UserExtensions.SendMessageAsync(user, embed: embed);
-            }
+            await UserExtensions.SendMessageAsync(user, embed: embed);
         }
-        
+
+        await command.FollowupAsync("Completed task.");
         await command.FollowupAsync(string.Join("FAILURES : \n", failures.Select(f => f.ToString())));
         await command.FollowupAsync(string.Join("FAILURES : \n", failures2.Select(f => f.ToString())));
     }
