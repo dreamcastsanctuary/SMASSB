@@ -295,6 +295,11 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
+            .WithName("parseprecivt")
+            .WithDescription("Checks for PRECIVT.")
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        commands.Add(new SlashCommandBuilder()
             .WithName("checkpromotions")
             .WithDescription("Checks if we have any promotions.")
             .AddOption("auto_promote", ApplicationCommandOptionType.Boolean, "Automatically promote everyone here to the next rank.", isRequired: true)
@@ -387,6 +392,10 @@ public class CommandHandler {
                 break;
             case "purgemessages":
                 await _generalSystem.HandleMassRemoveCommand(command);
+                break;
+            
+            case "parsecivt":
+                await _generalSystem.HandleParseCivtCommand(command);
                 break;
             
             default:

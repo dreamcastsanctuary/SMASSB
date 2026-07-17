@@ -4,23 +4,28 @@ using Discord.WebSocket;
 
 namespace SMASSB.Commands;
 
-public class GeneralSystem {
-    
+public class GeneralSystem
+{
+
     private LogHandler _logHandler;
-    
-    public GeneralSystem(LogHandler logHandler) {
+
+    public GeneralSystem(LogHandler logHandler)
+    {
         _logHandler = logHandler;
     }
 
     [DefaultMemberPermissions(GuildPermission.ManageMessages)]
-    public async Task HandleMassRemoveCommand(SocketSlashCommand command) {
-        
+    public async Task HandleMassRemoveCommand(SocketSlashCommand command)
+    {
+
         await command.RespondAsync("Purging messages.", ephemeral: true);
         var channel = command.Channel as ITextChannel;
         int amount = 0;
 
-        foreach (var option in command.Data.Options) {
-            switch (option.Name) {
+        foreach (var option in command.Data.Options)
+        {
+            switch (option.Name)
+            {
                 case "amount":
                     amount = Convert.ToInt32(option.Value);
                     break;
@@ -30,12 +35,14 @@ public class GeneralSystem {
             }
         }
 
-        if (amount < 1 || amount > 100) {
+        if (amount < 1 || amount > 100)
+        {
             await command.RespondAsync("Please provide a number between 1 and 100.", ephemeral: true);
             return;
         }
 
-        if (channel == null) {
+        if (channel == null)
+        {
             await command.RespondAsync("This command can only be used in a text channel.", ephemeral: true);
             return;
         }
@@ -44,8 +51,10 @@ public class GeneralSystem {
         var validMessages = messages.Where(m => DateTimeOffset.UtcNow - m.Timestamp < TimeSpan.FromDays(14)).ToList();
         var tooOld = messages.Count() - validMessages.Count;
 
-        if (!validMessages.Any()) {
-            await command.ModifyOriginalResponseAsync(m => m.Content = "No deletable messages found. Messages older than 14 days cannot be bulk deleted.");
+        if (!validMessages.Any())
+        {
+            await command.ModifyOriginalResponseAsync(m =>
+                m.Content = "No deletable messages found. Messages older than 14 days cannot be bulk deleted.");
             return;
         }
 
@@ -57,4 +66,10 @@ public class GeneralSystem {
         await command.ModifyOriginalResponseAsync(m => m.Content = response);
         await _logHandler.LogMassRemove(command, validMessages.Count);
     }
+
+    public async Task HandleParseCivtCommand(SocketSlashCommand command)
+    {
+        
+    }
+
 }
