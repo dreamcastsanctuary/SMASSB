@@ -107,13 +107,21 @@ public class GeneralSystem {
             await Task.Delay(250);
         }
 
-        var description = "PRECIVT : \n"; 
+        var embed = new EmbedBuilder()
+            .WithAuthor("Dear Enlisted, you have been given . . .")
+            .WithTitle("【  】")
+            .WithDescription("As was announced a few days ago, we've undergone changes made to the *Jieikan Kōhosei* role, and made it easier to enlist.\nWe figured that this was all well and good for those who hadn't enlisted yet, but felt it was unfair to those who went through the trouble of the original Kōhosei roadmap.\n\nThus, we've given you a complimentary uniform and ID skin, as we felt your hard work shouldn't go unnoticed!\n\n[. . PRE-CIVT PARADE DRESS . .](<https://sangoidoldefenseforce.vercel.app/precivt>)\n-#Your new ID skin can be found with the /editid command.")
+            .WithImageUrl("https://64.media.tumblr.com/616bce1d6e1a6d7a2123c76d6f249404/2ecded076fd064e9-c6/s1280x1920/11d327bf242c41a07ca122757d050c6c6ce52da1.pnj")
+            .WithFooter("Thank you for your support thus far! We love you!! -The Staff Team at SANGŌ\n\n 太陽はまた昇る！・❖")
+            .WithColor(new Color(0xFF312C)).Build();
         
         foreach (var user in preCivt) {
-            description += "<@" + user.Id + ">\n";
+            if (user.Username.Equals("fastestthingalive"))
+            {
+                await command.FollowupAsync(user.Nickname);
+            }
         }
         
-        await command.FollowupAsync(description);
         await command.FollowupAsync(string.Join("FAILURES : \n", failures.Select(f => f.ToString())));
         await command.FollowupAsync(string.Join("FAILURES : \n", failures2.Select(f => f.ToString())));
     }
