@@ -194,7 +194,7 @@ public class RewardSystem {
             .WithDescription("You may use **" + itemPackIdol1[value - 1] + "** and **" + itemPackIdol2[value - 1] + "** rather than the required items!")
             .WithFooter("Please send your updated uniforms in the typical uniform checks."));
         
-        await command.FollowupAsync(text: "This message has been sent to the other member.", ephemeral: true);
+        await command.FollowupAsync(text: "Rewarded member with accomplishment " + (accompName[value - 1] + ".", ephemeral: true));
 
         foreach (var embed in embeds) {
             try { await UserExtensions.SendMessageAsync(assignedTo, "", false, embed.Build()); }
