@@ -140,6 +140,13 @@ public class CommandHandler {
             .AddOption("recruitpoints", ApplicationCommandOptionType.Integer, "Messed up with the count? www", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
+        commands.Add(new SlashCommandBuilder()
+            .WithName("duo")
+            .WithDescription("Gives two people the Duo Group role.")
+            .AddOption("member1", ApplicationCommandOptionType.User, "The first member this applies to.", isRequired: true)
+            .AddOption("member2", ApplicationCommandOptionType.User, "The second member this applies to.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
         // commands.Add(new SlashCommandBuilder()
         //     .WithName("forcepromote")
         //     .WithDescription("Use ONLY if DB doesn't update properly. || Force promotes enlisted to a specific rank.")
@@ -294,10 +301,10 @@ public class CommandHandler {
             .AddOption("amount", ApplicationCommandOptionType.Integer, "Number of messages to delete (1-100).", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
-        commands.Add(new SlashCommandBuilder()
-            .WithName("parseprecivt")
-            .WithDescription("Checks for PRECIVT.")
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        // commands.Add(new SlashCommandBuilder()
+        //     .WithName("parseprecivt")
+        //     .WithDescription("Checks for PRECIVT.")
+        //     .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("checkpromotions")
@@ -352,6 +359,9 @@ public class CommandHandler {
             case "checkpromotions":
                 await _roleSystem.HandleCheckPromosCommand(command, _client);
                 break;
+            case "duo":
+                await _roleSystem.HandleDuoCommand(command);
+                break;
             
             case "showid":
                 await _idSystem.ShowId(command, _client);
@@ -390,12 +400,9 @@ public class CommandHandler {
             case "removerecruits":
                 await _pointSystem.EditRecruits(command, false);
                 break;
-            case "purgemessages":
-                await _generalSystem.HandleMassRemoveCommand(command);
-                break;
-            case "parseprecivt":
-                await _generalSystem.HandleParseCivtCommand(command, _client);
-                break;
+            // case "purgemessages":
+            //     await _generalSystem.HandleMassRemoveCommand(command);
+            //     break;
             
             default:
                 await command.RespondAsync("Unrecognized command.", ephemeral: true);

@@ -407,4 +407,30 @@ public class RoleSystem {
         await kohosei.SendMessageAsync("Congratulations! You've successfully ranked up to **NiShi. Nitō Shi**. We hope to see much more from you in the future.\n\nYou've earned your final uniforms, which you can find in the new \"ENLISTED\" uniform channel.");
         await _db.SetRank(kohosei.Id, "Nitō Shi");
     }
+
+    public async Task HandleDuoCommand(SocketSlashCommand command) {
+
+        SocketGuildUser member1 = null;
+        SocketGuildUser member2 = null;
+
+        foreach (var option in command.Data.Options) {
+            switch (option.Name) {
+
+                case "member1":
+                    member1 = (SocketGuildUser)option.Value;
+                    break;
+                case "member2":
+                    member2 = (SocketGuildUser)option.Value;
+                    break;
+                default:
+                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    break;
+            }
+        }
+
+        await member1.AddRoleAsync(1473369962788950248);
+        await member2.AddRoleAsync(1473369962788950248);
+
+        await command.RespondAsync("Completed pairing request.");
+    }
 }
