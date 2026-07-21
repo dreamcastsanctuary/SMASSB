@@ -400,9 +400,9 @@ public class CommandHandler {
             case "removerecruits":
                 await _pointSystem.EditRecruits(command, false);
                 break;
-            // case "purgemessages":
-            //     await _generalSystem.HandleMassRemoveCommand(command);
-            //     break;
+            case "purgemessages":
+                await _generalSystem.HandleMassRemoveCommand(command);
+                break;
             
             default:
                 await command.RespondAsync("Unrecognized command.", ephemeral: true);
