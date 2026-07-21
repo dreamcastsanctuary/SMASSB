@@ -171,7 +171,7 @@ public class LogHandler {
             //             .WithDescription("So, you're here to watch us, right? || <:sango_emblem_mono:1492222638980989138>\n\n✦ Head down to our voice channel and join! There's no time to waste!\n✦ After you're done, read https://discord.com/channels/1471660035854569505/1473208251100299337 and grab yourself some roles here! -> https://discord.com/channels/1471660035854569505/1473208770216591422.")
             //             .WithColor(color)
             //             .WithImageUrl("https://64.media.tumblr.com/21c82a6e53d59335955b70197c129b12/c6b43c8a326634f0-7c/s2048x3072/7d052288ea61a62bca28f4d79b760240779a44e1.pnj")
-            //             .WithFooter("『 太陽はまた昇る！GO STRIKE! 』");
+            //             .WithFooter("『 陽がまた輝きますように！GO STRIKE! 』");
             //
             //         await user.AddRoleAsync(1475720710910382310);
             //     }
@@ -182,7 +182,7 @@ public class LogHandler {
             //             .WithDescription("Step right in, we've been waiting for you. || <:sango_emblem_mono:1492222638980989138>\n\n✦ Grab your https://discord.com/channels/1471660035854569505/1473208251100299337, read it *f__ront to bac__k*!\n✦ Tell us more about yourself in https://discord.com/channels/1471660035854569505/1473208770216591422.")
             //             .WithColor(color)
             //             .WithImageUrl("https://64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj")
-            //             .WithFooter("『 太陽はまた昇る！GO STRIKE! 』");
+            //             .WithFooter("『 陽がまた輝きますように！GO STRIKE! 』");
             //     }
             // } else {
             //    Console.WriteLine(">>>>>>>>>>>>>>>> INVITE CACHE FAIL.");
@@ -193,7 +193,7 @@ public class LogHandler {
                     .WithDescription("Step right in, we've been waiting for you. || <:sango_emblem_mono:1492222638980989138>\n\n✦ Grab your https://discord.com/channels/1471660035854569505/1473208251100299337, \nㅤㅤㅤread it *f__ront to bac__k*!\n✦ Tell us more about yourself in https://discord.com/channels/1471660035854569505/1473208770216591422.\n✦ If you're here because of a l__ive even__t,\nㅤ skip all of that and just j__oin the populated V__C!")
                     .WithColor(color)
                     .WithImageUrl("https://64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj")
-                    .WithFooter("『 太陽はまた昇る！GO STRIKE! 』");
+                    .WithFooter("『 陽がまた輝きますように！GO STRIKE! 』");
             // }
 
             if (welcomeChannel != null) {

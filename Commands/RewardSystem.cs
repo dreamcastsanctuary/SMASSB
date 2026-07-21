@@ -67,7 +67,7 @@ public class RewardSystem {
             .WithThumbnailUrl("https://64.media.tumblr.com/0af3a5ffef90e7bd73441f53fff50d8a/e0c197076de26732-f7/s540x810/0a2a680a38dd2882a33e6acd700b0849ac5b9d80.pnj")
             .WithDescription("0 1  ∥  08090a | 192126\n0 2  ∥  151618 | LOCKED\n0 3  ∥  260c0c | 08090a\n0 4  ∥  504029 | 08090a")
             .WithImageUrl("https://64.media.tumblr.com/f4e68447a8cc190693797e5563c51d1b/e0c197076de26732-c8/s1280x1920/8b27f009674e970061ce55f34d35e6c136b17d00.pnj")
-            .WithFooter("Send your finished uniform in Onshō. Kamikawa Hiromi's DMs to be checked and get on out there!\n\n 太陽はまた昇る！・❖")
+            .WithFooter("Send your finished uniform in Onshō. Kamikawa Hiromi's DMs to be checked and get on out there!\n\n 陽がまた輝きますように！・❖")
             .WithColor(new Color(0xBFA55F)).Build());
         
         await command.FollowupAsync("Headphones and Sword have been sent to the other member(s).");
