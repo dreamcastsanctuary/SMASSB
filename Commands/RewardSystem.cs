@@ -130,45 +130,35 @@ public class RewardSystem {
         switch (item) {
             
             case 1:
-                value = 1;
                 await assignedTo.AddRoleAsync(1473371574710046840);
                 break;
-            case 2:
-                value = 2;
-                break;
             case 3:
-                value = 3;
                 await assignedTo.AddRoleAsync(1475898897174892769);
                 break;
             case 4:
-                value = 4;
                 await assignedTo.AddRoleAsync(1475899025851945081);
                 break;
             case 5:
-                value = 5;
                 await assignedTo.AddRoleAsync(1475899134337617980);
                 break;
             case 6:
-                value = 6;
                 await assignedTo.AddRoleAsync(1475899268593225829);
                 break;
             case 7:
-                value = 7;
                 await assignedTo.AddRoleAsync(1475961765433970880);
                 break;
             case 8:
-                value = 8;
                 await assignedTo.AddRoleAsync(1475899269335744564);
                 break;
             case 9:
-                value = 9;
                 await assignedTo.AddRoleAsync(1477926845184872531);
                 break;
             default:
                 await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                 return;
         }
-
+        
+        value = item;
         List<EmbedBuilder> embeds = new List<EmbedBuilder>();
         
         embeds.Add(new EmbedBuilder()
@@ -194,7 +184,7 @@ public class RewardSystem {
             .WithDescription("You may use **" + itemPackIdol1[value - 1] + "** and **" + itemPackIdol2[value - 1] + "** rather than the required items!")
             .WithFooter("Please send your updated uniforms in the typical uniform checks."));
         
-        await command.FollowupAsync(text: "Rewarded member with accomplishment " + (accompName[value - 1] + ".", ephemeral: true));
+        await command.FollowupAsync(text: "Rewarded member with accomplishment " + accompName[value - 1] + ".", ephemeral: true);
 
         foreach (var embed in embeds) {
             try { await UserExtensions.SendMessageAsync(assignedTo, "", false, embed.Build()); }
