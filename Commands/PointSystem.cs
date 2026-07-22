@@ -142,15 +142,6 @@ public class PointSystem {
                 case "enlisted27":
                     enlisteds.Add(((SocketGuildUser)option.Value));
                     break;
-                case "enlisted28":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted29":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted30":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
                 
                 case "amount":
                     points = (int)(long) option.Value;
