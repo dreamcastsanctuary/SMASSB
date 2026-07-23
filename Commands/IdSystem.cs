@@ -140,6 +140,10 @@ public class IdSystem {
         if (roleIds.Contains(1475899269335744564)) badgesToDraw.Add((LoadBadges("badge8.png", 135, 135), new Point(1427, 632)));
         if (roleIds.Contains(1477926845184872531)) badgesToDraw.Add((LoadBadges("badge9.png", 135, 135), new Point(1520, 607)));
         
+        if (roleIds.Contains(1527905937329881158)) badgesToDraw.Add((LoadBadges("t1tanabata.png", 150, 50),  new Point(1520, 620)));
+        if (roleIds.Contains(1527905990329110669)) badgesToDraw.Add((LoadBadges("t2tanabata.png", 150, 50),  new Point(1650, 620)));
+        if (roleIds.Contains(1527906014060609586)) badgesToDraw.Add((LoadBadges("t3tanabata.png", 150, 50),  new Point(1680, 620)));
+        
         var clone = idImg.Clone(ipc => {
             
             ipc.DrawImage(avatar, avatarPos, 1);
