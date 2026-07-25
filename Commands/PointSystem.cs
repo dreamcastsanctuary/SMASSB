@@ -1,4 +1,6 @@
-﻿using System.Net.Http.Json;
+﻿using System.Linq;
+using System.Net.Http.Json;
+using System.Text.RegularExpressions;
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
@@ -281,6 +283,131 @@ public class PointSystem {
         await command.RespondAsync(embed: embedBuilder.Build());
     }
     
+    private static readonly Regex BatchLineRegex = new Regex(
+        @"^\s*(?<name>.+?)\s+p(?<points>\d+)(?:\s+r(?<recruits>\d+))?\s*$",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    [DefaultMemberPermissions(GuildPermission.ManageRoles)]
+    public async Task HandleBatchPoints(SocketSlashCommand command, DiscordSocketClient client) {
+
+        string messageLink = null;
+
+        foreach (var option in command.Data.Options) {
+            switch (option.Name) {
+                case "message_link":
+                    messageLink = option.Value.ToString();
+                    break;
+                default:
+                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    return;
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(messageLink)) {
+            await command.RespondAsync("You need to supply a message link.", ephemeral: true);
+            return;
+        }
+
+        var linkMatch = Regex.Match(messageLink, @"channels/(\d+)/(\d+)/(\d+)");
+        if (!linkMatch.Success) {
+            await command.RespondAsync("That doesn't look like a valid message link.", ephemeral: true);
+            return;
+        }
+
+        await command.DeferAsync();
+
+        ulong guildId = ulong.Parse(linkMatch.Groups[1].Value);
+        ulong channelId = ulong.Parse(linkMatch.Groups[2].Value);
+        ulong messageId = ulong.Parse(linkMatch.Groups[3].Value);
+
+        var guild = client.GetGuild(guildId);
+        var channel = guild?.GetTextChannel(channelId);
+        if (channel == null) {
+            await command.FollowupAsync("I couldn't find that channel! Does it... exist?");
+            return;
+        }
+
+        IMessage message;
+        try {
+            message = await channel.GetMessageAsync(messageId);
+        } catch {
+            message = null;
+        }
+
+        if (message == null) {
+            await command.FollowupAsync("I couldn't find that message.");
+            return;
+        }
+        
+        var allClaims = _db.GetAllClaims();
+
+        var lines = message.Content
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Select(l => l.Trim())
+            .Where(l => l.Length > 0);
+
+        var successes = new List<string>();
+        var notFound = new List<string>();
+        var ambiguous = new List<string>();
+
+        foreach (var line in lines) {
+
+            var lineMatch = BatchLineRegex.Match(line);
+            if (!lineMatch.Success) {
+                notFound.Add($"Couldn't parse: \"{line}\"");
+                continue;
+            }
+
+            var name = lineMatch.Groups["name"].Value.Trim();
+            var points = int.Parse(lineMatch.Groups["points"].Value);
+            var recruits = lineMatch.Groups["recruits"].Success ? int.Parse(lineMatch.Groups["recruits"].Value) : 0;
+
+            var matches = allClaims
+                .Where(m => !string.IsNullOrWhiteSpace(m.Claim) && m.Claim.Contains(name, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (matches.Count == 0) {
+                notFound.Add(name);
+                continue;
+            }
+
+            if (matches.Count > 1) {
+                ambiguous.Add($"{name} (matched: {string.Join(", ", matches.Select(m => m.Claim))})");
+                continue;
+            }
+
+            var userId = ulong.Parse(matches[0].UserId);
+
+            await _db.AddPoints(userId, points);
+            if (recruits > 0) await _db.AddRecruits(userId, recruits);
+
+            var currentPoints = await _db.GetPoints(userId);
+            var currentRecruits = await _db.GetRecruits(userId);
+
+            var summary = $"**{matches[0].Claim}** (<@{userId}>) — +{points} point{(points == 1 ? "" : "s")}";
+            if (recruits > 0) summary += $", +{recruits} recruit{(recruits == 1 ? "" : "s")}";
+            summary += $" → now {currentPoints} point{(currentPoints == 1 ? "" : "s")}";
+            if (recruits > 0) summary += $", {currentRecruits} recruit{(currentRecruits == 1 ? "" : "s")}";
+
+            successes.Add(summary);
+        }
+
+        var embedBuilder = new EmbedBuilder()
+            .WithTitle("❖﹒Batch points . .")
+            .WithColor(0xBFA55F);
+
+        var description = "";
+        if (successes.Count > 0) description += string.Join("\n", successes) + "\n";
+        if (notFound.Count > 0) description += "\n**Couldn't find a match for:**\n" + string.Join("\n", notFound) + "\n";
+        if (ambiguous.Count > 0) description += "\n**Multiple matches found for:**\n" + string.Join("\n", ambiguous);
+
+        if (description.Length == 0) description = "Nothing to process! The message looks empty.";
+
+        embedBuilder.WithDescription(description);
+
+        await command.FollowupAsync(embed: embedBuilder.Build());
+    }
+
     public async Task Leaderboard(SocketSlashCommand command) {
     
         var entries = _db.GetLeaderboard();

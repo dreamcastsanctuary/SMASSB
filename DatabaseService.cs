@@ -551,6 +551,22 @@ public class DatabaseService
 
         return userIds;
     }
+    
+    public List<(string UserId, string Claim)> GetAllClaims() {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT UserId, Claim FROM Enrolled;";
+
+        var results = new List<(string UserId, string Claim)>();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read()) {
+            results.Add((reader.GetString(0), reader.IsDBNull(1) ? "" : reader.GetString(1)));
+        }
+
+        return results;
+    }
 
     public async Task<string> GetUClaim(ulong userId) {
         
