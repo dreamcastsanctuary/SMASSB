@@ -388,7 +388,7 @@ public class PointSystem {
             if (recruits > 0) summary += $" and ***{recruits}*** recruit{(recruits == 1 ? "" : "s")}";
             summary += $". They now have ***{currentPoints}*** point{(currentPoints == 1 ? "" : "s")}";
             if (recruits > 0) summary += $" and have scouted ***{currentRecruits}*** recruit{(currentRecruits == 1 ? "" : "s")} in total";
-            summary += ".";
+            summary += ".\n";
 
             successes.Add(summary);
         }
