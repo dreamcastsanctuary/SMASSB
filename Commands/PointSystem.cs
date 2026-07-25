@@ -377,17 +377,18 @@ public class PointSystem {
             }
 
             var userId = ulong.Parse(matches[0].UserId);
-
-            await _db.AddPoints(userId, points);
+            
+            if (points > 0) await _db.AddPoints(userId, points);
             if (recruits > 0) await _db.AddRecruits(userId, recruits);
 
             var currentPoints = await _db.GetPoints(userId);
             var currentRecruits = await _db.GetRecruits(userId);
 
-            var summary = $"**{matches[0].Claim}** (<@{userId}>) — +{points} point{(points == 1 ? "" : "s")}";
-            if (recruits > 0) summary += $", +{recruits} recruit{(recruits == 1 ? "" : "s")}";
-            summary += $" → now {currentPoints} point{(currentPoints == 1 ? "" : "s")}";
-            if (recruits > 0) summary += $", {currentRecruits} recruit{(currentRecruits == 1 ? "" : "s")}";
+            var summary = $"<@{userId}> has been given ***{points}*** point{(points == 1 ? "" : "s")}";
+            if (recruits > 0) summary += $" and ***{recruits}*** recruit{(recruits == 1 ? "" : "s")}";
+            summary += $". They now have ***{currentPoints}*** point{(currentPoints == 1 ? "" : "s")}";
+            if (recruits > 0) summary += $" and have scouted ***{currentRecruits}*** recruit{(currentRecruits == 1 ? "" : "s")} in total";
+            summary += ".";
 
             successes.Add(summary);
         }
