@@ -284,14 +284,15 @@ public class PointSystem {
     }
     
     private static readonly Regex BatchLineRegex = new Regex(
-        @"^\s*(?<name>.+?)\s+p(?<points>\d+)(?:\s+r(?<recruits>\d+))?\s*$",
+        @"^\s*(?<name>.+?)\s+p(?<points>\d+)\s+c(?<currency>\d+)(?:\s+r(?<recruits>\d+))?\s*$",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandleBatchPoints(SocketSlashCommand command, DiscordSocketClient client) {
 
         string messageLink = null;
-
+        var currencyFailures = new List<CurrencySyncException>();
+        
         foreach (var option in command.Data.Options) {
             switch (option.Name) {
                 case "message_link":
@@ -360,6 +361,7 @@ public class PointSystem {
 
             var name = lineMatch.Groups["name"].Value.Trim();
             var points = int.Parse(lineMatch.Groups["points"].Value);
+            var currency = lineMatch.Groups["currency"].Success ? int.Parse(lineMatch.Groups["currency"].Value) : 0;
             var recruits = lineMatch.Groups["recruits"].Success ? int.Parse(lineMatch.Groups["recruits"].Value) : 0;
 
             var matches = allClaims
@@ -389,8 +391,38 @@ public class PointSystem {
             summary += $". They now have ***{currentPoints}*** point{(currentPoints == 1 ? "" : "s")}";
             if (recruits > 0) summary += $" and have scouted ***{currentRecruits}*** recruit{(currentRecruits == 1 ? "" : "s")} in total";
             summary += ".\n";
+            
+            if (currency != 0) {
+                SocketGuildUser member = guild.GetUser(userId);
+                try {
+                    var response = await _internalClient.PostAsJsonAsync("/internal/currency",
+                        new CurrencyModels.CurrencyRequest(userId, currency));
 
+                    response.EnsureSuccessStatusCode();
+                    var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
+
+                    var currencyEmbed = new EmbedBuilder()
+                        .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())
+                        .WithTitle("★﹒I wish, and wish, and wish . .")
+                        .WithDescription($"This member has been given ***{currency}*** Star Piece{(currency == 1 ? "" : "s")},\nand now has ***{result.NewBalance}*** Star Piece{(result.NewBalance == 1 ? "" : "s")}.")
+                        .WithColor(0xBFA55F)
+                        .Build();
+
+                    await command.FollowupAsync(embed: currencyEmbed);
+                } catch (HttpRequestException ex) {
+                    currencyFailures.Add(new CurrencySyncException(member.Username, $"Failed to sync currency for '{member.Username}'.", ex));
+                }
+            }
+            
             successes.Add(summary);
+        }
+
+        if (currencyFailures.Count > 0)
+        {
+            foreach (var e in currencyFailures)
+            {
+                await command.FollowupAsync(e.ToString());
+            }
         }
 
         var embedBuilder = new EmbedBuilder()
