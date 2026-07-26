@@ -140,9 +140,9 @@ public class IdSystem {
         if (roleIds.Contains(1475899269335744564)) badgesToDraw.Add((LoadBadges("badge8.png", 135, 135), new Point(1427, 632)));
         if (roleIds.Contains(1477926845184872531)) badgesToDraw.Add((LoadBadges("badge9.png", 135, 135), new Point(1520, 607)));
         
-        if (roleIds.Contains(1527905937329881158)) badgesToDraw.Add((LoadBadges("tanzaku_gold.png", 150, 180),  new Point(90,923)));
-        if (roleIds.Contains(1527905990329110669)) badgesToDraw.Add((LoadBadges("tanzaku_silver.png", 150, 180),  new Point(90,923)));
-        if (roleIds.Contains(1527906014060609586)) badgesToDraw.Add((LoadBadges("tanzaku_slip.png", 150, 180),  new Point(90,923)));
+        if (roleIds.Contains(1527905937329881158)) badgesToDraw.Add((LoadBadges("tanzaku_gold.png", 150, 200),  new Point(90,923)));
+        if (roleIds.Contains(1527905990329110669)) badgesToDraw.Add((LoadBadges("tanzaku_silver.png", 150, 200),  new Point(90,923)));
+        if (roleIds.Contains(1527906014060609586)) badgesToDraw.Add((LoadBadges("tanzaku_slip.png", 150, 200),  new Point(90,923)));
         
         var clone = idImg.Clone(ipc => {
             
@@ -451,11 +451,23 @@ public class IdSystem {
     static Image LoadBadges(string filename, int w, int h) {
         var path = Path.Combine(AppContext.BaseDirectory, "Images", filename);
         var img = Image.Load(path);
-        img.Mutate(x => x.Resize(new ResizeOptions {
-            Size = new Size(w, h),
-            Mode = ResizeMode.Crop,
-            Sampler = KnownResamplers.Lanczos3
-        }));
+        
+        if (filename.Contains("tanzaku"))
+        {
+            img.Mutate(x => x.Resize(new ResizeOptions {
+                Size = new Size(w, h),
+                Mode = ResizeMode.Pad,
+                Sampler = KnownResamplers.Lanczos3
+            }));
+        } else {
+            img.Mutate(x => x.Resize(new ResizeOptions
+            {
+                Size = new Size(w, h),
+                Mode = ResizeMode.Crop,
+                Sampler = KnownResamplers.Lanczos3
+            }));
+        }
+
         return img;
     }
 
