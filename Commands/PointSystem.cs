@@ -563,7 +563,7 @@ public class PointSystem {
                 response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
                 if (result.NewBalance >= 10) {
-                    desc += $"<@{user.Id}> :: should get the rewards.";
+                    desc += $"<@{user.Id}> :: should get the rewards.\n";
                 }
                 
             } catch (HttpRequestException ex) {
