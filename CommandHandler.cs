@@ -299,6 +299,12 @@ public class CommandHandler {
             .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to remove.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
+        commands.Add(new SlashCommandBuilder()
+            .WithName("festivalrewards")
+            .WithDescription("Rewards people over 10 currency the given festival rewards.")
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+        
+        
         // commands.Add(new SlashCommandBuilder()
         //     .WithName("restoreprogress")
         //     .WithDescription("DON'T USE THIS. UNTESTED AND SCARY. || Restores the progress of a previous member.")
@@ -413,6 +419,10 @@ public class CommandHandler {
             case "removerecruits":
                 await _pointSystem.EditRecruits(command, false);
                 break;
+            case "festivalrewards":
+                await _pointSystem.FestivalRewards(command, _client);
+                break;
+                
             case "purgemessages":
                 await _generalSystem.HandleMassRemoveCommand(command);
                 break;

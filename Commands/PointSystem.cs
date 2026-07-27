@@ -543,4 +543,37 @@ public class PointSystem {
         
         await command.FollowupAsync(note, ephemeral: true);
     }
+
+    public async Task FestivalRewards(SocketSlashCommand command, DiscordSocketClient client) {
+
+        List<SocketGuildUser> enlisted = null;
+        var guild = client.GetGuild((ulong)command.GuildId);
+        var currencyFailures = new List<CurrencySyncException>();
+        var desc = "";
+        
+        foreach (var userId in _db.GetEnlisted()) { enlisted.Add(guild.GetUser(ulong.Parse(userId))); }
+
+        foreach (var user in enlisted) {
+            try {
+                var response = await _internalClient.PostAsJsonAsync("/internal/currency",
+                    new CurrencyModels.CurrencyRequest(user.Id, 0));
+
+                response.EnsureSuccessStatusCode();
+                var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
+                if (result.NewBalance >= 10) {
+                    desc += "<@{user.Id}> :: should get the rewards.";
+                }
+                
+            } catch (HttpRequestException ex) {
+                currencyFailures.Add(new CurrencySyncException(user.Username, $"Failed to find AND / OR sync currency for '{user.Username}'.", ex));
+            }
+        }
+        
+        var currencyEmbed = new EmbedBuilder()
+            .WithDescription(desc)
+            .Build();
+
+        await command.FollowupAsync(embed: currencyEmbed);
+        await command.FollowupAsync(currencyFailures.ToString(), ephemeral: true);
+    }
 }
