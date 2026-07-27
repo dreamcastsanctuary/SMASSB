@@ -550,6 +550,8 @@ public class PointSystem {
         var guild = client.GetGuild((ulong)command.GuildId);
         var currencyFailures = new List<CurrencySyncException>();
         var desc = "";
+
+        await command.DeferAsync();
         
         foreach (var userId in _db.GetEnlisted()) { enlisted.Add(guild.GetUser(ulong.Parse(userId))); }
 
