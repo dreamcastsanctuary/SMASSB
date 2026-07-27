@@ -549,6 +549,7 @@ public class PointSystem {
         List<SocketGuildUser> enlisted = new();
         var guild = client.GetGuild((ulong)command.GuildId);
         var currencyFailures = new List<CurrencySyncException>();
+        var results = new List<(SocketGuildUser User, long Balance)>();
         var desc = "LIST :\n\n";
 
         await command.DeferAsync();
@@ -562,10 +563,20 @@ public class PointSystem {
 
                 response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
+                results.Add((user, result.NewBalance));
+                
                 if (result.NewBalance >= 10) {
                     desc += $"<@{user.Id}> :: should get the rewards.\n";
-                }
+                } desc += "\n\n";
                 
+                var ranked = results.OrderByDescending(r => r.Balance).ToList();
+                for (int i = 0; i < 5; i++) {
+                    if (i == 0) {
+                        desc += ranked[i].User.Nickname + " is in FIRST!\n";
+                    } else {
+                        desc += ranked[i].User.Nickname + " is a RUNNER UP!\n";
+                    }
+                }
             } catch (HttpRequestException ex) {
                 currencyFailures.Add(new CurrencySyncException(user.Username, $"Failed to find AND / OR sync currency for '{user.Username}'.", ex));
             }
