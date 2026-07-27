@@ -546,10 +546,10 @@ public class PointSystem {
 
     public async Task FestivalRewards(SocketSlashCommand command, DiscordSocketClient client) {
 
-        List<SocketGuildUser> enlisted = null;
+        List<SocketGuildUser> enlisted = new();
         var guild = client.GetGuild((ulong)command.GuildId);
         var currencyFailures = new List<CurrencySyncException>();
-        var desc = "";
+        var desc = "LIST :\n\n";
 
         await command.DeferAsync();
         
@@ -563,7 +563,7 @@ public class PointSystem {
                 response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
                 if (result.NewBalance >= 10) {
-                    desc += "<@{user.Id}> :: should get the rewards.";
+                    desc += $"<@{user.Id}> :: should get the rewards.";
                 }
                 
             } catch (HttpRequestException ex) {
@@ -576,6 +576,9 @@ public class PointSystem {
             .Build();
 
         await command.FollowupAsync(embed: currencyEmbed);
-        await command.FollowupAsync(currencyFailures.ToString(), ephemeral: true);
+        if (currencyFailures.Count > 0) {
+            var failureText = string.Join("\n", currencyFailures.Select(f => f.Message));
+            await command.FollowupAsync(failureText, ephemeral: true);
+        }
     }
 }
