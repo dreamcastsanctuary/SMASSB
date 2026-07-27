@@ -140,9 +140,9 @@ public class IdSystem {
         if (roleIds.Contains(1475899269335744564)) badgesToDraw.Add((LoadBadges("badge8.png", 135, 135), new Point(1427, 550)));
         if (roleIds.Contains(1477926845184872531)) badgesToDraw.Add((LoadBadges("badge9.png", 135, 135), new Point(1520, 520)));
         
-        if (roleIds.Contains(1527905937329881158)) badgesToDraw.Add((LoadBadges("tanzaku_gold.png", 130, 180),  new Point(165,895)));
-        if (roleIds.Contains(1527905990329110669)) badgesToDraw.Add((LoadBadges("tanzaku_silver.png", 130, 180),  new Point(165,895)));
-        if (roleIds.Contains(1527906014060609586)) badgesToDraw.Add((LoadBadges("tanzaku_slip.png", 130, 180),  new Point(165,895)));
+        if (roleIds.Contains(1527905937329881158)) badgesToDraw.Add((LoadBadges("tanzaku_gold.png", 130, 180),  new Point(163,895)));
+        if (roleIds.Contains(1527905990329110669)) badgesToDraw.Add((LoadBadges("tanzaku_silver.png", 130, 180),  new Point(163,895)));
+        if (roleIds.Contains(1527906014060609586)) badgesToDraw.Add((LoadBadges("tanzaku_slip.png", 130, 180),  new Point(163,895)));
         
         var clone = idImg.Clone(ipc => {
             
