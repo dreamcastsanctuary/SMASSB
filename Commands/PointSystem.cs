@@ -544,49 +544,66 @@ public class PointSystem {
         await command.FollowupAsync(note, ephemeral: true);
     }
 
-    public async Task FestivalRewards(SocketSlashCommand command, DiscordSocketClient client) {
+    public async Task FestivalRewards(SocketSlashCommand command, DiscordSocketClient client)
+{
+    var enlisted = new List<SocketGuildUser>();
+    var guild = client.GetGuild((ulong)command.GuildId);
+    var currencyFailures = new List<CurrencySyncException>();
+    var results = new List<(SocketGuildUser User, long Balance)>();
 
-        List<SocketGuildUser> enlisted = new();
-        var guild = client.GetGuild((ulong)command.GuildId);
-        var currencyFailures = new List<CurrencySyncException>();
-        var results = new List<(SocketGuildUser User, long Balance)>();
-        var desc = "LIST :\n\n";
+    await command.DeferAsync();
 
-        await command.DeferAsync();
-        
-        foreach (var userId in _db.GetEnlisted()) { enlisted.Add(guild.GetUser(ulong.Parse(userId))); }
+    foreach (var userId in _db.GetEnlisted())
+    {
+        var member = guild.GetUser(ulong.Parse(userId));
+        if (member != null) enlisted.Add(member);
+    }
 
-        foreach (var user in enlisted) {
-            try {
-                var response = await _internalClient.PostAsJsonAsync("/internal/currency",
-                    new CurrencyModels.CurrencyRequest(user.Id, 0));
+    foreach (var user in enlisted)
+    {
+        try
+        {
+            var response = await _internalClient.PostAsJsonAsync("/internal/currency",
+                new CurrencyModels.CurrencyRequest(user.Id, 0));
 
-                response.EnsureSuccessStatusCode();
-                var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
-                results.Add((user, result.NewBalance));
-                
-                if (result.NewBalance >= 10) {
-                    desc += $"<@{user.Id}> :: should get the rewards.\n";
-                } desc += "\n\n";
-                
-                var ranked = results.OrderByDescending(r => r.Balance).ToList();
-                
-                for (int i = 0; i < 5; i++) {
-                    desc += ranked[i].User.Nickname + (i == 0 ? " is in FIRST!\n" : " is a RUNNER UP!\n");
-                }
-            } catch (HttpRequestException ex) {
-                currencyFailures.Add(new CurrencySyncException(user.Username, $"Failed to find AND / OR sync currency for '{user.Username}'.", ex));
-            }
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
+
+            results.Add((user, result.NewBalance));
         }
-        
-        var currencyEmbed = new EmbedBuilder()
-            .WithDescription(desc)
-            .Build();
-
-        await command.FollowupAsync(embed: currencyEmbed);
-        if (currencyFailures.Count > 0) {
-            var failureText = string.Join("\n", currencyFailures.Select(f => f.Message));
-            await command.FollowupAsync(failureText, ephemeral: true);
+        catch (HttpRequestException ex)
+        {
+            currencyFailures.Add(new CurrencySyncException(user.Username,
+                $"Failed to find AND / OR sync currency for '{user.Username}'.", ex));
         }
     }
+    
+    var desc = "LIST :\n\n";
+    foreach (var (user, balance) in results)
+    {
+        if (balance >= 10)
+            desc += $"<@{user.Id}> :: should get the rewards.\n";
+    }
+    
+    var ranked = results.OrderByDescending(r => r.Balance).ToList();
+    desc += "\n\n";
+    int limit = Math.Min(5, ranked.Count);
+    
+    for (int i = 0; i < limit; i++) {
+        var name = ranked[i].User.Nickname ?? ranked[i].User.Username;
+        desc += name + (i == 0 ? " is in FIRST!\n" : " is a RUNNER UP!\n");
+    }
+
+    var currencyEmbed = new EmbedBuilder()
+        .WithDescription(desc)
+        .Build();
+
+    await command.FollowupAsync(embed: currencyEmbed);
+
+    if (currencyFailures.Count > 0)
+    {
+        var failureText = string.Join("\n", currencyFailures.Select(f => f.Message));
+        await command.FollowupAsync(failureText, ephemeral: true);
+    }
+}
 }
