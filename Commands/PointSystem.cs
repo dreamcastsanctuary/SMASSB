@@ -570,12 +570,9 @@ public class PointSystem {
                 } desc += "\n\n";
                 
                 var ranked = results.OrderByDescending(r => r.Balance).ToList();
+                
                 for (int i = 0; i < 5; i++) {
-                    if (i == 0) {
-                        desc += ranked[i].User.Nickname + " is in FIRST!\n";
-                    } else {
-                        desc += ranked[i].User.Nickname + " is a RUNNER UP!\n";
-                    }
+                    desc += ranked[i].User.Nickname + (i == 0 ? " is in FIRST!\n" : " is a RUNNER UP!\n");
                 }
             } catch (HttpRequestException ex) {
                 currencyFailures.Add(new CurrencySyncException(user.Username, $"Failed to find AND / OR sync currency for '{user.Username}'.", ex));
