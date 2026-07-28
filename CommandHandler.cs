@@ -449,7 +449,10 @@ public class CommandHandler {
 
 
 
-
+    private bool IsVideoExtension(string filename) {
+        var videoExts = new[] { ".mp4", ".mov", ".webm", ".mkv", ".avi", ".m4v" };
+        return videoExts.Any(ext => filename.EndsWith(ext, StringComparison.OrdinalIgnoreCase));
+    }
 
 
     public async Task ReactionAddedHandler(SocketGuild guild, Cacheable<IUserMessage, ulong> cache,
@@ -484,11 +487,6 @@ public class CommandHandler {
                 .WithDescription(message.Content)
                 .WithFooter($"{message.Timestamp:M/d/yyyy HH:mm:ss tt}")
                 .WithColor(0xBFA55F);
-
-            bool IsVideoExtension(string filename) {
-                var videoExts = new[] { ".mp4", ".mov", ".webm", ".mkv", ".avi", ".m4v" };
-                return videoExts.Any(ext => filename.EndsWith(ext, StringComparison.OrdinalIgnoreCase));
-            }
             
             if (message.Attachments.Count > 0) {
                 
@@ -673,10 +671,16 @@ public class CommandHandler {
                     .WithColor(0xBFA55F);
 
                 if (message.Attachments.Count > 0) {
+                
                     var attachment = message.Attachments.First();
-                    if (attachment.IsSpoiler())
-                    {
-                        builder.WithDescription(message.Content + "\n\n**Spoilered image:**" + attachment.Url);
+                    bool isVideo = attachment.ContentType?.StartsWith("video/") == true
+                                   || IsVideoExtension(attachment.Filename);
+
+                    if (attachment.IsSpoiler()) {
+                        var label = isVideo ? "Spoilered video." : "Spoilered image.";
+                        builder.WithDescription(message.Content + $"\n\n**{label}**");
+                    } else if (isVideo) {
+                        builder.WithDescription(message.Content + $"\n\n[Video attachment]({attachment.Url})");
                     } else {
                         builder.WithImageUrl(attachment.Url);
                     }
