@@ -183,7 +183,6 @@ public class CommandHandler {
         commands.Add(new SlashCommandBuilder()
             .WithName("editid")
             .WithDescription("Edits your Idol ID and displays it.")
-            .AddOption("claim", ApplicationCommandOptionType.String, "The name of the claim / character.", isRequired: false)
             .AddOption("avatar_url", ApplicationCommandOptionType.String, "The profile of the member / character.", isRequired: false)
             .AddOption(new SlashCommandOptionBuilder()
                 .WithName("bloodtype")
