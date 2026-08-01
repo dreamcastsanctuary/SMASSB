@@ -577,12 +577,17 @@ public class PointSystem {
             }
         }
         
+        
+        
         foreach (var (user, balance) in results) {
-            if (balance >= 10) {
-                var points = (int)(balance / 3);
-                // await _db.AddPoints(user.Id, points);
-                // await command.FollowupAsync($"Rewarded <@{user.Id}> {points} points.");
-                // await user.AddRoleAsync(1527906014060609586);
+            if (user.Username == "fastestthingalive")
+            {
+                if (balance >= 10) {
+                    var points = (int)(balance / 3);
+                    await _db.AddPoints(user.Id, points);
+                    await command.FollowupAsync($"Rewarded <@{user.Id}> {points} points.");
+                    await user.AddRoleAsync(1527906014060609586);
+                }
             }
                 
         }
@@ -591,32 +596,34 @@ public class PointSystem {
         int limit = Math.Min(7, ranked.Count);
         
         for (int i = 0; i < limit; i++) {
-            var user = ranked[i].User;
             
-            // await _db.GiveNewId(user.Id, "ENLISTEDTANABATA");
-            // await user.RemoveRoleAsync(1527906014060609586);
-            string place;
+            var user = ranked[i].User;
+            if (user.Username == "fastestthingalive")
+            {
+                await _db.GiveNewId(user.Id, "ENLISTEDTANABATA");
+                await user.RemoveRoleAsync(1527906014060609586);
+                string place;
 
-            if (i == 3) {
-                place = ToOrdinal(i);
-            } else if (i > 3) {
-                place = ToOrdinal(i - 1);
-            } else place = ToOrdinal(i + 1);
-
-            if (i == 0) {
-                //await user.AddRoleAsync(1527905937329881158);
-                await command.FollowupAsync($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\nFor this reason alone, you have placed **1ST** in the Festival event and gained the following rewards:\n\n- The Tier 1 Badge : The Golden Tanzaku\n- A headshot of your character drawn by the main server artist, KAPS\n- A third of your currency transformed into points (nice rank skip!)\n- The limited Starry Night ID skin (use /editid to check it out!)\n- The ability to help design the special Parade Dress for our debut event!\n\nMake sure to message Mikage Makina for more information about the headshot from KAPS!\nMessage Kamikawa Hiromi to discuss more about the future Parade Dress you'll be helping with!\n\nGood job, you did fantastic. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
-            } else if (i is 1 or 2 or 3) {
-                await command.FollowupAsync($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\nFor this reason alone, you have placed **{place}** in the Festival event and gained the following rewards:\n\n- The Tier 2 Badge : The Silver Tanzaku\n- An art piece of your character drawn by the main server artist, Tokiwa Cho\n- A third of your currency transformed into points\n- The limited Starry Night ID skin (use /editid to check it out!)\n\nMake sure to message Tokiwa Cho for more information about the art they'll draw for you!\n\nGood job, you did fantastic. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
-            }
-            else {
-                //await user.AddRoleAsync(1527905990329110669);
-                await command.FollowupAsync($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\nFor this reason alone, you have placed **{place}** in the Festival event and gained the following rewards:\n\n- The Tier 2 Badge : The Silver Tanzaku\n- A third of your currency transformed into points\n- The limited Starry Night ID skin (use /editid to check it out!)\n\nGood job, you did fantastic. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
+                if (i == 3) {
+                    place = ToOrdinal(i);
+                } else if (i > 3) {
+                    place = ToOrdinal(i - 1);
+                } else place = ToOrdinal(i + 1);
+            
+                if (i == 0) {
+                    await user.AddRoleAsync(1527905937329881158);
+                    await UserExtensions.SendMessageAsync(user, $"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\nFor this reason alone, you have placed **1ST** in the Festival event and gained the following rewards:\n\n- The Tier 1 Badge : The Golden Tanzaku\n- A headshot of your character drawn by the main server artist, KAPS\n- A third of your currency transformed into points (nice rank skip!)\n- The limited Starry Night ID skin (use /editid to check it out!)\n- The ability to help design the special Parade Dress for our debut event!\n\nMake sure to message Mikage Makina for more information about the headshot from KAPS!\nMessage Kamikawa Hiromi to discuss more about the future Parade Dress you'll be helping with!\n\nGood job, you did fantastic. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
+                } else if (i is 1 or 2 or 3) {
+                    await UserExtensions.SendMessageAsync(user, $"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\nFor this reason alone, you have placed **{place}** in the Festival event and gained the following rewards:\n\n- The Tier 2 Badge : The Silver Tanzaku\n- An art piece of your character drawn by the main server artist, Tokiwa Cho\n- A third of your currency transformed into points\n- The limited Starry Night ID skin (use /editid to check it out!)\n\nMake sure to message Tokiwa Cho for more information about the art they'll draw for you!\n\nGood job, you did fantastic. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
+                }
+                else {
+                    await user.AddRoleAsync(1527905990329110669);
+                    await UserExtensions.SendMessageAsync(user, $"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\nFor this reason alone, you have placed **{place}** in the Festival event and gained the following rewards:\n\n- The Tier 2 Badge : The Silver Tanzaku\n- A third of your currency transformed into points\n- The limited Starry Night ID skin (use /editid to check it out!)\n\nGood job, you did fantastic. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
+                }
             }
         }
 
-        if (currencyFailures.Count > 0)
-        {
+        if (currencyFailures.Count > 0) {
             var failureText = string.Join("\n", currencyFailures.Select(f => f.Message));
             await command.FollowupAsync(failureText, ephemeral: true);
         }
