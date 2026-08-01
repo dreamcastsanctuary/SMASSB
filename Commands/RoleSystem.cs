@@ -30,13 +30,13 @@ public class RoleSystem {
                     claim = option.Value.ToString();
                     break;
                 default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                     break;
             }
         }
 
         if (civilian == null) {
-            await command.RespondAsync("Unrecognized account.", ephemeral: true);
+            await command.FollowupAsync("Unrecognized account.", ephemeral: true);
             return;
         }
 
@@ -66,7 +66,7 @@ public class RoleSystem {
                     civilian = ((SocketGuildUser)option.Value);
                     break;
                 default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                     break;
             }
         }
