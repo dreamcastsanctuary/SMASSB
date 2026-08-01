@@ -11,7 +11,7 @@ public class MeetingSystem {
     private DatabaseService _db;
     private static readonly HttpClient _httpClient = new HttpClient();
     private const string SiteBaseUrl = "https://sangoidoldefenseforce.vercel.app";
-    private const string MeetingApiSecret = "Ba11erySama!";
+    private string MeetingApiSecret = Environment.GetEnvironmentVariable("MEETING_API_SECRET") ?? throw new Exception("MEETING_API_SECRET environment variable not set.");
     private const long MaxEmbeddedAttachmentBytes = 3 * 1024 * 1024;
 
     public MeetingSystem (DatabaseService db) {
