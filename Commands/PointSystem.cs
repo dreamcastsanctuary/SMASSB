@@ -597,10 +597,10 @@ public class PointSystem {
             // await user.RemoveRoleAsync(1527906014060609586);
             string place;
 
-            if (i > 2)
+            if (i >= 2)
             {
-                place = ToOrdinal(i + 1);
-            } else place = "PLACEHOLDER";
+                place = ToOrdinal(i - 1);
+            } else place = ToOrdinal(i);
 
             if (i == 0) {
                 //await user.AddRoleAsync(1527905937329881158);
