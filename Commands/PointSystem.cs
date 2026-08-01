@@ -596,11 +596,11 @@ public class PointSystem {
             // await _db.GiveNewId(user.Id, "ENLISTEDTANABATA");
             // await user.RemoveRoleAsync(1527906014060609586);
             string place;
-            
-            if (i > 3)
-                place = ToOrdinal(i - 1);
-            else
-                place = ToOrdinal(i);
+
+            if (i > 2)
+            {
+                place = ToOrdinal(i + 1);
+            } else place = "PLACEHOLDER";
 
             if (i == 0) {
                 //await user.AddRoleAsync(1527905937329881158);
