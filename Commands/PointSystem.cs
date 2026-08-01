@@ -597,7 +597,7 @@ public class PointSystem {
             // await user.RemoveRoleAsync(1527906014060609586);
             string place;
 
-            if (i > 3)
+            if (i >= 3)
             {
                 place = ToOrdinal(i - 1);
             } else place = ToOrdinal(i + 1);
