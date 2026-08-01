@@ -580,14 +580,11 @@ public class PointSystem {
         
         
         foreach (var (user, balance) in results) {
-            if (user.Username == "fastestthingalive")
-            {
-                if (balance >= 10) {
+            if (balance >= 10) {
                     var points = (int)(balance / 3);
                     await _db.AddPoints(user.Id, points);
                     await command.FollowupAsync($"Rewarded <@{user.Id}> {points} points.");
                     await user.AddRoleAsync(1527906014060609586);
-                }
             }
                 
         }
@@ -598,8 +595,6 @@ public class PointSystem {
         for (int i = 0; i < limit; i++) {
             
             var user = ranked[i].User;
-            if (user.Username == "fastestthingalive")
-            {
                 await _db.GiveNewId(user.Id, "ENLISTEDTANABATA");
                 await user.RemoveRoleAsync(1527906014060609586);
                 string place;
@@ -625,7 +620,6 @@ public class PointSystem {
                     embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\nFor this reason alone, you have placed **{place}** in the Festival event and gained the following rewards:\n\n- The Tier 2 Badge : The Silver Tanzaku\n- A third of your currency transformed into points\n- The limited Starry Night ID skin (use /editid to check it out!)\n\nGood job, you did fantastic. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
                 }
                 await UserExtensions.SendMessageAsync(user, embed: embedBuilder.Build());
-            }
         }
 
         if (currencyFailures.Count > 0) {
