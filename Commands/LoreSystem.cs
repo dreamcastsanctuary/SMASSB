@@ -39,7 +39,19 @@ public class LoreSystem {
         eb9.WithFooter("To be continued . . .");
         
         var channel = command.Channel as SocketThreadChannel;
-
-        await channel.SendMessageAsync();
+        var embeds = new List<EmbedBuilder>();
+        
+        embeds.Add(eb1);
+        embeds.Add(eb2);
+        embeds.Add(eb3);
+        embeds.Add(eb4);
+        embeds.Add(eb5);
+        embeds.Add(eb6);
+        embeds.Add(eb7);
+        embeds.Add(eb8);
+        embeds.Add(eb9);
+        
+        foreach (var embed in embeds) 
+            await channel.SendMessageAsync(embed: embed.Build());
     }
 }
