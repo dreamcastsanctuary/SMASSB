@@ -50,7 +50,6 @@ public class RoleSystem {
         await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Kōhosei",0,0,"N/A","", civilian.Username, "ENLISTEDMAIN");
         try { await UserExtensions.SendMessageAsync(civilian, "Welcome to SANGŌ, **Kō. " + claim + "**! We're very happy to have you.\nYour first event *must* be of type **CIVT / Civilian Training**. Please be on the lookout for it."); } 
         catch (Discord.Net.HttpException ex) { await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message); }
-        await command.FollowupAsync("Processed Prospect into Database.");
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
