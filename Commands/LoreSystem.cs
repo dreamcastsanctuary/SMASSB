@@ -47,7 +47,7 @@ public class LoreSystem {
         eb9.WithColor(0x6c5931);
         eb9.WithFooter("To be continued . . .");
         
-        var channel = command.Channel as SocketThreadChannel;
+        var channel = command.Channel;
         var embeds = new List<EmbedBuilder>();
         
         embeds.Add(eb1);
