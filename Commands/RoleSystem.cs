@@ -13,25 +13,20 @@ public class RoleSystem {
         _db = db;
     }
 
-    [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandlePreEnlistCommand(SocketSlashCommand command) {
-        
+
         await command.DeferAsync();
         SocketGuildUser civilian = null;
         var claim = "";
-        
+
         foreach (var option in command.Data.Options)
         {
             switch (option.Name) {
-                
                 case "civilian":
                     civilian = ((SocketGuildUser)option.Value);
                     break;
                 case "claim_name":
                     claim = option.Value.ToString();
-                    break;
-                default:
-                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                     break;
             }
         }
@@ -41,15 +36,28 @@ public class RoleSystem {
             return;
         }
 
-        await civilian.AddRoleAsync(1473369036766052445);
-        await civilian.AddRoleAsync(1475886792174604484);
-        await civilian.RemoveRoleAsync(1473369383471677461);
-        
-        await civilian.ModifyAsync(x => x.Nickname = "Kō. " + claim);
-        
-        await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Kōhosei",0,0,"N/A","", civilian.Username, "ENLISTEDMAIN");
-        try { await UserExtensions.SendMessageAsync(civilian, "Welcome to SANGŌ, **Kō. " + claim + "**! We're very happy to have you.\nYour first event *must* be of type **CIVT / Civilian Training**. Please be on the lookout for it."); } 
-        catch (Discord.Net.HttpException ex) { await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message); }
+        try {
+            await civilian.AddRoleAsync(1473369036766052445);
+            await civilian.AddRoleAsync(1475886792174604484);
+            await civilian.RemoveRoleAsync(1473369383471677461);
+
+            await civilian.ModifyAsync(x => x.Nickname = "Kō. " + claim);
+
+            await _db.PreEnlist(command, civilian, claim,
+                civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(),
+                civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt,
+                "Kōhosei", 0, 0, "N/A", "", civilian.Username, "ENLISTEDMAIN");
+
+            try {
+                await UserExtensions.SendMessageAsync(civilian,
+                    $"Welcome to SANGŌ, **Kō. {claim}**! We're very happy to have you.\n" +
+                    "Your first event *must* be of type **CIVT / Civilian Training**. Please be on the lookout for it.");
+            } catch (Discord.Net.HttpException ex) {
+                await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message);
+            } 
+        } catch (Exception ex) {
+            await command.FollowupAsync($"Something went wrong pre-enlisting this user: {ex.Message}", ephemeral: true);
+        }
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
