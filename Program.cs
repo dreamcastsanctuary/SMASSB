@@ -118,6 +118,7 @@ public class Program {
             .AddSingleton<IdSystem>()
             .AddSingleton<PointSystem>()
             .AddSingleton<GeneralSystem>()
+            .AddSingleton<LoreSystem>()
             
             .BuildServiceProvider();
     }

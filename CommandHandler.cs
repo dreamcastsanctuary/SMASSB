@@ -16,6 +16,7 @@ public class CommandHandler {
     private IdSystem _idSystem;
     private PointSystem _pointSystem;
     private GeneralSystem _generalSystem;
+    private LoreSystem _loreSystem;
     private DatabaseService _db;
 
     public CommandHandler(DiscordSocketClient client,
@@ -25,6 +26,7 @@ public class CommandHandler {
                           IdSystem idSystem,
                           PointSystem pointSystem,
                           GeneralSystem generalSystem,
+                          LoreSystem loreSystem,
                           DatabaseService db) {
         
         _client = client;
@@ -35,6 +37,7 @@ public class CommandHandler {
         _idSystem = idSystem;
         _pointSystem = pointSystem;
         _generalSystem = generalSystem;
+        _loreSystem = loreSystem;
         _db = db;
     }
     public async Task RegisterCommands(SocketGuild guild) {
@@ -303,7 +306,6 @@ public class CommandHandler {
             .WithDescription("Rewards people over 10 currency the given festival rewards.")
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
-        
         // commands.Add(new SlashCommandBuilder()
         //     .WithName("restoreprogress")
         //     .WithDescription("DON'T USE THIS. UNTESTED AND SCARY. || Restores the progress of a previous member.")
@@ -326,6 +328,13 @@ public class CommandHandler {
             .WithDescription("Checks if we have any promotions.")
             .AddOption("auto_promote", ApplicationCommandOptionType.Boolean, "Automatically promote everyone here to the next rank.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        // LORESYSTEM
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("postlore")
+            .WithDescription("Posts... posts lore.")
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
@@ -424,6 +433,10 @@ public class CommandHandler {
                 
             case "purgemessages":
                 await _generalSystem.HandleMassRemoveCommand(command);
+                break;
+            
+            case "postlore":
+                await _loreSystem.PostLore(command);
                 break;
             
             default:
