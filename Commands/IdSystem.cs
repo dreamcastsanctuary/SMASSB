@@ -374,6 +374,7 @@ public class IdSystem {
     
     public async Task HandleForceUpdateCommand(SocketSlashCommand command) {
         
+        await command.DeferAsync();
         SocketGuildUser member = null;
         var claim = "";
         IRole rank = null;
@@ -396,13 +397,13 @@ public class IdSystem {
                     avatarBorked = option.Value.ToString() == "True";
                     break;
                 default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                     break;
             }
         }
 
         if (member == null) {
-            await command.RespondAsync("Unrecognized account.", ephemeral: true);
+            await command.FollowupAsync("Unrecognized account.", ephemeral: true);
             return;
         }
 
@@ -426,7 +427,7 @@ public class IdSystem {
             await member.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claim);
             
             await _db.SetClaim(member.Id, claim);
-            await command.RespondAsync("Changed claim.");
+            await command.FollowupAsync("Changed claim.");
             
         } else if (rank != null) {
             
@@ -441,10 +442,10 @@ public class IdSystem {
             await member.ModifyAsync(x => x.Nickname = fixedRankNick + " " + oldClaim);
             
             await _db.SetRank(member.Id, fixedRankFull);
-            await command.RespondAsync("Completed task.");
+            await command.FollowupAsync("Completed task.");
             
         } else {
-            await command.RespondAsync("Nothing needs to be set.", ephemeral: true);
+            await command.FollowupAsync("Nothing needs to be set.", ephemeral: true);
         }
     }
     

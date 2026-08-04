@@ -16,6 +16,7 @@ public class RoleSystem {
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandlePreEnlistCommand(SocketSlashCommand command) {
         
+        await command.DeferAsync();
         SocketGuildUser civilian = null;
         var claim = "";
         
@@ -49,12 +50,13 @@ public class RoleSystem {
         await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Kōhosei",0,0,"N/A","", civilian.Username, "ENLISTEDMAIN");
         try { await UserExtensions.SendMessageAsync(civilian, "Welcome to SANGŌ, **Kō. " + claim + "**! We're very happy to have you.\nYour first event *must* be of type **CIVT / Civilian Training**. Please be on the lookout for it."); } 
         catch (Discord.Net.HttpException ex) { await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message); }
-        await command.RespondAsync("Processed Prospect into Database.");
+        await command.FollowupAsync("Processed Prospect into Database.");
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandleEnlistCommand(SocketSlashCommand command, DiscordSocketClient client) {
         
+        await command.DeferAsync();
         SocketGuildUser civilian = null;
         var guild = client.GetGuild((ulong)command.GuildId);
         
@@ -66,7 +68,7 @@ public class RoleSystem {
                     civilian = ((SocketGuildUser)option.Value);
                     break;
                 default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                     break;
             }
         }
@@ -85,7 +87,8 @@ public class RoleSystem {
     }
 
     public async Task HandleCheckPromosCommand(SocketSlashCommand command, DiscordSocketClient client) {
-
+        
+        await command.DeferAsync();
         bool promote = false;
         
         foreach (var option in command.Data.Options)
@@ -96,7 +99,7 @@ public class RoleSystem {
                     promote = option.Value.ToString() == "True";
                     break;
                 default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                     break;
             }
         }
@@ -128,7 +131,7 @@ public class RoleSystem {
         }
 
         if (promotable.Count == 0) {
-            await command.RespondAsync("No promotions found.");
+            await command.FollowupAsync("No promotions found.");
             return;
         }
 
@@ -181,6 +184,7 @@ public class RoleSystem {
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandlePromoteCommand(SocketSlashCommand command) {
 
+        await command.DeferAsync();
         List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
         IRole addedRank = null; IRole addedRankCategory = null; IRole removedRank = null; IRole removedRankCategory = null;
         
@@ -231,7 +235,7 @@ public class RoleSystem {
                     addedRankCategory = (IRole)option.Value;
                     break;
                 default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                     break;
             }
         }
@@ -251,7 +255,7 @@ public class RoleSystem {
                 await Promote(enlisted, addedRank);
             }
         }
-        await command.RespondAsync("Completed task.", ephemeral: true);
+        await command.FollowupAsync("Completed task.", ephemeral: true);
     }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
@@ -319,7 +323,7 @@ public class RoleSystem {
 
         var message = String.IsNullOrEmpty(response) ? "Welcome to your new life as an enlisted, <@" + enlisted.Id + ">!" : response;
         
-        if (command != null) { await command.RespondAsync(message); }
+        if (command != null) { await command.FollowupAsync(message); }
     }
 
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
