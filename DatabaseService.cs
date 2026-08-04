@@ -106,7 +106,7 @@ public class DatabaseService
         
         cmd.ExecuteNonQuery();
         
-        await command.RespondAsync("Processed Prospect into Database.");
+        await command.FollowupAsync("Processed Prospect into Database.");
 
         await GiveNewId(ulong.Parse(accIdParam), idTypeParam);
         await IdSystem.BuildId(command, member, claimParam, null, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, catchphraseParam, usernameParam, idTypeParam);

@@ -31,13 +31,13 @@ public class RoleSystem {
                     claim = option.Value.ToString();
                     break;
                 default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                     break;
             }
         }
 
         if (civilian == null) {
-            await command.RespondAsync("Unrecognized account.", ephemeral: true);
+            await command.FollowupAsync("Unrecognized account.", ephemeral: true);
             return;
         }
 
@@ -260,6 +260,7 @@ public class RoleSystem {
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandleForceEnlistCommand(SocketSlashCommand command) {
+        await command.DeferAsync();
         
         SocketGuildUser civilian = null;
         var claim = "";
@@ -283,13 +284,13 @@ public class RoleSystem {
                     isStaff = option.Value.ToString() == "True";
                     break;
                 default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                     break;
             }
         }
 
         if (civilian == null) {
-            await command.RespondAsync("Unrecognized account.", ephemeral: true);
+            await command.FollowupAsync("Unrecognized account.", ephemeral: true);
             return;
         }
 
