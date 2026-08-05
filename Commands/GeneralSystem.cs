@@ -134,7 +134,7 @@ public class GeneralSystem {
         {
             switch (option.Name)
             {
-                case "amount":
+                case "name":
                     name = option.Value.ToString();
                     break;
                 default:
