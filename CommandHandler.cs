@@ -318,6 +318,12 @@ public class CommandHandler {
             .AddOption("amount", ApplicationCommandOptionType.Integer, "Number of messages to delete (1-100).", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
+        commands.Add(new SlashCommandBuilder()
+            .WithName("checkclaimed")
+            .WithDescription("Checks if inputted name has been claimed before.")
+            .AddOption("name", ApplicationCommandOptionType.String, "The name to check.", isRequired:true)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
         // commands.Add(new SlashCommandBuilder()
         //     .WithName("parseprecivt")
         //     .WithDescription("Checks for PRECIVT.")
@@ -433,6 +439,9 @@ public class CommandHandler {
                 
             case "purgemessages":
                 await _generalSystem.HandleMassRemoveCommand(command);
+                break;
+            case "checkclaimed":
+                await _generalSystem.HandleCheckClaimedCommand(command);
                 break;
             
             case "postlore":

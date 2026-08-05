@@ -124,4 +124,40 @@ public class GeneralSystem {
         await command.FollowupAsync(string.Join("FAILURES : \n", failures.Select(f => f.ToString())));
         await command.FollowupAsync(string.Join("FAILURES : \n", failures2.Select(f => f.ToString())));
     }
+
+    public async Task HandleCheckClaimedCommand(SocketSlashCommand command) {
+        
+        var channel = command.Channel as ITextChannel;
+        var name = "";
+
+        foreach (var option in command.Data.Options)
+        {
+            switch (option.Name)
+            {
+                case "amount":
+                    name = option.Value.ToString();
+                    break;
+                default:
+                    await command.RespondAsync("Unrecognized option.", ephemeral: true);
+                    return;
+            }
+        }
+        
+        var allClaims = _db.GetAllClaims();
+        
+        var matches = allClaims
+            .Where(m => !string.IsNullOrWhiteSpace(m.Claim) && m.Claim.Contains(name, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (matches.Count == 0) {
+            await command.RespondAsync("No claims found!", ephemeral: true);
+        } else {
+            var matchDesc = "";
+            
+            foreach (var match in matches) {
+                matchDesc += match.Claim + "\n";
+            }
+            await command.RespondAsync(matchDesc, ephemeral: true);
+        }
+    }
 }
