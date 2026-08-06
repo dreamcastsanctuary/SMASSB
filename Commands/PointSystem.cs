@@ -284,11 +284,11 @@ public class PointSystem {
     }
     
     private static readonly Regex BatchLineRegex = new Regex(
-        @"^\s*(?<name>.+?)\s+(?<tokens>(?:[pcr]\d+\s*)+)$",
+        @"^\s*(?<name>.+?)\s+(?<tokens>(?:[pcry]\d+\s*)+)$",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private static readonly Regex TokenRegex = new Regex(
-        @"(?<type>[pcr])(?<value>\d+)",
+        @"(?<type>[pcry])(?<value>\d+)",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
@@ -365,7 +365,7 @@ public class PointSystem {
 
             var name = lineMatch.Groups["name"].Value.Trim();
 
-            int points = 0, currency = 0, recruits = 0;
+            int points = 0, currency = 0, recruits = 0, yen = 0;
             var seenTypes = new HashSet<char>();
             var duplicateFound = false;
 
@@ -382,6 +382,7 @@ public class PointSystem {
                     case 'p': points = value; break;
                     case 'c': currency = value; break;
                     case 'r': recruits = value; break;
+                    case 'y': yen = value; break;
                 }
             }
 
