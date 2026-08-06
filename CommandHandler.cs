@@ -291,6 +291,11 @@ public class CommandHandler {
             .WithDescription("Reads a message link full of 'Name pN rN' lines and applies points / recruits to matching members.")
             .AddOption("message_link", ApplicationCommandOptionType.String, "The link to the message with the point list.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("parsebatchrecruits")
+            .WithDescription("Parses the recruits channel and gives points to all. Can fail.")
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         commands.Add(new SlashCommandBuilder()
             .WithName("removepoints")
@@ -423,6 +428,9 @@ public class CommandHandler {
                 break;
             case "addbatchpoints":
                 await _pointSystem.HandleBatchPoints(command, _client);
+                break;
+            case "parsebatchrecruits":
+                await _pointSystem.HandleBatchRecruits(command);
                 break;
             case "leaderboard":
                 await _pointSystem.Leaderboard(command);

@@ -364,20 +364,27 @@ public class PointSystem {
             var currency = lineMatch.Groups["currency"].Success ? int.Parse(lineMatch.Groups["currency"].Value) : 0;
             var recruits = lineMatch.Groups["recruits"].Success ? int.Parse(lineMatch.Groups["recruits"].Value) : 0;
 
-            var matches = allClaims
-                .Where(m => !string.IsNullOrWhiteSpace(m.Claim) && m.Claim.Contains(name, StringComparison.OrdinalIgnoreCase))
+            var scored = allClaims
+                .Where(m => !string.IsNullOrWhiteSpace(m.Claim))
+                .Select(m => new { Claim = m, Distance = FuzzyContainsDistance(m.Claim, name) })
+                .Where(x => x.Distance <= MaxAllowedDistance(name))
+                .OrderBy(x => x.Distance)
                 .ToList();
 
-            if (matches.Count == 0) {
+            if (scored.Count == 0) {
                 notFound.Add(name);
                 continue;
             }
+
+            var bestDistance = scored[0].Distance;
+            var matches = scored.Where(x => x.Distance == bestDistance).Select(x => x.Claim).ToList();
 
             if (matches.Count > 1) {
                 ambiguous.Add($"{name} (matched: {string.Join(", ", matches.Select(m => m.Claim))})");
                 continue;
             }
 
+            var wasFuzzy = bestDistance > 0;
             var userId = ulong.Parse(matches[0].UserId);
             
             if (points > 0) await _db.AddPoints(userId, points);
@@ -390,7 +397,9 @@ public class PointSystem {
             if (recruits > 0) summary += $" and ***{recruits}*** recruit{(recruits == 1 ? "" : "s")}";
             summary += $". They now have ***{currentPoints}*** point{(currentPoints == 1 ? "" : "s")}";
             if (recruits > 0) summary += $" and have scouted ***{currentRecruits}*** recruit{(currentRecruits == 1 ? "" : "s")} in total";
-            summary += ".\n";
+            summary += ".";
+            if (wasFuzzy) summary += $" *(matched \"{name}\" → \"{matches[0].Claim}\", {bestDistance} char{(bestDistance == 1 ? "" : "s")} off)*";
+            summary += "\n";
             
             if (currency != 0) {
                 SocketGuildUser member = guild.GetUser(userId);
@@ -440,6 +449,40 @@ public class PointSystem {
 
         await command.FollowupAsync(embed: embedBuilder.Build());
     }
+
+    public async Task HandleBatchRecruits(SocketSlashCommand command) {
+
+        await command.DeferAsync(ephemeral: true);
+
+        var channel = command.Channel;
+        var messagesAsync = channel.GetMessagesAsync();
+        
+        var cutoff = DateTimeOffset.UtcNow.AddDays(-3);
+        var stopped = false;
+        var desc = "";
+
+        await foreach (var batch in messagesAsync) {
+            foreach (var message in batch) {
+                var user = message.Author as SocketGuildUser;
+                
+                if (message.Timestamp < cutoff) {
+                    stopped = true;
+                    break;
+                }
+                try {
+                    await _db.AddPoints(user.Id, 1);
+                    await _db.AddRecruits(user.Id, 1);
+                    desc += $"Parsed **{user.Nickname ?? user.Username}**'s message successfully.\n";
+                } catch {
+                    await command.FollowupAsync($"Failed to parse message sent by **{user.Nickname ?? user.Username}**. Run the /addpoints command for them instead.", ephemeral: true);
+                }
+            }
+            if (stopped) break;
+        }
+        
+        await command.FollowupAsync(desc + "\n\nFeel free to use /purgemessages to remove the above messages.", ephemeral: false);
+    }
+
 
     public async Task Leaderboard(SocketSlashCommand command) {
     
@@ -650,5 +693,50 @@ public class PointSystem {
             case 3: return number + "RD";
             default: return number + "TH";
         }
+    }
+    
+    private static int MaxAllowedDistance(string name) {
+        if (name.Length <= 4) return 1;
+        return Math.Min(2, name.Length / 5 + 1);
+    }
+
+    private static int FuzzyContainsDistance(string haystack, string needle) {
+        
+        if (haystack.Contains(needle, StringComparison.OrdinalIgnoreCase)) return 0;
+        if (haystack.Length < needle.Length - 1) return LevenshteinDistance(haystack, needle);
+
+        int best = int.MaxValue;
+        int n = needle.Length;
+
+        for (int windowLen = Math.Max(1, n - 1); windowLen <= n + 1 && windowLen <= haystack.Length; windowLen++) {
+            for (int start = 0; start <= haystack.Length - windowLen; start++) {
+                var window = haystack.Substring(start, windowLen);
+                int dist = LevenshteinDistance(window, needle);
+                if (dist < best) best = dist;
+                if (best == 0) return 0;
+            }
+        }
+        return best;
+    }
+
+    private static int LevenshteinDistance(string a, string b) {
+        
+        a = a.ToLowerInvariant();
+        b = b.ToLowerInvariant();
+        var dp = new int[a.Length + 1, b.Length + 1];
+
+        for (int i = 0; i <= a.Length; i++) dp[i, 0] = i;
+        for (int j = 0; j <= b.Length; j++) dp[0, j] = j;
+
+        for (int i = 1; i <= a.Length; i++) {
+            for (int j = 1; j <= b.Length; j++) {
+                int cost = a[i - 1] == b[j - 1] ? 0 : 1;
+                dp[i, j] = Math.Min(
+                    Math.Min(dp[i - 1, j] + 1, dp[i, j - 1] + 1),
+                    dp[i - 1, j - 1] + cost);
+            }
+        }
+
+        return dp[a.Length, b.Length];
     }
 }
