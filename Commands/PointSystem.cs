@@ -284,7 +284,11 @@ public class PointSystem {
     }
     
     private static readonly Regex BatchLineRegex = new Regex(
-        @"^\s*(?<name>.+?)\s+p(?<points>\d+)\s+c(?<currency>\d+)(?:\s+r(?<recruits>\d+))?\s*$",
+        @"^\s*(?<name>.+?)\s+(?<tokens>(?:[pcr]\d+\s*)+)$",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex TokenRegex = new Regex(
+        @"(?<type>[pcr])(?<value>\d+)",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
@@ -360,9 +364,31 @@ public class PointSystem {
             }
 
             var name = lineMatch.Groups["name"].Value.Trim();
-            var points = int.Parse(lineMatch.Groups["points"].Value);
-            var currency = lineMatch.Groups["currency"].Success ? int.Parse(lineMatch.Groups["currency"].Value) : 0;
-            var recruits = lineMatch.Groups["recruits"].Success ? int.Parse(lineMatch.Groups["recruits"].Value) : 0;
+
+            int points = 0, currency = 0, recruits = 0;
+            var seenTypes = new HashSet<char>();
+            var duplicateFound = false;
+
+            foreach (Match token in TokenRegex.Matches(lineMatch.Groups["tokens"].Value)) {
+                var type = char.ToLowerInvariant(token.Groups["type"].Value[0]);
+
+                if (!seenTypes.Add(type)) {
+                    duplicateFound = true;
+                    break;
+                }
+
+                var value = int.Parse(token.Groups["value"].Value);
+                switch (type) {
+                    case 'p': points = value; break;
+                    case 'c': currency = value; break;
+                    case 'r': recruits = value; break;
+                }
+            }
+
+            if (duplicateFound) {
+                notFound.Add($"Couldn't parse: \"{line}\"");
+                continue;
+            }
 
             var scored = allClaims
                 .Where(m => !string.IsNullOrWhiteSpace(m.Claim))
