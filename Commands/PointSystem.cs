@@ -452,7 +452,7 @@ public class PointSystem {
 
     public async Task HandleBatchRecruits(SocketSlashCommand command) {
 
-        await command.DeferAsync(ephemeral: true);
+        await command.DeferAsync();
 
         var channel = command.Channel;
         var messagesAsync = channel.GetMessagesAsync();
@@ -480,7 +480,7 @@ public class PointSystem {
             if (stopped) break;
         }
         
-        await command.FollowupAsync(desc + "\n\nFeel free to use /purgemessages to remove the above messages.", ephemeral: false);
+        await command.FollowupAsync(desc + "\n\nFeel free to use /purgemessages to remove the above messages.");
     }
 
 
