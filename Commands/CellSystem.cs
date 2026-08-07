@@ -250,6 +250,7 @@ public class CellSystem {
                 .Build();
 
             await component.UpdateAsync(msg => {
+                msg.Attachments = new List<FileAttachment> { cellAttachment };
                 msg.Components = components;
                 msg.Flags = MessageFlags.ComponentsV2;
             });
