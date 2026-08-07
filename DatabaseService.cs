@@ -92,6 +92,32 @@ public class DatabaseService
         ";
         
         command.ExecuteNonQuery();
+        MigrateWorkCellTable(connection);
+    }
+    
+    private void MigrateWorkCellTable(SqliteConnection connection) {
+
+        var existingColumns = new HashSet<string>();
+        var pragmaCmd = connection.CreateCommand();
+        pragmaCmd.CommandText = "PRAGMA table_info(WorkCell);";
+
+        using (var reader = pragmaCmd.ExecuteReader()) {
+            while (reader.Read()) {
+                existingColumns.Add(reader.GetString(reader.GetOrdinal("name")));
+            }
+        }
+
+        void AddColumnIfMissing(string columnName) {
+            if (existingColumns.Contains(columnName)) return;
+
+            var alterCmd = connection.CreateCommand();
+            alterCmd.CommandText = $"ALTER TABLE WorkCell ADD COLUMN {columnName} TEXT;";
+            alterCmd.ExecuteNonQuery();
+        }
+
+        AddColumnIfMissing("CaseType");
+        AddColumnIfMissing("WallpaperType");
+        AddColumnIfMissing("CharmType");
     }
 
     public async Task PreEnlist(SocketSlashCommand command,
