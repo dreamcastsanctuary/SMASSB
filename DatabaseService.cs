@@ -1511,7 +1511,7 @@ public class DatabaseService
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = "SELECT Collected FROM Id WHERE UserId = $id;";
+        command.CommandText = "SELECT Collected FROM WorkCell WHERE UserId = $id;";
         command.Parameters.AddWithValue("$id", userId.ToString());
 
         var result = await command.ExecuteScalarAsync();
