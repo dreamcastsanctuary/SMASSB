@@ -1,13 +1,12 @@
 ﻿using System.Text;
 using System.Text.Json;
 using Discord;
-using Discord.Interactions;
 using Discord.WebSocket;
 using SMASSB.Data;
 
 namespace SMASSB.Commands;
 
-public class CellSystem : InteractionModuleBase<SocketInteractionContext> {
+public class CellSystem {
 
     private DatabaseService _db;
     private static readonly HttpClient _httpClient = new HttpClient();
@@ -48,18 +47,20 @@ public class CellSystem : InteractionModuleBase<SocketInteractionContext> {
         );
     }
 
-    [ComponentInteraction("launch_emulatorjs")]
-    private async Task HandleLaunchEmulatorJs() {
+    public async Task HandleLaunchEmulatorJs(SocketMessageComponent component) {
 
-        var interaction = Context.Interaction;
         var payload = new { type = 12 };
         var json = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 
-        var response = await _httpClient.PostAsync($"https://discord.com/api/v10/interactions/{interaction.Id}/{interaction.Token}/callback", json);
+        var response = await _httpClient.PostAsync(
+            $"https://discord.com/api/v10/interactions/{component.Id}/{component.Token}/callback",
+            json
+        );
 
         if (!response.IsSuccessStatusCode) {
             var errorBody = await response.Content.ReadAsStringAsync();
-            await Context.Interaction.RespondAsync("Couldn't launch the Activity. Make sure it's registered and enabled for this app.", ephemeral: true);
+            Console.WriteLine($"LaunchActivity failed: {response.StatusCode} - {errorBody}");
+            await component.RespondAsync("Couldn't launch the Activity. Make sure it's registered and enabled for this app.", ephemeral: true);
         }
     }
 
@@ -217,8 +218,7 @@ public class CellSystem : InteractionModuleBase<SocketInteractionContext> {
             await _db.RemoveApp(member.Id, app);
     }
 
-    [ComponentInteraction("flip_over:*")]
-    private async Task HandleFlipOver(string state) {
+    public async Task HandleFlipOver(SocketMessageComponent component, string state) {
 
         try {
             var parts = state.Split('|');
@@ -249,17 +249,15 @@ public class CellSystem : InteractionModuleBase<SocketInteractionContext> {
                 .AddComponent(container)
                 .Build();
 
-            var componentInteraction = (SocketMessageComponent)Context.Interaction;
-
-            await componentInteraction.UpdateAsync(msg => {
+            await component.UpdateAsync(msg => {
                 msg.Components = components;
                 msg.Flags = MessageFlags.ComponentsV2;
             });
         } catch (Exception ex) {
             Console.WriteLine($"HandleFlipOver failed: {ex}");
 
-            if (!Context.Interaction.HasResponded) {
-                await Context.Interaction.RespondAsync("Something went wrong flipping the cell.", ephemeral: true);
+            if (!component.HasResponded) {
+                await component.RespondAsync("Something went wrong flipping the cell.", ephemeral: true);
             }
         }
     }

@@ -1031,19 +1031,29 @@ public class CommandHandler {
     }
     
     public async Task ButtonHandler(SocketMessageComponent component) {
-    
+
         var id = component.Data.CustomId;
-    
+
+        if (id.StartsWith("flip_over:")) {
+            await _cellSystem.HandleFlipOver(component, id.Substring("flip_over:".Length));
+            return;
+        }
+
+        if (id == "launch_emulatorjs") {
+            await _cellSystem.HandleLaunchEmulatorJs(component);
+            return;
+        }
+
         if (id.StartsWith("leaderboard_back_") || id.StartsWith("leaderboard_next_")) {
-        
+
             var parts = id.Split('_');
             int currentPage = int.Parse(parts[2]);
             int newPage = id.StartsWith("leaderboard_back_") ? currentPage - 1 : currentPage + 1;
-        
+
             var entries = _db.GetLeaderboard();
             var embed = _pointSystem.BuildLeaderboardEmbed(entries, newPage);
             var components = _pointSystem.BuildLeaderboardComponents(newPage, entries.Count);
-        
+
             await component.UpdateAsync(x => {
                 x.Embed = embed;
                 x.Components = components;
