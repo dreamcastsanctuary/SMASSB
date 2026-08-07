@@ -46,9 +46,12 @@ public class DatabaseService
             CREATE TABLE IF NOT EXISTS WorkCell (
                 UserId TEXT PRIMARY KEY,
                 Yen INTEGER NOT NULL DEFAULT 0,
-                Cases TEXT NOT NULL,
-                Wallpapers TEXT NOT NULL,
+                Cases TEXT,
+                CaseType TEXT,
+                Wallpapers TEXT,
+                WallpaperType TEXT,
                 Charms TEXT,
+                CharmType TEXT,
                 Apps TEXT,
                 Collected TEXT
             );
@@ -1360,7 +1363,7 @@ public class DatabaseService
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = "SELECT Charms FROM WorkCell WHERE UserId = $id;";
+        command.CommandText = "SELECT CharmType FROM WorkCell WHERE UserId = $id;";
         command.Parameters.AddWithValue("$id", userId.ToString());
         
         var result = await command.ExecuteScalarAsync();
@@ -1375,7 +1378,7 @@ public class DatabaseService
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = "UPDATE WorkCell SET Charms = $charmType WHERE UserId = $id;";
+        command.CommandText = "UPDATE WorkCell SET CharmType = $charmType WHERE UserId = $id;";
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$charmType", charmType);
         
@@ -1388,7 +1391,7 @@ public class DatabaseService
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = "SELECT Cases FROM WorkCell WHERE UserId = $id;";
+        command.CommandText = "SELECT CaseType FROM WorkCell WHERE UserId = $id;";
         command.Parameters.AddWithValue("$id", userId.ToString());
         
         var result = await command.ExecuteScalarAsync();
@@ -1403,7 +1406,7 @@ public class DatabaseService
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = "UPDATE WorkCell SET Cases = $caseType WHERE UserId = $id;";
+        command.CommandText = "UPDATE WorkCell SET CaseType = $caseType WHERE UserId = $id;";
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$caseType", caseType);
         
@@ -1416,7 +1419,7 @@ public class DatabaseService
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = "SELECT Wallpapers FROM WorkCell WHERE UserId = $id;";
+        command.CommandText = "SELECT WallpaperType FROM WorkCell WHERE UserId = $id;";
         command.Parameters.AddWithValue("$id", userId.ToString());
         
         var result = await command.ExecuteScalarAsync();
@@ -1431,7 +1434,7 @@ public class DatabaseService
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = "UPDATE WorkCell SET Wallpapers = $wallpaperType WHERE UserId = $id;";
+        command.CommandText = "UPDATE WorkCell SET WallpaperType = $wallpaperType WHERE UserId = $id;";
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$wallpaperType", wallpaperType);
         
