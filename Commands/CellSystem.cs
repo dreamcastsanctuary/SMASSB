@@ -220,41 +220,48 @@ public class CellSystem : InteractionModuleBase<SocketInteractionContext> {
     [ComponentInteraction("flip_over:*")]
     private async Task HandleFlipOver(string state) {
 
-        var parts = state.Split('|');
-        var currentSide = parts[0];
-        var caseType = parts[1];
-        var charmType = parts[2];
-        var wallpaperType = parts[3];
-        var hasEmulatorApp = bool.Parse(parts[4]);
+        try {
+            var parts = state.Split('|');
+            var currentSide = parts[0];
+            var caseType = parts[1];
+            var charmType = parts[2];
+            var wallpaperType = parts[3];
+            var hasEmulatorApp = bool.Parse(parts[4]);
 
-        var nextSide = currentSide == "front" ? "back" : "front";
-        var isFrontNext = nextSide == "front";
+            var nextSide = currentSide == "front" ? "back" : "front";
+            var isFrontNext = nextSide == "front";
 
-        var nextCustomId = $"flip_over:{nextSide}|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
+            var nextCustomId = $"flip_over:{nextSide}|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
 
-        var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: isFrontNext);
+            var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: isFrontNext);
 
-        var container = new ContainerBuilder()
-            .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
-            .AddComponent(new ActionRowBuilder().WithButton("Flip Cell Over", customId: nextCustomId, style: ButtonStyle.Primary));
+            var container = new ContainerBuilder()
+                .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
+                .AddComponent(new ActionRowBuilder().WithButton("Flip Cell Over", customId: nextCustomId, style: ButtonStyle.Primary));
 
-        if (hasEmulatorApp) {
-            var actionRow = new ActionRowBuilder()
-                .WithButton("Play Rhythm Tengoku", customId: "launch_emulatorjs", style: ButtonStyle.Secondary);
+            if (hasEmulatorApp) {
+                var actionRow = new ActionRowBuilder()
+                    .WithButton("Play Rhythm Tengoku", customId: "launch_emulatorjs", style: ButtonStyle.Secondary);
+                container.AddComponent(actionRow);
+            }
 
-            container.AddComponent(actionRow);
+            var components = new ComponentBuilderV2()
+                .AddComponent(container)
+                .Build();
+
+            var componentInteraction = (SocketMessageComponent)Context.Interaction;
+
+            await componentInteraction.UpdateAsync(msg => {
+                msg.Components = components;
+                msg.Flags = MessageFlags.ComponentsV2;
+            });
+        } catch (Exception ex) {
+            Console.WriteLine($"HandleFlipOver failed: {ex}");
+
+            if (!Context.Interaction.HasResponded) {
+                await Context.Interaction.RespondAsync("Something went wrong flipping the cell.", ephemeral: true);
+            }
         }
-
-        var components = new ComponentBuilderV2()
-            .AddComponent(container)
-            .Build();
-
-        var componentInteraction = (SocketMessageComponent)Context.Interaction;
-        
-        await componentInteraction.UpdateAsync(msg => {
-            msg.Components = components;
-            msg.Flags = MessageFlags.ComponentsV2;
-        });
     }
 
     private static (FileAttachment Attachment, string Url) GetCellImage(string caseType, string charmType, string wallpaperType, bool isFront) {
