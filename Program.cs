@@ -51,11 +51,13 @@ public class Program {
         _client.MessageReceived += _meetingSystem.HandleMeetingMessage;
         
         _client.AutocompleteExecuted += async (interaction) => {
-            
-            if (interaction.Data.CommandName != "editid") return;
-            if (interaction.Data.Current.Name != "id_type") return;
-            
-            await _commandHandler.IdAutocompleteHandler(interaction);
+
+            if (interaction.Data.Current.Name == "id_type") { await _commandHandler.IdAutocompleteHandler(interaction); }
+            if (interaction.Data.Current.Name == "add_apps") { await _commandHandler.CollectedAppAutocompleteHandler(interaction); }
+            if (interaction.Data.Current.Name == "remove_apps") { await _commandHandler.AppAutocompleteHandler(interaction); }
+            if (interaction.Data.Current.Name == "case_type") { await _commandHandler.CaseAutocompleteHandler(interaction); }
+            if (interaction.Data.Current.Name == "charm_type") { await _commandHandler.CharmAutocompleteHandler(interaction); }
+            if (interaction.Data.Current.Name == "wallpaper_type") { await _commandHandler.WallpaperAutocompleteHandler(interaction); }
         };
         
         
@@ -119,6 +121,8 @@ public class Program {
             .AddSingleton<PointSystem>()
             .AddSingleton<GeneralSystem>()
             .AddSingleton<LoreSystem>()
+            .AddSingleton<CellSystem>()
+            .AddSingleton<ShopSystem>()
             
             .BuildServiceProvider();
     }

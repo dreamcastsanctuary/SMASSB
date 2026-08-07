@@ -1,6 +1,6 @@
 ﻿namespace SMASSB.Data;
 
-public enum FrameType {
+public enum CharmType {
     
     NONE
 }

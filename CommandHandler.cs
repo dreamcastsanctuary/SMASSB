@@ -17,6 +17,8 @@ public class CommandHandler {
     private PointSystem _pointSystem;
     private GeneralSystem _generalSystem;
     private LoreSystem _loreSystem;
+    private CellSystem _cellSystem;
+    private ShopSystem _shopSystem;
     private DatabaseService _db;
 
     public CommandHandler(DiscordSocketClient client,
@@ -27,6 +29,8 @@ public class CommandHandler {
                           PointSystem pointSystem,
                           GeneralSystem generalSystem,
                           LoreSystem loreSystem,
+                          CellSystem cellSystem,
+                          ShopSystem shopSystem,
                           DatabaseService db) {
         
         _client = client;
@@ -38,6 +42,8 @@ public class CommandHandler {
         _pointSystem = pointSystem;
         _generalSystem = generalSystem;
         _loreSystem = loreSystem;
+        _cellSystem = cellSystem;
+        _shopSystem = shopSystem;
         _db = db;
     }
     public async Task RegisterCommands(SocketGuild guild) {
@@ -191,10 +197,7 @@ public class CommandHandler {
                 .WithName("bloodtype")
                 .WithDescription("The bloodtype of the member / character")
                 .WithRequired(false)
-                .AddChoice("O (Optimistic)", "O (Optimistic)")
-                .AddChoice("A (Patient)", "A (Patient)")
-                .AddChoice("B (Active)", "B (Active)")
-                .AddChoice("AB (Rational)", "AB (Rational)")
+                .AddChoice("O (Optimistic)", "O (Optimistic)").AddChoice("A (Patient)", "A (Patient)").AddChoice("B (Active)", "B (Active)").AddChoice("AB (Rational)", "AB (Rational)")
                 .WithType(ApplicationCommandOptionType.String))
             .AddOption(new SlashCommandOptionBuilder()
                 .WithName("id_type")
@@ -279,8 +282,6 @@ public class CommandHandler {
             .WithName("addpoints")
             .WithDescription("Adds points to a member.")
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
-            .AddOption("enlisted11", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted12", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted13", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted14", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted15", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted16", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted17", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted18", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted19", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted20", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
-            .AddOption("enlisted21", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted22", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
             .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to add.", isRequired: true)
             .AddOption("recruitpoints", ApplicationCommandOptionType.Integer, "How many recruits did this person get? (If applicable.)")
             .AddOption("currency", ApplicationCommandOptionType.Integer, "How many star pieces did this person get? (If applicable.)")
@@ -301,15 +302,13 @@ public class CommandHandler {
             .WithName("removepoints")
             .WithDescription("Removes points from a member.")
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
-            .AddOption("enlisted11", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted12", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted13", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted14", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted15", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted16", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted17", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted18", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted19", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted20", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
-            .AddOption("enlisted21", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted22", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
             .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to remove.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
-        commands.Add(new SlashCommandBuilder()
-            .WithName("festivalrewards")
-            .WithDescription("Rewards people over 10 currency the given festival rewards.")
-            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+        // commands.Add(new SlashCommandBuilder()
+        //     .WithName("festivalrewards")
+        //     .WithDescription("Rewards people over 10 currency the given festival rewards.")
+        //     .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
         // commands.Add(new SlashCommandBuilder()
         //     .WithName("restoreprogress")
@@ -346,6 +345,103 @@ public class CommandHandler {
             .WithName("postlore")
             .WithDescription("Posts... posts lore.")
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
+        
+        // CELLSYSTEM
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("showworkcell")
+            .WithDescription("Shows your Work Cellphone.")
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("editworkcell")
+            .WithDescription("Edits your Work Cellphone.")
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("add_apps")
+                .WithDescription("Any apps need adding?")
+                .WithRequired(false)
+                .WithType(ApplicationCommandOptionType.String)
+                .WithAutocomplete(true))
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("remove_apps")
+                .WithDescription("Any apps need removing?")
+                .WithRequired(false)
+                .WithType(ApplicationCommandOptionType.String)
+                .WithAutocomplete(true))
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("case_type")
+                .WithDescription("The Case to display.")
+                .WithRequired(false)
+                .WithType(ApplicationCommandOptionType.String)
+                .WithAutocomplete(true))
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("charm_type")
+                .WithDescription("The Charm to display.")
+                .WithRequired(false)
+                .WithType(ApplicationCommandOptionType.String)
+                .WithAutocomplete(true))
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("wallpaper_type")
+                .WithDescription("The Wallpaper to display.")
+                .WithRequired(false)
+                .WithType(ApplicationCommandOptionType.String)
+                .WithAutocomplete(true))
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("showotherworkcell")
+            .WithDescription("Shows another member's Work Cellphone.")
+            .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("addyen")
+            .WithDescription("Adds yen to a member.")
+            .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
+            .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to add.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("removeyen")
+            .WithDescription("Removes yen from a member.")
+            .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
+            .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to remove.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+        
+        
+        
+        
+        var appOption = new SlashCommandOptionBuilder()
+            .WithName("app")
+            .WithDescription("The App to give.")
+            .WithType(ApplicationCommandOptionType.String)
+            .WithRequired(true);
+
+        foreach (var name in Enum.GetNames<AppType>())
+            appOption.AddChoice(name, name);
+
+        commands.Add(new SlashCommandBuilder()
+            .WithName("givecellapp")
+            .WithDescription("Give a member a WorkCell app.")
+            .AddOption("member", ApplicationCommandOptionType.User, "The member the ID will go to.", isRequired: true)
+            .AddOption(appOption)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
+        );
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("removecellapp")
+            .WithDescription("Remove an app from a member's WorkCell.")
+            .AddOption("member", ApplicationCommandOptionType.User, "The member.", isRequired: true)
+            .AddOption(appOption)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
+        );
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("givecell")
+            .WithDescription("Let's hope this works.")
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+        
+        // SHOPSYSTEM
         
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
@@ -454,6 +550,32 @@ public class CommandHandler {
             
             case "postlore":
                 await _loreSystem.PostLore(command);
+                break;
+            
+            case "showworkcell":
+                await _cellSystem.ShowWorkCell(command);
+                break;
+            case "editworkcell":
+                await _cellSystem.EditWorkCell(command);
+                break;
+            case "showotherworkcell":
+                await _cellSystem.ShowWorkCell(command);
+                break;
+            case "addyen":
+                await _cellSystem.EditYen(command, true);
+                break;
+            case "removeyen":
+                await _cellSystem.EditYen(command, false);
+                break;
+            case "givecellapp":
+                await _cellSystem.EditApp(command, true);
+                break;
+            case "removecellapp":
+                await _cellSystem.EditApp(command, false);
+                break;
+            
+            case "givecell":
+                await _db.GiveCell(command);
                 break;
             
             default:
@@ -937,6 +1059,66 @@ public class CommandHandler {
         var results = collected
             .Where(id => string.IsNullOrEmpty(typed) || id.Contains(typed, StringComparison.OrdinalIgnoreCase))
             .Select(id => new AutocompleteResult(id, id));
+
+        await interaction.RespondAsync(results);
+    }
+    
+    public async Task AppAutocompleteHandler(SocketAutocompleteInteraction interaction) {
+        
+        var collected = await _db.GetApps(interaction.User.Id);
+        var typed = (string)interaction.Data.Current.Value;
+
+        var results = collected
+            .Where(app => string.IsNullOrEmpty(typed) || app.Contains(typed, StringComparison.OrdinalIgnoreCase))
+            .Select(app => new AutocompleteResult(app, app));
+
+        await interaction.RespondAsync(results);
+    }
+    
+    public async Task CollectedAppAutocompleteHandler(SocketAutocompleteInteraction interaction) {
+        
+        var collected = await _db.GetCollectedApps(interaction.User.Id);
+        var typed = (string)interaction.Data.Current.Value;
+
+        var results = collected
+            .Where(app => string.IsNullOrEmpty(typed) || app.Contains(typed, StringComparison.OrdinalIgnoreCase))
+            .Select(app => new AutocompleteResult(app, app));
+
+        await interaction.RespondAsync(results);
+    }
+    
+    public async Task CaseAutocompleteHandler(SocketAutocompleteInteraction interaction) {
+        
+        var collected = await _db.GetCases(interaction.User.Id);
+        var typed = (string)interaction.Data.Current.Value;
+
+        var results = collected
+            .Where(cellCase => string.IsNullOrEmpty(typed) || cellCase.Contains(typed, StringComparison.OrdinalIgnoreCase))
+            .Select(cellCase => new AutocompleteResult(cellCase, cellCase));
+
+        await interaction.RespondAsync(results);
+    }
+    
+    public async Task CharmAutocompleteHandler(SocketAutocompleteInteraction interaction) {
+        
+        var collected = await _db.GetCharms(interaction.User.Id);
+        var typed = (string)interaction.Data.Current.Value;
+
+        var results = collected
+            .Where(charm => string.IsNullOrEmpty(typed) || charm.Contains(typed, StringComparison.OrdinalIgnoreCase))
+            .Select(charm => new AutocompleteResult(charm, charm));
+
+        await interaction.RespondAsync(results);
+    }
+    
+    public async Task WallpaperAutocompleteHandler(SocketAutocompleteInteraction interaction) {
+        
+        var collected = await _db.GetWallpapers(interaction.User.Id);
+        var typed = (string)interaction.Data.Current.Value;
+
+        var results = collected
+            .Where(wallpaper => string.IsNullOrEmpty(typed) || wallpaper.Contains(typed, StringComparison.OrdinalIgnoreCase))
+            .Select(wallpaper => new AutocompleteResult(wallpaper, wallpaper));
 
         await interaction.RespondAsync(results);
     }

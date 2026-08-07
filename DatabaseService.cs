@@ -43,6 +43,21 @@ public class DatabaseService
                 Frames TEXT
             );
 
+            CREATE TABLE IF NOT EXISTS WorkCell (
+                UserId TEXT PRIMARY KEY,
+                Yen INTEGER NOT NULL DEFAULT 0,
+                Cases TEXT NOT NULL,
+                Wallpapers TEXT NOT NULL,
+                Charms TEXT,
+                Apps TEXT,
+                Collected TEXT
+            );
+
+            CREATE TABLE IF NOT EXISTS Shop (
+                Item TEXT PRIMARY KEY,
+                Cost INTEGER NOT NULL DEFAULT 0
+            );
+
             CREATE TABLE IF NOT EXISTS Addons (
                 UserId TEXT PRIMARY KEY,
                 IsProspect TINYINT NOT NULL DEFAULT 0,
@@ -52,11 +67,13 @@ public class DatabaseService
                 IsFan TINYINT NOT NULL DEFAULT 0
             );
 
-            CREATE TABLE IF NOT EXISTS Unenrolled (
+            CREATE TABLE IF NOT EXISTS EnrolledHistory (
                 UserId TEXT PRIMARY KEY,
                 Claim TEXT,
                 Rank TEXT NOT NULL,
                 Points INTEGER DEFAULT 0,
+                Recruits INTEGER NOT NULL DEFAULT 0,
+                IDType TEXT NOT NULL,
                 Username TEXT NOT NULL
             );
 
@@ -86,10 +103,13 @@ public class DatabaseService
                           string bloodtypeParam,
                           string catchphraseParam,
                           string usernameParam,
-                          string idTypeParam) {
+                          string idTypeParam,
+                          string caseParam,
+                          string charmParam,
+                          string wallpaperParam) {
         
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        await connection.OpenAsync();
         
         var cmd = connection.CreateCommand();
         cmd.CommandText = "INSERT INTO Enrolled (UserId, Claim, AvatarUrl, Rank, Points, Recruits, Bloodtype, Catchphrase, Username, IDType) VALUES ($accIdParam, $claimParam, $avatarUrlParam, $rankParam, $pointsParam, $recruitsParam, $bloodtypeParam, $catchphraseParam, $usernameParam, $idTypeParam);";
@@ -109,8 +129,30 @@ public class DatabaseService
         await command.FollowupAsync("Processed Prospect into Database.");
 
         await GiveNewId(ulong.Parse(accIdParam), idTypeParam);
+        await GiveNewCase(ulong.Parse(accIdParam), caseParam);
+        await GiveNewCharm(ulong.Parse(accIdParam), charmParam);
+        await GiveNewWallpaper(ulong.Parse(accIdParam), wallpaperParam);
         await IdSystem.BuildId(command, member, claimParam, null, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, catchphraseParam, usernameParam, idTypeParam);
         }
+
+    public async Task GiveCell(SocketSlashCommand command) {
+        
+        using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+        
+        var cmd = connection.CreateCommand();
+        
+        cmd.ExecuteNonQuery();
+        
+        await command.FollowupAsync("Probably done.");
+
+        foreach (var enlisted in GetEnlisted()) {
+            
+            await GiveNewCase(ulong.Parse(enlisted), "BLACK");
+            await GiveNewCharm(ulong.Parse(enlisted), "NONE");
+            await GiveNewWallpaper(ulong.Parse(enlisted), "BASIC");
+        }
+    }
     
 // UNENROLL CHECK COMMANDS.
     
@@ -343,6 +385,28 @@ public class DatabaseService
         
         return -1;
     }
+    
+    private async Task<int> UnderflowYen(ulong userId) {
+        
+        using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT COUNT(1) FROM WorkCell WHERE UserId = $id AND Yen < 0;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        
+        var result = await command.ExecuteScalarAsync();
+        var ans = Convert.ToInt32(result) > 0;
+
+        if (ans) {
+            var command2 = connection.CreateCommand();
+            command2.CommandText = "UPDATE WorkCell SET Yen = 0 WHERE UserId = $id;";
+            command2.Parameters.AddWithValue("$id", userId.ToString());
+            return await command2.ExecuteNonQueryAsync();
+        }
+        
+        return -1;
+    }
 
     public async Task<string> GetClaim(ulong userId) {
         
@@ -538,7 +602,7 @@ public class DatabaseService
     
     public List<string> GetEnlisted() {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        connection.OpenAsync();
 
         var cmd = connection.CreateCommand();
         cmd.CommandText = "SELECT UserId FROM Enrolled ORDER BY Points DESC;";
@@ -554,7 +618,7 @@ public class DatabaseService
     
     public List<(string UserId, string Claim)> GetAllClaims() {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        connection.OpenAsync();
 
         var cmd = connection.CreateCommand();
         cmd.CommandText = "SELECT UserId, Claim FROM Enrolled;";
@@ -611,7 +675,7 @@ public class DatabaseService
 
     public string? GetStarboardMessageId(ulong originalMessageId) {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        connection.OpenAsync();
     
         var command = connection.CreateCommand();
         command.CommandText = "SELECT StarboardId FROM Starboard WHERE OriginalId = $id";
@@ -623,7 +687,7 @@ public class DatabaseService
 
     public void SaveStarboardMessageId(ulong originalMessageId, ulong starboardMessageId) {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        connection.OpenAsync();
     
         var command = connection.CreateCommand();
         command.CommandText = @"
@@ -636,7 +700,7 @@ public class DatabaseService
     
     public void DeleteStarboardEntry(ulong originalMessageId) {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        connection.OpenAsync();
     
         var command = connection.CreateCommand();
         command.CommandText = "DELETE FROM Starboard WHERE OriginalId = $id";
@@ -646,7 +710,7 @@ public class DatabaseService
     
     public List<(string UserId, string Username, int Points)> GetLeaderboard() {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        connection.OpenAsync();
     
         var cmd = connection.CreateCommand();
         cmd.CommandText = "SELECT UserId, Username, Points FROM Enrolled ORDER BY Points DESC;";
@@ -664,7 +728,7 @@ public class DatabaseService
 
     public ulong? GetStatChannel(ulong guildId) {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        connection.OpenAsync();
 
         var cmd = connection.CreateCommand();
         cmd.CommandText = @"SELECT ChannelId FROM StatChannel WHERE GuildId = $guildId;";
@@ -676,7 +740,7 @@ public class DatabaseService
 
     public void SetStatChannel(ulong guildId, ulong channelId) {
         using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        connection.OpenAsync();
 
         var cmd = connection.CreateCommand();
         cmd.CommandText = @"
@@ -693,7 +757,7 @@ public class DatabaseService
     public async Task<int> SetIsProspect(ulong userId, bool hit) {
         
         await using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        connection.OpenAsync();
         var command = connection.CreateCommand();
         command.CommandText = @"INSERT INTO Addons (UserId, IsProspect) VALUES ($id, $hit)
                                 ON CONFLICT(UserId) DO UPDATE SET IsProspect = $hit";
@@ -743,7 +807,7 @@ public class DatabaseService
     public async Task<int> SetIsEnlisted(ulong userId, bool hit) {
         
         await using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        connection.OpenAsync();
         var command = connection.CreateCommand();
         command.CommandText = @"INSERT INTO Addons (UserId, IsEnlisted) VALUES ($id, $hit)
                                 ON CONFLICT(UserId) DO UPDATE SET IsEnlisted = $hit";
@@ -769,7 +833,7 @@ public class DatabaseService
     public async Task<int> SetIsPartner(ulong userId, bool hit) {
         
         await using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        connection.OpenAsync();
         var command = connection.CreateCommand();
         command.CommandText = @"INSERT INTO Addons (UserId, IsPartner) VALUES ($id, $hit)
                                 ON CONFLICT(UserId) DO UPDATE SET IsPartner = $hit";
@@ -795,7 +859,7 @@ public class DatabaseService
     public async Task<int> SetIsCivilian(ulong userId, bool hit) {
         
         await using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        connection.OpenAsync();
         var command = connection.CreateCommand();
         command.CommandText = @"INSERT INTO Addons (UserId, IsCivilian) VALUES ($id, $hit)
                                 ON CONFLICT(UserId) DO UPDATE SET IsCivilian = $hit";
@@ -821,7 +885,7 @@ public class DatabaseService
     public async Task<int> SetIsFan(ulong userId, bool hit) {
         
         await using var connection = new SqliteConnection(_connectionString);
-        connection.Open();
+        connection.OpenAsync();
         
         var command = connection.CreateCommand();
         command.CommandText = @"INSERT INTO Addons (UserId, IsFan) VALUES ($id, $hit)
@@ -959,6 +1023,479 @@ public class DatabaseService
                               """;
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$frame", json);
+
+        await command.ExecuteNonQueryAsync();
+    }
+    
+    
+    
+    public async Task<int> AddItem(string item, int cost) {
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        connection.OpenAsync();
+        
+        var command = connection.CreateCommand();
+        command.CommandText = @"INSERT INTO Shop (Item, Cost) VALUES ($item, $cost)
+                                ON CONFLICT(Item) DO UPDATE SET Cost = $cost";
+        command.Parameters.AddWithValue("$item", item);
+        command.Parameters.AddWithValue("$cost", cost);
+        
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    public List<(string Item, int Cost)> GetItem(string item) {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.OpenAsync();
+
+        var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT Item, Cost FROM Shop WHERE Item = $item;";
+        cmd.Parameters.AddWithValue("$item", item);
+
+        var results = new List<(string Item, int Cost)>();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read()) {
+            results.Add((reader.GetString(0), reader.IsDBNull(1) ? 0 : reader.GetInt32(1)));
+        }
+
+        return results;
+    }
+
+    public List<(string Item, int Cost)> GetAllItems() {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.OpenAsync();
+
+        var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT Item, Cost FROM Shop;";
+
+        var results = new List<(string Item, int Cost)>();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read()) {
+            results.Add((reader.GetString(0), reader.IsDBNull(1) ? 0 : reader.GetInt32(1)));
+        }
+
+        return results;
+    }
+    
+    public async Task RemoveItem(string item) {
+        
+        using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+        
+        var command = connection.CreateCommand();
+        command.CommandText = @"DELETE FROM Shop WHERE Item = $item;";
+        command.Parameters.AddWithValue("$item", item);
+        await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<int> GetYen(ulong userId) {
+        
+        using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT Yen FROM WorkCell WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+        return result != null ? Convert.ToInt32(result) : 0;
+    }
+
+    public async Task<int> AddYen(ulong userId, int yen) {
+        
+        using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+        
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE WorkCell SET Yen = Yen + $yen WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$yen", yen);
+        
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<int> RemoveYen(ulong userId, int yen) {
+        
+        using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+        
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE WorkCell SET Yen = Yen - $yen WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$yen", yen);
+        await command.ExecuteNonQueryAsync();
+
+        return await UnderflowYen(userId);
+    }
+    
+    public async Task<List<string>> GetCases(ulong userId) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT Cases FROM WorkCell WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+    
+        if (result == null || result == DBNull.Value)
+            return new List<string>();
+
+        return JsonSerializer.Deserialize<List<string>>((string)result) ?? new List<string>();
+    }
+    
+    public async Task GiveNewCase(ulong userId, string cellCase) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var existing = await GetCases(userId);
+        existing.Add(cellCase);
+    
+        var json = JsonSerializer.Serialize(existing);
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO WorkCell (UserId, Cases)
+                              VALUES ($id, $cases)
+                              ON CONFLICT(UserId) DO UPDATE SET Cases = $cases;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$cases", json);
+
+        await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task RemoveCase(ulong userId, string cellCase) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var existing = await GetCases(userId);
+        existing.Remove(cellCase);
+    
+        var json = JsonSerializer.Serialize(existing);
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO WorkCell (UserId, Cases)
+                              VALUES ($id, $cases)
+                              ON CONFLICT(UserId) DO UPDATE SET Cases = $cases;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$cases", json);
+
+        await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task<List<string>> GetWallpapers(ulong userId) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT Wallpapers FROM WorkCell WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+    
+        if (result == null || result == DBNull.Value)
+            return new List<string>();
+
+        return JsonSerializer.Deserialize<List<string>>((string)result) ?? new List<string>();
+    }
+    
+    public async Task GiveNewWallpaper(ulong userId, string wallpaper) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var existing = await GetWallpapers(userId);
+        existing.Add(wallpaper);
+    
+        var json = JsonSerializer.Serialize(existing);
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO WorkCell (UserId, Wallpapers)
+                              VALUES ($id, $wallpapers)
+                              ON CONFLICT(UserId) DO UPDATE SET Wallpapers = $wallpapers;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$wallpapers", json);
+
+        await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task RemoveWallpaper(ulong userId, string wallpaper) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var existing = await GetWallpapers(userId);
+        existing.Remove(wallpaper);
+    
+        var json = JsonSerializer.Serialize(existing);
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO WorkCell (UserId, Wallpapers)
+                              VALUES ($id, $wallpapers)
+                              ON CONFLICT(UserId) DO UPDATE SET Wallpapers = $wallpapers;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$wallpapers", json);
+
+        await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task<List<string>> GetCharms(ulong userId) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT Charms FROM WorkCell WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+    
+        if (result == null || result == DBNull.Value)
+            return new List<string>();
+
+        return JsonSerializer.Deserialize<List<string>>((string)result) ?? new List<string>();
+    }
+    
+    public async Task GiveNewCharm(ulong userId, string charm) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var existing = await GetCharms(userId);
+        existing.Add(charm);
+    
+        var json = JsonSerializer.Serialize(existing);
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO WorkCell (UserId, Charms)
+                              VALUES ($id, $charms)
+                              ON CONFLICT(UserId) DO UPDATE SET Charms = $charms;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$charms", json);
+
+        await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task RemoveCharm(ulong userId, string charm) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var existing = await GetCharms(userId);
+        existing.Remove(charm);
+    
+        var json = JsonSerializer.Serialize(existing);
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO WorkCell (UserId, Charms)
+                              VALUES ($id, $charms)
+                              ON CONFLICT(UserId) DO UPDATE SET Charms = $charms;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$charms", json);
+
+        await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task<List<string>> GetApps(ulong userId) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT Apps FROM WorkCell WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+    
+        if (result == null || result == DBNull.Value)
+            return new List<string>();
+
+        return JsonSerializer.Deserialize<List<string>>((string)result) ?? new List<string>();
+    }
+    
+    public async Task AddAppsToHome(ulong userId, string app) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var existing = await GetApps(userId);
+        existing.Add(app);
+    
+        var json = JsonSerializer.Serialize(existing);
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO WorkCell (UserId, Apps)
+                              VALUES ($id, $apps)
+                              ON CONFLICT(UserId) DO UPDATE SET Apps = $apps;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$apps", json);
+
+        await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task RemoveAppsFromHome(ulong userId, string app) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var existing = await GetApps(userId);
+        existing.Remove(app);
+    
+        var json = JsonSerializer.Serialize(existing);
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO WorkCell (UserId, Apps)
+                              VALUES ($id, $apps)
+                              ON CONFLICT(UserId) DO UPDATE SET Apps = $apps;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$apps", json);
+
+        await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task<string> GetCharmType(ulong userId) {
+        
+        using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT CharmType FROM WorkCell WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToString(result) ?? "";
+    }
+
+    public async Task<int> SetCharmType(ulong userId, string charmType) {
+        
+        if (String.IsNullOrEmpty(charmType)) return -1;
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE WorkCell SET CharmType = $charmType WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$charmType", charmType);
+        
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<string> GetCaseType(ulong userId) {
+        
+        using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT CaseType FROM WorkCell WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToString(result) ?? "";
+    }
+
+    public async Task<int> SetCaseType(ulong userId, string caseType) {
+        
+        if (String.IsNullOrEmpty(caseType)) return -1;
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE WorkCell SET CaseType = $caseType WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$caseType", caseType);
+        
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<string> GetWallpaperType(ulong userId) {
+        
+        using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT WallpaperType FROM WorkCell WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        
+        var result = await command.ExecuteScalarAsync();
+        return Convert.ToString(result) ?? "";
+    }
+
+    public async Task<int> SetWallpaperType(ulong userId, string wallpaperType) {
+        
+        if (String.IsNullOrEmpty(wallpaperType)) return -1;
+        
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE WorkCell SET WallpaperType = $wallpaperType WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$wallpaperType", wallpaperType);
+        
+        return await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task<List<string>> GetCollectedApps(ulong userId) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT Collected FROM Id WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+    
+        if (result == null || result == DBNull.Value)
+            return new List<string>();
+
+        return JsonSerializer.Deserialize<List<string>>((string)result) ?? new List<string>();
+    }
+    public async Task GiveNewApp(ulong userId, string app) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var existing = await GetCollectedApps(userId);
+        existing.Add(app);
+    
+        var json = JsonSerializer.Serialize(existing);
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO WorkCell (UserId, Collected)
+                              VALUES ($id, $apps)
+                              ON CONFLICT(UserId) DO UPDATE SET Collected = $apps;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$apps", json);
+
+        await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task RemoveApp(ulong userId, string app) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var existing = await GetCollectedApps(userId);
+        existing.Remove(app);
+    
+        var json = JsonSerializer.Serialize(existing);
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO WorkCell (UserId, Collected)
+                              VALUES ($id, $apps)
+                              ON CONFLICT(UserId) DO UPDATE SET Collected = $apps;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$apps", json);
 
         await command.ExecuteNonQueryAsync();
     }
