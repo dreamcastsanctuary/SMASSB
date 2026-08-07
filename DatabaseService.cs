@@ -209,9 +209,7 @@ public class DatabaseService
 
         foreach (var enlisted in GetEnlisted()) {
             
-            await GiveNewCase(ulong.Parse(enlisted), "BLACK");
-            await GiveNewCharm(ulong.Parse(enlisted), "NONE");
-            await GiveNewWallpaper(ulong.Parse(enlisted), "BASIC");
+            await RemoveAllApps(ulong.Parse(enlisted));
         }
         
         await command.FollowupAsync("Done.");
@@ -1550,6 +1548,24 @@ public class DatabaseService
         existing.Remove(app);
     
         var json = JsonSerializer.Serialize(existing);
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO WorkCell (UserId, Collected)
+                              VALUES ($id, $apps)
+                              ON CONFLICT(UserId) DO UPDATE SET Collected = $apps;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$apps", json);
+
+        await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task RemoveAllApps(ulong userId) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var json = JsonSerializer.Serialize(new List<string>());
 
         var command = connection.CreateCommand();
         command.CommandText = """
