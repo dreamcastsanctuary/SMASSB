@@ -97,27 +97,66 @@ public class DatabaseService
     
     private void MigrateWorkCellTable(SqliteConnection connection) {
 
-        var existingColumns = new HashSet<string>();
+        var columnInfo = new Dictionary<string, bool>();
+
         var pragmaCmd = connection.CreateCommand();
         pragmaCmd.CommandText = "PRAGMA table_info(WorkCell);";
 
         using (var reader = pragmaCmd.ExecuteReader()) {
             while (reader.Read()) {
-                existingColumns.Add(reader.GetString(reader.GetOrdinal("name")));
+                var name = reader.GetString(reader.GetOrdinal("name"));
+                var notNull = reader.GetInt32(reader.GetOrdinal("notnull")) == 1;
+                columnInfo[name] = notNull;
             }
         }
 
         void AddColumnIfMissing(string columnName) {
-            if (existingColumns.Contains(columnName)) return;
+            if (columnInfo.ContainsKey(columnName)) return;
 
             var alterCmd = connection.CreateCommand();
             alterCmd.CommandText = $"ALTER TABLE WorkCell ADD COLUMN {columnName} TEXT;";
             alterCmd.ExecuteNonQuery();
+            columnInfo[columnName] = false;
         }
 
         AddColumnIfMissing("CaseType");
         AddColumnIfMissing("WallpaperType");
         AddColumnIfMissing("CharmType");
+        
+        var needsRebuild = (columnInfo.TryGetValue("Cases", out var casesNotNull) && casesNotNull)
+                         || (columnInfo.TryGetValue("Wallpapers", out var wallpapersNotNull) && wallpapersNotNull);
+
+        if (!needsRebuild) return;
+
+        using var transaction = connection.BeginTransaction();
+
+        var rebuildCmd = connection.CreateCommand();
+        rebuildCmd.Transaction = transaction;
+        rebuildCmd.CommandText = @"
+            CREATE TABLE WorkCell_new (
+                UserId TEXT PRIMARY KEY,
+                Yen INTEGER NOT NULL DEFAULT 0,
+                Cases TEXT,
+                CaseType TEXT,
+                Wallpapers TEXT,
+                WallpaperType TEXT,
+                Charms TEXT,
+                CharmType TEXT,
+                Apps TEXT,
+                Collected TEXT
+            );
+
+            INSERT INTO WorkCell_new (UserId, Yen, Cases, CaseType, Wallpapers, WallpaperType, Charms, CharmType, Apps, Collected)
+            SELECT UserId, Yen, Cases, CaseType, Wallpapers, WallpaperType, Charms, CharmType, Apps, Collected
+            FROM WorkCell;
+
+            DROP TABLE WorkCell;
+
+            ALTER TABLE WorkCell_new RENAME TO WorkCell;
+        ";
+        rebuildCmd.ExecuteNonQuery();
+
+        transaction.Commit();
     }
 
     public async Task PreEnlist(SocketSlashCommand command,
