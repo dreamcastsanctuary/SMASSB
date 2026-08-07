@@ -425,7 +425,7 @@ public class CommandHandler {
             .WithDescription("Give a member a WorkCell app.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member the ID will go to.", isRequired: true)
             .AddOption(appOption)
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
+            .WithDefaultMemberPermissions(GuildPermission.Administrator)
         );
         
         commands.Add(new SlashCommandBuilder()
@@ -433,7 +433,7 @@ public class CommandHandler {
             .WithDescription("Remove an app from a member's WorkCell.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member.", isRequired: true)
             .AddOption(appOption)
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
+            .WithDefaultMemberPermissions(GuildPermission.Administrator)
         );
         
         commands.Add(new SlashCommandBuilder()
