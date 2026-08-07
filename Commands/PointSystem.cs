@@ -416,39 +416,44 @@ public class PointSystem {
             
             if (points > 0) await _db.AddPoints(userId, points);
             if (recruits > 0) await _db.AddRecruits(userId, recruits);
-
+            if (yen > 0) await _db.AddYen(userId, yen);
+            
             var currentPoints = await _db.GetPoints(userId);
             var currentRecruits = await _db.GetRecruits(userId);
+            var currentYen = await _db.GetYen(userId);
 
             var summary = $"<@{userId}> has been given ***{points}*** point{(points == 1 ? "" : "s")}";
-            if (recruits > 0) summary += $" and ***{recruits}*** recruit{(recruits == 1 ? "" : "s")}";
+            if (recruits > 0) summary += $", ***{recruits}*** recruit{(recruits == 1 ? "" : "s")}";
+            if (yen > 0) summary += $", ***{yen}*** yen";
             summary += $". They now have ***{currentPoints}*** point{(currentPoints == 1 ? "" : "s")}";
-            if (recruits > 0) summary += $" and have scouted ***{currentRecruits}*** recruit{(currentRecruits == 1 ? "" : "s")} in total";
+            
+            if (recruits > 0) summary += $", have scouted ***{currentRecruits}*** recruit{(currentRecruits == 1 ? "" : "s")} in total";
+            if (yen > 0) summary += $", and have cashed out ***{currentYen}*** yen in total";
             summary += ".";
             if (wasFuzzy) summary += $" *(matched \"{name}\" → \"{matches[0].Claim}\", {bestDistance} char{(bestDistance == 1 ? "" : "s")} off)*";
             summary += "\n";
             
-            if (currency != 0) {
-                SocketGuildUser member = guild.GetUser(userId);
-                try {
-                    var response = await _internalClient.PostAsJsonAsync("/internal/currency",
-                        new CurrencyModels.CurrencyRequest(userId, currency));
-
-                    response.EnsureSuccessStatusCode();
-                    var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
-
-                    var currencyEmbed = new EmbedBuilder()
-                        .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())
-                        .WithTitle("★﹒I wish, and wish, and wish . .")
-                        .WithDescription($"This member has been given ***{currency}*** Star Piece{(currency == 1 ? "" : "s")},\nand now has ***{result.NewBalance}*** Star Piece{(result.NewBalance == 1 ? "" : "s")}.")
-                        .WithColor(0xBFA55F)
-                        .Build();
-
-                    await command.FollowupAsync(embed: currencyEmbed);
-                } catch (HttpRequestException ex) {
-                    currencyFailures.Add(new CurrencySyncException(member.Username, $"Failed to sync currency for '{member.Username}'.", ex));
-                }
-            }
+            // if (currency != 0) {
+            //     SocketGuildUser member = guild.GetUser(userId);
+            //     try {
+            //         var response = await _internalClient.PostAsJsonAsync("/internal/currency",
+            //             new CurrencyModels.CurrencyRequest(userId, currency));
+            //
+            //         response.EnsureSuccessStatusCode();
+            //         var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
+            //
+            //         var currencyEmbed = new EmbedBuilder()
+            //             .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())
+            //             .WithTitle("★﹒I wish, and wish, and wish . .")
+            //             .WithDescription($"This member has been given ***{currency}*** Star Piece{(currency == 1 ? "" : "s")},\nand now has ***{result.NewBalance}*** Star Piece{(result.NewBalance == 1 ? "" : "s")}.")
+            //             .WithColor(0xBFA55F)
+            //             .Build();
+            //
+            //         await command.FollowupAsync(embed: currencyEmbed);
+            //     } catch (HttpRequestException ex) {
+            //         currencyFailures.Add(new CurrencySyncException(member.Username, $"Failed to sync currency for '{member.Username}'.", ex));
+            //     }
+            // }
             
             successes.Add(summary);
         }
