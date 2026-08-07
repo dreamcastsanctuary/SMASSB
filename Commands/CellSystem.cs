@@ -216,6 +216,8 @@ public class CellSystem {
             await _db.GiveNewApp(member.Id, app);
         else
             await _db.RemoveApp(member.Id, app);
+
+        await command.FollowupAsync("Done!");
     }
 
     public async Task HandleFlipOver(SocketMessageComponent component, string state) {
