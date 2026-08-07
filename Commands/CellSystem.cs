@@ -21,8 +21,9 @@ public class CellSystem {
         string wallpaperType,
         List<string> appsParam) {
 
+        var ownerId = command.User.Id; // the person who ran the command
         var hasEmulatorApp = appsParam.Contains(AppType.RHYTHMTENGOKU.ToString());
-        var flipCustomId = $"flip_over:front|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
+        var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
 
         var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: true);
 
@@ -32,7 +33,7 @@ public class CellSystem {
 
         if (hasEmulatorApp) {
             var actionRow = new ActionRowBuilder()
-                .WithButton("Play Rhythm Tengoku", customId: "launch_emulatorjs", style: ButtonStyle.Secondary);
+                .WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}", style: ButtonStyle.Secondary);
             container.AddComponent(actionRow);
         }
 
@@ -47,7 +48,12 @@ public class CellSystem {
         );
     }
 
-    public async Task HandleLaunchEmulatorJs(SocketMessageComponent component) {
+    public async Task HandleLaunchEmulatorJs(SocketMessageComponent component, ulong ownerId) {
+
+        if (component.User.Id != ownerId) {
+            await component.RespondAsync("This isn't your cell — you can't use this button.", ephemeral: true);
+            return;
+        }
 
         var payload = new { type = 12 };
         var json = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
@@ -224,16 +230,23 @@ public class CellSystem {
 
         try {
             var parts = state.Split('|');
-            var currentSide = parts[0];
-            var caseType = parts[1];
-            var charmType = parts[2];
-            var wallpaperType = parts[3];
-            var hasEmulatorApp = bool.Parse(parts[4]);
+            var ownerId = ulong.Parse(parts[0]);
+
+            if (component.User.Id != ownerId) {
+                await component.RespondAsync("This isn't your cell — you can't use this button.", ephemeral: true);
+                return;
+            }
+
+            var currentSide = parts[1];
+            var caseType = parts[2];
+            var charmType = parts[3];
+            var wallpaperType = parts[4];
+            var hasEmulatorApp = bool.Parse(parts[5]);
 
             var nextSide = currentSide == "front" ? "back" : "front";
             var isFrontNext = nextSide == "front";
 
-            var nextCustomId = $"flip_over:{nextSide}|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
+            var nextCustomId = $"flip_over:{ownerId}|{nextSide}|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
 
             var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: isFrontNext);
 
@@ -243,7 +256,7 @@ public class CellSystem {
 
             if (hasEmulatorApp) {
                 var actionRow = new ActionRowBuilder()
-                    .WithButton("Play Rhythm Tengoku", customId: "launch_emulatorjs", style: ButtonStyle.Secondary);
+                    .WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}", style: ButtonStyle.Secondary);
                 container.AddComponent(actionRow);
             }
 

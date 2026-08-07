@@ -1039,8 +1039,9 @@ public class CommandHandler {
             return;
         }
 
-        if (id == "launch_emulatorjs") {
-            await _cellSystem.HandleLaunchEmulatorJs(component);
+        if (id.StartsWith("launch_emulatorjs:")) {
+            var ownerId = ulong.Parse(id.Substring("launch_emulatorjs:".Length));
+            await _cellSystem.HandleLaunchEmulatorJs(component, ownerId);
             return;
         }
 
