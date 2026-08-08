@@ -1109,7 +1109,10 @@ public class CommandHandler {
         if (id.StartsWith("flip_over:")) {
             var statePayload = id.Substring("flip_over:".Length);
             var flipOwnerId = ulong.Parse(statePayload.Split('|')[0]);
-            await _cellSystem.HandleFlipOver(component, statePayload, await _db.GetYen(flipOwnerId));
+            var (currentWeekEarnings, previousWeekEarnings, percentChange, isIncrease) = await _db.GetEarningsSummary(flipOwnerId);
+
+            await _cellSystem.HandleFlipOver(component, statePayload, await _db.GetYen(flipOwnerId), currentWeekEarnings, percentChange, isIncrease
+            );
             return;
         }
 
