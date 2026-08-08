@@ -41,7 +41,7 @@ public class CellSystem {
 
         if (hasEmulatorApp) {
             var actionRow = new ActionRowBuilder()
-                .WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}", style: ButtonStyle.Premium);
+                .WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}", style: ButtonStyle.Success);
             container.AddComponent(actionRow);
         }
 
@@ -104,11 +104,11 @@ public class CellSystem {
 
             var container = new ContainerBuilder()
                 .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
-                .AddComponent(new ActionRowBuilder().WithButton("Flip Cell Over", customId: nextCustomId, style: ButtonStyle.Primary));
+                .AddComponent(new ActionRowBuilder().WithButton("Flip Cell Over", customId: nextCustomId, style: ButtonStyle.Secondary));
 
             if (hasEmulatorApp) {
                 var actionRow = new ActionRowBuilder()
-                    .WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}", style: ButtonStyle.Secondary);
+                    .WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}", style: ButtonStyle.Success);
                 container.AddComponent(actionRow);
             }
 
