@@ -135,7 +135,7 @@ public class CellSystem {
         var fontCollection = new FontCollection();
         var fontPath = Path.Combine(AppContext.BaseDirectory, "Fonts", "MonaspaceArgon-Bold.otf");
         var fontFamily = fontCollection.Add(fontPath);
-        var font = fontFamily.CreateFont(50);
+        var font = fontFamily.CreateFont(400);
         
         var caseFile = "";
         var charmFile = "";
@@ -178,7 +178,7 @@ public class CellSystem {
             using var clone = cellCase.Clone(ipc => {
                     
                     ipc.DrawImage(wallpaper, new Point(0, 0), 1);
-                    ipc.DrawText(yen.ToString(), font, Color.FromRgba(190, 164, 95, 255), new Point(737, 739));
+                    ipc.DrawText("¥" + yen.ToString("N0"), font, Color.FromRgba(0, 0, 0, 255), new Point(737, 739));
             });
             var outputStream = new MemoryStream();
             clone.Save(outputStream, new PngEncoder());
