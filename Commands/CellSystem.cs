@@ -154,7 +154,7 @@ public class CellSystem {
         var fontPath = Path.Combine(AppContext.BaseDirectory, "Fonts", "MonaspaceArgon-Bold.otf");
         var fontFamily = fontCollection.Add(fontPath);
         var fontReg = fontFamily.CreateFont(200);
-        var fontSmall = fontFamily.CreateFont(50);
+        var fontSmall = fontFamily.CreateFont(65);
         var fontBal = fontFamily.CreateFont(80);
         
         var caseFile = "";
@@ -172,8 +172,15 @@ public class CellSystem {
                 caseFile = isFront ? "sango-case-front.png" : "sango-case-back.png";
                 break;
         }
-        
-        switch (charmType) { }
+
+        switch (charmType) {
+            case "SAKURA":
+                charmFile = "sakura-charm.png";
+                break;
+            case "SANGO":
+                charmFile = "sango-charm.png";
+                break;
+        }
 
         switch (wallpaperType) {
             case "BASIC":
@@ -188,9 +195,11 @@ public class CellSystem {
         }
         
         var casePath = Path.Combine(AppContext.BaseDirectory, "Images", caseFile);
+        var charmPath = Path.Combine(AppContext.BaseDirectory, "Images", wallpaperFile);
         var wallpaperPath = Path.Combine(AppContext.BaseDirectory, "Images", wallpaperFile);
         
         using var cellCase = Image.Load(casePath);
+        using var charm = Image.Load(charmPath);
         using var wallpaper = Image.Load(wallpaperPath);
 
         if (isFront) {
@@ -200,10 +209,11 @@ public class CellSystem {
             using var clone = cellCase.Clone(ipc => {
                     
                     ipc.DrawImage(wallpaper, new Point(0, 0), 1);
+                    ipc.DrawImage(charm, new Point(0, 0), 1);
                     ipc.DrawText("¥" + yen.ToString("N0"), fontReg, color, new Point(757, 739));
-                    ipc.DrawText("**** **** **** " + (int)(userId % 10000), fontSmall, color, new Point(762,473));
-                    ipc.DrawText("Balance", fontBal, color, new Point(740, 680));
-                    ipc.DrawText(BuildEarningsSummary(currentWeekEarnings, percentChange, isIncrease), fontSmall, Color.FromRgba(190, 164, 95, 255), new Point(737, 800));
+                    ipc.DrawText("**** **** **** " + (userId % 10000).ToString("D4"), fontSmall, color, new Point(762, 473));
+                    ipc.DrawText("Balance", fontBal, color, new Point(740, 640));
+                    ipc.DrawText(BuildEarningsSummary(currentWeekEarnings, percentChange, isIncrease), fontSmall, color, new Point(837, 900));
             });
             var outputStream = new MemoryStream();
             clone.Save(outputStream, new PngEncoder());
