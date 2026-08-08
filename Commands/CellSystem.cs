@@ -33,7 +33,7 @@ public class CellSystem {
         var hasEmulatorApp = appsParam.Contains(AppType.RHYTHMTENGOKU.ToString());
         var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
 
-        var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: true, yen);
+        var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: true, yen, ownerId);
 
         var container = new ContainerBuilder()
             .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
@@ -46,6 +46,8 @@ public class CellSystem {
         }
 
         var components = new ComponentBuilderV2()
+            .WithTextDisplay(new TextDisplayBuilder().WithContent("<:sango_emblem_mono:1492222638980989138> :: Loaded WorkCell!"))
+            .WithSeparator(new SeparatorBuilder().WithIsDivider(true))
             .AddComponent(container)
             .Build();
 
@@ -100,7 +102,7 @@ public class CellSystem {
 
             var nextCustomId = $"flip_over:{ownerId}|{nextSide}|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
 
-            var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: isFrontNext, yen);
+            var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: isFrontNext, yen, ownerId);
 
             var container = new ContainerBuilder()
                 .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
@@ -130,12 +132,13 @@ public class CellSystem {
         }
     }
 
-    private static (FileAttachment Attachment, string Url) GetCellImage(string caseType, string charmType, string wallpaperType, bool isFront, int yen) {
+    private static (FileAttachment Attachment, string Url) GetCellImage(string caseType, string charmType, string wallpaperType, bool isFront, int yen, ulong userId) {
 
         var fontCollection = new FontCollection();
         var fontPath = Path.Combine(AppContext.BaseDirectory, "Fonts", "MonaspaceArgon-Bold.otf");
         var fontFamily = fontCollection.Add(fontPath);
-        var font = fontFamily.CreateFont(200);
+        var fontReg = fontFamily.CreateFont(200);
+        var fontSmall = fontFamily.CreateFont(80);
         
         var caseFile = "";
         var charmFile = "";
@@ -173,12 +176,16 @@ public class CellSystem {
         using var cellCase = Image.Load(casePath);
         using var wallpaper = Image.Load(wallpaperPath);
 
-        if (isFront)
-        {
+        if (isFront) {
+            
+            var color = GetFontColor(wallpaperType);
+            
             using var clone = cellCase.Clone(ipc => {
                     
                     ipc.DrawImage(wallpaper, new Point(0, 0), 1);
-                    ipc.DrawText("¥" + yen.ToString("N0"), font, Color.FromRgba(0, 0, 0, 255), new Point(737, 739));
+                    ipc.DrawText("¥" + yen.ToString("N0"), fontReg, color, new Point(757, 739));
+                    ipc.DrawText("**** **** **** " + ((int)userId % 10000), fontSmall, color, new Point(762,473));
+                    ipc.DrawText("Balance", fontSmall, color, new Point(750, 700));
             });
             var outputStream = new MemoryStream();
             clone.Save(outputStream, new PngEncoder());
@@ -196,6 +203,19 @@ public class CellSystem {
         var caseUrl = $"attachment://{caseAttachment.FileName}";
         
         return (caseAttachment, caseUrl);
+    }
+
+    private static Color GetFontColor(string wallpaperType) {
+        
+        switch (wallpaperType) {
+            case "BASIC":
+                return Color.FromRgba(15, 15, 15, 255);
+            case "SAKURA":
+                return Color.FromRgba(154, 100, 114, 255);
+            case "SANGO":
+                return Color.FromRgba(28, 39, 41, 255);
+        }
+        return new Color();
     }
     
     public async Task EditWorkCell(SocketSlashCommand command) {

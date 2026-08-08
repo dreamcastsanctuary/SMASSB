@@ -187,7 +187,7 @@ public class IdSystem {
             try { await UserExtensions.SendFileAsync(member, output, "Here you are, your brand new Idol ID!"); }
             catch (Discord.Net.HttpException ex) { await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message); }
         } else {
-            await command.FollowupWithFileAsync(output, text: "Loaded Idol ID . . !");
+            await command.FollowupWithFileAsync(output, text: "<:sango_emblem_mono:1492222638980989138> :: Loaded Identification Card!");
         }
         
         File.Delete(output);
