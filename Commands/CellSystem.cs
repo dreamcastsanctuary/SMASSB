@@ -2,7 +2,11 @@
 using System.Text.Json;
 using Discord;
 using Discord.WebSocket;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Processing;
 using SMASSB.Data;
+using Image = SixLabors.ImageSharp.Image;
 
 namespace SMASSB.Commands;
 
@@ -21,7 +25,7 @@ public class CellSystem {
         string wallpaperType,
         List<string> appsParam) {
 
-        var ownerId = command.User.Id; // the person who ran the command
+        var ownerId = command.User.Id; 
         var hasEmulatorApp = appsParam.Contains(AppType.RHYTHMTENGOKU.ToString());
         var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
 
@@ -29,11 +33,11 @@ public class CellSystem {
 
         var container = new ContainerBuilder()
             .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
-            .AddComponent(new ActionRowBuilder().WithButton("Flip Cell Over", customId: flipCustomId, style: ButtonStyle.Primary));
+            .AddComponent(new ActionRowBuilder().WithButton("Flip Cellphone Over", customId: flipCustomId, style: ButtonStyle.Secondary));
 
         if (hasEmulatorApp) {
             var actionRow = new ActionRowBuilder()
-                .WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}", style: ButtonStyle.Secondary);
+                .WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}", style: ButtonStyle.Premium);
             container.AddComponent(actionRow);
         }
 
@@ -280,16 +284,51 @@ public class CellSystem {
 
     private static (FileAttachment Attachment, string Url) GetCellImage(string caseType, string charmType, string wallpaperType, bool isFront) {
 
-        switch (caseType) { }
+        var caseFile = "";
+        var charmFile = "";
+        var wallpaperFile = "";
+        
+        switch (caseType) {
+            case "BLACK":
+                caseFile = isFront ? "black-case-front.png" : "black-case-back.png";
+                break;
+            case "SAKURA":
+                caseFile = isFront ? "sakura-case-front.png" : "sakura-case-back.png";
+                break;
+            case "SANGO":
+                caseFile = isFront ? "sango-case-front.png" : "sango-case-back.png";
+                break;
+        }
         switch (charmType) { }
-        switch (wallpaperType) { }
 
-        var fileName = isFront ? "placeholder-cell-front.png" : "placeholder-cell-back.png";
-        var path = Path.Combine(AppContext.BaseDirectory, "Images", fileName);
+        switch (wallpaperType) {
+            case "BASIC":
+                wallpaperFile = "basic-wallpaper.png";
+                break;
+            case "SAKURA":
+                wallpaperFile = "sakura-wallpaper.png";
+                break;
+            case "SANGO":
+                wallpaperFile = "sango-wallpaper.png";
+                break;
+        }
+        
+        var casePath = Path.Combine(AppContext.BaseDirectory, "Images", caseFile);
+        var wallpaperPath = Path.Combine(AppContext.BaseDirectory, "Images", wallpaperFile);
+        
+        using var cellCase = Image.Load(casePath);
+        using var wallpaper = Image.Load(wallpaperPath);
+        using var clone = cellCase.Clone(ipc => ipc.DrawImage(wallpaper, new Point(0, 0), 1));
 
-        var attachment = new FileAttachment(path, fileName);
-        var url = $"attachment://{attachment.FileName}";
+        var outputStream = new MemoryStream();
+        clone.Save(outputStream, new PngEncoder());
+        outputStream.Position = 0;
 
-        return (attachment, url);
+        var composedFileName = "composed-cell.png";
+        var composedAttachment = new FileAttachment(outputStream, composedFileName);
+        
+        var composedUrl = $"attachment://{composedAttachment.FileName}";
+
+        return (composedAttachment, composedUrl);
     }
 }

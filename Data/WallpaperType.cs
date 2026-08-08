@@ -2,5 +2,7 @@
 
 public enum WallpaperType {
     
-    BASIC
+    BASIC,
+    SAKURA,
+    SANGO
 }

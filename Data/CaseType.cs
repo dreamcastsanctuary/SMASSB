@@ -2,5 +2,7 @@
 
 public enum CaseType {
     
-    BLACK
+    BLACK,
+    SAKURA,
+    SANGO
 }
