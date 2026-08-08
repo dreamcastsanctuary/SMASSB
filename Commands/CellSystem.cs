@@ -326,17 +326,25 @@ public class CellSystem {
         
         using var cellCase = Image.Load(casePath);
         using var wallpaper = Image.Load(wallpaperPath);
-        using var clone = cellCase.Clone(ipc => ipc.DrawImage(wallpaper, new Point(0, 0), 1));
 
-        var outputStream = new MemoryStream();
-        clone.Save(outputStream, new PngEncoder());
-        outputStream.Position = 0;
+        if (isFront)
+        {
+            using var clone = cellCase.Clone(ipc => ipc.DrawImage(wallpaper, new Point(0, 0), 1));
+            var outputStream = new MemoryStream();
+            clone.Save(outputStream, new PngEncoder());
+            outputStream.Position = 0;
 
-        var composedFileName = "composed-cell.png";
-        var composedAttachment = new FileAttachment(outputStream, composedFileName);
+            var composedFileName = "composed-cell.png";
+            var composedAttachment = new FileAttachment(outputStream, composedFileName);
         
-        var composedUrl = $"attachment://{composedAttachment.FileName}";
+            var composedUrl = $"attachment://{composedAttachment.FileName}";
 
-        return (composedAttachment, composedUrl);
+            return (composedAttachment, composedUrl);
+        }
+        
+        var caseAttachment = new FileAttachment(casePath, caseFile);
+        var caseUrl = $"attachment://{caseAttachment.FileName}";
+        
+        return (caseAttachment, caseUrl);
     }
 }
