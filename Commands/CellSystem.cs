@@ -218,6 +218,11 @@ public class CellSystem {
         return new Color();
     }
     
+    private static string BuildEarningsSummary(int currentWeekEarnings, double percentChange, bool isIncrease) {
+        var arrow = isIncrease ? "▲" : "▼";
+        return $"¥{currentWeekEarnings:N0} this week ({arrow} {Math.Abs(percentChange):F1}%)";
+    }
+    
     public async Task EditWorkCell(SocketSlashCommand command) {
 
         await command.DeferAsync();
@@ -277,6 +282,7 @@ public class CellSystem {
         var charmParam = await _db.GetCharmType(enlisted.Id);
         var wallpaperParam = await _db.GetWallpaperType(enlisted.Id);
         var appsParam = await _db.GetApps(enlisted.Id);
+        var (currentWeekEarnings, previousWeekEarnings, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
 
         await BuildCell(command, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id));
     }

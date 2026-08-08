@@ -472,6 +472,11 @@ public class CommandHandler {
         
         // SHOPSYSTEM
         
+        commands.Add(new SlashCommandBuilder()
+            .WithName("initweeklybaselines")
+            .WithDescription("One-time setup: seeds everyone's weekly earnings baseline.")
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+        
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
             await ((IGuild)guild).BulkOverwriteApplicationCommandsAsync(builtCommands);
@@ -483,6 +488,12 @@ public class CommandHandler {
     private async Task SlashCommandHandler(SocketSlashCommand command) {
         
         switch(command.Data.Name) {
+            
+            case "initweeklybaselines":
+                await command.DeferAsync();
+                await _db.InitializeWeeklyBaselines();
+                await command.FollowupAsync("Weekly baselines initialized.");
+                break;
             
             case "rewardko":
                 await _rewardSystem.HandleRewardKoCommand(command);
@@ -1057,6 +1068,38 @@ public class CommandHandler {
                 }
             }
         }
+    }
+    
+    public async Task WeeklyEarningsRollover() {
+        await _db.InitializeWeeklyBaselines();
+        _db.SetLastRolloverTime(DateTimeOffset.UtcNow);
+
+        using var timer = new PeriodicTimer(TimeSpan.FromMinutes(15));
+        await RunRolloverIfDue();
+        while (await timer.WaitForNextTickAsync()) {
+            await RunRolloverIfDue();
+        }
+    }
+
+    private async Task RunRolloverIfDue() {
+        
+        var gmt2Offset = TimeSpan.FromHours(2);
+        var nowGmt2 = DateTimeOffset.UtcNow.ToOffset(gmt2Offset);
+
+        var targetSunday = GetMostRecentSundayMidnight(nowGmt2, gmt2Offset);
+        var lastRollover = _db.GetLastRolloverTime() ?? DateTimeOffset.MinValue;
+        
+        if (nowGmt2 >= targetSunday && lastRollover < targetSunday) {
+            _db.SetLastRolloverTime(DateTimeOffset.UtcNow);
+            await _db.RolloverWeeklyEarnings();
+        }
+    }
+
+    private static DateTimeOffset GetMostRecentSundayMidnight(DateTimeOffset nowInZone, TimeSpan offset) {
+        
+        var daysSinceSunday = (int)nowInZone.DayOfWeek;
+        var sundayDate = nowInZone.Date.AddDays(-daysSinceSunday);
+        return new DateTimeOffset(sundayDate, offset);
     }
     
     public async Task ButtonHandler(SocketMessageComponent component) {

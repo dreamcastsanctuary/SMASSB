@@ -89,6 +89,11 @@ public class DatabaseService
                 GuildId TEXT PRIMARY KEY,
                 ChannelId TEXT NOT NULL
             );
+
+            CREATE TABLE IF NOT EXISTS SystemState (
+                Key TEXT PRIMARY KEY,
+                Value TEXT NOT NULL
+            );
         ";
         
         command.ExecuteNonQuery();
@@ -122,6 +127,8 @@ public class DatabaseService
         AddColumnIfMissing("CaseType");
         AddColumnIfMissing("WallpaperType");
         AddColumnIfMissing("CharmType");
+        AddColumnIfMissing("WeekStartYen");
+        AddColumnIfMissing("PreviousEarnings");
         
         var needsRebuild = (columnInfo.TryGetValue("Cases", out var casesNotNull) && casesNotNull)
                          || (columnInfo.TryGetValue("Wallpapers", out var wallpapersNotNull) && wallpapersNotNull);
@@ -1591,5 +1598,145 @@ public class DatabaseService
         command.Parameters.AddWithValue("$apps", json);
 
         await command.ExecuteNonQueryAsync();
+    }
+    
+    public async Task<int> GetWeekStartYen(ulong userId) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT WeekStartYen FROM WorkCell WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+        return result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
+    }
+
+    public async Task SetWeekStartYen(ulong userId, int value) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO WorkCell (UserId, WeekStartYen)
+                              VALUES ($id, $value)
+                              ON CONFLICT(UserId) DO UPDATE SET WeekStartYen = $value;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$value", value);
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<int> GetPreviousEarnings(ulong userId) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT PreviousEarnings FROM WorkCell WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+        return result != null && result != DBNull.Value ? Convert.ToInt32(result) : 0;
+    }
+
+    public async Task SetPreviousEarnings(ulong userId, int value) {
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              INSERT INTO WorkCell (UserId, PreviousEarnings)
+                              VALUES ($id, $value)
+                              ON CONFLICT(UserId) DO UPDATE SET PreviousEarnings = $value;
+                              """;
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$value", value);
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    public List<string> GetAllWorkCellUserIds() {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT UserId FROM WorkCell;";
+
+        var userIds = new List<string>();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read()) {
+            userIds.Add(reader.GetString(0));
+        }
+
+        return userIds;
+    }
+
+    public DateTimeOffset? GetLastRolloverTime() {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT Value FROM SystemState WHERE Key = 'LastEarningsRollover';";
+
+        var result = cmd.ExecuteScalar();
+        return result is string s && DateTimeOffset.TryParse(s, out var dt) ? dt : null;
+    }
+
+    public void SetLastRolloverTime(DateTimeOffset time) {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        var cmd = connection.CreateCommand();
+        cmd.CommandText = @"
+            INSERT INTO SystemState (Key, Value) VALUES ('LastEarningsRollover', $value)
+            ON CONFLICT(Key) DO UPDATE SET Value = $value;";
+        cmd.Parameters.AddWithValue("$value", time.ToString("O"));
+
+        cmd.ExecuteNonQuery();
+    }
+
+    public async Task RolloverWeeklyEarnings() {
+        foreach (var userIdStr in GetAllWorkCellUserIds()) {
+            var userId = ulong.Parse(userIdStr);
+
+            var currentYen = await GetYen(userId);
+            var weekStartYen = await GetWeekStartYen(userId);
+            var earningsThisWeek = currentYen - weekStartYen;
+
+            await SetPreviousEarnings(userId, earningsThisWeek);
+            await SetWeekStartYen(userId, currentYen);
+        }
+    }
+
+    public async Task<(int CurrentWeekEarnings, int PreviousWeekEarnings, double PercentChange, bool IsIncrease)>
+        GetEarningsSummary(ulong userId) {
+
+        var currentYen = await GetYen(userId);
+        var weekStartYen = await GetWeekStartYen(userId);
+        var currentWeekEarnings = currentYen - weekStartYen;
+
+        var previousWeekEarnings = await GetPreviousEarnings(userId);
+
+        double percentChange;
+        if (previousWeekEarnings == 0) {
+            percentChange = currentWeekEarnings > 0 ? 100.0 : 0.0;
+        } else {
+            percentChange = ((double)(currentWeekEarnings - previousWeekEarnings) / Math.Abs(previousWeekEarnings)) * 100.0;
+        }
+
+        return (currentWeekEarnings, previousWeekEarnings, percentChange, percentChange >= 0);
+    }
+
+    public async Task InitializeWeeklyBaselines() {
+        foreach (var userIdStr in GetAllWorkCellUserIds()) {
+            var userId = ulong.Parse(userIdStr);
+
+            var existing = await GetWeekStartYen(userId);
+            if (existing == 0) {
+                var currentYen = await GetYen(userId);
+                await SetWeekStartYen(userId, currentYen);
+            }
+        }
     }
 }

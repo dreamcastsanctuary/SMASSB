@@ -77,6 +77,7 @@ public class Program {
             if (shouldStartLoops) {
                 _ = _commandHandler.KickUnEnlisted(guild);
                 _ = _commandHandler.AutoEnlistKohosei(guild);
+                _ = _commandHandler.WeeklyEarningsRollover();
             }
         });
     };
