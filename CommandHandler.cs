@@ -1062,20 +1062,21 @@ public class CommandHandler {
     public async Task ButtonHandler(SocketMessageComponent component) {
 
         var id = component.Data.CustomId;
-        var ownerId = ulong.Parse(id.Substring("launch_emulatorjs:".Length));
 
         if (id.StartsWith("flip_over:")) {
-            await _cellSystem.HandleFlipOver(component, id.Substring("flip_over:".Length), await _db.GetYen(ownerId));
+            var statePayload = id.Substring("flip_over:".Length);
+            var flipOwnerId = ulong.Parse(statePayload.Split('|')[0]);
+            await _cellSystem.HandleFlipOver(component, statePayload, await _db.GetYen(flipOwnerId));
             return;
         }
 
         if (id.StartsWith("launch_emulatorjs:")) {
+            var ownerId = ulong.Parse(id.Substring("launch_emulatorjs:".Length));
             await _cellSystem.HandleLaunchEmulatorJs(component, ownerId);
             return;
         }
 
         if (id.StartsWith("leaderboard_back_") || id.StartsWith("leaderboard_next_")) {
-
             var parts = id.Split('_');
             int currentPage = int.Parse(parts[2]);
             int newPage = id.StartsWith("leaderboard_back_") ? currentPage - 1 : currentPage + 1;
