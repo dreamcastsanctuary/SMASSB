@@ -135,7 +135,7 @@ public class CellSystem {
         var fontCollection = new FontCollection();
         var fontPath = Path.Combine(AppContext.BaseDirectory, "Fonts", "MonaspaceArgon-Bold.otf");
         var fontFamily = fontCollection.Add(fontPath);
-        var font = fontFamily.CreateFont(400);
+        var font = fontFamily.CreateFont(300);
         
         var caseFile = "";
         var charmFile = "";
