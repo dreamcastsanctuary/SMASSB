@@ -50,7 +50,7 @@ public class CellSystem {
 
         var components = new ComponentBuilderV2()
             .WithTextDisplay(new TextDisplayBuilder().WithContent("<:sango_emblem_mono:1492222638980989138> :: Loaded WorkCell!"))
-            .WithSeparator(new SeparatorBuilder().WithIsDivider(true))
+            .WithSeparator(new SeparatorBuilder().WithIsDivider(false))
             .AddComponent(container)
             .Build();
 
