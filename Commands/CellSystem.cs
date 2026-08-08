@@ -245,7 +245,7 @@ public class CellSystem {
             var ownerId = ulong.Parse(parts[0]);
 
             if (component.User.Id != ownerId) {
-                await component.RespondAsync("This isn't your cell — you can't use this button.", ephemeral: true);
+                await component.RespondAsync("This isn't your cell! You like touching things that don't belong to you?", ephemeral: true);
                 return;
             }
 
