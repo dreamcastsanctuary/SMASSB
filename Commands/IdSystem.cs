@@ -511,7 +511,7 @@ public class IdSystem {
         return Image.Load(imgPath);
     }
 
-    static List<Color> LoadColors(string idType) {
+     static List<Color> LoadColors(string idType) {
 
         List<Color> colors = new List<Color>();
         

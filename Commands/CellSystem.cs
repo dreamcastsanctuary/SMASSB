@@ -2,11 +2,14 @@
 using System.Text.Json;
 using Discord;
 using Discord.WebSocket;
+using SixLabors.Fonts;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
 using SMASSB.Data;
 using Image = SixLabors.ImageSharp.Image;
+using Color = SixLabors.ImageSharp.Color;
 
 namespace SMASSB.Commands;
 
@@ -23,13 +26,14 @@ public class CellSystem {
         string caseType,
         string charmType,
         string wallpaperType,
-        List<string> appsParam) {
+        List<string> appsParam,
+        int yen) {
 
         var ownerId = command.User.Id; 
         var hasEmulatorApp = appsParam.Contains(AppType.RHYTHMTENGOKU.ToString());
         var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
 
-        var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: true);
+        var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: true, yen);
 
         var container = new ContainerBuilder()
             .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
@@ -55,7 +59,7 @@ public class CellSystem {
     public async Task HandleLaunchEmulatorJs(SocketMessageComponent component, ulong ownerId) {
 
         if (component.User.Id != ownerId) {
-            await component.RespondAsync("This isn't your cell — you can't use this button.", ephemeral: true);
+            await component.RespondAsync("This isn't your cell! You like touching things that don't belong to you?", ephemeral: true);
             return;
         }
 
@@ -70,10 +74,130 @@ public class CellSystem {
         if (!response.IsSuccessStatusCode) {
             var errorBody = await response.Content.ReadAsStringAsync();
             Console.WriteLine($"LaunchActivity failed: {response.StatusCode} - {errorBody}");
-            await component.RespondAsync("Couldn't launch the Activity. Make sure it's registered and enabled for this app.", ephemeral: true);
+            await component.RespondAsync("Couldn't launch the app... Ask for help!", ephemeral: true);
         }
     }
 
+    public async Task HandleFlipOver(SocketMessageComponent component, string state, int yen) {
+
+        try {
+            var parts = state.Split('|');
+            var ownerId = ulong.Parse(parts[0]);
+
+            if (component.User.Id != ownerId) {
+                await component.RespondAsync("This isn't your cell! You like touching things that don't belong to you?", ephemeral: true);
+                return;
+            }
+
+            var currentSide = parts[1];
+            var caseType = parts[2];
+            var charmType = parts[3];
+            var wallpaperType = parts[4];
+            var hasEmulatorApp = bool.Parse(parts[5]);
+
+            var nextSide = currentSide == "front" ? "back" : "front";
+            var isFrontNext = nextSide == "front";
+
+            var nextCustomId = $"flip_over:{ownerId}|{nextSide}|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
+
+            var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: isFrontNext, yen);
+
+            var container = new ContainerBuilder()
+                .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
+                .AddComponent(new ActionRowBuilder().WithButton("Flip Cell Over", customId: nextCustomId, style: ButtonStyle.Primary));
+
+            if (hasEmulatorApp) {
+                var actionRow = new ActionRowBuilder()
+                    .WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}", style: ButtonStyle.Secondary);
+                container.AddComponent(actionRow);
+            }
+
+            var components = new ComponentBuilderV2()
+                .AddComponent(container)
+                .Build();
+
+            await component.UpdateAsync(msg => {
+                msg.Attachments = new List<FileAttachment> { cellAttachment };
+                msg.Components = components;
+                msg.Flags = MessageFlags.ComponentsV2;
+            });
+        } catch (Exception ex) {
+            Console.WriteLine($"HandleFlipOver failed: {ex}");
+
+            if (!component.HasResponded) {
+                await component.RespondAsync("Something went wrong flipping the cell.", ephemeral: true);
+            }
+        }
+    }
+
+    private static (FileAttachment Attachment, string Url) GetCellImage(string caseType, string charmType, string wallpaperType, bool isFront, int yen) {
+
+        var fontCollection = new FontCollection();
+        var fontPath = Path.Combine(AppContext.BaseDirectory, "Fonts", "MonaspaceArgon-Bold.otf");
+        var fontFamily = fontCollection.Add(fontPath);
+        var font = fontFamily.CreateFont(50);
+        
+        var caseFile = "";
+        var charmFile = "";
+        var wallpaperFile = "";
+        
+        switch (caseType) {
+            case "BLACK":
+                caseFile = isFront ? "black-case-front.png" : "black-case-back.png";
+                break;
+            case "SAKURA":
+                caseFile = isFront ? "sakura-case-front.png" : "sakura-case-back.png";
+                break;
+            case "SANGO":
+                caseFile = isFront ? "sango-case-front.png" : "sango-case-back.png";
+                break;
+        }
+        
+        switch (charmType) { }
+
+        switch (wallpaperType) {
+            case "BASIC":
+                wallpaperFile = "basic-wallpaper.png";
+                break;
+            case "SAKURA":
+                wallpaperFile = "sakura-wallpaper.png";
+                break;
+            case "SANGO":
+                wallpaperFile = "sango-wallpaper.png";
+                break;
+        }
+        
+        var casePath = Path.Combine(AppContext.BaseDirectory, "Images", caseFile);
+        var wallpaperPath = Path.Combine(AppContext.BaseDirectory, "Images", wallpaperFile);
+        
+        using var cellCase = Image.Load(casePath);
+        using var wallpaper = Image.Load(wallpaperPath);
+
+        if (isFront)
+        {
+            using var clone = cellCase.Clone(ipc => {
+                    
+                    ipc.DrawImage(wallpaper, new Point(0, 0), 1);
+                    ipc.DrawText(yen.ToString(), font, Color.FromRgba(190, 164, 95, 255), new Point(737, 739));
+            });
+            var outputStream = new MemoryStream();
+            clone.Save(outputStream, new PngEncoder());
+            outputStream.Position = 0;
+
+            var composedFileName = "composed-cell.png";
+            var composedAttachment = new FileAttachment(outputStream, composedFileName);
+        
+            var composedUrl = $"attachment://{composedAttachment.FileName}";
+
+            return (composedAttachment, composedUrl);
+        }
+        
+        var caseAttachment = new FileAttachment(casePath, caseFile);
+        var caseUrl = $"attachment://{caseAttachment.FileName}";
+        
+        return (caseAttachment, caseUrl);
+    }
+    
     public async Task EditWorkCell(SocketSlashCommand command) {
 
         await command.DeferAsync();
@@ -134,7 +258,7 @@ public class CellSystem {
         var wallpaperParam = await _db.GetWallpaperType(enlisted.Id);
         var appsParam = await _db.GetApps(enlisted.Id);
 
-        await BuildCell(command, caseParam, charmParam, wallpaperParam, appsParam);
+        await BuildCell(command, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id));
     }
 
     public async Task ShowWorkCell(SocketSlashCommand command) {
@@ -159,7 +283,7 @@ public class CellSystem {
         var wallpaperParam = await _db.GetWallpaperType(enlisted.Id);
         var appsParam = await _db.GetApps(enlisted.Id);
 
-        await BuildCell(command, caseParam, charmParam, wallpaperParam, appsParam);
+        await BuildCell(command, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id));
     }
 
     public async Task EditYen(SocketSlashCommand command, bool add) {
@@ -278,116 +402,5 @@ public class CellSystem {
         }
 
         await command.FollowupAsync("Done!");
-    }
-
-    public async Task HandleFlipOver(SocketMessageComponent component, string state) {
-
-        try {
-            var parts = state.Split('|');
-            var ownerId = ulong.Parse(parts[0]);
-
-            if (component.User.Id != ownerId) {
-                await component.RespondAsync("This isn't your cell! You like touching things that don't belong to you?", ephemeral: true);
-                return;
-            }
-
-            var currentSide = parts[1];
-            var caseType = parts[2];
-            var charmType = parts[3];
-            var wallpaperType = parts[4];
-            var hasEmulatorApp = bool.Parse(parts[5]);
-
-            var nextSide = currentSide == "front" ? "back" : "front";
-            var isFrontNext = nextSide == "front";
-
-            var nextCustomId = $"flip_over:{ownerId}|{nextSide}|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
-
-            var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: isFrontNext);
-
-            var container = new ContainerBuilder()
-                .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
-                .AddComponent(new ActionRowBuilder().WithButton("Flip Cell Over", customId: nextCustomId, style: ButtonStyle.Primary));
-
-            if (hasEmulatorApp) {
-                var actionRow = new ActionRowBuilder()
-                    .WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}", style: ButtonStyle.Secondary);
-                container.AddComponent(actionRow);
-            }
-
-            var components = new ComponentBuilderV2()
-                .AddComponent(container)
-                .Build();
-
-            await component.UpdateAsync(msg => {
-                msg.Attachments = new List<FileAttachment> { cellAttachment };
-                msg.Components = components;
-                msg.Flags = MessageFlags.ComponentsV2;
-            });
-        } catch (Exception ex) {
-            Console.WriteLine($"HandleFlipOver failed: {ex}");
-
-            if (!component.HasResponded) {
-                await component.RespondAsync("Something went wrong flipping the cell.", ephemeral: true);
-            }
-        }
-    }
-
-    private static (FileAttachment Attachment, string Url) GetCellImage(string caseType, string charmType, string wallpaperType, bool isFront) {
-
-        var caseFile = "";
-        var charmFile = "";
-        var wallpaperFile = "";
-        
-        switch (caseType) {
-            case "BLACK":
-                caseFile = isFront ? "black-case-front.png" : "black-case-back.png";
-                break;
-            case "SAKURA":
-                caseFile = isFront ? "sakura-case-front.png" : "sakura-case-back.png";
-                break;
-            case "SANGO":
-                caseFile = isFront ? "sango-case-front.png" : "sango-case-back.png";
-                break;
-        }
-        
-        switch (charmType) { }
-
-        switch (wallpaperType) {
-            case "BASIC":
-                wallpaperFile = "basic-wallpaper.png";
-                break;
-            case "SAKURA":
-                wallpaperFile = "sakura-wallpaper.png";
-                break;
-            case "SANGO":
-                wallpaperFile = "sango-wallpaper.png";
-                break;
-        }
-        
-        var casePath = Path.Combine(AppContext.BaseDirectory, "Images", caseFile);
-        var wallpaperPath = Path.Combine(AppContext.BaseDirectory, "Images", wallpaperFile);
-        
-        using var cellCase = Image.Load(casePath);
-        using var wallpaper = Image.Load(wallpaperPath);
-
-        if (isFront)
-        {
-            using var clone = cellCase.Clone(ipc => ipc.DrawImage(wallpaper, new Point(0, 0), 1));
-            var outputStream = new MemoryStream();
-            clone.Save(outputStream, new PngEncoder());
-            outputStream.Position = 0;
-
-            var composedFileName = "composed-cell.png";
-            var composedAttachment = new FileAttachment(outputStream, composedFileName);
-        
-            var composedUrl = $"attachment://{composedAttachment.FileName}";
-
-            return (composedAttachment, composedUrl);
-        }
-        
-        var caseAttachment = new FileAttachment(casePath, caseFile);
-        var caseUrl = $"attachment://{caseAttachment.FileName}";
-        
-        return (caseAttachment, caseUrl);
     }
 }

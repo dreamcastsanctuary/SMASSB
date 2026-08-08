@@ -1062,14 +1062,14 @@ public class CommandHandler {
     public async Task ButtonHandler(SocketMessageComponent component) {
 
         var id = component.Data.CustomId;
+        var ownerId = ulong.Parse(id.Substring("launch_emulatorjs:".Length));
 
         if (id.StartsWith("flip_over:")) {
-            await _cellSystem.HandleFlipOver(component, id.Substring("flip_over:".Length));
+            await _cellSystem.HandleFlipOver(component, id.Substring("flip_over:".Length), await _db.GetYen(ownerId));
             return;
         }
 
         if (id.StartsWith("launch_emulatorjs:")) {
-            var ownerId = ulong.Parse(id.Substring("launch_emulatorjs:".Length));
             await _cellSystem.HandleLaunchEmulatorJs(component, ownerId);
             return;
         }
