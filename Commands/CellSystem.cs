@@ -23,17 +23,20 @@ public class CellSystem {
     }
 
     private static async Task BuildCell(SocketSlashCommand command,
-        string caseType,
-        string charmType,
-        string wallpaperType,
-        List<string> appsParam,
-        int yen) {
+                                         string caseType,
+                                         string charmType,
+                                         string wallpaperType,
+                                         List<string> appsParam,
+                                         int yen, 
+                                         int currentWeekEarnings, 
+                                         double percentChange, 
+                                         bool isIncrease) {
 
         var ownerId = command.User.Id; 
         var hasEmulatorApp = appsParam.Contains(AppType.RHYTHMTENGOKU.ToString());
         var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
 
-        var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: true, yen, ownerId);
+        var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: true, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
 
         var container = new ContainerBuilder()
             .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
@@ -80,7 +83,12 @@ public class CellSystem {
         }
     }
 
-    public async Task HandleFlipOver(SocketMessageComponent component, string state, int yen) {
+    public async Task HandleFlipOver(SocketMessageComponent component, 
+                                         string state, 
+                                         int yen, 
+                                         int currentWeekEarnings, 
+                                         double percentChange, 
+                                         bool isIncrease) {
 
         try {
             var parts = state.Split('|');
@@ -102,7 +110,7 @@ public class CellSystem {
 
             var nextCustomId = $"flip_over:{ownerId}|{nextSide}|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
 
-            var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: isFrontNext, yen, ownerId);
+            var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: isFrontNext, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
 
             var container = new ContainerBuilder()
                 .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
@@ -132,13 +140,22 @@ public class CellSystem {
         }
     }
 
-    private static (FileAttachment Attachment, string Url) GetCellImage(string caseType, string charmType, string wallpaperType, bool isFront, int yen, ulong userId) {
+    private static (FileAttachment Attachment, string Url) GetCellImage(string caseType, 
+                                                                          string charmType, 
+                                                                          string wallpaperType, 
+                                                                          bool isFront, 
+                                                                          int yen, 
+                                                                          ulong userId, 
+                                                                          int currentWeekEarnings, 
+                                                                          double percentChange, 
+                                                                          bool isIncrease) {
 
         var fontCollection = new FontCollection();
         var fontPath = Path.Combine(AppContext.BaseDirectory, "Fonts", "MonaspaceArgon-Bold.otf");
         var fontFamily = fontCollection.Add(fontPath);
         var fontReg = fontFamily.CreateFont(200);
-        var fontSmall = fontFamily.CreateFont(80);
+        var fontSmall = fontFamily.CreateFont(50);
+        var fontBal = fontFamily.CreateFont(80);
         
         var caseFile = "";
         var charmFile = "";
@@ -184,8 +201,9 @@ public class CellSystem {
                     
                     ipc.DrawImage(wallpaper, new Point(0, 0), 1);
                     ipc.DrawText("¥" + yen.ToString("N0"), fontReg, color, new Point(757, 739));
-                    ipc.DrawText("**** **** **** " + ((int)userId % 10000), fontSmall, color, new Point(762,473));
-                    ipc.DrawText("Balance", fontSmall, color, new Point(750, 700));
+                    ipc.DrawText("**** **** **** " + (int)(userId % 10000), fontSmall, color, new Point(762,473));
+                    ipc.DrawText("Balance", fontBal, color, new Point(740, 680));
+                    ipc.DrawText(BuildEarningsSummary(currentWeekEarnings, percentChange, isIncrease), fontSmall, Color.FromRgba(190, 164, 95, 255), new Point(737, 800));
             });
             var outputStream = new MemoryStream();
             clone.Save(outputStream, new PngEncoder());
@@ -284,7 +302,7 @@ public class CellSystem {
         var appsParam = await _db.GetApps(enlisted.Id);
         var (currentWeekEarnings, previousWeekEarnings, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
 
-        await BuildCell(command, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id));
+        await BuildCell(command, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id), currentWeekEarnings, percentChange, isIncrease);
     }
 
     public async Task ShowWorkCell(SocketSlashCommand command) {
@@ -308,8 +326,9 @@ public class CellSystem {
         var charmParam = await _db.GetCharmType(enlisted.Id);
         var wallpaperParam = await _db.GetWallpaperType(enlisted.Id);
         var appsParam = await _db.GetApps(enlisted.Id);
+        var (currentWeekEarnings, previousWeekEarnings, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
 
-        await BuildCell(command, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id));
+        await BuildCell(command, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id), currentWeekEarnings, percentChange, isIncrease);
     }
 
     public async Task EditYen(SocketSlashCommand command, bool add) {
