@@ -198,8 +198,11 @@ public class DatabaseService
 
         await GiveNewId(ulong.Parse(accIdParam), idTypeParam);
         await GiveNewCase(ulong.Parse(accIdParam), caseParam);
+        await SetCaseType(ulong.Parse(accIdParam), caseParam);
         await GiveNewCharm(ulong.Parse(accIdParam), charmParam);
+        await SetCharmType(ulong.Parse(accIdParam), charmParam);
         await GiveNewWallpaper(ulong.Parse(accIdParam), wallpaperParam);
+        await SetWallpaperType(ulong.Parse(accIdParam), wallpaperParam);
         await IdSystem.BuildId(command, member, claimParam, null, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, catchphraseParam, usernameParam, idTypeParam);
         }
 
@@ -210,6 +213,17 @@ public class DatabaseService
         foreach (var enlisted in GetEnlisted()) {
             
             await RemoveAllApps(ulong.Parse(enlisted));
+            await RemoveAppsFromHome(ulong.Parse(enlisted), "RHYTHMTENGOKU");
+            await RemoveCase(ulong.Parse(enlisted), "BLACK");
+            await RemoveCharm(ulong.Parse(enlisted), "NONE");
+            await RemoveWallpaper(ulong.Parse(enlisted), "BASIC");
+            
+            await GiveNewCase(ulong.Parse(enlisted), "BLACK");
+            await SetCaseType(ulong.Parse(enlisted), "BLACK");
+            await GiveNewCharm(ulong.Parse(enlisted), "NONE");
+            await SetCharmType(ulong.Parse(enlisted), "NONE");
+            await GiveNewWallpaper(ulong.Parse(enlisted), "BASIC");
+            await SetWallpaperType(ulong.Parse(enlisted), "BASIC");
         }
         
         await command.FollowupAsync("Done.");

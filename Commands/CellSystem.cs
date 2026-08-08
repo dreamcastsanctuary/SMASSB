@@ -224,9 +224,17 @@ public class CellSystem {
 
         if (add)
             await _db.GiveNewApp(member.Id, app);
-        else
+        
+        else {
             await _db.RemoveApp(member.Id, app);
 
+            var apps = await _db.GetApps(member.Id);
+            foreach (var application in apps) {
+                if (application.Equals(app)) {
+                    await _db.RemoveAppsFromHome(member.Id, app);
+                }
+            }
+        }
         await command.FollowupAsync("Done!");
     }
 
