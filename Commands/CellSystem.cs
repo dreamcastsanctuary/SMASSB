@@ -195,12 +195,15 @@ public class CellSystem {
             await _db.RemoveYen(member.Id, yen);
     }
 
-    public async Task EditApp(SocketSlashCommand command, bool add) {
+    public async Task EditAddons(SocketSlashCommand command, bool add) {
 
         await command.DeferAsync();
 
         SocketGuildUser member = null;
-        var app = "";
+        string app = null;
+        string caseType = null;
+        string charmType = null;
+        string wallpaperType = null;
 
         foreach (var option in command.Data.Options) {
             switch (option.Name) {
@@ -211,30 +214,69 @@ public class CellSystem {
                 case "app":
                     app = option.Value.ToString();
                     break;
+                case "case":
+                    caseType = option.Value.ToString();
+                    break;
+                case "charm":
+                    charmType = option.Value.ToString();
+                    break;
+                case "wallpaper":
+                    wallpaperType = option.Value.ToString();
+                    break;
                 default:
                     await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                     return;
             }
         }
-
+        
         if (member == null) {
             await command.FollowupAsync("Unrecognized user.", ephemeral: true);
             return;
         }
 
-        if (add)
-            await _db.GiveNewApp(member.Id, app);
-        
-        else {
-            await _db.RemoveApp(member.Id, app);
+        if (string.IsNullOrEmpty(app) && string.IsNullOrEmpty(caseType) &&
+            string.IsNullOrEmpty(charmType) && string.IsNullOrEmpty(wallpaperType)) {
+            await command.FollowupAsync("You must specify at least one addon to give or remove!", ephemeral: true);
+            return;
+        }
 
-            var apps = await _db.GetApps(member.Id);
-            foreach (var application in apps) {
-                if (application.Equals(app)) {
-                    await _db.RemoveAppsFromHome(member.Id, app);
-                }
+        if (!string.IsNullOrEmpty(app)) {
+            if (add)
+                await _db.GiveNewApp(member.Id, app);
+            else
+                await _db.RemoveApp(member.Id, app);
+        }
+        if (!string.IsNullOrEmpty(caseType)) {
+            if (add) {
+                await _db.GiveNewCase(member.Id, caseType);
+            } else {
+                await _db.RemoveCase(member.Id, caseType);
+                var equipped = await _db.GetCaseType(member.Id);
+                if (equipped == caseType)
+                    await _db.SetCaseType(member.Id, "BLACK");
             }
         }
+        if (!string.IsNullOrEmpty(charmType)) {
+            if (add) {
+                await _db.GiveNewCharm(member.Id, charmType);
+            } else {
+                await _db.RemoveCharm(member.Id, charmType);
+                var equipped = await _db.GetCharmType(member.Id);
+                if (equipped == charmType)
+                    await _db.SetCharmType(member.Id, "NONE");
+            }
+        }
+        if (!string.IsNullOrEmpty(wallpaperType)) {
+            if (add) {
+                await _db.GiveNewWallpaper(member.Id, wallpaperType);
+            } else {
+                await _db.RemoveWallpaper(member.Id, wallpaperType);
+                var equipped = await _db.GetWallpaperType(member.Id);
+                if (equipped == wallpaperType)
+                    await _db.SetWallpaperType(member.Id, "BASIC");
+            }
+        }
+
         await command.FollowupAsync("Done!");
     }
 
@@ -307,6 +349,7 @@ public class CellSystem {
                 caseFile = isFront ? "sango-case-front.png" : "sango-case-back.png";
                 break;
         }
+        
         switch (charmType) { }
 
         switch (wallpaperType) {

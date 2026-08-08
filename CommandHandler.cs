@@ -414,25 +414,54 @@ public class CommandHandler {
         var appOption = new SlashCommandOptionBuilder()
             .WithName("app")
             .WithDescription("The App to give.")
-            .WithType(ApplicationCommandOptionType.String)
-            .WithRequired(true);
+            .WithType(ApplicationCommandOptionType.String);
 
         foreach (var name in Enum.GetNames<AppType>())
             appOption.AddChoice(name, name);
+        
+        var caseOption = new SlashCommandOptionBuilder()
+            .WithName("case")
+            .WithDescription("The Case to give.")
+            .WithType(ApplicationCommandOptionType.String);
+
+        foreach (var name in Enum.GetNames<CaseType>())
+            caseOption.AddChoice(name, name);
+        
+        var charmOption = new SlashCommandOptionBuilder()
+            .WithName("charm")
+            .WithDescription("The Charm to give.")
+            .WithType(ApplicationCommandOptionType.String);
+
+        foreach (var name in Enum.GetNames<CharmType>())
+            charmOption.AddChoice(name, name);
+
+        var wallpaperOption = new SlashCommandOptionBuilder()
+            .WithName("wallpaper")
+            .WithDescription("The Wallpaper to give.")
+            .WithType(ApplicationCommandOptionType.String);
+
+        foreach (var name in Enum.GetNames<WallpaperType>())
+            wallpaperOption.AddChoice(name, name);
 
         commands.Add(new SlashCommandBuilder()
-            .WithName("givecellapp")
-            .WithDescription("Give a member a WorkCell app.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The member the ID will go to.", isRequired: true)
+            .WithName("givecelladdons")
+            .WithDescription("Give a member a WorkCell addon.")
+            .AddOption("member", ApplicationCommandOptionType.User, "The member the addon will go to.", isRequired: true)
             .AddOption(appOption)
+            .AddOption(caseOption)
+            .AddOption(wallpaperOption)
+            .AddOption(charmOption)
             .WithDefaultMemberPermissions(GuildPermission.Administrator)
         );
         
         commands.Add(new SlashCommandBuilder()
-            .WithName("removecellapp")
+            .WithName("removecelladdons")
             .WithDescription("Remove an app from a member's WorkCell.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member.", isRequired: true)
             .AddOption(appOption)
+            .AddOption(caseOption)
+            .AddOption(wallpaperOption)
+            .AddOption(charmOption)
             .WithDefaultMemberPermissions(GuildPermission.Administrator)
         );
         
@@ -567,11 +596,11 @@ public class CommandHandler {
             case "removeyen":
                 await _cellSystem.EditYen(command, false);
                 break;
-            case "givecellapp":
-                await _cellSystem.EditApp(command, true);
+            case "givecelladdons":
+                await _cellSystem.EditAddons(command, true);
                 break;
-            case "removecellapp":
-                await _cellSystem.EditApp(command, false);
+            case "removecelladdons":
+                await _cellSystem.EditAddons(command, false);
                 break;
             
             case "givecell":
