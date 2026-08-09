@@ -154,7 +154,7 @@ public class CellSystem {
         var fontPath = Path.Combine(AppContext.BaseDirectory, "Fonts", "MonaspaceArgon-Bold.otf");
         var fontFamily = fontCollection.Add(fontPath);
         var fontReg = fontFamily.CreateFont(200);
-        var fontTiny = fontFamily.CreateFont(40);
+        var fontTiny = fontFamily.CreateFont(50);
         var fontSmall = fontFamily.CreateFont(65);
         var fontBal = fontFamily.CreateFont(80);
         
@@ -214,7 +214,7 @@ public class CellSystem {
                     ipc.DrawText("¥" + yen.ToString("N0"), fontReg, color, new Point(757, 739));
                     ipc.DrawText("**** **** **** " + (userId % 10000).ToString("D4"), fontSmall, color, new Point(762, 473));
                     ipc.DrawText("Balance", fontBal, color, new Point(740, 640));
-                    ipc.DrawText(BuildEarningsSummary(currentWeekEarnings, percentChange, isIncrease), fontTiny, color, new Point(847, 910));
+                    ipc.DrawText(BuildEarningsSummary(currentWeekEarnings, percentChange, isIncrease), fontTiny, color, new Point(877, 930));
             });
             var outputStream = new MemoryStream();
             clone.Save(outputStream, new PngEncoder());
