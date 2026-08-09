@@ -36,7 +36,7 @@ public class CellSystem {
         var hasEmulatorApp = appsParam.Contains(AppType.RHYTHMTENGOKU.ToString());
         var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
 
-        var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: true, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
+        var (cellAttachment, cellImageUrl) = GetCellImage(hasEmulatorApp, caseType, charmType, wallpaperType, isFront: true, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
 
         var container = new ContainerBuilder()
             .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
@@ -98,7 +98,7 @@ public class CellSystem {
                 await component.RespondAsync("This isn't your cell! You like touching things that don't belong to you?", ephemeral: true);
                 return;
             }
-
+            
             var currentSide = parts[1];
             var caseType = parts[2];
             var charmType = parts[3];
@@ -110,7 +110,7 @@ public class CellSystem {
 
             var nextCustomId = $"flip_over:{ownerId}|{nextSide}|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
 
-            var (cellAttachment, cellImageUrl) = GetCellImage(caseType, charmType, wallpaperType, isFront: isFrontNext, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
+            var (cellAttachment, cellImageUrl) = GetCellImage(hasEmulatorApp, caseType, charmType, wallpaperType, isFront: isFrontNext, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
 
             var container = new ContainerBuilder()
                 .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
@@ -140,7 +140,8 @@ public class CellSystem {
         }
     }
 
-    private static (FileAttachment Attachment, string Url) GetCellImage(string caseType, 
+    private static (FileAttachment Attachment, string Url) GetCellImage(bool hasEmulatorApp,
+                                                                          string caseType, 
                                                                           string charmType, 
                                                                           string wallpaperType, 
                                                                           bool isFront, 
@@ -196,7 +197,7 @@ public class CellSystem {
         }
         
         var casePath = Path.Combine(AppContext.BaseDirectory, "Images", caseFile);
-        var charmPath = Path.Combine(AppContext.BaseDirectory, "Images", wallpaperFile);
+        var charmPath = Path.Combine(AppContext.BaseDirectory, "Images", charmFile);
         var wallpaperPath = Path.Combine(AppContext.BaseDirectory, "Images", wallpaperFile);
         
         using var cellCase = Image.Load(casePath);
@@ -215,6 +216,12 @@ public class CellSystem {
                     ipc.DrawText("**** **** **** " + (userId % 10000).ToString("D4"), fontSmall, color, new Point(762, 463));
                     ipc.DrawText("Balance", fontBal, color, new Point(740, 640));
                     ipc.DrawText(BuildEarningsSummary(currentWeekEarnings, percentChange, isIncrease), fontTiny, color, new Point(800, 963));
+
+                    if (hasEmulatorApp) {
+                        var app = Path.Combine(AppContext.BaseDirectory, "Images", "tengoku-app");
+                        using var appImage = Image.Load(app);
+                        ipc.DrawImage(appImage, new Point(0, 0), 1);
+                    }
             });
             var outputStream = new MemoryStream();
             clone.Save(outputStream, new PngEncoder());
