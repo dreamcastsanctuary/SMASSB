@@ -219,7 +219,7 @@ public class CellSystem {
                 ipc.DrawText(BuildEarningsSummary(currentWeekEarnings, percentChange, isIncrease), fontTiny, color, new Point(800, 963));
 
                 if (hasEmulatorApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "tengoku-app");
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "tengoku-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
