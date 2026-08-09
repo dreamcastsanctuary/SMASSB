@@ -2,5 +2,7 @@
 
 public enum CharmType {
     
-    NONE
+    NONE,
+    SAKURA,
+    SANGO
 }
