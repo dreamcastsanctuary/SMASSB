@@ -201,13 +201,8 @@ public class CellSystem {
         
         using var cellCase = Image.Load(casePath);
         using var wallpaper = Image.Load(wallpaperPath);
-
-        Image charm;
-        if (isFront)
-            charm = string.IsNullOrEmpty(charmFile) ? null : Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", charmFile + "-front.png"));
-        else
-            charm = string.IsNullOrEmpty(charmFile) ? null : Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", charmFile + "-back.png"));
-
+        using var charm = string.IsNullOrEmpty(charmFile) ? null : Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", charmFile + (isFront ? "-front.png" : "-back.png")));
+        
         using var clone = cellCase.Clone(ipc => {
 
             if (isFront) {
