@@ -108,27 +108,31 @@ public class RoleSystem {
             }
         }
 
-        Dictionary<ulong, int> ranks  = new Dictionary<ulong, int>();
-        
-        ranks.Add(1475886748268625962, 250);
-        ranks.Add(1475886729561899212, 500);
-        ranks.Add(1475886715368509753, 750);
-        ranks.Add(1475886697118957660, 1000);
-        ranks.Add(1475886671919579310, 1250);
-        ranks.Add(1475886657545961472, 1500);
+        var ranks = new List<(ulong RoleId, int Threshold)> {
+            (1475886748268625962, 250),
+            (1475886729561899212, 500),
+            (1475886715368509753, 750),
+            (1475886697118957660, 1000),
+            (1475886671919579310, 1250),
+            (1475886657545961472, 1500),
+        };
 
         List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
         SocketGuild guild = client.GetGuild((ulong)command.GuildId);
         List<SocketGuildUser> promotable = new List<SocketGuildUser>();
         
         foreach (var userId in _db.GetEnlisted()) {
-            
             enlisteds.Add(guild.GetUser(ulong.Parse(userId)));
         }
 
         foreach (var enlisted in enlisteds) {
+            if (enlisted == null) continue; 
+            
             foreach (var rank in ranks) {
-                if (guild.GetRole(rank.Key).Name.Contains(await _db.GetRank(enlisted.Id)) & await _db.GetPoints(enlisted.Id) >= rank.Value) {
+                var role = guild.GetRole(rank.RoleId);
+                if (role == null) continue;
+
+                if (role.Name.Contains(await _db.GetRank(enlisted.Id)) && await _db.GetPoints(enlisted.Id) >= rank.Threshold) {
                     promotable.Add(enlisted);
                 }
             }
@@ -139,15 +143,10 @@ public class RoleSystem {
             return;
         }
 
-        var description = "";
-        
-        if (promotable.Count > 0) {
-            description += "<:sango_emblem_mono:1492222638980989138> ∥ GENERAL RANKUPs . .\n・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・\n";
-            
-            foreach (var promo in promotable)
-            {
-                description += "<@" + promo.Id + "> ∥ " + await _db.GetPoints(promo.Id) + "pts.\n";
-            }
+        var description = "<:sango_emblem_mono:1492222638980989138> ∥ GENERAL RANKUPs . .\n・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・\n";
+
+        foreach (var promo in promotable) {
+            description += "<@" + promo.Id + "> ∥ " + await _db.GetPoints(promo.Id) + "pts.\n";
         }
 
         EmbedBuilder builder = new EmbedBuilder()
@@ -155,24 +154,27 @@ public class RoleSystem {
             .WithThumbnailUrl("https://media.discordapp.net/attachments/1084260632142024784/1514408846259523606/Untitled384_20260410170520.png?ex=6a2e8e65&is=6a2d3ce5&hm=c05da8c7af19869b1745e4024aa09d0ba8a119d1c0ee397c6d02d6f9a381ff9a&=&format=webp&quality=lossless&width=1265&height=1265")
             .WithDescription(description)
             .WithColor(0xBFA55F);
-        
+
         if (promote) {
             foreach (var enlisted in promotable) {
-                var rankList = ranks.ToList();
-                
-                for (int i = 0; i < rankList.Count; i++) {
-                    if (guild.GetRole(rankList[i].Key).Name.Contains(await _db.GetRank(enlisted.Id))) {
-                        
-                        if (i + 1 < rankList.Count) {
-                            await Promote(enlisted, guild.GetRole(rankList[i + 1].Key));
-                            
-                            await enlisted.RemoveRoleAsync(guild.GetRole(rankList[i].Key));
-                            if (i != 0) {
-                                await enlisted.RemoveRoleAsync(guild.GetRole(rankList[i - 1].Key));
-                                if ((i - 1) != 0) await enlisted.RemoveRoleAsync(guild.GetRole(rankList[i - 2].Key));
-                                if ((i - 2) != 0) await enlisted.RemoveRoleAsync(guild.GetRole(rankList[i - 3].Key));
+
+                for (int i = 0; i < ranks.Count; i++) {
+                    var role = guild.GetRole(ranks[i].RoleId);
+                    if (role == null) continue;
+
+                    if (role.Name.Contains(await _db.GetRank(enlisted.Id))) {
+
+                        if (i + 1 < ranks.Count) {
+                            await Promote(enlisted, guild.GetRole(ranks[i + 1].RoleId));
+
+                            for (int j = i; j >= Math.Max(0, i - 3); j--) {
+                                var oldRole = guild.GetRole(ranks[j].RoleId);
+                                if (oldRole != null) {
+                                    await enlisted.RemoveRoleAsync(oldRole);
+                                }
                             }
-                            await enlisted.AddRoleAsync(guild.GetRole(rankList[i + 1].Key));
+
+                            await enlisted.AddRoleAsync(guild.GetRole(ranks[i + 1].RoleId));
                         }
                         break;
                     }
