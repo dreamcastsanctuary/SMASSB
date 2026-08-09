@@ -177,10 +177,10 @@ public class CellSystem {
 
         switch (charmType) {
             case "SAKURA":
-                charmFile = "sakura-charm.png";
+                charmFile = "sakura-charm";
                 break;
             case "SANGO":
-                charmFile = "sango-charm.png";
+                charmFile = "sango-charm";
                 break;
         }
 
@@ -200,18 +200,22 @@ public class CellSystem {
         var wallpaperPath = Path.Combine(AppContext.BaseDirectory, "Images", wallpaperFile);
         
         using var cellCase = Image.Load(casePath);
-        using var charm = string.IsNullOrEmpty(charmFile) ? null : Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", charmFile));
         using var wallpaper = Image.Load(wallpaperPath);
 
-        if (isFront) {
-            
-            var color = GetFontColor(wallpaperType);
-            
-            using var clone = cellCase.Clone(ipc => {
-        
+        Image charm;
+        if (isFront)
+            charm = string.IsNullOrEmpty(charmFile) ? null : Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", charmFile + "-front.png"));
+        else
+            charm = string.IsNullOrEmpty(charmFile) ? null : Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", charmFile + "-back.png"));
+
+        using var clone = cellCase.Clone(ipc => {
+
+            if (isFront) {
+                
                 if (charm != null) {
                     ipc.DrawImage(charm, new Point(0, 0), 1);
                 }
+                var color = GetFontColor(wallpaperType);
                 ipc.DrawImage(wallpaper, new Point(0, 0), 1);
                 ipc.DrawText("¥" + yen.ToString("N0"), fontReg, color, new Point(757, 739));
                 ipc.DrawText("**** **** **** " + (userId % 10000).ToString("D4"), fontSmall, color, new Point(762, 463));
@@ -223,23 +227,22 @@ public class CellSystem {
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-            });
-            var outputStream = new MemoryStream();
-            clone.Save(outputStream, new PngEncoder());
-            outputStream.Position = 0;
+            } else {
+                if (charm != null) {
+                    ipc.DrawImage(charm, new Point(0, 0), 1);
+                }
+            }
+        });
+        var outputStream = new MemoryStream();
+        clone.Save(outputStream, new PngEncoder());
+        outputStream.Position = 0;
 
-            var composedFileName = "composed-cell.png";
-            var composedAttachment = new FileAttachment(outputStream, composedFileName);
+        var composedFileName = "composed-cell.png";
+        var composedAttachment = new FileAttachment(outputStream, composedFileName);
         
-            var composedUrl = $"attachment://{composedAttachment.FileName}";
+        var composedUrl = $"attachment://{composedAttachment.FileName}";
 
-            return (composedAttachment, composedUrl);
-        }
-        
-        var caseAttachment = new FileAttachment(casePath, caseFile);
-        var caseUrl = $"attachment://{caseAttachment.FileName}";
-        
-        return (caseAttachment, caseUrl);
+        return (composedAttachment, composedUrl);
     }
 
     private static Color GetFontColor(string wallpaperType) {
