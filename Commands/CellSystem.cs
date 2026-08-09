@@ -197,11 +197,10 @@ public class CellSystem {
         }
         
         var casePath = Path.Combine(AppContext.BaseDirectory, "Images", caseFile);
-        var charmPath = Path.Combine(AppContext.BaseDirectory, "Images", charmFile);
         var wallpaperPath = Path.Combine(AppContext.BaseDirectory, "Images", wallpaperFile);
         
         using var cellCase = Image.Load(casePath);
-        using var charm = Image.Load(charmPath);
+        using var charm = string.IsNullOrEmpty(charmFile) ? null : Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", charmFile));
         using var wallpaper = Image.Load(wallpaperPath);
 
         if (isFront) {
@@ -209,19 +208,21 @@ public class CellSystem {
             var color = GetFontColor(wallpaperType);
             
             using var clone = cellCase.Clone(ipc => {
-                    
-                    ipc.DrawImage(wallpaper, new Point(0, 0), 1);
+        
+                if (charm != null) {
                     ipc.DrawImage(charm, new Point(0, 0), 1);
-                    ipc.DrawText("¥" + yen.ToString("N0"), fontReg, color, new Point(757, 739));
-                    ipc.DrawText("**** **** **** " + (userId % 10000).ToString("D4"), fontSmall, color, new Point(762, 463));
-                    ipc.DrawText("Balance", fontBal, color, new Point(740, 640));
-                    ipc.DrawText(BuildEarningsSummary(currentWeekEarnings, percentChange, isIncrease), fontTiny, color, new Point(800, 963));
+                }
+                ipc.DrawImage(wallpaper, new Point(0, 0), 1);
+                ipc.DrawText("¥" + yen.ToString("N0"), fontReg, color, new Point(757, 739));
+                ipc.DrawText("**** **** **** " + (userId % 10000).ToString("D4"), fontSmall, color, new Point(762, 463));
+                ipc.DrawText("Balance", fontBal, color, new Point(740, 640));
+                ipc.DrawText(BuildEarningsSummary(currentWeekEarnings, percentChange, isIncrease), fontTiny, color, new Point(800, 963));
 
-                    if (hasEmulatorApp) {
-                        var app = Path.Combine(AppContext.BaseDirectory, "Images", "tengoku-app");
-                        using var appImage = Image.Load(app);
-                        ipc.DrawImage(appImage, new Point(0, 0), 1);
-                    }
+                if (hasEmulatorApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "tengoku-app");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
             });
             var outputStream = new MemoryStream();
             clone.Save(outputStream, new PngEncoder());
