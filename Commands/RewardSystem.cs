@@ -98,7 +98,7 @@ public class RewardSystem {
         
         await command.DeferAsync();
         
-        string[] accompName = {"TRANSFER", "SUPPORTER", "HIGH SCOUTER", "MAX SCOUTER", "PERFECT PITCH", "WORLD-CLASS IDOL", "RIKUGUN BUKŌSHŌ I", "RIKUGUN BUKŌSHŌ II", "REBIRTH", "A NUTRITIOUS BREAKFAST"};
+        string[] accompName = {"TRANSFER", "SUPPORTER", "HIGH SCOUTER", "MAX SCOUTER", "PERFECT PITCH", "WORLD-CLASS IDOL", "RIKUGUN BUKŌSHŌ I", "RIKUGUN BUKŌSHŌ II", "REBIRTH", "A NUTRITIOUS BREAKFAST", "STALEMATE"};
         string[] paradeLocation = {"Left Wing, Main Color 3", "Right Wing, Main Color 3", "Left Wing, Outline 2", "Right Wing, Outline 2", "Left Sleeve, Outline 1", "Left Sleeve, Main Color 5", "Right Sleeve, Outline 1", "Right Sleeve, Main Color 5", "Chest Acc., Color 5"};
         string[] paradeHex = {"#5d6866", "#5d6866","#839390", "#839390", "#5d6866", "#839390","#5d6866", "#839390", "#839390"};
         string[] itemPackTrack1 = {"", " and Custom Itempack", "", " and Custom Itempack", "", " and Custom Itempack", " and Custom Itempack", " and Custom Itempack", " and Custom Itempack"};
