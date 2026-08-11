@@ -350,8 +350,6 @@ public class CellSystem {
 
     public async Task EditYen(SocketSlashCommand command, bool add) {
 
-        await command.DeferAsync();
-
         List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
         var yen = 0;
 
@@ -404,6 +402,8 @@ public class CellSystem {
             else
                 await _db.RemoveYen(member.Id, yen);
         }
+        
+        await command.RespondAsync("Done!");
     }
 
     public async Task EditAddons(SocketSlashCommand command, bool add) {
