@@ -92,7 +92,7 @@ public class RewardSystem {
         
         await command.DeferAsync();
         
-        string[] accompName = {"TRANSFER", "SUPPORTER", "HIGH SCOUTER", "MAX SCOUTER", "PERFECT PITCH", "WORLD-CLASS IDOL", "RIKUGUN BUKŌSHŌ I", "RIKUGUN BUKŌSHŌ II", "REBIRTH"};
+        string[] accompName = {"TRANSFER", "SUPPORTER", "HIGH SCOUTER", "MAX SCOUTER", "PERFECT PITCH", "WORLD-CLASS IDOL", "RIKUGUN BUKŌSHŌ I", "RIKUGUN BUKŌSHŌ II", "REBIRTH", "A NUTRITIOUS BREAKFAST"};
         string[] paradeLocation = {"Left Wing, Main Color 3", "Right Wing, Main Color 3", "Left Wing, Outline 2", "Right Wing, Outline 2", "Left Sleeve, Outline 1", "Left Sleeve, Main Color 5", "Right Sleeve, Outline 1", "Right Sleeve, Main Color 5", "Chest Acc., Color 5"};
         string[] paradeHex = {"#5d6866", "#5d6866","#839390", "#839390", "#5d6866", "#839390","#5d6866", "#839390", "#839390"};
         string[] itemPackTrack1 = {"", " and Custom Itempack", "", " and Custom Itempack", "", " and Custom Itempack", " and Custom Itempack", " and Custom Itempack", " and Custom Itempack"};
@@ -164,13 +164,17 @@ public class RewardSystem {
                 value = 9;
                 await assignedTo.AddRoleAsync(1477926845184872531);
                 break;
+            case 10:
+                value = 10;
+                await assignedTo.AddRoleAsync(1527907825836097556);
+                break;
             default:
                 await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                 return;
         }
 
         List<EmbedBuilder> embeds = new List<EmbedBuilder>();
-        
+
         embeds.Add(new EmbedBuilder()
             .WithAuthor("Dear Enlistee, you have completed the . . .")
             .WithTitle(accompName[value - 1] + " ACCOMPLISHMENT!")
@@ -178,21 +182,31 @@ public class RewardSystem {
             .WithDescription(". . And have been awarded with the following :")
             .WithThumbnailUrl("https://64.media.tumblr.com/7d47f90161168afdb17720c3e645e120/b35d6053bfb9fc2a-03/s400x600/5ed0e321f4aeac2aa3542a520f1df49cbeff1752.pnj"));
         
-        embeds.Add(new EmbedBuilder()
-            .WithTitle("Wearable for Parade Dress!")
-            .WithColor(0xBFA55F)
-            .WithDescription("Please place this code on your dress on the *" + paradeLocation[value - 1] + "*. \n✦ **" + paradeHex[value - 1] + "**"));
+        if (value < 10) {
+            
+            embeds.Add(new EmbedBuilder()
+                .WithTitle("Wearable for Parade Dress!")
+                .WithColor(0xBFA55F)
+                .WithDescription("Please place this code on your dress on the *" + paradeLocation[value - 1] + "*. \n✦ **" + paradeHex[value - 1] + "**"));
 
-        embeds.Add(new EmbedBuilder()
-            .WithTitle("Custom Colorpack" + itemPackTrack1[value - 1] + " for Tracksuit!")
-            .WithColor(0xBFA55F)
-            .WithDescription("You may change *two* colors on your tracksuit." + itemPackTrack2[value - 1] + "\n\n✦ **181615** and **070a0c** are the same code when recoloring.\n✦ **888375** and **6b6051** are the same code when recoloring.\n✦ Colors and outlines are treated as two separate values, so don't change a main color and it's outline and say that it is one color!"));
+            embeds.Add(new EmbedBuilder()
+                .WithTitle("Custom Colorpack" + itemPackTrack1[value - 1] + " for Tracksuit!")
+                .WithColor(0xBFA55F)
+                .WithDescription("You may change *two* colors on your tracksuit." + itemPackTrack2[value - 1] + "\n\n✦ **181615** and **070a0c** are the same code when recoloring.\n✦ **888375** and **6b6051** are the same code when recoloring.\n✦ Colors and outlines are treated as two separate values, so don't change a main color and it's outline and say that it is one color!"));
 
-        embeds.Add(new EmbedBuilder()
-            .WithTitle("New Itempack for Idol Outfit!")
-            .WithColor(0xBFA55F)
-            .WithDescription("You may use **" + itemPackIdol1[value - 1] + "** and **" + itemPackIdol2[value - 1] + "** rather than the required items!")
-            .WithFooter("Please send your updated uniforms in the typical uniform checks."));
+            embeds.Add(new EmbedBuilder()
+                .WithTitle("New Itempack for Idol Outfit!")
+                .WithColor(0xBFA55F)
+                .WithDescription("You may use **" + itemPackIdol1[value - 1] + "** and **" + itemPackIdol2[value - 1] + "** rather than the required items!")
+                .WithFooter("Please send your updated uniforms in the typical uniform checks."));
+        } else {
+            
+            embeds.Add(new EmbedBuilder()
+                .WithTitle("Wearable for Parade Dress!")
+                .WithColor(0xBFA55F)
+                .WithDescription("Please place these codes on your dress on the *Back Bow*. \n✦ **#839390 | #272e2e**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#192126 | #090d10**")
+                .WithFooter("You've also received 50 POINTs and ¥3000"));
+        }
         
         await command.FollowupAsync(text: "Rewarded member with accomplishment " + accompName[value - 1] + ".", ephemeral: true);
 
