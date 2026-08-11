@@ -389,7 +389,7 @@ public class CellSystem {
                     enlisteds.Add(((SocketGuildUser)option.Value));
                     break;
                 case "amount":
-                    yen = (int)(ulong)option.Value;
+                    yen = (int)(long)option.Value;
                     break;
                 default:
                     await command.FollowupAsync("Unrecognized command.", ephemeral: true);
