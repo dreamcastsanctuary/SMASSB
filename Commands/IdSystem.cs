@@ -89,15 +89,6 @@ public class IdSystem {
             Sampler = KnownResamplers.Lanczos3
         }));
         
-        var name = claimParam;
-        var accId = accIdParam;
-        var date = dateParam;
-        var rank = rankParam;
-        var points = pointsParam;
-        var recruits = recruitsParam;
-        var bloodtype = bloodtypeParam;
-        var catchphrase = catchphraseParam;
-
         var namePos = new Point(827, 452);
         var avatarPos = new Point(93,373);
         var idPos = new Point(1219,154);
@@ -139,37 +130,37 @@ public class IdSystem {
             
             ipc.DrawImage(avatar, avatarPos, 1);
             ipc.DrawImage(coloredBarcode, barcodePos, 1);
-            ipc.DrawText($"{points}", font, colors[2], pointsPos);
-            ipc.DrawText($"{recruits}", font, colors[2], recruitsPos);
-            ipc.DrawText($"{bloodtype}", font, colors[2], bloodtypePos);
-            ipc.DrawText($"{catchphrase}", font, colors[1], catchphrasePos);
-            ipc.DrawText($"{date:M/d/yyyy}", font, colors[2], datePos);
-            ipc.DrawText($"{accId}", fontId, colors[0], idPos);
+            ipc.DrawText($"{pointsParam}", font, colors[2], pointsPos);
+            ipc.DrawText($"{recruitsParam}", font, colors[2], recruitsPos);
+            ipc.DrawText($"{bloodtypeParam}", font, colors[2], bloodtypePos);
+            ipc.DrawText($"{catchphraseParam}", font, colors[1], catchphrasePos);
+            ipc.DrawText($"{dateParam:M/d/yyyy}", font, colors[2], datePos);
+            ipc.DrawText($"{accIdParam}", fontId, colors[0], idPos);
 
-            if (name.Length > 15) {
+            if (claimParam.Length > 15) {
                 
-                var spaceIndex = name.IndexOf(' ');
+                var spaceIndex = claimParam.IndexOf(' ');
                 if (spaceIndex > 0) {
-                    var firstName = name.Substring(0, spaceIndex);
-                    var lastName = name.Substring(spaceIndex + 1);
-                    name = $"{firstName}\n{lastName}";
+                    var firstName = claimParam.Substring(0, spaceIndex);
+                    var lastName = claimParam.Substring(spaceIndex + 1);
+                    claimParam = $"{firstName}\n{lastName}";
                 }
                 
-                ipc.DrawText($"{name}", fontSmall, colors[2], new Point(namePos.X, namePos.Y - 5));
-            } else ipc.DrawText($"{name}", font, colors[2], namePos);
+                ipc.DrawText($"{claimParam}", fontSmall, colors[2], new Point(namePos.X, namePos.Y - 5));
+            } else ipc.DrawText($"{claimParam}", font, colors[2], namePos);
             
-            if (rank.Contains("taru")) {
-                rank = "Bakuryōchō\ntaru Onshō";
-                ipc.DrawText($"{rank}", fontSmall, colors[2], new Point(rankPos.X, rankPos.Y - 3));
+            if (rankParam.Contains("taru")) {
+                rankParam = "Bakuryōchō\ntaru Onshō";
+                ipc.DrawText($"{rankParam}", fontSmall, colors[2], new Point(rankPos.X, rankPos.Y - 3));
                 
-            } else ipc.DrawText($"{rank}", font, colors[2], rankPos);
+            } else ipc.DrawText($"{rankParam}", font, colors[2], rankPos);
             
             foreach (var (img, pos) in badgesToDraw)
                 ipc.DrawImage(img, pos, 1);
             
         });
 
-        var output = Path.Combine(Path.GetTempPath(), $"id_{accId}.png");
+        var output = Path.Combine(Path.GetTempPath(), $"id_{accIdParam}.png");
         
         clone.Save(output);
         foreach (var (img, _) in badgesToDraw) img.Dispose();
@@ -586,7 +577,7 @@ public class IdSystem {
         if (roleIds.Contains(1475899134337617980)) badgesToDraw.Add((LoadBadges("badge5.png", 150, 150), new Point(1350, 440)));
         if (roleIds.Contains(1475899268593225829)) badgesToDraw.Add((LoadBadges("badge6.png", 150, 150), new Point(1520, 440)));
         if (roleIds.Contains(1475961765433970880)) badgesToDraw.Add((LoadBadges("badge7.png", 135, 135), new Point(1334, 570)));
-        if (roleIds.Contains(1475899269335744564)) badgesToDraw.Add((LoadBadges("badge8.png", 135, 135), new Point(1427, 600)));
+        if (roleIds.Contains(1475899269335744564)) badgesToDraw.Add((LoadBadges("badge8.png", 135, 135), new Point(1427, 590)));
         if (roleIds.Contains(1477926845184872531)) badgesToDraw.Add((LoadBadges("badge9.png", 135, 135), new Point(1520, 570)));
         
         if (roleIds.Contains(1527905937329881158)) badgesToDraw.Add((LoadBadges("tanzaku_gold.png", 130, 180),  new Point(163,895)));
