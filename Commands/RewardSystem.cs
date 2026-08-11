@@ -242,6 +242,6 @@ public class RewardSystem {
         
         var channel = client.GetChannel(1473209020285452360) as ITextChannel;
         
-        //await channel.SendMessageAsync("## Au__tomatic Messaging Syst__em . . \nPlease congratulate <@" + assignedTo.Id + "> in <#1473211757269876831> \nfor achieving the accomplishment **__" + accompName[value - 1]+ "__**!\n\n<@&1473370613992394864>");
+        await channel.SendMessageAsync("## Au__tomatic Messaging Syst__em . . \nPlease congratulate <@" + assignedTo.Id + "> in <#1473211757269876831> \nfor achieving the accomplishment **__" + accompName[value - 1]+ "__**!\n\n<@&1473370613992394864>");
     }
 }
