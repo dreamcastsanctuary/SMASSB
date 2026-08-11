@@ -352,14 +352,41 @@ public class CellSystem {
 
         await command.DeferAsync();
 
-        SocketGuildUser member = null;
+        List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
         var yen = 0;
 
         foreach (var option in command.Data.Options) {
             switch (option.Name) {
 
-                case "member":
-                    member = (SocketGuildUser)option.Value;
+                case "enlisted1":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted2":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted3":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted4":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted5":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted6":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted7":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted8":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted9":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted10":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
                     break;
                 case "amount":
                     yen = (int)(ulong)option.Value;
@@ -370,15 +397,13 @@ public class CellSystem {
             }
         }
 
-        if (member == null) {
-            await command.FollowupAsync("Unrecognized user.", ephemeral: true);
-            return;
+        foreach (var member in enlisteds) {
+            
+            if (add)
+                await _db.AddYen(member.Id, yen);
+            else
+                await _db.RemoveYen(member.Id, yen);
         }
-
-        if (add)
-            await _db.AddYen(member.Id, yen);
-        else
-            await _db.RemoveYen(member.Id, yen);
     }
 
     public async Task EditAddons(SocketSlashCommand command, bool add) {
