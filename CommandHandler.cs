@@ -68,7 +68,7 @@ public class CommandHandler {
                 .AddChoice("Transfer", 1).AddChoice("Supporter", 2).AddChoice("HighScouter", 3).AddChoice("MAXScouter",4)
                 .AddChoice("PerfectPitch", 5).AddChoice("WorldClassIdol", 6)
                 .AddChoice("RikugunBukoshoI", 7).AddChoice("RikugunBukoshoII", 8).AddChoice("Rebirth", 9)
-                .AddChoice("ANutritiousBreakfast", 10)
+                .AddChoice("ANutritiousBreakfast", 10).AddChoice("Stalemate", 11)
                 .WithType(ApplicationCommandOptionType.Integer))
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         

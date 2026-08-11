@@ -6,6 +6,12 @@ using SMASSB.Exceptions;
 namespace SMASSB.Commands;
 
 public class RewardSystem {
+
+    private DatabaseService _db;
+    
+    public RewardSystem(DatabaseService db) {
+        _db = db;
+    }
     
     [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandleRewardKoCommand(SocketSlashCommand command) {
@@ -167,6 +173,14 @@ public class RewardSystem {
             case 10:
                 value = 10;
                 await assignedTo.AddRoleAsync(1527907825836097556);
+                await _db.AddPoints(assignedTo.Id, 60);
+                await _db.AddYen(assignedTo.Id, 3500);
+                break;
+            case 11:
+                value = 11;
+                await assignedTo.AddRoleAsync(1527907819649630298);
+                await _db.AddPoints(assignedTo.Id, 30);
+                await _db.AddYen(assignedTo.Id, 2000);
                 break;
             default:
                 await command.FollowupAsync("Unrecognized command.", ephemeral: true);
@@ -200,12 +214,31 @@ public class RewardSystem {
                 .WithDescription("You may use **" + itemPackIdol1[value - 1] + "** and **" + itemPackIdol2[value - 1] + "** rather than the required items!")
                 .WithFooter("Please send your updated uniforms in the typical uniform checks."));
         } else {
+
+            switch (value) {
+                case 10:
+                    embeds.Add(new EmbedBuilder()
+                        .WithTitle("Wearable for Parade Dress!")
+                        .WithColor(0xBFA55F)
+                        .WithDescription("Please place these codes on your dress on the *Back Bow*. \n✦ **#839390 | #272e2e**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#192126 | #090d10**")
+                        .WithFooter("You've also received 60 POINTs and ¥3500"));
+                    break;
+                case 11:
+                    embeds.Add(new EmbedBuilder()
+                        .WithTitle("Wearable for Parade Dress!")
+                        .WithColor(0xBFA55F)
+                        .WithDescription("Please place this code on your dress on the *Waist Accessory, Main Color 2*. \n✦ **#5d6866**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#192126 | #090d10**")
+                        .WithFooter("You've also received 30 POINTs and ¥2000"));
+                    break;
+            }
             
-            embeds.Add(new EmbedBuilder()
-                .WithTitle("Wearable for Parade Dress!")
-                .WithColor(0xBFA55F)
-                .WithDescription("Please place these codes on your dress on the *Back Bow*. \n✦ **#839390 | #272e2e**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#192126 | #090d10**")
-                .WithFooter("You've also received 50 POINTs and ¥3000"));
+            if (value == 10) {
+                embeds.Add(new EmbedBuilder()
+                    .WithTitle("Wearable for Parade Dress!")
+                    .WithColor(0xBFA55F)
+                    .WithDescription("Please place these codes on your dress on the *Back Bow*. \n✦ **#839390 | #272e2e**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#192126 | #090d10**")
+                    .WithFooter("You've also received 60 POINTs and ¥3000"));
+            }
         }
         
         await command.FollowupAsync(text: "Rewarded member with accomplishment " + accompName[value - 1] + ".", ephemeral: true);

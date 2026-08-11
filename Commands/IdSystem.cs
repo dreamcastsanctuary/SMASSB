@@ -130,9 +130,11 @@ public class IdSystem {
         var badgesToDraw = ListBadges(member.Roles.Select(r => r.Id).ToHashSet());
         
         var clone = idImg.Clone(ipc => {
-
             if (member.Roles.Select(r => r.Id).ToHashSet().Contains(1527907825836097556)) {
                 ipc.DrawImage(Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "badge10.png")), 1);
+            }
+            if (member.Roles.Select(r => r.Id).ToHashSet().Contains(1527907819649630298)) {
+                ipc.DrawImage(Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "badge11.png")), 1);
             }
             
             ipc.DrawImage(avatar, avatarPos, 1);
