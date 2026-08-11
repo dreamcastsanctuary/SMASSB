@@ -231,14 +231,6 @@ public class RewardSystem {
                         .WithFooter("You've also received 30 POINTs and ¥2000"));
                     break;
             }
-            
-            if (value == 10) {
-                embeds.Add(new EmbedBuilder()
-                    .WithTitle("Wearable for Parade Dress!")
-                    .WithColor(0xBFA55F)
-                    .WithDescription("Please place these codes on your dress on the *Back Bow*. \n✦ **#839390 | #272e2e**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#192126 | #090d10**")
-                    .WithFooter("You've also received 60 POINTs and ¥3000"));
-            }
         }
         
         await command.FollowupAsync(text: "Rewarded member with accomplishment " + accompName[value - 1] + ".", ephemeral: true);
