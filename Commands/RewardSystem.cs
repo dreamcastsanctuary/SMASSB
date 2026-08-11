@@ -221,14 +221,14 @@ public class RewardSystem {
                         .WithTitle("Wearable for Parade Dress!")
                         .WithColor(0xBFA55F)
                         .WithDescription("Please place these codes on your dress on the *Back Bow*. \n✦ **#839390 | #272e2e**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#192126 | #090d10**")
-                        .WithFooter("You've also received 60 POINTs and ¥3500"));
+                        .WithFooter("You've also received 60 POINTs and ¥3500!\n✦ Please send your updated uniform in the typical uniform checks."));
                     break;
                 case 11:
                     embeds.Add(new EmbedBuilder()
                         .WithTitle("Wearable for Parade Dress!")
                         .WithColor(0xBFA55F)
                         .WithDescription("Please place this code on your dress on the *Waist Accessory, Main Color 2*. \n✦ **#5d6866**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#192126 | #090d10**")
-                        .WithFooter("You've also received 30 POINTs and ¥2000"));
+                        .WithFooter("You've also received 30 POINTs and ¥2000!\n✦ Please send your updated uniform in the typical uniform checks."));
                     break;
             }
         }
