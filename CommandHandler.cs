@@ -340,6 +340,10 @@ public class CommandHandler {
             .AddOption("auto_promote", ApplicationCommandOptionType.Boolean, "Automatically promote everyone here to the next rank.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
+        commands.Add(new SlashCommandBuilder()
+            .WithName("parsenontrained")
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
         // LORESYSTEM
         
         commands.Add(new SlashCommandBuilder()
@@ -588,7 +592,10 @@ public class CommandHandler {
             case "checkclaimed":
                 await _generalSystem.HandleCheckClaimedCommand(command);
                 break;
-            
+            case "parsenontrained":
+                await _generalSystem.HandleParseNonTrainedKohoseiCommand(command, _client);
+                break;
+                
             case "postlore":
                 await _loreSystem.PostLore(command);
                 break;

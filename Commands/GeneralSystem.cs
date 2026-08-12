@@ -160,4 +160,55 @@ public class GeneralSystem {
             await command.RespondAsync(matchDesc, ephemeral: true);
         }
     }
+    
+    public async Task HandleParseNonTrainedKohoseiCommand(SocketSlashCommand command, DiscordSocketClient client) {
+
+        await command.DeferAsync();
+        
+        List<SocketGuildUser> preCivt = new List<SocketGuildUser>();
+        List<SocketGuildUser> enlisted = new List<SocketGuildUser>();
+
+        var guild = client.GetGuild((ulong)command.GuildId);
+        await guild.DownloadUsersAsync();
+                    
+        var failures = new List<MessageSendException>();
+        var failures2 = new List<DmParseException>();
+
+        foreach (var userId in _db.GetEnlisted()) { enlisted.Add(guild.GetUser(ulong.Parse(userId))); }
+        
+        foreach (var user in enlisted) {
+            
+            try { if (user == null || user.IsBot) continue; } catch (Exception e) { await command.FollowupAsync(e.ToString()); }
+            
+            try {
+                var dmChannel = await user.CreateDMChannelAsync();
+                var found = false;
+                var batch = await dmChannel.GetMessagesAsync(100).FlattenAsync();
+                var messages = batch.ToList();
+                
+                try {
+                    if (messages.Count == 0) continue;
+                    if (!messages.Any(m => m.Author.Id == client.CurrentUser.Id && m.Embeds.Any(e => e.Description != null && e.Description.Contains("0 1 ∥ 040506 | LOCKED", StringComparison.OrdinalIgnoreCase)))) {
+                        
+                        preCivt.Add(user);
+                    }
+                } catch (Exception e) {
+                    failures2.Add(new DmParseException(user.Nickname ?? user.Username));
+                }
+            } catch (Exception ex) { failures.Add(new MessageSendException(user.Username, ex)); }
+            await Task.Delay(250);
+        }
+
+        var str = "";
+        
+        foreach (var user in preCivt) {
+            str += user.Nickname ?? user.Username + "\n";
+        }
+        
+        var embed = new EmbedBuilder().WithDescription(str).Build();
+
+        await command.FollowupAsync(embed: embed);
+        await command.FollowupAsync(string.Join("FAILURES : \n", failures.Select(f => f.ToString())));
+        await command.FollowupAsync(string.Join("FAILURES : \n", failures2.Select(f => f.ToString())));
+    }
 }
