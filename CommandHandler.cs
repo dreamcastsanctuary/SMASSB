@@ -342,6 +342,7 @@ public class CommandHandler {
         
         commands.Add(new SlashCommandBuilder()
             .WithName("parsenontrained")
+            .WithDescription("fuuuuk.")
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         // LORESYSTEM
