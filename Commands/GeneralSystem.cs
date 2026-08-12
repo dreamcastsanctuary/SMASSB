@@ -198,17 +198,16 @@ public class GeneralSystem {
             } catch (Exception ex) { failures.Add(new MessageSendException(user.Username, ex)); }
             await Task.Delay(250);
         }
-
-        var str = "";
         
-        foreach (var user in preCivt) {
-            str += (user.Nickname ?? user.Username) + "\n";
-        }
-        
-        var embed = new EmbedBuilder().WithDescription(str).Build();
+        var str = string.Join("\n", preCivt.Select(u => u.Nickname ?? u.Username));
+        var embed = new EmbedBuilder().WithDescription(str.Length > 0 ? str : "None.").Build();
 
         await command.FollowupAsync(embed: embed);
-        await command.FollowupAsync(string.Join("FAILURES : \n", failures.Select(f => f.ToString())));
-        await command.FollowupAsync(string.Join("FAILURES : \n", failures2.Select(f => f.ToString())));
+
+        if (failures.Count > 0)
+            await command.FollowupAsync("FAILURES:\n" + string.Join("\n", failures.Select(f => f.ToString())));
+
+        if (failures2.Count > 0)
+            await command.FollowupAsync("FAILURES:\n" + string.Join("\n", failures2.Select(f => f.ToString())));
     }
 }
