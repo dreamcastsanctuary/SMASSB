@@ -32,7 +32,7 @@ public class CommandHandler {
                           CellSystem cellSystem,
                           ShopSystem shopSystem,
                           DatabaseService db) {
-        
+
         _client = client;
         _client.SlashCommandExecuted += SlashCommandHandler;
         _rewardSystem = rewardSystem;
@@ -46,6 +46,27 @@ public class CommandHandler {
         _shopSystem = shopSystem;
         _db = db;
     }
+    
+    private Task SlashCommandHandler(SocketSlashCommand command) {
+        
+        _ = Task.Run(async () => {
+            try {
+                await HandleSlashCommand(command);
+            } catch (Exception ex) {
+                
+                Console.WriteLine($"Unhandled exception in command '{command.Data.Name}': {ex}");
+                try {
+                    if (command.HasResponded)
+                        await command.FollowupAsync("Something went wrong running that command.", ephemeral: true);
+                    else
+                        await command.RespondAsync("Something went wrong running that command.", ephemeral: true);
+                } catch {
+                }
+            }
+        });
+        return Task.CompletedTask;
+    }
+    
     public async Task RegisterCommands(SocketGuild guild) {
         
         List<SlashCommandBuilder> commands = new List<SlashCommandBuilder>();
@@ -491,7 +512,7 @@ public class CommandHandler {
             Console.WriteLine($"Command registration failed: {ex}");
         }
     }
-    private async Task SlashCommandHandler(SocketSlashCommand command) {
+    private async Task HandleSlashCommand(SocketSlashCommand command) {
         
         switch(command.Data.Name) {
             

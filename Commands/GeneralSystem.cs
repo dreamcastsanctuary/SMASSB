@@ -188,7 +188,7 @@ public class GeneralSystem {
                 
                 try {
                     if (messages.Count == 0) continue;
-                    if (!messages.Any(m => m.Author.Id == client.CurrentUser.Id && m.Embeds.Any(e => e.Description != null && e.Description.Contains("0 1 ∥ 040506 | LOCKED", StringComparison.OrdinalIgnoreCase)))) {
+                    if (!messages.Any(m => m.Author.Id == client.CurrentUser.Id && m.Embeds.Any(e => e.Description != null && e.Description.Contains("151618 | LOCKED", StringComparison.OrdinalIgnoreCase)))) {
                         
                         preCivt.Add(user);
                     }
@@ -202,7 +202,7 @@ public class GeneralSystem {
         var str = "";
         
         foreach (var user in preCivt) {
-            str += user.Nickname ?? user.Username + "\n";
+            str += (user.Nickname ?? user.Username) + "\n";
         }
         
         var embed = new EmbedBuilder().WithDescription(str).Build();
