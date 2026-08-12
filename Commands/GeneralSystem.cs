@@ -188,7 +188,7 @@ public class GeneralSystem {
                 
                 try {
                     if (messages.Count == 0) continue;
-                    if (!messages.Any(m => m.Author.Id == client.CurrentUser.Id && m.Embeds.Any(e => e.Description != null && e.Description.Contains("151618 | LOCKED", StringComparison.OrdinalIgnoreCase)))) {
+                    if (!messages.Any(m => m.Author.Id == client.CurrentUser.Id && m.Embeds.Any(e => e.Description != null && e.Description.Contains("151618 | LOCKED", StringComparison.OrdinalIgnoreCase)) && user.Nickname.StartsWith("Kō"))) {
                         
                         preCivt.Add(user);
                     }
