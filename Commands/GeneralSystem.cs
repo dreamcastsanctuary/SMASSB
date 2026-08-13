@@ -188,7 +188,8 @@ public class GeneralSystem {
 
                     bool hasLockedMessage = messages.Any(m => m.Author.Id == client.CurrentUser.Id && m.Embeds.Any(e => e.Description != null && e.Description.Contains("151618 | LOCKED", StringComparison.OrdinalIgnoreCase)));
                     bool hasKoName = (user.Nickname ?? user.Username).Contains("Kō", StringComparison.OrdinalIgnoreCase);
-
+                    bool hasPoints = await _db.GetPoints(user.Id) != 0;
+                    
                     if (!hasLockedMessage && hasKoName) {
                         preCivt.Add(user);
                     }

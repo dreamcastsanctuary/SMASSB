@@ -451,6 +451,7 @@ public class PointSystem {
         await command.DeferAsync();
 
         var channel = command.Channel;
+        if (channel.Id != 1475729416264093787) return;
         var messagesAsync = channel.GetMessagesAsync();
         
         var cutoff = DateTimeOffset.UtcNow.AddDays(-3);
