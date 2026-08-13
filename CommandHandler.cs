@@ -361,11 +361,11 @@ public class CommandHandler {
             .AddOption("auto_promote", ApplicationCommandOptionType.Boolean, "Automatically promote everyone here to the next rank.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
-        commands.Add(new SlashCommandBuilder()
-            .WithName("parsenontrained")
-            .WithDescription("fuuuuk.")
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
-        
+        // commands.Add(new SlashCommandBuilder()
+        //     .WithName("parsenontrained")
+        //     .WithDescription("fuuuuk.")
+        //     .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        //
         // LORESYSTEM
         
         commands.Add(new SlashCommandBuilder()
@@ -592,9 +592,9 @@ public class CommandHandler {
             case "addbatchpoints":
                 await _pointSystem.HandleBatchPoints(command, _client);
                 break;
-            // case "parsebatchrecruits":
-            //     await _pointSystem.HandleBatchRecruits(command);
-            //     break;
+            case "parsebatchrecruits":
+                await _pointSystem.HandleBatchRecruits(command);
+                break;
             case "leaderboard":
                 await _pointSystem.Leaderboard(command);
                 break;
