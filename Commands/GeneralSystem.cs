@@ -202,16 +202,9 @@ public class GeneralSystem {
 
             await Task.Delay(250);
         }
-        
-        var str = string.Join("\n", preCivt.Select(u => u.Nickname ?? u.Username));
-        var embed = new EmbedBuilder().WithDescription(str.Length > 0 ? str : "None.").Build();
 
-        await command.FollowupAsync(embed: embed);
-
-        if (failures.Count > 0)
-            await command.FollowupAsync("FAILURES:\n" + string.Join("\n", failures.Select(f => f.ToString())));
-
-        if (failures2.Count > 0)
-            await command.FollowupAsync("FAILURES:\n" + string.Join("\n", failures2.Select(f => f.ToString())));
+        foreach (var user in preCivt) {
+            await user.AddRoleAsync(1537202109336920096);
+        }
     }
 }
