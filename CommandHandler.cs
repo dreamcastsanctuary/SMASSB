@@ -592,9 +592,9 @@ public class CommandHandler {
             case "addbatchpoints":
                 await _pointSystem.HandleBatchPoints(command, _client);
                 break;
-            case "parsebatchrecruits":
-                await _pointSystem.HandleBatchRecruits(command);
-                break;
+            // case "parsebatchrecruits":
+            //     await _pointSystem.HandleBatchRecruits(command);
+            //     break;
             case "leaderboard":
                 await _pointSystem.Leaderboard(command);
                 break;
