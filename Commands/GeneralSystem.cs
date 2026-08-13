@@ -206,5 +206,7 @@ public class GeneralSystem {
         foreach (var user in preCivt) {
             await user.AddRoleAsync(1537202109336920096);
         }
+
+        await command.FollowupAsync("Done!");
     }
 }
