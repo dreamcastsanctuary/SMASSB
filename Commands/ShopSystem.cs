@@ -12,6 +12,8 @@ public class ShopSystem {
     }
     
     public async Task PostShopContents(SocketSlashCommand command) {
+        await command.DeferAsync();
+        
         var items = new[] { "temp1", "temp2", "temp3", "temp4" };
 
         var container = new ContainerBuilder()
