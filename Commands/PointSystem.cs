@@ -453,30 +453,36 @@ public class PointSystem {
         var channel = command.Channel;
         if (channel.Id != 1475729416264093787) return;
         var messagesAsync = channel.GetMessagesAsync();
-        
+
         var cutoff = DateTimeOffset.UtcNow.AddDays(-3);
         var stopped = false;
         var desc = "";
 
         await foreach (var batch in messagesAsync) {
             foreach (var message in batch) {
-                var user = message.Author as SocketGuildUser;
-                
+
                 if (message.Timestamp < cutoff) {
                     stopped = true;
                     break;
                 }
+
+                var user = message.Author as SocketGuildUser;
+                if (user == null || user.IsBot) {
+                    desc += $"Skipped a message from **{message.Author?.Username ?? "an unknown/departed user"}** (not a current member).\n";
+                    continue;
+                }
+
                 try {
                     await _db.AddPoints(user.Id, 1);
                     await _db.AddRecruits(user.Id, 1);
                     desc += $"Parsed **{user.Nickname ?? user.Username}**'s message successfully.\n";
                 } catch {
-                    await command.FollowupAsync($"Failed to parse message sent by **{user.Nickname ?? user.Username}**. Run the /addpoints command for them instead.", ephemeral: true);
+                    desc += $"Failed to parse message sent by **{user.Nickname ?? user.Username}**. Run /addpoints for them instead.\n";
                 }
             }
             if (stopped) break;
         }
-        
+
         await command.FollowupAsync(desc + "\n\nFeel free to use /purgemessages to remove the above messages.");
     }
 
