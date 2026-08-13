@@ -57,9 +57,9 @@ public class CommandHandler {
                 Console.WriteLine($"Unhandled exception in command '{command.Data.Name}': {ex}");
                 try {
                     if (command.HasResponded)
-                        await command.FollowupAsync("Something went wrong running that command.", ephemeral: true);
+                        await command.FollowupAsync(ex.Message, ephemeral: true);
                     else
-                        await command.RespondAsync("Something went wrong running that command.", ephemeral: true);
+                        await command.RespondAsync(ex.Message, ephemeral: true);
                 } catch {
                 }
             }
