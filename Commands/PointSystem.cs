@@ -466,7 +466,7 @@ public class PointSystem {
                     break;
                 }
 
-                var user = message.Author as SocketGuildUser;
+                var user = message.Author;
                 if (user == null || user.IsBot) {
                     desc += $"Skipped a message from **{message.Author?.Username ?? "an unknown/departed user"}** (not a current member).\n";
                     continue;
@@ -475,9 +475,9 @@ public class PointSystem {
                 try {
                     await _db.AddPoints(user.Id, 1);
                     await _db.AddRecruits(user.Id, 1);
-                    desc += $"Parsed **{user.Nickname ?? user.Username}**'s message successfully.\n";
+                    desc += $"Parsed **{user.Username}**'s message successfully.\n";
                 } catch {
-                    desc += $"Failed to parse message sent by **{user.Nickname ?? user.Username}**. Run /addpoints for them instead.\n";
+                    desc += $"Failed to parse message sent by **{user.Username}**. Run /addpoints for them instead.\n";
                 }
             }
             if (stopped) break;
