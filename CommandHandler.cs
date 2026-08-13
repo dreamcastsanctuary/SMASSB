@@ -492,17 +492,23 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.Administrator)
         );
         
-        commands.Add(new SlashCommandBuilder()
-            .WithName("givecell")
-            .WithDescription("Let's hope this works.")
-            .WithDefaultMemberPermissions(GuildPermission.Administrator));
-        
+        // commands.Add(new SlashCommandBuilder()
+        //     .WithName("givecell")
+        //     .WithDescription("Let's hope this works.")
+        //     .WithDefaultMemberPermissions(GuildPermission.Administrator));
+
         // SHOPSYSTEM
         
         commands.Add(new SlashCommandBuilder()
             .WithName("initweeklybaselines")
             .WithDescription("One-time setup: seeds everyone's weekly earnings baseline.")
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
+
+        commands.Add(new SlashCommandBuilder()
+            .WithName("shoppost")
+            .WithDescription("Posts the current shop items.")
+            .WithDefaultMemberPermissions(GuildPermission.Administrator)
+        );
         
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
@@ -644,8 +650,8 @@ public class CommandHandler {
                 await _cellSystem.EditAddons(command, false);
                 break;
             
-            case "givecell":
-                await _db.GiveCell(command);
+            case "shoppost":
+                await _shopSystem.PostShopContents(command);
                 break;
             
             default:
