@@ -85,6 +85,7 @@ public class RoleSystem {
         await civilian.AddRoleAsync(1475886748268625962);
         await civilian.RemoveRoleAsync(1473369036766052445);
         await civilian.RemoveRoleAsync(1475886792174604484);
+        await civilian.RemoveRoleAsync(1537202109336920096);
 
         IRole niShi = guild.GetRole(1475886748268625962);
         await Promote(civilian, niShi, command);

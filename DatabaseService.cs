@@ -211,7 +211,8 @@ public class DatabaseService
         await GiveNewWallpaper(ulong.Parse(accIdParam), wallpaperParam);
         await SetWallpaperType(ulong.Parse(accIdParam), wallpaperParam);
         await IdSystem.BuildId(command, member, claimParam, null, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, catchphraseParam, usernameParam, idTypeParam);
-        }
+        await member.AddRoleAsync(1537202109336920096);
+    }
 
     public async Task GiveCell(SocketSlashCommand command) {
 
