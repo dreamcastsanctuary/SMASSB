@@ -170,32 +170,35 @@ public class GeneralSystem {
 
         var guild = client.GetGuild((ulong)command.GuildId);
         await guild.DownloadUsersAsync();
-                    
+        
         var failures = new List<MessageSendException>();
         var failures2 = new List<DmParseException>();
 
         foreach (var userId in _db.GetEnlisted()) { enlisted.Add(guild.GetUser(ulong.Parse(userId))); }
-        
         foreach (var user in enlisted) {
             
-            try { if (user == null || user.IsBot) continue; } catch (Exception e) { await command.FollowupAsync(e.ToString()); }
-            
+            if (user == null || user.IsBot) continue;
             try {
                 var dmChannel = await user.CreateDMChannelAsync();
-                var found = false;
                 var batch = await dmChannel.GetMessagesAsync(100).FlattenAsync();
                 var messages = batch.ToList();
                 
                 try {
                     if (messages.Count == 0) continue;
-                    if (!messages.Any(m => m.Author.Id == client.CurrentUser.Id && m.Embeds.Any(e => e.Description != null && e.Description.Contains("151618 | LOCKED", StringComparison.OrdinalIgnoreCase)) && user.Nickname.StartsWith("Kō"))) {
-                        
+
+                    bool hasLockedMessage = messages.Any(m => m.Author.Id == client.CurrentUser.Id && m.Embeds.Any(e => e.Description != null && e.Description.Contains("151618 | LOCKED", StringComparison.OrdinalIgnoreCase)));
+                    bool hasKoName = (user.Nickname ?? user.Username).Contains("Kō", StringComparison.OrdinalIgnoreCase);
+
+                    if (!hasLockedMessage && hasKoName) {
                         preCivt.Add(user);
                     }
-                } catch (Exception e) {
+                } catch (Exception) {
                     failures2.Add(new DmParseException(user.Nickname ?? user.Username));
                 }
-            } catch (Exception ex) { failures.Add(new MessageSendException(user.Username, ex)); }
+            } catch (Exception ex) {
+                failures.Add(new MessageSendException(user.Username, ex));
+            }
+
             await Task.Delay(250);
         }
         
