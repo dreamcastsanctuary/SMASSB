@@ -492,7 +492,7 @@ public class IdSystem {
                 break;
             case "BLUE":
                 imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "blue-template.png");
-                break;
+                break;  
         }
         
         return Image.Load(imgPath);

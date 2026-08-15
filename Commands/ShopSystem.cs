@@ -1,5 +1,9 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using Image = SixLabors.ImageSharp.Image;
+using Color = Discord.Color;
 
 namespace SMASSB.Commands;
 
@@ -13,12 +17,30 @@ public class ShopSystem {
     
     public async Task PostShopContents(SocketSlashCommand command) {
         await command.DeferAsync();
-        
-        var items = new[] { "Full Bundle!", "Case", "Charm", "Wallpaper", "ID Skin"};
+
+        var sakuraAttachment = await BuildShelfAttachment(
+            "sakura-shelf.png",
+            "sakura-case-back.png", "sakura-charm-front.png", "sakura-wallpaper.png");
+
+        var sangoAttachment = await BuildShelfAttachment(
+            "sango-shelf.png",
+            "sango-case-back.png", "sango-charm-front.png", "sango-wallpaper.png");
+
+        var techAttachment = await BuildShelfAttachment(
+            "tech-shelf.png",
+            "tech-case-back.png", "tech-wallpaper.png");
+
+        var idsAttachment = await BuildShelfAttachment(
+            "ids-shelf.png",
+            "pink-template.png", "red-template.png", "green-template.png", "blue-template.png");
+
+        var items = new[] { "Full Bundle!", "Case", "Charm", "Wallpaper", "ID Skin" };
 
         var containerSakura = new ContainerBuilder()
             .WithAccentColor(new Color(254,201,209))
             .AddComponent(new TextDisplayBuilder().WithContent("**Shop Contents**"))
+            .AddComponent(new MediaGalleryBuilder()
+                .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://sakura-shelf.png"))))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy {items[0]}", customId: $"buy_item_1_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
@@ -29,6 +51,8 @@ public class ShopSystem {
         
         var containerSango = new ContainerBuilder()
             .WithAccentColor(new Color(160,41,39))
+            .AddComponent(new MediaGalleryBuilder()
+                .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://sango-shelf.png"))))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy {items[0]}", customId: $"buy_item_5_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
@@ -39,6 +63,8 @@ public class ShopSystem {
         
         var containerTech = new ContainerBuilder()
             .WithAccentColor(new Color(0,0,156))
+            .AddComponent(new MediaGalleryBuilder()
+                .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://tech-shelf.png"))))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy {items[0]}", customId: $"buy_item_9_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
@@ -48,6 +74,8 @@ public class ShopSystem {
         
         var containerIds = new ContainerBuilder()
             .WithAccentColor(new Color(0,0,0))
+            .AddComponent(new MediaGalleryBuilder()
+                .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://ids-shelf.png"))))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy Pink {items[4]}", customId: $"buy_item_12_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
@@ -57,7 +85,6 @@ public class ShopSystem {
             );
 
         var components = new ComponentBuilderV2()
-            .WithTextDisplay(new TextDisplayBuilder().WithContent("temp"))
             .WithSeparator(new SeparatorBuilder().WithIsDivider(false))
             .AddComponent(containerSakura)
             .AddComponent(containerSango)
@@ -65,10 +92,56 @@ public class ShopSystem {
             .AddComponent(containerIds)
             .Build();
 
-        await command.FollowupAsync(
+        await command.FollowupWithFilesAsync(
+            attachments: new[] { sakuraAttachment, sangoAttachment, techAttachment, idsAttachment },
             components: components,
             flags: MessageFlags.ComponentsV2
         );
+    }
+
+    private async Task<FileAttachment> BuildShelfAttachment(string outputFileName, params string[] itemFileNames) {
+        using var shelf = Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "shelf.png"));
+
+        var loadedItems = new Image[itemFileNames.Length];
+        for (int i = 0; i < itemFileNames.Length; i++) {
+            loadedItems[i] = Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", itemFileNames[i]));
+        }
+
+        try {
+            int slotWidth  = shelf.Width / loadedItems.Length;
+            int shelfLineY = (int)(shelf.Height * 0.82); 
+
+            shelf.Mutate(ctx => {
+                for (int i = 0; i < loadedItems.Length; i++) {
+                    var item = loadedItems[i];
+
+                    int maxItemHeight = (int)(shelfLineY * 0.85);
+                    int maxItemWidth  = (int)(slotWidth * 0.8);
+
+                    if (item.Width > maxItemWidth || item.Height > maxItemHeight) {
+                        item.Mutate(o => o.Resize(new ResizeOptions {
+                            Mode = ResizeMode.Max,
+                            Size = new Size(maxItemWidth, maxItemHeight)
+                        }));
+                    }
+
+                    int slotCenterX = slotWidth * i + slotWidth / 2;
+                    int x = slotCenterX - item.Width / 2;
+                    int y = shelfLineY - item.Height;
+
+                    ctx.DrawImage(item, new Point(x, y), 1f);
+                }
+            });
+
+            var stream = new MemoryStream();
+            await shelf.SaveAsPngAsync(stream);
+            stream.Position = 0;
+
+            return new FileAttachment(stream, outputFileName);
+        } finally {
+            foreach (var item in loadedItems)
+                item.Dispose();
+        }
     }
 
     public async Task Buy(int num, ulong ownerId, ulong channelId, SocketGuild guild) {
