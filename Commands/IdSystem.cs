@@ -481,6 +481,18 @@ public class IdSystem {
             case "STAFFTANABATA":
                 imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "staff-tanabata-template.png");
                 break;
+            case "PINK":
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "pink-template.png");
+                break;
+            case "RED":
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "red-template.png");
+                break;
+            case "GREEN":
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "green-template.png");
+                break;
+            case "BLUE":
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "blue-template.png");
+                break;
         }
         
         return Image.Load(imgPath);
@@ -540,6 +552,30 @@ public class IdSystem {
                 colors.Add(Color.FromRgba(255, 255, 255, 255));
                 colors.Add(Color.FromRgba(255, 255, 255, 255));
                 colors.Add(Color.FromRgba(255, 255, 255, 255));
+                break;
+            case "PINK":
+                colors.Add(Color.FromRgba(210, 70, 103, 255)); // Heading
+                colors.Add(Color.FromRgba(210, 70, 103, 255)); // Catchphrase
+                colors.Add(Color.FromRgba(255, 199, 132, 255)); // Details
+                colors.Add(Color.FromRgba(194, 28, 76, 255)); // Barcode
+                break;
+            case "RED":
+                colors.Add(Color.FromRgba(255, 192, 128, 255));
+                colors.Add(Color.FromRgba(255, 97, 79, 255));
+                colors.Add(Color.FromRgba(255, 199, 132, 255));
+                colors.Add(Color.FromRgba(255, 97, 79, 255));
+                break;
+            case "GREEN":
+                colors.Add(Color.FromRgba(0, 154, 103, 255));
+                colors.Add(Color.FromRgba(255, 57, 39, 255));
+                colors.Add(Color.FromRgba(255, 103, 89, 255));
+                colors.Add(Color.FromRgba(255, 103, 89, 255));
+                break;
+            case "BLUE":
+                colors.Add(Color.FromRgba(18, 88, 157, 255));
+                colors.Add(Color.FromRgba(46, 164, 211, 255));
+                colors.Add(Color.FromRgba(208, 74, 143, 255));
+                colors.Add(Color.FromRgba(46, 164, 211, 255));
                 break;
         }
         
