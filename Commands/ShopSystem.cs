@@ -58,7 +58,7 @@ public class ShopSystem {
 
         var components = new ComponentBuilderV2()
             .WithTextDisplay(new TextDisplayBuilder().WithContent("temp"))
-            .WithSeparator(new SeparatorBuilder().WithIsDivider(true))
+            .WithSeparator(new SeparatorBuilder().WithIsDivider(false))
             .AddComponent(containerSakura)
             .AddComponent(containerSango)
             .AddComponent(containerTech)
@@ -75,83 +75,113 @@ public class ShopSystem {
 
         var prices = new[] {8000, 3000, 4000, 10000};
         var channel = guild.GetTextChannel(channelId);
-        
+        string boughtName = null;
+
         switch (num) {
-            
             case 1:
                 if (await CheckBeforeBuy(ownerId, prices[0] + prices[1] + prices[2] - 1000)) {
                     await _db.GiveNewCase(ownerId, "SAKURA");
                     await _db.GiveNewCharm(ownerId, "SAKURA");
                     await _db.GiveNewWallpaper(ownerId, "SAKURA");
+                    boughtName = "Sakura Full Bundle!";
                 }
-                
                 break;
             case 2:
-                if (await CheckBeforeBuy(ownerId, prices[0]))
+                if (await CheckBeforeBuy(ownerId, prices[0])) {
                     await _db.GiveNewCase(ownerId, "SAKURA");
+                    boughtName = "Sakura Case";
+                }
                 break;
             case 3:
-                if (await CheckBeforeBuy(ownerId, prices[1]))
+                if (await CheckBeforeBuy(ownerId, prices[1])) {
                     await _db.GiveNewCharm(ownerId, "SAKURA");
+                    boughtName = "Sakura Charm";
+                }
                 break;
             case 4:
-                if (await CheckBeforeBuy(ownerId, prices[2]))
+                if (await CheckBeforeBuy(ownerId, prices[2])) {
                     await _db.GiveNewWallpaper(ownerId, "SAKURA");
+                    boughtName = "Sakura Wallpaper";
+                }
                 break;
             case 5:
                 if (await CheckBeforeBuy(ownerId, prices[0] + prices[1] + prices[2] - 1000)) {
                     await _db.GiveNewCase(ownerId, "SANGO");
                     await _db.GiveNewCharm(ownerId, "SANGO");
                     await _db.GiveNewWallpaper(ownerId, "SANGO");
+                    boughtName = "Sango Full Bundle!";
                 }
                 break;
             case 6:
-                if (await CheckBeforeBuy(ownerId, prices[0]))
+                if (await CheckBeforeBuy(ownerId, prices[0])) {
                     await _db.GiveNewCase(ownerId, "SANGO");
+                    boughtName = "Sango Case";
+                }
                 break;
             case 7:
-                if (await CheckBeforeBuy(ownerId, prices[1]))
+                if (await CheckBeforeBuy(ownerId, prices[1])) {
                     await _db.GiveNewCharm(ownerId, "SANGO");
+                    boughtName = "Sango Charm";
+                }
                 break;
             case 8:
-                if (await CheckBeforeBuy(ownerId, prices[2]))
+                if (await CheckBeforeBuy(ownerId, prices[2])) {
                     await _db.GiveNewWallpaper(ownerId, "SANGO");
+                    boughtName = "Sango Wallpaper";
+                }
                 break;
             case 9:
                 if (await CheckBeforeBuy(ownerId, prices[0] + prices[2] - 1000)) {
                     await _db.GiveNewCase(ownerId, "TECH");
                     await _db.GiveNewWallpaper(ownerId, "TECH");
+                    boughtName = "Tech Bundle!";
                 }
                 break;
             case 10:
-                if (await CheckBeforeBuy(ownerId, prices[0]))
+                if (await CheckBeforeBuy(ownerId, prices[0])) {
                     await _db.GiveNewCase(ownerId, "TECH");
+                    boughtName = "Tech Case";
+                }
                 break;
             case 11:
-                if (await CheckBeforeBuy(ownerId, prices[2]))
+                if (await CheckBeforeBuy(ownerId, prices[2])) {
                     await _db.GiveNewWallpaper(ownerId, "TECH");
+                    boughtName = "Tech Wallpaper";
+                }
                 break;
             case 12:
-                if (await CheckBeforeBuy(ownerId, prices[3]))
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
                     await _db.GiveNewId(ownerId, "PINK");
+                    boughtName = "Pink ID Skin";
+                }
                 break;
             case 13:
-                if (await CheckBeforeBuy(ownerId, prices[3]))
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
                     await _db.GiveNewId(ownerId, "RED");
+                    boughtName = "Red ID Skin";
+                }
                 break;
             case 14:
-                if (await CheckBeforeBuy(ownerId, prices[3]))
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
                     await _db.GiveNewId(ownerId, "GREEN");
+                    boughtName = "Green ID Skin";
+                }
                 break;
             case 15:
-                if (await CheckBeforeBuy(ownerId, prices[3]))
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
                     await _db.GiveNewId(ownerId, "BLUE");
+                    boughtName = "Blue ID Skin";
+                }
                 break;
         }
 
-        var items = new[] { "Full Bundle!", "Case", "Charm", "Wallpaper", "ID Skin"};
-        var message = await channel.SendMessageAsync("You have bought a new " + items[num] + "! Enjoy. ^^");
-        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(7));
+        if (boughtName == null) {
+            await channel.SendMessageAsync("You don't have the funds for this.");
+            return;
+        }
+
+        var message = await channel.SendMessageAsync($"You have bought a new {boughtName}! Enjoy. ^^");
+        await Task.Delay(TimeSpan.FromSeconds(7));
         await message.DeleteAsync();
     }
 
