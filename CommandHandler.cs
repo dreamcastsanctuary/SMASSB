@@ -1141,6 +1141,24 @@ public class CommandHandler {
     public async Task ButtonHandler(SocketMessageComponent component) {
 
         var id = component.Data.CustomId;
+        var guild = _client.GetGuild((ulong)component.GuildId);
+
+        if (id.StartsWith("buy_item_")) {
+            
+            var parts = id.Split('_');
+            var itemNum = int.Parse(parts[2]);
+            var ownerId = ulong.Parse(parts[3]);
+            var channelId = ulong.Parse(parts[4]);
+
+            if (component.User.Id != ownerId)
+            {
+                await component.RespondAsync("This isn't your shop!", ephemeral: true);
+                return;
+            }
+
+            await _shopSystem.Buy(itemNum, ownerId, channelId, guild);
+            return;
+        }
 
         if (id.StartsWith("flip_over:")) {
             var statePayload = id.Substring("flip_over:".Length);

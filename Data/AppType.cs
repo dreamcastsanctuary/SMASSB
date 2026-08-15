@@ -2,5 +2,9 @@
 
 public enum AppType {
     
-    RHYTHMTENGOKU
+    RHYTHMTENGOKU,
+    MADOUMONOGATARI,
+    PUYOPUYOFEVER,
+    POKEMONLEAFGREEN,
+    TETRIS
 }

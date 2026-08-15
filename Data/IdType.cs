@@ -9,4 +9,9 @@ public enum IdType {
     NEWGAMEPLUSSTAFF,
     ENLISTEDTANABATA,
     STAFFTANABATA,
+    
+    PINK,
+    RED,
+    GREEN,
+    BLUE,
 }

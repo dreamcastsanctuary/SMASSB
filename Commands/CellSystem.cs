@@ -33,16 +33,20 @@ public class CellSystem {
                                          bool isIncrease) {
 
         var ownerId = command.User.Id; 
-        var hasEmulatorApp = appsParam.Contains(AppType.RHYTHMTENGOKU.ToString());
-        var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
-
-        var (cellAttachment, cellImageUrl) = GetCellImage(hasEmulatorApp, caseType, charmType, wallpaperType, isFront: true, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
+        var hasTengokuApp = appsParam.Contains(AppType.RHYTHMTENGOKU.ToString());
+        var hasMadouApp = appsParam.Contains(AppType.MADOUMONOGATARI.ToString());
+        var hasPuyoApp = appsParam.Contains(AppType.PUYOPUYOFEVER.ToString());
+        var hasLeafGreenApp = appsParam.Contains(AppType.POKEMONLEAFGREEN.ToString());
+        var hasTetrisApp = appsParam.Contains(AppType.TETRIS.ToString());
+        
+        var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{hasTengokuApp}|{hasMadouApp}|{hasPuyoApp}|{hasLeafGreenApp}|{hasTetrisApp}";
+        var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, false, false, false, false, caseType, charmType, wallpaperType, isFront: true, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
 
         var container = new ContainerBuilder()
             .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
             .AddComponent(new ActionRowBuilder().WithButton("Flip Cellphone Over", customId: flipCustomId, style: ButtonStyle.Secondary));
 
-        if (hasEmulatorApp) {
+        if (hasTengokuApp) {
             var actionRow = new ActionRowBuilder()
                 .WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}", style: ButtonStyle.Success);
             container.AddComponent(actionRow);
@@ -103,20 +107,24 @@ public class CellSystem {
             var caseType = parts[2];
             var charmType = parts[3];
             var wallpaperType = parts[4];
-            var hasEmulatorApp = bool.Parse(parts[5]);
+            var hasTengokuApp = bool.Parse(parts[5]);
+            var hasMadouApp = bool.Parse(parts[6]);
+            var hasPuyoApp = bool.Parse(parts[7]);
+            var hasLeafGreenApp = bool.Parse(parts[8]);
+            var hasTetrisApp = bool.Parse(parts[9]);
 
             var nextSide = currentSide == "front" ? "back" : "front";
             var isFrontNext = nextSide == "front";
 
-            var nextCustomId = $"flip_over:{ownerId}|{nextSide}|{caseType}|{charmType}|{wallpaperType}|{hasEmulatorApp}";
+            var nextCustomId = $"flip_over:{ownerId}|{nextSide}|{caseType}|{charmType}|{wallpaperType}|{hasTengokuApp}|{hasMadouApp}|{hasPuyoApp}|{hasLeafGreenApp}|{hasTetrisApp}";
 
-            var (cellAttachment, cellImageUrl) = GetCellImage(hasEmulatorApp, caseType, charmType, wallpaperType, isFront: isFrontNext, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
+            var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, hasMadouApp, hasPuyoApp, hasLeafGreenApp, hasTetrisApp, caseType, charmType, wallpaperType, isFront: isFrontNext, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
 
             var container = new ContainerBuilder()
                 .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
                 .AddComponent(new ActionRowBuilder().WithButton("Flip Cell Over", customId: nextCustomId, style: ButtonStyle.Secondary));
 
-            if (hasEmulatorApp) {
+            if (hasTengokuApp) {
                 var actionRow = new ActionRowBuilder()
                     .WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}", style: ButtonStyle.Success);
                 container.AddComponent(actionRow);
@@ -140,7 +148,11 @@ public class CellSystem {
         }
     }
 
-    private static (FileAttachment Attachment, string Url) GetCellImage(bool hasEmulatorApp,
+    private static (FileAttachment Attachment, string Url) GetCellImage(bool hasTengokuApp,
+                                                                          bool hasMadouApp,
+                                                                          bool hasPuyoApp,
+                                                                          bool hasLeafGreenApp,
+                                                                          bool hasTetrisApp,
                                                                           string caseType, 
                                                                           string charmType, 
                                                                           string wallpaperType, 
@@ -173,6 +185,9 @@ public class CellSystem {
             case "SANGO":
                 caseFile = isFront ? "sango-case-front.png" : "sango-case-back.png";
                 break;
+            case "TECH":
+                caseFile = isFront ? "tech-case-front.png" : "tech-case-back.png";
+                break;
         }
 
         switch (charmType) {
@@ -193,6 +208,9 @@ public class CellSystem {
                 break;
             case "SANGO":
                 wallpaperFile = "sango-wallpaper.png";
+                break;
+            case "TECH":
+                wallpaperFile = "tech-wallpaper.png";
                 break;
         }
         
@@ -217,11 +235,36 @@ public class CellSystem {
                 ipc.DrawText("Balance", fontBal, color, new Point(740, 640));
                 ipc.DrawText(BuildEarningsSummary(currentWeekEarnings, percentChange, isIncrease), fontTiny, color, new Point(800, 963));
 
-                if (hasEmulatorApp) {
+                if (hasTengokuApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "tengoku-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
+                
+                if (hasMadouApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "madou-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+                
+                if (hasPuyoApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "puyo-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+                
+                if (hasLeafGreenApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "leafgreen-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+                
+                if (hasTetrisApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "tetris-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+                
             } else {
                 if (charm != null) {
                     ipc.DrawImage(charm, new Point(0, 0), 1);
