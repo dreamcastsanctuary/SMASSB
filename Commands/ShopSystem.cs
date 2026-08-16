@@ -128,11 +128,11 @@ public class ShopSystem {
                         }));
                     }
 
-                    double slotMultiplier = isCharm ? 1.25 : 1.0;
+                    double slotMultiplier = isCharm ? 1.2 : 1.0;
                     
                     int slotCenterX = slotWidth * i + slotWidth / 2;
                     int x = (int)((slotCenterX - item.Width / 2) * slotMultiplier);
-                    int y = shelfLineY - item.Height;
+                    int y = (int)((shelfLineY - item.Height) * slotMultiplier);
 
                     ctx.DrawImage(item, new Point(x, y), 1f);
                 }
