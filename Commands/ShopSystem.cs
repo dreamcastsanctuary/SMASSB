@@ -129,7 +129,7 @@ public class ShopSystem {
                     }
 
                     double slotMultiplier = isCharm ? 1.2 : 1.0;
-                    int charmYOffset = isCharm ? 100 : 0;
+                    int charmYOffset = isCharm ? 150 : 0;
                     
                     int slotCenterX = slotWidth * i + slotWidth / 2;
                     int x = (int)((slotCenterX - item.Width / 2) * slotMultiplier);
@@ -155,9 +155,14 @@ public class ShopSystem {
         var prices = new[] {8000, 3000, 4000, 10000};
         var channel = guild.GetTextChannel(channelId);
         string boughtName = null;
+        string alreadyOwnedMessage = null;
 
         switch (num) {
             case 1:
+                if (await OwnsCase(ownerId, "SAKURA") || await OwnsCharm(ownerId, "SAKURA") || await OwnsWallpaper(ownerId, "SAKURA")) {
+                    alreadyOwnedMessage = "You already own part of the Sakura bundle!";
+                    break;
+                }
                 if (await CheckBeforeBuy(ownerId, prices[0] + prices[1] + prices[2] - 1000)) {
                     await _db.GiveNewCase(ownerId, "SAKURA");
                     await _db.GiveNewCharm(ownerId, "SAKURA");
@@ -166,24 +171,31 @@ public class ShopSystem {
                 }
                 break;
             case 2:
+                if (await OwnsCase(ownerId, "SAKURA")) { alreadyOwnedMessage = "You already own the Sakura Case!"; break; }
                 if (await CheckBeforeBuy(ownerId, prices[0])) {
                     await _db.GiveNewCase(ownerId, "SAKURA");
                     boughtName = "Sakura Case";
                 }
                 break;
             case 3:
+                if (await OwnsCharm(ownerId, "SAKURA")) { alreadyOwnedMessage = "You already own the Sakura Charm!"; break; }
                 if (await CheckBeforeBuy(ownerId, prices[1])) {
                     await _db.GiveNewCharm(ownerId, "SAKURA");
                     boughtName = "Sakura Charm";
                 }
                 break;
             case 4:
+                if (await OwnsWallpaper(ownerId, "SAKURA")) { alreadyOwnedMessage = "You already own the Sakura Wallpaper!"; break; }
                 if (await CheckBeforeBuy(ownerId, prices[2])) {
                     await _db.GiveNewWallpaper(ownerId, "SAKURA");
                     boughtName = "Sakura Wallpaper";
                 }
                 break;
             case 5:
+                if (await OwnsCase(ownerId, "SANGO") || await OwnsCharm(ownerId, "SANGO") || await OwnsWallpaper(ownerId, "SANGO")) {
+                    alreadyOwnedMessage = "You already own part of the Sango bundle!";
+                    break;
+                }
                 if (await CheckBeforeBuy(ownerId, prices[0] + prices[1] + prices[2] - 1000)) {
                     await _db.GiveNewCase(ownerId, "SANGO");
                     await _db.GiveNewCharm(ownerId, "SANGO");
@@ -192,24 +204,31 @@ public class ShopSystem {
                 }
                 break;
             case 6:
+                if (await OwnsCase(ownerId, "SANGO")) { alreadyOwnedMessage = "You already own the Sango Case!"; break; }
                 if (await CheckBeforeBuy(ownerId, prices[0])) {
                     await _db.GiveNewCase(ownerId, "SANGO");
                     boughtName = "Sango Case";
                 }
                 break;
             case 7:
+                if (await OwnsCharm(ownerId, "SANGO")) { alreadyOwnedMessage = "You already own the Sango Charm!"; break; }
                 if (await CheckBeforeBuy(ownerId, prices[1])) {
                     await _db.GiveNewCharm(ownerId, "SANGO");
                     boughtName = "Sango Charm";
                 }
                 break;
             case 8:
+                if (await OwnsWallpaper(ownerId, "SANGO")) { alreadyOwnedMessage = "You already own the Sango Wallpaper!"; break; }
                 if (await CheckBeforeBuy(ownerId, prices[2])) {
                     await _db.GiveNewWallpaper(ownerId, "SANGO");
                     boughtName = "Sango Wallpaper";
                 }
                 break;
             case 9:
+                if (await OwnsCase(ownerId, "TECH") || await OwnsWallpaper(ownerId, "TECH")) {
+                    alreadyOwnedMessage = "You already own part of the Tech bundle!";
+                    break;
+                }
                 if (await CheckBeforeBuy(ownerId, prices[0] + prices[2] - 1000)) {
                     await _db.GiveNewCase(ownerId, "TECH");
                     await _db.GiveNewWallpaper(ownerId, "TECH");
@@ -217,36 +236,42 @@ public class ShopSystem {
                 }
                 break;
             case 10:
+                if (await OwnsCase(ownerId, "TECH")) { alreadyOwnedMessage = "You already own the Tech Case!"; break; }
                 if (await CheckBeforeBuy(ownerId, prices[0])) {
                     await _db.GiveNewCase(ownerId, "TECH");
                     boughtName = "Tech Case";
                 }
                 break;
             case 11:
+                if (await OwnsWallpaper(ownerId, "TECH")) { alreadyOwnedMessage = "You already own the Tech Wallpaper!"; break; }
                 if (await CheckBeforeBuy(ownerId, prices[2])) {
                     await _db.GiveNewWallpaper(ownerId, "TECH");
                     boughtName = "Tech Wallpaper";
                 }
                 break;
             case 12:
+                if (await OwnsId(ownerId, "PINK")) { alreadyOwnedMessage = "You already own the Pink ID Skin!"; break; }
                 if (await CheckBeforeBuy(ownerId, prices[3])) {
                     await _db.GiveNewId(ownerId, "PINK");
                     boughtName = "Pink ID Skin";
                 }
                 break;
             case 13:
+                if (await OwnsId(ownerId, "RED")) { alreadyOwnedMessage = "You already own the Red ID Skin!"; break; }
                 if (await CheckBeforeBuy(ownerId, prices[3])) {
                     await _db.GiveNewId(ownerId, "RED");
                     boughtName = "Red ID Skin";
                 }
                 break;
             case 14:
+                if (await OwnsId(ownerId, "GREEN")) { alreadyOwnedMessage = "You already own the Green ID Skin!"; break; }
                 if (await CheckBeforeBuy(ownerId, prices[3])) {
                     await _db.GiveNewId(ownerId, "GREEN");
                     boughtName = "Green ID Skin";
                 }
                 break;
             case 15:
+                if (await OwnsId(ownerId, "BLUE")) { alreadyOwnedMessage = "You already own the Blue ID Skin!"; break; }
                 if (await CheckBeforeBuy(ownerId, prices[3])) {
                     await _db.GiveNewId(ownerId, "BLUE");
                     boughtName = "Blue ID Skin";
@@ -254,14 +279,21 @@ public class ShopSystem {
                 break;
         }
 
-        if (boughtName == null) {
-            var msg = await channel.SendMessageAsync("You don't have the funds for this.");
+        if (alreadyOwnedMessage != null) {
+            var ownedMessage = await channel.SendMessageAsync(alreadyOwnedMessage);
             await Task.Delay(TimeSpan.FromSeconds(5));
-            await msg.DeleteAsync();
+            await ownedMessage.DeleteAsync();
             return;
         }
 
-        var message = await channel.SendMessageAsync($"@<{ownerId}> has bought a new {boughtName}! Enjoy. ^^");
+        if (boughtName == null) {
+            var fundsMessage = await channel.SendMessageAsync("You don't have the funds for this.");
+            await Task.Delay(TimeSpan.FromSeconds(5));
+            await fundsMessage.DeleteAsync();
+            return;
+        }
+
+        var message = await channel.SendMessageAsync($"<@{ownerId}> has bought a new {boughtName}! Enjoy. ^^");
         await Task.Delay(TimeSpan.FromSeconds(5));
         await message.DeleteAsync();
     }
@@ -274,5 +306,21 @@ public class ShopSystem {
             return false;
         
         return true;
+    }
+
+    private async Task<bool> OwnsCase(ulong userId, string type) {
+        return (await _db.GetCases(userId)).Contains(type);
+    }
+
+    private async Task<bool> OwnsCharm(ulong userId, string type) {
+        return (await _db.GetCharms(userId)).Contains(type);
+    }
+
+    private async Task<bool> OwnsWallpaper(ulong userId, string type) {
+        return (await _db.GetWallpapers(userId)).Contains(type);
+    }
+
+    private async Task<bool> OwnsId(ulong userId, string type) {
+        return (await _db.GetIds(userId)).Contains(type);
     }
 }
