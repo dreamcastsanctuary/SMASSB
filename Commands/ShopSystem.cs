@@ -129,7 +129,7 @@ public class ShopSystem {
                     }
 
                     double slotMultiplier = isCharm ? 1.2 : 1.0;
-                    int charmYOffset = isCharm ? 30 : 0;
+                    int charmYOffset = isCharm ? 100 : 0;
                     
                     int slotCenterX = slotWidth * i + slotWidth / 2;
                     int x = (int)((slotCenterX - item.Width / 2) * slotMultiplier);
