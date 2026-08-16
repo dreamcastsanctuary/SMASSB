@@ -255,12 +255,14 @@ public class ShopSystem {
         }
 
         if (boughtName == null) {
-            await channel.SendMessageAsync("You don't have the funds for this.");
+            var msg = await channel.SendMessageAsync("You don't have the funds for this.");
+            await Task.Delay(TimeSpan.FromSeconds(5));
+            await msg.DeleteAsync();
             return;
         }
 
         var message = await channel.SendMessageAsync($"@<{ownerId}> has bought a new {boughtName}! Enjoy. ^^");
-        await Task.Delay(TimeSpan.FromSeconds(7));
+        await Task.Delay(TimeSpan.FromSeconds(5));
         await message.DeleteAsync();
     }
 
