@@ -20,15 +20,15 @@ public class ShopSystem {
 
         var sakuraAttachment = await BuildShelfAttachment(
             "sakura-shelf.png",
-            "sakura-showcase", "sakura-case-back.png", "sakura-charm-front.png", "sakura-wallpaper.png");
+            "sakura-showcase.png", "sakura-case-back.png", "sakura-charm-front.png", "sakura-wallpaper.png");
 
         var sangoAttachment = await BuildShelfAttachment(
             "sango-shelf.png",
-            "sango-showcase", "sango-case-back.png", "sango-charm-front.png", "sango-wallpaper.png");
+            "sango-showcase.png", "sango-case-back.png", "sango-charm-front.png", "sango-wallpaper.png");
 
         var techAttachment = await BuildShelfAttachment(
             "tech-shelf.png",
-            "tech-showcase", "tech-case-back.png", "tech-wallpaper.png");
+            "tech-showcase.png", "tech-case-back.png", "tech-wallpaper.png");
 
         var idsAttachment = await BuildShelfAttachment(
             "ids-shelf.png",
