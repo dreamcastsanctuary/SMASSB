@@ -43,45 +43,45 @@ public class ShopSystem {
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://sakura-shelf.png"))))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
-                .WithButton($"Buy {items[0]}", customId: $"buy_item_1_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[1]}", customId: $"buy_item_2_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[2]}", customId: $"buy_item_3_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[3]}", customId: $"buy_item_4_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[0]}", customId: $"buy_item_1_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[1]}", customId: $"buy_item_2_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[2]}", customId: $"buy_item_3_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[3]}", customId: $"buy_item_4_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
-        
+
         var containerSango = new ContainerBuilder()
             .WithAccentColor(new Color(160,41,39))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://sango-shelf.png"))))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
-                .WithButton($"Buy {items[0]}", customId: $"buy_item_5_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[1]}", customId: $"buy_item_6_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[2]}", customId: $"buy_item_7_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[3]}", customId: $"buy_item_8_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[0]}", customId: $"buy_item_5_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[1]}", customId: $"buy_item_6_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[2]}", customId: $"buy_item_7_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[3]}", customId: $"buy_item_8_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
-        
+
         var containerTech = new ContainerBuilder()
             .WithAccentColor(new Color(0,0,156))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://tech-shelf.png"))))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
-                .WithButton($"Buy {items[0]}", customId: $"buy_item_9_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[1]}", customId: $"buy_item_10_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[2]}", customId: $"buy_item_11_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[0]}", customId: $"buy_item_9_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[1]}", customId: $"buy_item_10_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[2]}", customId: $"buy_item_11_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
-        
+
         var containerIds = new ContainerBuilder()
             .WithAccentColor(new Color(0,0,0))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://ids-shelf.png"))))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
-                .WithButton($"Buy Pink {items[4]}", customId: $"buy_item_12_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy Red {items[4]}", customId: $"buy_item_13_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy Green {items[4]}", customId: $"buy_item_14_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy Blue {items[4]}", customId: $"buy_item_15_{command.User.Id}_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Pink {items[4]}", customId: $"buy_item_12_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Red {items[4]}", customId: $"buy_item_13_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Green {items[4]}", customId: $"buy_item_14_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Blue {items[4]}", customId: $"buy_item_15_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
 
         var components = new ComponentBuilderV2()
@@ -259,7 +259,7 @@ public class ShopSystem {
             return;
         }
 
-        var message = await channel.SendMessageAsync($"{guild.GetUser(ownerId).Nickname} has bought a new {boughtName}! Enjoy. ^^");
+        var message = await channel.SendMessageAsync($"@<{ownerId}> has bought a new {boughtName}! Enjoy. ^^");
         await Task.Delay(TimeSpan.FromSeconds(7));
         await message.DeleteAsync();
     }

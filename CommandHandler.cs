@@ -1144,19 +1144,15 @@ public class CommandHandler {
         var guild = _client.GetGuild((ulong)component.GuildId);
 
         if (id.StartsWith("buy_item_")) {
-            
+    
             var parts = id.Split('_');
             var itemNum = int.Parse(parts[2]);
-            var ownerId = ulong.Parse(parts[3]);
-            var channelId = ulong.Parse(parts[4]);
+            var channelId = ulong.Parse(parts[3]);
+            var buyerId = component.User.Id;
 
-            if (component.User.Id != ownerId)
-            {
-                await component.RespondAsync("This isn't your shop!", ephemeral: true);
-                return;
-            }
+            await component.DeferAsync(ephemeral: true);
 
-            await _shopSystem.Buy(itemNum, ownerId, channelId, guild);
+            await _shopSystem.Buy(itemNum, buyerId, channelId, guild);
             return;
         }
 
