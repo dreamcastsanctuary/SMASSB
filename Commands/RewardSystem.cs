@@ -83,6 +83,7 @@ public class RewardSystem {
             try {
                 await UserExtensions.SendMessageAsync(enlisted, null, false, embedHeadphones);
                 await UserExtensions.SendMessageAsync(enlisted, null, false, embedSword);
+                await enlisted.RemoveRoleAsync(1537202109336920096);
             } catch (Discord.Net.HttpException ex) {
                 failures.Add(new MessageSendException(enlisted.Username, ex));
             }
