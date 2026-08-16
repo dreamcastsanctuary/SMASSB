@@ -129,10 +129,10 @@ public class ShopSystem {
                     }
 
                     double slotMultiplier = isCharm ? 1.2 : 1.0;
-                    int charmYOffset = isCharm ? 150 : 0;
+                    int charmYOffset = isCharm ? 200 : 0;
                     
                     int slotCenterX = slotWidth * i + slotWidth / 2;
-                    int x = (int)((slotCenterX - item.Width / 2) * slotMultiplier);
+                    int x = (int)((slotCenterX - item.Width / 2) / slotMultiplier);
                     int y = (int)((shelfLineY - item.Height) / slotMultiplier + 5) + charmYOffset;
 
                     ctx.DrawImage(item, new Point(x, y), 1f);
