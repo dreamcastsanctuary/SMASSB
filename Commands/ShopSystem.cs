@@ -20,15 +20,15 @@ public class ShopSystem {
 
         var sakuraAttachment = await BuildShelfAttachment(
             "sakura-shelf.png",
-            "sakura-case-back.png", "sakura-charm-front.png", "sakura-wallpaper.png");
+            "sakura-showcase", "sakura-case-back.png", "sakura-charm-front.png", "sakura-wallpaper.png");
 
         var sangoAttachment = await BuildShelfAttachment(
             "sango-shelf.png",
-            "sango-case-back.png", "sango-charm-front.png", "sango-wallpaper.png");
+            "sango-showcase", "sango-case-back.png", "sango-charm-front.png", "sango-wallpaper.png");
 
         var techAttachment = await BuildShelfAttachment(
             "tech-shelf.png",
-            "tech-case-back.png", "tech-wallpaper.png");
+            "tech-showcase", "tech-case-back.png", "tech-wallpaper.png");
 
         var idsAttachment = await BuildShelfAttachment(
             "ids-shelf.png",
@@ -109,7 +109,7 @@ public class ShopSystem {
 
         try {
             int slotWidth  = shelf.Width / loadedItems.Length;
-            int shelfLineY = (int)(shelf.Height * 0.82); 
+            int shelfLineY = (int)(shelf.Height * 0.75); 
 
             shelf.Mutate(ctx => {
                 for (int i = 0; i < loadedItems.Length; i++) {
