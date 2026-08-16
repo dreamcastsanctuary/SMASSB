@@ -115,8 +115,11 @@ public class ShopSystem {
                 for (int i = 0; i < loadedItems.Length; i++) {
                     var item = loadedItems[i];
 
-                    int maxItemHeight = (int)(shelfLineY * 0.85);
-                    int maxItemWidth  = (int)(slotWidth * 0.8);
+                    bool isCharm = itemFileNames[i].Contains("charm", StringComparison.OrdinalIgnoreCase);
+                    double sizeMultiplier = isCharm ? 1.25 : 1.0;
+
+                    int maxItemHeight = (int)(shelfLineY * 0.85 * sizeMultiplier);
+                    int maxItemWidth  = (int)(slotWidth * 0.8 * sizeMultiplier);
 
                     if (item.Width > maxItemWidth || item.Height > maxItemHeight) {
                         item.Mutate(o => o.Resize(new ResizeOptions {
