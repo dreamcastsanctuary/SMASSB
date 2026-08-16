@@ -293,7 +293,7 @@ public class ShopSystem {
             return;
         }
 
-        var message = await channel.SendMessageAsync($"<@{ownerId}> has bought a new {boughtName}! Enjoy. ^^");
+        var message = await channel.SendMessageAsync($"<@{ownerId}> has bought a new **{boughtName}**! Enjoy. ^^");
         await Task.Delay(TimeSpan.FromSeconds(5));
         await message.DeleteAsync();
     }
