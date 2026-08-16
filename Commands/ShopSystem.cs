@@ -116,7 +116,7 @@ public class ShopSystem {
                     var item = loadedItems[i];
 
                     bool isCharm = itemFileNames[i].Contains("charm", StringComparison.OrdinalIgnoreCase);
-                    double sizeMultiplier = isCharm ? 1.25 : 1.0;
+                    double sizeMultiplier = isCharm ? 1.75 : 1.0;
 
                     int maxItemHeight = (int)(shelfLineY * 0.85 * sizeMultiplier);
                     int maxItemWidth  = (int)(slotWidth * 0.8 * sizeMultiplier);
@@ -128,8 +128,10 @@ public class ShopSystem {
                         }));
                     }
 
+                    double slotMultiplier = isCharm ? 1.25 : 1.0;
+                    
                     int slotCenterX = slotWidth * i + slotWidth / 2;
-                    int x = slotCenterX - item.Width / 2;
+                    int x = (int)((slotCenterX - item.Width / 2) * slotMultiplier);
                     int y = shelfLineY - item.Height;
 
                     ctx.DrawImage(item, new Point(x, y), 1f);
