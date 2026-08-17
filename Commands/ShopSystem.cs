@@ -133,7 +133,7 @@ public class ShopSystem {
                     
                     int slotCenterX = slotWidth * i + slotWidth / 2;
                     int x = (int)((slotCenterX - item.Width / 2) * slotMultiplier);
-                    int y = (shelfLineY - item.Height + 50) + charmYOffset;
+                    int y = (shelfLineY - item.Height + 100) + charmYOffset;
 
                     ctx.DrawImage(item, new Point(x, y), 1f);
                 }
