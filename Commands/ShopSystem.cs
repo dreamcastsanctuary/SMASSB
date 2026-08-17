@@ -51,7 +51,7 @@ public class ShopSystem {
 
         var containerSango = new ContainerBuilder()
             .WithAccentColor(new Color(160,41,39))
-            .AddComponent(new TextDisplayBuilder().WithContent("❖・ Tech-Themed WorkCell Addons!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("❖・ SANGŌ-Themed WorkCell Addons!"))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://sango-shelf.png"))))
@@ -64,7 +64,7 @@ public class ShopSystem {
 
         var containerTech = new ContainerBuilder()
             .WithAccentColor(new Color(0,0,156))
-            .AddComponent(new TextDisplayBuilder().WithContent("❖・ SANGŌ-Themed WorkCell Addons!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("❖・ Tech-Themed WorkCell Addons!"))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://tech-shelf.png"))))
@@ -94,23 +94,32 @@ public class ShopSystem {
                 .WithButton($"Buy Rhythm Tengoku :: ¥10k", customId: $"buy_item_16_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
 
-        var components = new ComponentBuilderV2()
-            .WithTextDisplay("# ✦ SHOP . . . !\n\nCome spend your hard-earned yen here on brand new aesthetic additions and games !")
-            .WithSeparator(new SeparatorBuilder().WithIsDivider(false))
-            .AddComponent(containerSakura)
-            .AddComponent(containerSango)
-            .AddComponent(containerTech)
-            .AddComponent(containerIds)
-            .AddComponent(containerGames)
-            .Build();
-
         var channel = command.Channel;
 
-        await channel.SendFilesAsync(
-            attachments: new[] { sakuraAttachment, sangoAttachment, techAttachment, idsAttachment },
-            components: components,
-            flags: MessageFlags.ComponentsV2
-        );
+        var headerComponents = new ComponentBuilderV2()
+            .WithTextDisplay("# ✦ SHOP . . . !\n\nCome spend your hard-earned yen here on brand new aesthetic additions and games !")
+            .WithSeparator(new SeparatorBuilder().WithIsDivider(false))
+            .Build();
+
+        await channel.SendMessageAsync(components: headerComponents, flags: MessageFlags.ComponentsV2);
+
+        async Task SendShop(ContainerBuilder container, FileAttachment attachment) { // note for the person fronting later: yes i know this is a bad idea. im sorry
+            var components = new ComponentBuilderV2()
+                .AddComponent(container)
+                .Build();
+
+            await channel.SendFilesAsync(
+                attachments: new[] { attachment },
+                components: components,
+                flags: MessageFlags.ComponentsV2
+            );
+        }
+
+        await SendShop(containerSakura, sakuraAttachment);
+        await SendShop(containerSango, sangoAttachment);
+        await SendShop(containerTech, techAttachment);
+        await SendShop(containerIds, idsAttachment);
+        await SendShop(containerGames, techAttachment);
     }
 
     private async Task<FileAttachment> BuildShelfAttachment(string outputFileName, params string[] itemFileNames) {
