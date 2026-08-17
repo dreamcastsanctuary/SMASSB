@@ -40,7 +40,6 @@ public class ShopSystem {
             .WithAccentColor(new Color(254,201,209))
             .AddComponent(new TextDisplayBuilder().WithContent("❖・ Sakura-Themed WorkCell Addons!"))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
-            .AddComponent(new TextDisplayBuilder().WithContent("**Shop Contents**"))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://sakura-shelf.png"))))
             .AddComponent(new ActionRowBuilder()
