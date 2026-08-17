@@ -34,7 +34,7 @@ public class ShopSystem {
             "ids-shelf.png",
             "pink-template.png", "red-template.png", "green-template.png", "blue-template.png");
 
-        var items = new[] { "Bundle", "Case", "Charm", "Wallpaper", "ID Skin" };
+        var items = new[] { "Bundle", "Case", "Charm", "Wallpaper", "ID" };
 
         var containerSakura = new ContainerBuilder()
             .WithAccentColor(new Color(254,201,209))
