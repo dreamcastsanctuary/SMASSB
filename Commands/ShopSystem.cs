@@ -43,10 +43,10 @@ public class ShopSystem {
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://sakura-shelf.png"))))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
-                .WithButton($"Buy {items[0]} :: ¥14K", customId: $"buy_item_1_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[1]} :: ¥8K", customId: $"buy_item_2_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[2]} :: ¥3K", customId: $"buy_item_3_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[3]} :: ¥4K", customId: $"buy_item_4_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[0]} :: ¥14k", customId: $"buy_item_1_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[1]} :: ¥8k", customId: $"buy_item_2_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[2]} :: ¥3k", customId: $"buy_item_3_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[3]} :: ¥4k", customId: $"buy_item_4_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
 
         var containerSango = new ContainerBuilder()
@@ -55,10 +55,10 @@ public class ShopSystem {
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://sango-shelf.png"))))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
-                .WithButton($"Buy {items[0]} :: ¥14K", customId: $"buy_item_5_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[1]} :: ¥8K", customId: $"buy_item_6_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[2]} :: ¥3K", customId: $"buy_item_7_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[3]} :: ¥4K", customId: $"buy_item_8_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[0]} :: ¥14k", customId: $"buy_item_5_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[1]} :: ¥8k", customId: $"buy_item_6_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[2]} :: ¥3k", customId: $"buy_item_7_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[3]} :: ¥4k", customId: $"buy_item_8_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
 
         var containerTech = new ContainerBuilder()
@@ -67,9 +67,9 @@ public class ShopSystem {
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://tech-shelf.png"))))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
-                .WithButton($"Buy {items[0]} :: ¥11K", customId: $"buy_item_9_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[1]} :: ¥8K", customId: $"buy_item_10_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[3]} :: ¥4K", customId: $"buy_item_11_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[0]} :: ¥11k", customId: $"buy_item_9_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[1]} :: ¥8k", customId: $"buy_item_10_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[3]} :: ¥4k", customId: $"buy_item_11_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
 
         var containerIds = new ContainerBuilder()
@@ -78,10 +78,10 @@ public class ShopSystem {
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://ids-shelf.png"))))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
-                .WithButton($"Buy Pink {items[4]} :: ¥10K", customId: $"buy_item_12_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy Red {items[4]} :: ¥10K", customId: $"buy_item_13_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy Green {items[4]} :: ¥10K", customId: $"buy_item_14_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy Blue {items[4]} :: ¥10K", customId: $"buy_item_15_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Pink {items[4]} :: ¥10k", customId: $"buy_item_12_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Red {items[4]} :: ¥10k", customId: $"buy_item_13_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Green {items[4]} :: ¥10k", customId: $"buy_item_14_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Blue {items[4]} :: ¥10k", customId: $"buy_item_15_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
 
         var components = new ComponentBuilderV2()
