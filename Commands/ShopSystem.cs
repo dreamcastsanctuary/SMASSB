@@ -35,13 +35,14 @@ public class ShopSystem {
             "pink-template.png", "red-template.png", "green-template.png", "blue-template.png");
 
         var items = new[] { "Bundle", "Case", "Charm", "Wallpaper", "ID" };
-
+        
         var containerSakura = new ContainerBuilder()
             .WithAccentColor(new Color(254,201,209))
+            .AddComponent(new TextDisplayBuilder().WithContent("❖・ Sakura-Themed WorkCell Addons!"))
+            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new TextDisplayBuilder().WithContent("**Shop Contents**"))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://sakura-shelf.png"))))
-            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy {items[0]} :: ¥14k", customId: $"buy_item_1_{command.Channel.Id}", style: ButtonStyle.Secondary)
                 .WithButton($"Buy {items[1]} :: ¥8k", customId: $"buy_item_2_{command.Channel.Id}", style: ButtonStyle.Secondary)
@@ -51,9 +52,10 @@ public class ShopSystem {
 
         var containerSango = new ContainerBuilder()
             .WithAccentColor(new Color(160,41,39))
+            .AddComponent(new TextDisplayBuilder().WithContent("❖・ Tech-Themed WorkCell Addons!"))
+            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://sango-shelf.png"))))
-            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy {items[0]} :: ¥14k", customId: $"buy_item_5_{command.Channel.Id}", style: ButtonStyle.Secondary)
                 .WithButton($"Buy {items[1]} :: ¥8k", customId: $"buy_item_6_{command.Channel.Id}", style: ButtonStyle.Secondary)
@@ -63,9 +65,10 @@ public class ShopSystem {
 
         var containerTech = new ContainerBuilder()
             .WithAccentColor(new Color(0,0,156))
+            .AddComponent(new TextDisplayBuilder().WithContent("❖・ SANGŌ-Themed WorkCell Addons!"))
+            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://tech-shelf.png"))))
-            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy {items[0]} :: ¥11k", customId: $"buy_item_9_{command.Channel.Id}", style: ButtonStyle.Secondary)
                 .WithButton($"Buy {items[1]} :: ¥8k", customId: $"buy_item_10_{command.Channel.Id}", style: ButtonStyle.Secondary)
@@ -74,22 +77,32 @@ public class ShopSystem {
 
         var containerIds = new ContainerBuilder()
             .WithAccentColor(new Color(0,0,0))
+            .AddComponent(new TextDisplayBuilder().WithContent("❖・ Custom IDs!"))
+            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://ids-shelf.png"))))
-            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy Pink {items[4]} :: ¥10k", customId: $"buy_item_12_{command.Channel.Id}", style: ButtonStyle.Secondary)
                 .WithButton($"Buy Red {items[4]} :: ¥10k", customId: $"buy_item_13_{command.Channel.Id}", style: ButtonStyle.Secondary)
                 .WithButton($"Buy Green {items[4]} :: ¥10k", customId: $"buy_item_14_{command.Channel.Id}", style: ButtonStyle.Secondary)
                 .WithButton($"Buy Blue {items[4]} :: ¥10k", customId: $"buy_item_15_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
+        
+        var containerGames = new ContainerBuilder()
+            .WithAccentColor(new Color(255, 97, 79))
+            .AddComponent(new TextDisplayBuilder().WithContent("Buy new apps!"))
+            .AddComponent(new ActionRowBuilder()
+                .WithButton($"Buy Rhythm Tengoku :: ¥10k", customId: $"buy_item_16_{command.Channel.Id}", style: ButtonStyle.Secondary)
+            );
 
         var components = new ComponentBuilderV2()
+            .WithTextDisplay("# ✦ SHOP . . . !\n\nCome spend your hard-earned yen here on brand new aesthetic additions and games !")
             .WithSeparator(new SeparatorBuilder().WithIsDivider(false))
             .AddComponent(containerSakura)
             .AddComponent(containerSango)
             .AddComponent(containerTech)
             .AddComponent(containerIds)
+            .AddComponent(containerGames)
             .Build();
 
         var channel = command.Channel;
@@ -279,6 +292,13 @@ public class ShopSystem {
                     boughtName = "Blue ID Skin";
                 }
                 break;
+            case 16:
+                if (await OwnsApp(ownerId, "RHYTHMTENGOKU")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                    await _db.GiveNewApp(ownerId, "RHYTHMTENGOKU");
+                    boughtName = "Rhythm Tengoku";
+                }
+                break;
         }
 
         if (alreadyOwnedMessage != null) {
@@ -324,5 +344,9 @@ public class ShopSystem {
 
     private async Task<bool> OwnsId(ulong userId, string type) {
         return (await _db.GetIds(userId)).Contains(type);
+    }
+    
+    private async Task<bool> OwnsApp(ulong userId, string type) {
+        return (await _db.GetCollectedApps(userId)).Contains(type);
     }
 }
