@@ -16,7 +16,7 @@ public class ShopSystem {
     }
     
     public async Task PostShopContents(SocketSlashCommand command) {
-        await command.DeferAsync();
+        await command.DeferAsync().ConfigureAwait(false);
 
         var sakuraAttachment = await BuildShelfAttachment(
             "sakura-shelf.png",
@@ -92,7 +92,9 @@ public class ShopSystem {
             .AddComponent(containerIds)
             .Build();
 
-        await command.FollowupWithFilesAsync(
+        var channel = command.Channel;
+
+        await channel.SendFilesAsync(
             attachments: new[] { sakuraAttachment, sangoAttachment, techAttachment, idsAttachment },
             components: components,
             flags: MessageFlags.ComponentsV2
