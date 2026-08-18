@@ -89,7 +89,7 @@ public class ShopSystem {
         
         var containerGames = new ContainerBuilder()
             .WithAccentColor(new Color(255, 97, 79))
-            .AddComponent(new TextDisplayBuilder().WithContent("Buy new apps!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("❖・ Buy new apps!"))
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy Rhythm Tengoku :: ¥10k", customId: $"buy_item_16_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
@@ -97,6 +97,8 @@ public class ShopSystem {
         var headerComponents = new ComponentBuilderV2()
             .WithTextDisplay("# ✦ SHOP . . . !\n\nCome spend your hard-earned yen here on brand new aesthetic additions and games !")
             .WithSeparator(new SeparatorBuilder().WithIsDivider(false))
+            .AddComponent(new MediaGalleryBuilder().AddItem("https://images-ext-1.discordapp.net/external/a1WXHk8jklKgoXuWXK7nObO7inQOBXNFqt6zldi8NdE/https/64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj?format=webp"))
+            .WithTextDisplay("_ _")
             .Build();
 
         var channel = command.Channel;
