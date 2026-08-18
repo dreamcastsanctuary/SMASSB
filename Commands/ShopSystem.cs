@@ -94,13 +94,12 @@ public class ShopSystem {
                 .WithButton($"Buy Rhythm Tengoku :: ¥10k", customId: $"buy_item_16_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
 
-        var channel = command.Channel;
-
         var headerComponents = new ComponentBuilderV2()
             .WithTextDisplay("# ✦ SHOP . . . !\n\nCome spend your hard-earned yen here on brand new aesthetic additions and games !")
             .WithSeparator(new SeparatorBuilder().WithIsDivider(false))
             .Build();
 
+        var channel = command.Channel;
         await channel.SendMessageAsync(components: headerComponents, flags: MessageFlags.ComponentsV2);
 
         async Task SendShop(ContainerBuilder container, FileAttachment attachment) { // note for the person fronting later: yes i know this is a bad idea. im sorry
