@@ -38,7 +38,7 @@ public class ShopSystem {
         
         var containerSakura = new ContainerBuilder()
             .WithAccentColor(new Color(254,201,209))
-            .AddComponent(new TextDisplayBuilder().WithContent("❖・ Sakura-Themed WorkCell Addons!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Sakura-Themed WorkCell Addons!"))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://sakura-shelf.png"))))
@@ -51,7 +51,7 @@ public class ShopSystem {
 
         var containerSango = new ContainerBuilder()
             .WithAccentColor(new Color(160,41,39))
-            .AddComponent(new TextDisplayBuilder().WithContent("❖・ SANGŌ-Themed WorkCell Addons!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ SANGŌ-Themed WorkCell Addons!"))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://sango-shelf.png"))))
@@ -64,7 +64,7 @@ public class ShopSystem {
 
         var containerTech = new ContainerBuilder()
             .WithAccentColor(new Color(0,0,156))
-            .AddComponent(new TextDisplayBuilder().WithContent("❖・ Tech-Themed WorkCell Addons!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Tech-Themed WorkCell Addons!"))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://tech-shelf.png"))))
@@ -76,7 +76,7 @@ public class ShopSystem {
 
         var containerIds = new ContainerBuilder()
             .WithAccentColor(new Color(0,0,0))
-            .AddComponent(new TextDisplayBuilder().WithContent("❖・ Custom IDs!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Custom IDs!"))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://ids-shelf.png"))))
@@ -90,7 +90,7 @@ public class ShopSystem {
         var containerGames = new ContainerBuilder()
             .WithAccentColor(new Color(255, 97, 79))
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("❖・ Buy new apps!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Buy new apps!"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
             .AddComponent(new ActionRowBuilder()
