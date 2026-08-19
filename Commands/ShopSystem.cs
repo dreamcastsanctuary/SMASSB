@@ -92,7 +92,7 @@ public class ShopSystem {
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("❖・ Buy new apps!"))
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1486187890902958192/Untitled363_20260324221957.png?ex=6a846a15&is=6a831895&hm=b65ab9f63dc7e7289974c8e7b6163dc95b5e4bd48035d8135e8ab3f2ecff1e6b&=&format=webp&quality=lossless")))
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy Rhythm Tengoku :: ¥10k", customId: $"buy_item_16_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
