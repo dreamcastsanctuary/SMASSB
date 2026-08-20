@@ -221,14 +221,14 @@ public class RewardSystem {
                     embeds.Add(new EmbedBuilder()
                         .WithTitle("Wearable for Parade Dress!")
                         .WithColor(0xBFA55F)
-                        .WithDescription("Please place these codes on your dress on the *Back Bow*. \n✦ **#839390 | #272e2e**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#192126 | #090d10**")
+                        .WithDescription("Please place these codes on your dress on the *Back Bow*. \n✦ **#839390 | #272e2e**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#192126 | #090d10**\n\n- You may change or add ONE item to your tracksuit.")
                         .WithFooter("You've also received 60 POINTs and ¥3500!\n✦ Please send your updated uniform in the typical uniform checks."));
                     break;
                 case 11:
                     embeds.Add(new EmbedBuilder()
                         .WithTitle("Wearable for Parade Dress!")
                         .WithColor(0xBFA55F)
-                        .WithDescription("Please place this code on your dress on the *Waist Accessory, Main Color 2*. \n✦ **#5d6866**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#192126 | #090d10**")
+                        .WithDescription("Please place this code on your dress on the *Waist Accessory, Main Color 2*. \n✦ **#5d6866**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#192126 | #090d10**\n\n- You may change or add ONE item to your tracksuit.")
                         .WithFooter("You've also received 30 POINTs and ¥2000!\n✦ Please send your updated uniform in the typical uniform checks."));
                     break;
             }
@@ -243,6 +243,6 @@ public class RewardSystem {
         
         var channel = client.GetChannel(1473209020285452360) as ITextChannel;
         
-        await channel.SendMessageAsync("## Au__tomatic Messaging Syst__em . . \nPlease congratulate <@" + assignedTo.Id + "> in <#1473211757269876831> \nfor achieving the accomplishment **__" + accompName[value - 1]+ "__**!\n\n<@&1473370613992394864>");
+        await channel.SendMessageAsync("## Au__tomatic Messaging Syst__em . . \nPlease congratulate <@" + assignedTo.Id + "> in <#1473211757269876831> \nfor achieving the accomplishment **__" + accompName[value - 1]+ "__**!"); // \n\n<@&1473370613992394864>
     }
 }
