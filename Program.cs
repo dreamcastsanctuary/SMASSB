@@ -33,6 +33,7 @@ public class Program {
         _serviceProvider = CreateProvider();
         _client = _serviceProvider.GetRequiredService<DiscordSocketClient>();
         _commandHandler = _serviceProvider.GetRequiredService<CommandHandler>();
+        _extraneousHandler = _serviceProvider.GetRequiredService<ExtraneousHandler>();
         _logHandler = _serviceProvider.GetRequiredService<LogHandler>();
         _meetingSystem = _serviceProvider.GetRequiredService<MeetingSystem>();
         
