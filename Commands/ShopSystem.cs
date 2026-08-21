@@ -334,9 +334,8 @@ public class ShopSystem {
             return;
         }
 
-        var message = await channel.SendMessageAsync($"<@{ownerId}> has bought a new **{boughtName}**! Enjoy. ^^");
-        await Task.Delay(TimeSpan.FromSeconds(5));
-        await message.DeleteAsync();
+        var user = guild.GetUser(ownerId);
+        await UserExtensions.SendMessageAsync(user, $"You've bought a new **{boughtName}**! Enjoy. ^^");
     }
 
     private async Task<bool> CheckBeforeBuy(ulong ownerId, int num) {
