@@ -255,10 +255,8 @@ public class RewardSystem {
         var item = 0;
         var value = 0;
 
-        foreach (var option in command.Data.Options)
-        {
-            switch (option.Name)
-            {
+        foreach (var option in command.Data.Options) {
+            switch (option.Name) {
 
                 case "enlisted1":
                     enlisteds.Add(((SocketGuildUser)option.Value));
@@ -325,7 +323,7 @@ public class RewardSystem {
             List<EmbedBuilder> embeds = new List<EmbedBuilder>();
             
             switch (value) {
-                case 10:
+                case 1:
                     
                     embeds.Add(new EmbedBuilder()
                         .WithAuthor("Dear Enlistee, you have completed the . . .")
@@ -341,7 +339,7 @@ public class RewardSystem {
                         .WithFooter("You've also received 60 POINTs and ¥3500!\n✦ Please send your updated uniform in the typical uniform checks."));
                     
                     break;
-                case 11:
+                case 2:
                     embeds.Add(new EmbedBuilder()
                         .WithAuthor("Dear Enlistee, you have completed the . . .")
                         .WithTitle("STALEMATE ACCOMPLISHMENT!")
