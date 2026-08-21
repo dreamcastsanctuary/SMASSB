@@ -377,8 +377,7 @@ public class CommandHandler {
         
         commands.Add(new SlashCommandBuilder()
             .WithName("showworkcell")
-            .WithDescription("Shows your Work Cellphone.")
-            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+            .WithDescription("Shows your Work Cellphone."));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("editworkcell")
@@ -412,28 +411,27 @@ public class CommandHandler {
                 .WithDescription("The Wallpaper to display.")
                 .WithRequired(false)
                 .WithType(ApplicationCommandOptionType.String)
-                .WithAutocomplete(true))
-            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+                .WithAutocomplete(true)));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("showotherworkcell")
             .WithDescription("Shows another member's Work Cellphone.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
-            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("addyen")
             .WithDescription("Adds yen to a member.")
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
             .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to add.", isRequired: true)
-            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
             .WithName("removeyen")
             .WithDescription("Removes yen from a member.")
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
             .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to remove.", isRequired: true)
-            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         
         
@@ -478,7 +476,7 @@ public class CommandHandler {
             .AddOption(caseOption)
             .AddOption(wallpaperOption)
             .AddOption(charmOption)
-            .WithDefaultMemberPermissions(GuildPermission.Administrator)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
         );
         
         commands.Add(new SlashCommandBuilder()
@@ -489,7 +487,7 @@ public class CommandHandler {
             .AddOption(caseOption)
             .AddOption(wallpaperOption)
             .AddOption(charmOption)
-            .WithDefaultMemberPermissions(GuildPermission.Administrator)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
         );
         
         // commands.Add(new SlashCommandBuilder()
