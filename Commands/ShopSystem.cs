@@ -92,7 +92,7 @@ public class ShopSystem {
             );
         
         var containerGames = new ContainerBuilder()
-            .WithAccentColor(new Color(255, 97, 79))
+            .WithAccentColor(new Color(255, 49, 44))
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Buy new apps!"))
                 .WithAccessory(new ThumbnailBuilder()
@@ -102,7 +102,7 @@ public class ShopSystem {
             );
         
         var containerHeader = new ContainerBuilder()
-            .WithAccentColor(new Color(255, 97, 79))
+            .WithAccentColor(new Color(255, 49, 44))
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ . . C-STORE . . ・❖\n\nCome spend your hard-earned yen here on brand new aesthetic additions and games!"))
                 .WithAccessory(new ThumbnailBuilder()
@@ -124,12 +124,13 @@ public class ShopSystem {
             );
         }
 
+        
+        await SendShop(containerHeader, sakuraAttachment);
         await SendShop(containerSakura, sakuraAttachment);
         await SendShop(containerSango, sangoAttachment);
         await SendShop(containerTech, techAttachment);
         await SendShop(containerIds, idsAttachment);
         await SendShop(containerGames, techAttachment);
-        await SendShop(containerHeader, sakuraAttachment);
     }
 
     private async Task<FileAttachment> BuildShelfAttachment(string outputFileName, params string[] itemFileNames) {
