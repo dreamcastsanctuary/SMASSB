@@ -292,6 +292,8 @@ public class CellSystem {
                 return Color.FromRgba(154, 100, 114, 255);
             case "SANGO":
                 return Color.FromRgba(28, 39, 41, 255);
+            case "TECH":
+                return Color.FromRgba(255, 255, 255, 255);
         }
         return new Color();
     }
