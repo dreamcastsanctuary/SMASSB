@@ -80,8 +80,8 @@ public class ShopSystem {
         var containerIds = new ContainerBuilder()
             .WithAccentColor(new Color(0,0,0))
             .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Custom IDs!"))
-            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new TextDisplayBuilder().WithContent("They're a little plain, but they're better than basic."))
+            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://ids-shelf.png"))))
             .AddComponent(new ActionRowBuilder()
@@ -321,7 +321,7 @@ public class ShopSystem {
         }
 
         if (alreadyOwnedMessage != null) {
-            var ownedMessage = await channel.SendMessageAsync(alreadyOwnedMessage);
+            var ownedMessage = await channel.SendMessageAsync("\\<:sango_emblem_mono:1492222638980989138> :: " + alreadyOwnedMessage);
             await Task.Delay(TimeSpan.FromSeconds(5));
             await ownedMessage.DeleteAsync();
             return;
