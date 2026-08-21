@@ -39,6 +39,7 @@ public class ShopSystem {
         var containerSakura = new ContainerBuilder()
             .WithAccentColor(new Color(254,201,209))
             .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Sakura-Themed WorkCell Addons!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("It's, uh, *winter*, you know..."))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://sakura-shelf.png"))))
@@ -52,6 +53,7 @@ public class ShopSystem {
         var containerSango = new ContainerBuilder()
             .WithAccentColor(new Color(160,41,39))
             .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ SANGŌ-Themed WorkCell Addons!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("..? You're dressed in our uniform, isn't that enough merch? I'm kidding."))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://sango-shelf.png"))))
@@ -65,6 +67,7 @@ public class ShopSystem {
         var containerTech = new ContainerBuilder()
             .WithAccentColor(new Color(0,0,156))
             .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Tech-Themed WorkCell Addons!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("You the type to like sleek blues and whites? I've got what you want."))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://tech-shelf.png"))))
@@ -78,6 +81,7 @@ public class ShopSystem {
             .WithAccentColor(new Color(0,0,0))
             .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Custom IDs!"))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
+            .AddComponent(new TextDisplayBuilder().WithContent("They're a little plain, but they're better than basic."))
             .AddComponent(new MediaGalleryBuilder()
                 .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://ids-shelf.png"))))
             .AddComponent(new ActionRowBuilder()
@@ -96,16 +100,17 @@ public class ShopSystem {
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy Rhythm Tengoku :: ¥10k", customId: $"buy_item_16_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
-
-        var headerComponents = new ComponentBuilderV2()
-            .WithTextDisplay("# ✦ SHOP . . . !\n\nCome spend your hard-earned yen here on brand new aesthetic additions and games !")
-            .WithSeparator(new SeparatorBuilder().WithIsDivider(false))
-            .AddComponent(new MediaGalleryBuilder().AddItem("https://images-ext-1.discordapp.net/external/a1WXHk8jklKgoXuWXK7nObO7inQOBXNFqt6zldi8NdE/https/64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj?format=webp"))
-            .WithTextDisplay("_ _")
-            .Build();
+        
+        var headerComponents = new ContainerBuilder()
+            .WithAccentColor(new Color(255, 97, 79))
+            .AddComponent(new SectionBuilder()
+                .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ . . C-STORE . . ・❖\n\nCome spend your hard-earned yen here on brand new aesthetic additions and games!"))
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1486187890902958192/Untitled363_20260324221957.png?ex=6a885e95&is=6a870d15&hm=3227c32f1d2092fe4b57e76065f949ec604aeb8346bd002f4ad73c3db4f2ea88&=&format=webp&quality=lossless"))
+                .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
+                .AddComponent(new MediaGalleryBuilder().AddItem("https://images-ext-1.discordapp.net/external/a1WXHk8jklKgoXuWXK7nObO7inQOBXNFqt6zldi8NdE/https/64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj?format=webp")));
 
         var channel = command.Channel;
-        await channel.SendMessageAsync(components: headerComponents, flags: MessageFlags.ComponentsV2);
 
         async Task SendShop(ContainerBuilder container, FileAttachment attachment) { // note for the person fronting later: yes i know this is a bad idea. im sorry
             var components = new ComponentBuilderV2()
@@ -124,6 +129,7 @@ public class ShopSystem {
         await SendShop(containerTech, techAttachment);
         await SendShop(containerIds, idsAttachment);
         await SendShop(containerGames, techAttachment);
+        await SendShop(headerComponents, sakuraAttachment);
     }
 
     private async Task<FileAttachment> BuildShelfAttachment(string outputFileName, params string[] itemFileNames) {
