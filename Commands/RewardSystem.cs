@@ -242,7 +242,137 @@ public class RewardSystem {
         }
         
         var channel = client.GetChannel(1473209020285452360) as ITextChannel;
-        
         await channel.SendMessageAsync("## Au__tomatic Messaging Syst__em . . \nPlease congratulate <@" + assignedTo.Id + "> in <#1473211757269876831> \nfor achieving the accomplishment **__" + accompName[value - 1]+ "__**!"); // \n\n<@&1473370613992394864>
+    }
+
+    public async Task HandleNewBadges(SocketSlashCommand command, DiscordSocketClient client) {
+
+        await command.DeferAsync();
+
+        var channel = client.GetChannel(1473209020285452360) as ITextChannel;
+        var enlisteds = new List<SocketGuildUser>();
+        var desc = "";
+        var item = 0;
+        var value = 0;
+
+        foreach (var option in command.Data.Options)
+        {
+            switch (option.Name)
+            {
+
+                case "enlisted1":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted2":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted3":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted4":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted5":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted6":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted7":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted8":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted9":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "enlisted10":
+                    enlisteds.Add(((SocketGuildUser)option.Value));
+                    break;
+                case "item":
+                    item = (int)(long)option.Value;
+                    break;
+                default:
+                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    return;
+            }
+        }
+
+        foreach (var user in enlisteds) {
+            
+            desc += "<@" + user.Id + ">, ";
+            
+            switch (item) {
+
+                case 1:
+                    value = 1;
+                    await user.AddRoleAsync(1527907825836097556);
+                    await _db.AddPoints(user.Id, 60);
+                    await _db.AddYen(user.Id, 3500);
+                    break;
+                case 2:
+                    value = 2;
+                    await user.AddRoleAsync(1527907819649630298);
+                    await _db.AddPoints(user.Id, 30);
+                    await _db.AddYen(user.Id, 2000);
+                    break;
+                default:
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
+                    return;
+            }
+            
+            List<EmbedBuilder> embeds = new List<EmbedBuilder>();
+            
+            switch (value) {
+                case 10:
+                    
+                    embeds.Add(new EmbedBuilder()
+                        .WithAuthor("Dear Enlistee, you have completed the . . .")
+                        .WithTitle("A NUTRITIOUS BREAKFAST ACCOMPLISHMENT!")
+                        .WithColor(0xBFA55F)
+                        .WithDescription(". . And have been awarded with the following :")
+                        .WithThumbnailUrl("https://64.media.tumblr.com/7d47f90161168afdb17720c3e645e120/b35d6053bfb9fc2a-03/s400x600/5ed0e321f4aeac2aa3542a520f1df49cbeff1752.pnj"));
+                    
+                    embeds.Add(new EmbedBuilder()
+                        .WithTitle("Wearable for Parade Dress!")
+                        .WithColor(0xBFA55F)
+                        .WithDescription("Please place these codes on your dress on the *Back Bow*. \n✦ **#839390 | #272e2e**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#192126 | #090d10**\n\n- You may change or add ONE item to your tracksuit.")
+                        .WithFooter("You've also received 60 POINTs and ¥3500!\n✦ Please send your updated uniform in the typical uniform checks."));
+                    
+                    break;
+                case 11:
+                    embeds.Add(new EmbedBuilder()
+                        .WithAuthor("Dear Enlistee, you have completed the . . .")
+                        .WithTitle("STALEMATE ACCOMPLISHMENT!")
+                        .WithColor(0xBFA55F)
+                        .WithDescription(". . And have been awarded with the following :")
+                        .WithThumbnailUrl("https://64.media.tumblr.com/7d47f90161168afdb17720c3e645e120/b35d6053bfb9fc2a-03/s400x600/5ed0e321f4aeac2aa3542a520f1df49cbeff1752.pnj"));
+
+                    embeds.Add(new EmbedBuilder()
+                        .WithTitle("Wearable for Parade Dress!")
+                        .WithColor(0xBFA55F)
+                        .WithDescription("Please place this code on your dress on the *Waist Accessory, Main Color 2*. \n✦ **#5d6866**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#192126 | #090d10**\n\n- You may change or add ONE item to your tracksuit.")
+                        .WithFooter("You've also received 30 POINTs and ¥2000!\n✦ Please send your updated uniform in the typical uniform checks."));
+                    
+                    break;
+            }
+            
+            foreach (var embed in embeds) {
+                try { await UserExtensions.SendMessageAsync(user, "", false, embed.Build()); }
+                catch (Discord.Net.HttpException ex) { await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message); }
+            }
+        }
+        
+        desc = desc.TrimEnd(',', ' ');
+
+        switch (value) {
+            case 1:
+                await channel.SendMessageAsync("## Au__tomatic Messaging Syst__em . . \nPlease congratulate " + desc + " in <#1473211757269876831> \nfor achieving the accomplishment **__A NUTRITIOUS BREAKFAST__**!"); // \n\n<@&1473370613992394864>
+                break;
+            case 2:
+                await channel.SendMessageAsync("## Au__tomatic Messaging Syst__em . . \nPlease congratulate " + desc + " in <#1473211757269876831> \nfor achieving the accomplishment **__STALEMATE__**!"); // \n\n<@&1473370613992394864>
+                break;
+        }
     }
 }
