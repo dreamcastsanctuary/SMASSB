@@ -319,22 +319,19 @@ public class ShopSystem {
                 }
                 break;
         }
+        
+        var user = guild.GetUser(ownerId);
 
         if (alreadyOwnedMessage != null) {
-            var ownedMessage = await channel.SendMessageAsync(alreadyOwnedMessage);
-            await Task.Delay(TimeSpan.FromSeconds(5));
-            await ownedMessage.DeleteAsync();
+            await UserExtensions.SendMessageAsync(user, alreadyOwnedMessage);
             return;
         }
 
         if (boughtName == null) {
-            var fundsMessage = await channel.SendMessageAsync("You don't have the funds for this.");
-            await Task.Delay(TimeSpan.FromSeconds(5));
-            await fundsMessage.DeleteAsync();
+            await UserExtensions.SendMessageAsync(user, "You don't have the funds for this.");
             return;
         }
-
-        var user = guild.GetUser(ownerId);
+        
         await UserExtensions.SendMessageAsync(user, $"You've bought a new **{boughtName}**! Enjoy. ^^");
     }
 
