@@ -311,9 +311,6 @@ public class RewardSystem {
                     break;
                 case 2:
                     value = 2;
-                    await user.AddRoleAsync(1527907819649630298);
-                    await _db.AddPoints(user.Id, 30);
-                    await _db.AddYen(user.Id, 2000);
                     break;
                 default:
                     await command.FollowupAsync("Unrecognized command.", ephemeral: true);
@@ -341,18 +338,11 @@ public class RewardSystem {
                     break;
                 case 2:
                     embeds.Add(new EmbedBuilder()
-                        .WithAuthor("Dear Enlistee, you have completed the . . .")
-                        .WithTitle("STALEMATE ACCOMPLISHMENT!")
+                        .WithAuthor("Coughs . .")
+                        .WithTitle("Hello!! This is Kamikawa!!!")
                         .WithColor(0xBFA55F)
-                        .WithDescription(". . And have been awarded with the following :")
-                        .WithThumbnailUrl("https://64.media.tumblr.com/7d47f90161168afdb17720c3e645e120/b35d6053bfb9fc2a-03/s400x600/5ed0e321f4aeac2aa3542a520f1df49cbeff1752.pnj"));
+                        .WithDescription("Please do not use the TAIL listed on STALEMATE!! That was an error TT_TT Only use the waist accessory!"));
 
-                    embeds.Add(new EmbedBuilder()
-                        .WithTitle("Wearable for Parade Dress!")
-                        .WithColor(0xBFA55F)
-                        .WithDescription("Please place this code on your dress on the *Waist Accessory, Main Color 2*. \n✦ **#5d6866**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#192126 | #090d10**\n\n- You may change or add ONE item to your tracksuit.")
-                        .WithFooter("You've also received 30 POINTs and ¥2000!\n✦ Please send your updated uniform in the typical uniform checks."));
-                    
                     break;
             }
             
@@ -360,17 +350,6 @@ public class RewardSystem {
                 try { await UserExtensions.SendMessageAsync(user, "", false, embed.Build()); }
                 catch (Discord.Net.HttpException ex) { await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message); }
             }
-        }
-        
-        desc = desc.TrimEnd(',', ' ');
-
-        switch (value) {
-            case 1:
-                await channel.SendMessageAsync("## Au__tomatic Messaging Syst__em . . \nPlease congratulate " + desc + " in <#1473211757269876831> \nfor achieving the accomplishment **__A NUTRITIOUS BREAKFAST__**!"); // \n\n<@&1473370613992394864>
-                break;
-            case 2:
-                await channel.SendMessageAsync("## Au__tomatic Messaging Syst__em . . \nPlease congratulate " + desc + " in <#1473211757269876831> \nfor achieving the accomplishment **__STALEMATE__**!"); // \n\n<@&1473370613992394864>
-                break;
         }
     }
 }
