@@ -101,15 +101,15 @@ public class ShopSystem {
                 .WithButton($"Buy Rhythm Tengoku :: ¥10k", customId: $"buy_item_16_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
         
-        var headerComponents = new ContainerBuilder()
+        var containerHeader = new ContainerBuilder()
             .WithAccentColor(new Color(255, 97, 79))
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ . . C-STORE . . ・❖\n\nCome spend your hard-earned yen here on brand new aesthetic additions and games!"))
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1486187890902958192/Untitled363_20260324221957.png?ex=6a885e95&is=6a870d15&hm=3227c32f1d2092fe4b57e76065f949ec604aeb8346bd002f4ad73c3db4f2ea88&=&format=webp&quality=lossless"))
-                .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
-                .AddComponent(new MediaGalleryBuilder().AddItem("https://images-ext-1.discordapp.net/external/a1WXHk8jklKgoXuWXK7nObO7inQOBXNFqt6zldi8NdE/https/64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj?format=webp")));
-
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1486187890902958192/Untitled363_20260324221957.png?ex=6a885e95&is=6a870d15&hm=3227c32f1d2092fe4b57e76065f949ec604aeb8346bd002f4ad73c3db4f2ea88&=&format=webp&quality=lossless")))
+            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
+            .AddComponent(new MediaGalleryBuilder().AddItem("https://images-ext-1.discordapp.net/external/a1WXHk8jklKgoXuWXK7nObO7inQOBXNFqt6zldi8NdE/https/64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj?format=webp"));
+        
         var channel = command.Channel;
 
         async Task SendShop(ContainerBuilder container, FileAttachment attachment) { // note for the person fronting later: yes i know this is a bad idea. im sorry
@@ -129,7 +129,7 @@ public class ShopSystem {
         await SendShop(containerTech, techAttachment);
         await SendShop(containerIds, idsAttachment);
         await SendShop(containerGames, techAttachment);
-        await SendShop(headerComponents, sakuraAttachment);
+        await SendShop(containerHeader, sakuraAttachment);
     }
 
     private async Task<FileAttachment> BuildShelfAttachment(string outputFileName, params string[] itemFileNames) {
