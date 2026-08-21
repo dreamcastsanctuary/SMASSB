@@ -80,7 +80,7 @@ public class CommandHandler {
         commands.Add(new SlashCommandBuilder()
             .WithName("rewardaccomp")
             .WithDescription("Gives a enlisted a specific award after achieving an accomplishment.")
-            .AddOption("enlisted", ApplicationCommandOptionType.User, "The name of the enlisted.", isRequired: true)
+            .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
             .AddOption(new SlashCommandOptionBuilder()
                 .WithName("item").WithDescription("The specific item / document that is to be rewarded.")
                 .WithRequired(true)
