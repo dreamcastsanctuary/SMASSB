@@ -233,7 +233,7 @@ public class CellSystem {
                 ipc.DrawText("¥" + yen.ToString("N0"), fontReg, color, new Point(757, 739));
                 ipc.DrawText("**** **** **** " + (userId % 10000).ToString("D4"), fontSmall, color, new Point(762, 463));
                 ipc.DrawText("Balance", fontBal, color, new Point(740, 640));
-                ipc.DrawText(BuildEarningsSummary(currentWeekEarnings, percentChange, isIncrease), fontTiny, color, new Point(760, 963));
+                ipc.DrawText(BuildEarningsSummary(currentWeekEarnings, percentChange, isIncrease), fontTiny, color, new Point(740, 963));
 
                 if (hasTengokuApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "tengoku-app.png");
