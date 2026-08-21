@@ -470,4 +470,10 @@ public class LogHandler {
             });
         }
     }
+
+    public async Task LogExceptionWatch(LogMessage msg, ulong guildId) {
+
+        var thread = _client.GetGuild(guildId).GetChannel(1540194084633710602) as IThreadChannel;
+        await thread.SendMessageAsync(msg.ToString());
+    }
 }

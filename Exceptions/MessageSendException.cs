@@ -1,5 +1,8 @@
 ﻿namespace SMASSB.Exceptions;
 
+/// <summary>
+/// Triggered whenever someone's DMs are closed.
+/// </summary>
 public class MessageSendException : Exception
 {
     public string UserName { get; }

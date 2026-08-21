@@ -53,7 +53,6 @@ public class RoleSystem {
                 await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message);
             } 
         } catch (Exception ex) {
-            await command.FollowupAsync($"Something went wrong pre-enlisting this user: {ex.Message}", ephemeral: true);
         }
     }
     

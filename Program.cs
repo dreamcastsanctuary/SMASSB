@@ -9,17 +9,25 @@ public class Program {
     
     private DiscordSocketClient _client;
     private ulong _guildId;
+    
     private CommandHandler _commandHandler;
+    private ExtraneousHandler _extraneousHandler;
     private LogHandler _logHandler;
     private MeetingSystem _meetingSystem;
+    
     private static IServiceProvider _serviceProvider;
     private ConcurrentDictionary<string, int> _inviteCache = new();
     private static readonly HashSet<ulong> _startedLoops = new();
     private static readonly object _startedLoopsLock = new();
 
-    public static async Task Main()
-        => await new Program().RunAsync();
+    /// <summary>
+    /// Where the magic starts.
+    /// </summary>
+    public static async Task Main() => await new Program().RunAsync();
 
+    /// <summary>
+    /// Where the magic runs. This is where the bot logs onto its client.
+    /// </summary>
     private async Task RunAsync() {
         
         _serviceProvider = CreateProvider();
@@ -29,15 +37,15 @@ public class Program {
         _meetingSystem = _serviceProvider.GetRequiredService<MeetingSystem>();
         
         var token = Environment.GetEnvironmentVariable("BOT_TOKEN") ?? throw new Exception("BOT_TOKEN environment variable not set.");
-
         _guildId = ulong.Parse(Environment.GetEnvironmentVariable("GUILD_ID") ?? throw new Exception("GUILD_ID environment variable not set."));
+        
         _client.Log += Log;
+        _client.ButtonExecuted += _extraneousHandler.ButtonHandler;
+        _client.MessageReceived += _meetingSystem.HandleMeetingMessage;
         
-        _client.ButtonExecuted += _commandHandler.ButtonHandler;
-        
-        _client.ReactionAdded += (cache, channel, reaction) => { _ = Task.Run(async () => await _commandHandler.ReactionAddedHandler(_client.GetGuild(_guildId), cache, channel, reaction)); return Task.CompletedTask; };
-        _client.ReactionRemoved += (cache, channel, reaction) => { _ = Task.Run(async () => await _commandHandler.ReactionRemovedHandler(_client.GetGuild(_guildId), cache, channel, reaction)); return Task.CompletedTask; };
-        _client.UserVoiceStateUpdated += (user, before, after) => { _ = Task.Run(async () => await _commandHandler.VoiceStateUpdatedAsync(user, before, after, _client.GetGuild(_guildId))); return Task.CompletedTask; };
+        _client.ReactionAdded += (cache, channel, reaction) => { _ = Task.Run(async () => await _extraneousHandler.ReactionAddedHandler(_client.GetGuild(_guildId), cache, channel, reaction)); return Task.CompletedTask; };
+        _client.ReactionRemoved += (cache, channel, reaction) => { _ = Task.Run(async () => await _extraneousHandler.ReactionRemovedHandler(_client.GetGuild(_guildId), cache, channel, reaction)); return Task.CompletedTask; };
+        _client.UserVoiceStateUpdated += (user, before, after) => { _ = Task.Run(async () => await _extraneousHandler.VoiceStateUpdatedAsync(user, before, after, _client.GetGuild(_guildId))); return Task.CompletedTask; };
 
         _client.GuildMemberUpdated += (before, after) => { _ = Task.Run(async () => await _logHandler.LogMemberUpdate(before, after, _client.GetGuild(_guildId))); return Task.CompletedTask; };
         _client.InviteCreated += (invite) => { _ = Task.Run(async () => { await _logHandler.LogInvite(invite, _client.GetGuild(_guildId)); }); return Task.CompletedTask; };
@@ -48,18 +56,15 @@ public class Program {
         _client.MessageUpdated += (beforemessage, aftermessage, messageChannel) => { _ = Task.Run(async () => await _logHandler.LogMessageUpdate(beforemessage, aftermessage, messageChannel, _client.GetGuild(_guildId))); return Task.CompletedTask; };
         _client.WebhooksUpdated += (userGuild, channel) => { _ = Task.Run(async () => await _logHandler.LogWebhookUpdate(userGuild, channel)); return Task.CompletedTask; };
         
-        _client.MessageReceived += _meetingSystem.HandleMeetingMessage;
-        
         _client.AutocompleteExecuted += async (interaction) => {
 
-            if (interaction.Data.Current.Name == "id_type") { await _commandHandler.IdAutocompleteHandler(interaction); }
-            if (interaction.Data.Current.Name == "add_apps") { await _commandHandler.CollectedAppAutocompleteHandler(interaction); }
-            if (interaction.Data.Current.Name == "remove_apps") { await _commandHandler.AppAutocompleteHandler(interaction); }
-            if (interaction.Data.Current.Name == "case_type") { await _commandHandler.CaseAutocompleteHandler(interaction); }
-            if (interaction.Data.Current.Name == "charm_type") { await _commandHandler.CharmAutocompleteHandler(interaction); }
-            if (interaction.Data.Current.Name == "wallpaper_type") { await _commandHandler.WallpaperAutocompleteHandler(interaction); }
+            if (interaction.Data.Current.Name == "id_type") { await _extraneousHandler.IdAutocompleteHandler(interaction); }
+            if (interaction.Data.Current.Name == "add_apps") { await _extraneousHandler.CollectedAppAutocompleteHandler(interaction); }
+            if (interaction.Data.Current.Name == "remove_apps") { await _extraneousHandler.AppAutocompleteHandler(interaction); }
+            if (interaction.Data.Current.Name == "case_type") { await _extraneousHandler.CaseAutocompleteHandler(interaction); }
+            if (interaction.Data.Current.Name == "charm_type") { await _extraneousHandler.CharmAutocompleteHandler(interaction); }
+            if (interaction.Data.Current.Name == "wallpaper_type") { await _extraneousHandler.WallpaperAutocompleteHandler(interaction); }
         };
-        
         
         _client.Ready += async () => {
     
@@ -75,9 +80,9 @@ public class Program {
             }
 
             if (shouldStartLoops) {
-                _ = _commandHandler.KickUnEnlisted(guild);
-                _ = _commandHandler.AutoEnlistKohosei(guild);
-                _ = _commandHandler.WeeklyEarningsRollover();
+                _ = _extraneousHandler.KickUnEnlisted(guild);
+                _ = _extraneousHandler.AutoEnlistKohosei(guild);
+                _ = _extraneousHandler.WeeklyEarningsRollover();
             }
         });
     };
@@ -88,15 +93,25 @@ public class Program {
         await Task.Delay(-1);
     }
     
-    private static Task Log(LogMessage msg) {
+    /// <summary>
+    /// Gets sent to our backend and ExceptionWatch.
+    /// </summary>
+    private async Task<Task> Log(LogMessage msg) {
+        
         Console.WriteLine(msg.ToString());
+        _guildId = ulong.Parse(Environment.GetEnvironmentVariable("GUILD_ID") ?? throw new Exception("GUILD_ID environment variable not set."));
+        await _logHandler.LogExceptionWatch(msg, _guildId);
+        
         return Task.CompletedTask;
     }
     
+    /// <summary>
+    /// Providers help us get the things our classes need. Whenever you add a new System, please put them here.
+    /// </summary>
     private static ServiceProvider CreateProvider() {
         
-        var config = new DiscordSocketConfig
-        {
+        var config = new DiscordSocketConfig {
+            
             MessageCacheSize = 100,
             GatewayIntents = GatewayIntents.Guilds
                              | GatewayIntents.GuildMembers
@@ -112,6 +127,7 @@ public class Program {
             .AddSingleton(config)
             .AddSingleton<DiscordSocketClient>()
             .AddSingleton<CommandHandler>()
+            .AddSingleton<ExtraneousHandler>()
             .AddSingleton<LogHandler>()
             .AddSingleton<DatabaseService>()
             
@@ -121,7 +137,6 @@ public class Program {
             .AddSingleton<IdSystem>()
             .AddSingleton<PointSystem>()
             .AddSingleton<GeneralSystem>()
-            .AddSingleton<LoreSystem>()
             .AddSingleton<CellSystem>()
             .AddSingleton<ShopSystem>()
             

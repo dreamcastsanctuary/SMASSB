@@ -595,86 +595,86 @@ public class PointSystem {
 
         await command.RespondAsync("What do you think you're doing?");
 
-        // var enlisted = new List<SocketGuildUser>();
-        // var guild = client.GetGuild((ulong)command.GuildId);
-        // var currencyFailures = new List<CurrencySyncException>();
-        // var results = new List<(SocketGuildUser User, long Balance)>();
-        //
-        // await command.DeferAsync();
-        //
-        // foreach (var userId in _db.GetEnlisted())
-        // {
-        //     var member = guild.GetUser(ulong.Parse(userId));
-        //     if (member != null) enlisted.Add(member);
-        // }
-        //
-        // foreach (var user in enlisted) {
-        //     try
-        //     {
-        //         var response = await _internalClient.PostAsJsonAsync("/internal/currency",
-        //             new CurrencyModels.CurrencyRequest(user.Id, 0));
-        //
-        //         response.EnsureSuccessStatusCode();
-        //         var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
-        //
-        //         results.Add((user, result.NewBalance));
-        //     }
-        //     catch (HttpRequestException ex)
-        //     {
-        //         currencyFailures.Add(new CurrencySyncException(user.Username,
-        //             $"Failed to find AND / OR sync currency for '{user.Username}'.", ex));
-        //     }
-        // }
-        //
-        //
-        //
-        // foreach (var (user, balance) in results) {
-        //     if (balance >= 10) {
-        //             var points = (int)(balance / 3);
-        //             await _db.AddPoints(user.Id, points);
-        //             await command.FollowupAsync($"Rewarded <@{user.Id}> {points} points.");
-        //             await user.AddRoleAsync(1527906014060609586);
-        //     }
-        //         
-        // }
-        //
-        // var ranked = results.OrderByDescending(r => r.Balance).ToList();
-        // int limit = Math.Min(7, ranked.Count);
-        //
-        // for (int i = 0; i < limit; i++) {
-        //     
-        //     var user = ranked[i].User;
-        //         await _db.GiveNewId(user.Id, "ENLISTEDTANABATA");
-        //         await user.RemoveRoleAsync(1527906014060609586);
-        //         string place;
-        //
-        //         if (i == 3) {
-        //             place = ToOrdinal(i);
-        //         } else if (i > 3) {
-        //             place = ToOrdinal(i - 1);
-        //         } else place = ToOrdinal(i + 1);
-        //     
-        //         var embedBuilder = new EmbedBuilder()
-        //             .WithImageUrl("https://media.discordapp.net/attachments/1473209020285452360/1520884908397035590/IMG_2415.gif?ex=6a6efc32&is=6a6daab2&hm=48177297d77f74c40998c69a7c4269c22abe15b0222798240f23870560d1e546&=")
-        //             .WithColor(new Color(0x829cff));
-        //         
-        //         if (i == 0) {
-        //             await user.AddRoleAsync(1527905937329881158);
-        //             embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\n\nFor this reason alone, you have placed **1ST** in the Festival event and gained the following rewards:\n\n- The Tier 1 Badge : The Golden Tanzaku\n- A headshot of your character drawn by the main server artist, KAPS\n- A third of your currency transformed into points (nice rank skip!)\n- The limited Starry Night ID skin (use /editid to check it out!)\n- The ability to help design the special Parade Dress for our debut event!\n\nMake sure to message Mikage Makina for more information about the headshot from KAPS!\nMessage Kamikawa Hiromi to discuss more about the future Parade Dress you'll be helping with!\n\nGood job, you did wonderfully. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
-        //         } else if (i is 1 or 2 or 3) {
-        //             embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\n\nFor this reason alone, you have placed **{place}** in the Festival event and gained the following rewards:\n\n- The Tier 2 Badge : The Silver Tanzaku\n- An art piece of your character drawn by the main server artist, Tokiwa Cho\n- A third of your currency transformed into points\n- The limited Starry Night ID skin (use /editid to check it out!)\n\nMake sure to message Tokiwa Cho for more information about the art they'll draw for you!\n\nGood job, you did wonderfully. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
-        //         }
-        //         else {
-        //             await user.AddRoleAsync(1527905990329110669);
-        //             embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\n\nFor this reason alone, you have placed **{place}** in the Festival event and gained the following rewards:\n\n- The Tier 2 Badge : The Silver Tanzaku\n- A third of your currency transformed into points\n- The limited Starry Night ID skin (use /editid to check it out!)\n\nGood job, you did wonderfully. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
-        //         }
-        //         await UserExtensions.SendMessageAsync(user, embed: embedBuilder.Build());
-        // }
-        //
-        // if (currencyFailures.Count > 0) {
-        //     var failureText = string.Join("\n", currencyFailures.Select(f => f.Message));
-        //     await command.FollowupAsync(failureText, ephemeral: true);
-        // }
+        var enlisted = new List<SocketGuildUser>();
+        var guild = client.GetGuild((ulong)command.GuildId);
+        var currencyFailures = new List<CurrencySyncException>();
+        var results = new List<(SocketGuildUser User, long Balance)>();
+        
+        await command.DeferAsync();
+        
+        foreach (var userId in _db.GetEnlisted())
+        {
+            var member = guild.GetUser(ulong.Parse(userId));
+            if (member != null) enlisted.Add(member);
+        }
+        
+        foreach (var user in enlisted) {
+            try
+            {
+                var response = await _internalClient.PostAsJsonAsync("/internal/currency",
+                    new CurrencyModels.CurrencyRequest(user.Id, 0));
+        
+                response.EnsureSuccessStatusCode();
+                var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
+        
+                results.Add((user, result.NewBalance));
+            }
+            catch (HttpRequestException ex)
+            {
+                currencyFailures.Add(new CurrencySyncException(user.Username,
+                    $"Failed to find AND / OR sync currency for '{user.Username}'.", ex));
+            }
+        }
+        
+        
+        
+        foreach (var (user, balance) in results) {
+            if (balance >= 10) {
+                    var points = (int)(balance / 3);
+                    await _db.AddPoints(user.Id, points);
+                    await command.FollowupAsync($"Rewarded <@{user.Id}> {points} points.");
+                    await user.AddRoleAsync(1527906014060609586);
+            }
+                
+        }
+        
+        var ranked = results.OrderByDescending(r => r.Balance).ToList();
+        int limit = Math.Min(7, ranked.Count);
+        
+        for (int i = 0; i < limit; i++) {
+            
+            var user = ranked[i].User;
+                await _db.GiveNewId(user.Id, "ENLISTEDTANABATA");
+                await user.RemoveRoleAsync(1527906014060609586);
+                string place;
+        
+                if (i == 3) {
+                    place = ToOrdinal(i);
+                } else if (i > 3) {
+                    place = ToOrdinal(i - 1);
+                } else place = ToOrdinal(i + 1);
+            
+                var embedBuilder = new EmbedBuilder()
+                    .WithImageUrl("https://media.discordapp.net/attachments/1473209020285452360/1520884908397035590/IMG_2415.gif?ex=6a6efc32&is=6a6daab2&hm=48177297d77f74c40998c69a7c4269c22abe15b0222798240f23870560d1e546&=")
+                    .WithColor(new Color(0x829cff));
+                
+                if (i == 0) {
+                    await user.AddRoleAsync(1527905937329881158);
+                    embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\n\nFor this reason alone, you have placed **1ST** in the Festival event and gained the following rewards:\n\n- The Tier 1 Badge : The Golden Tanzaku\n- A headshot of your character drawn by the main server artist, KAPS\n- A third of your currency transformed into points (nice rank skip!)\n- The limited Starry Night ID skin (use /editid to check it out!)\n- The ability to help design the special Parade Dress for our debut event!\n\nMake sure to message Mikage Makina for more information about the headshot from KAPS!\nMessage Kamikawa Hiromi to discuss more about the future Parade Dress you'll be helping with!\n\nGood job, you did wonderfully. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
+                } else if (i is 1 or 2 or 3) {
+                    embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\n\nFor this reason alone, you have placed **{place}** in the Festival event and gained the following rewards:\n\n- The Tier 2 Badge : The Silver Tanzaku\n- An art piece of your character drawn by the main server artist, Tokiwa Cho\n- A third of your currency transformed into points\n- The limited Starry Night ID skin (use /editid to check it out!)\n\nMake sure to message Tokiwa Cho for more information about the art they'll draw for you!\n\nGood job, you did wonderfully. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
+                }
+                else {
+                    await user.AddRoleAsync(1527905990329110669);
+                    embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\n\nFor this reason alone, you have placed **{place}** in the Festival event and gained the following rewards:\n\n- The Tier 2 Badge : The Silver Tanzaku\n- A third of your currency transformed into points\n- The limited Starry Night ID skin (use /editid to check it out!)\n\nGood job, you did wonderfully. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
+                }
+                await UserExtensions.SendMessageAsync(user, embed: embedBuilder.Build());
+        }
+        
+        if (currencyFailures.Count > 0) {
+            var failureText = string.Join("\n", currencyFailures.Select(f => f.Message));
+            await command.FollowupAsync(failureText, ephemeral: true);
+        }
     }
     
     private static string ToOrdinal(int number)
