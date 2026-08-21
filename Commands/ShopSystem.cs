@@ -321,7 +321,7 @@ public class ShopSystem {
         }
 
         if (alreadyOwnedMessage != null) {
-            var ownedMessage = await channel.SendMessageAsync("\\<:sango_emblem_mono:1492222638980989138> :: " + alreadyOwnedMessage);
+            var ownedMessage = await channel.SendMessageAsync(alreadyOwnedMessage);
             await Task.Delay(TimeSpan.FromSeconds(5));
             await ownedMessage.DeleteAsync();
             return;
