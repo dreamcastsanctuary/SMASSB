@@ -166,7 +166,7 @@ public class IdSystem {
         foreach (var (img, _) in badgesToDraw) img.Dispose();
         
         if (member != command.User && !command.CommandName.Contains("other")) {
-            try { await UserExtensions.SendFileAsync(member, output, "Here you are, your brand new Idol ID!"); }
+            try { await UserExtensions.SendFileAsync(member, output, "Here you are! Your new **Identification Card** and loaned **Work Cellphone**!\nKeep them safe."); }
             catch (Discord.Net.HttpException ex) { await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message); }
         } else {
             await command.FollowupWithFileAsync(output, text: "<:sango_emblem_mono:1492222638980989138> :: Loaded Identification Card!");
