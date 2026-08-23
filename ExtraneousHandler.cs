@@ -459,7 +459,7 @@ public class ExtraneousHandler {
     public async Task ButtonHandler(SocketMessageComponent component) {
 
         var id = component.Data.CustomId;
-        var guild = _client.GetGuild((ulong)component.GuildId);
+        var guild = _client.GetGuild((1471660035854569505));
 
         if (id.StartsWith("buy_item_")) {
             try {
