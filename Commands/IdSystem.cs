@@ -167,8 +167,8 @@ public class IdSystem {
         
         if (member != command.User && !command.CommandName.Contains("other")) {
             try { 
-                await UserExtensions.SendFileAsync(member, output);
                 await member.SendMessageAsync("Here you are! Your new **Identification Card** and loaned **Work Cellphone**!\nKeep them safe.");
+                await UserExtensions.SendFileAsync(member, output);
             }
             catch (Discord.Net.HttpException ex) { await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message); }
         } else {

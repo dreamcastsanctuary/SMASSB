@@ -59,24 +59,30 @@ public class CellSystem {
             container.AddComponent(actionRow);
         }
 
-        var components = new ComponentBuilderV2()
-            .WithTextDisplay(new TextDisplayBuilder().WithContent("<:sango_emblem_mono:1492222638980989138> :: Loaded WorkCell!"))
-            .WithSeparator(new SeparatorBuilder().WithIsDivider(false))
-            .AddComponent(container)
-            .Build();
-
         if (member != command.User && !command.CommandName.Contains("other")) {
+            
+            var components = new ComponentBuilderV2()
+                .WithSeparator(new SeparatorBuilder().WithIsDivider(false))
+                .AddComponent(container)
+                .Build();
+            
             try {
                 await member.SendFilesAsync(
                     attachments: new[] { cellAttachment },
                     components: components
                 );
-                await member.SendMessageAsync(". . And here's your loaned Work Cellphone!");
             }
             catch (Discord.Net.HttpException ex) {
                 await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message);
             }
         } else {
+            
+            var components = new ComponentBuilderV2()
+                .WithTextDisplay(new TextDisplayBuilder().WithContent("<:sango_emblem_mono:1492222638980989138> :: Loaded WorkCell!"))
+                .WithSeparator(new SeparatorBuilder().WithIsDivider(false))
+                .AddComponent(container)
+                .Build();
+            
             await command.FollowupWithFilesAsync(
                 attachments: new[] { cellAttachment },
                 components: components
