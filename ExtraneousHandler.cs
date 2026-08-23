@@ -483,22 +483,18 @@ public class ExtraneousHandler {
         }
 
         if (id.StartsWith("flip_over:")) {
+            var statePayload = id.Substring("flip_over:".Length);
+            var stateParts = statePayload.Split('|');
+
+            if (stateParts.Length < 1 || !ulong.TryParse(stateParts[0], out var flipOwnerId)) return;
+
             try {
-                var statePayload = id.Substring("flip_over:".Length);
-                var stateParts = statePayload.Split('|');
-
-                if (stateParts.Length < 1 || !ulong.TryParse(stateParts[0], out var flipOwnerId)) return;
-
                 var yen = await _db.GetYen(flipOwnerId);
+                var earningsSummary = await _db.GetEarningsSummary(flipOwnerId);
 
-                try {
-                    var earningsSummary = await _db.GetEarningsSummary(flipOwnerId);
-                    await _cellSystem.HandleFlipOver(component, statePayload, yen, earningsSummary.Item1, earningsSummary.Item3, earningsSummary.Item4);
-                } catch {
-                    await _cellSystem.HandleFlipOver(component, statePayload, yen, 0, 0.0, false);
-                }
+                await _cellSystem.HandleFlipOver(component, statePayload, yen, earningsSummary.Item1, earningsSummary.Item3, earningsSummary.Item4);
             } catch (Exception ex) {
-                Console.WriteLine($"flip_over button error: {ex.Message}");
+                Console.WriteLine($"flip_over error: {ex}");
             }
             return;
         }
@@ -521,15 +517,22 @@ public class ExtraneousHandler {
                 int newPage = id.StartsWith("leaderboard_back_") ? currentPage - 1 : currentPage + 1;
 
                 var entries = _db.GetLeaderboard();
+                if (entries == null) {
+                    Console.WriteLine("GetLeaderboard returned null");
+                    return;
+                }
+
                 var embed = _pointSystem.BuildLeaderboardEmbed(entries, newPage);
                 var components = _pointSystem.BuildLeaderboardComponents(newPage, entries.Count);
 
-                await component.UpdateAsync(x => {
-                    x.Embed = embed;
-                    x.Components = components;
-                });
+                if (embed != null && components != null) {
+                    await component.UpdateAsync(x => {
+                        x.Embed = embed;
+                        x.Components = components;
+                    });
+                }
             } catch (Exception ex) {
-                Console.WriteLine($"leaderboard button error: {ex.Message}");
+                Console.WriteLine($"leaderboard button error: {ex}");
             }
         }
     }
