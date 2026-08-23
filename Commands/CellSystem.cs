@@ -29,10 +29,15 @@ public class CellSystem {
                                          string charmType,
                                          string wallpaperType,
                                          List<string> appsParam,
-                                         int yen, 
-                                         int currentWeekEarnings, 
-                                         double percentChange, 
+                                         int yen,
+                                         int currentWeekEarnings,
+                                         double percentChange,
                                          bool isIncrease) {
+
+        if (member == null) {
+            await command.FollowupAsync("Could not find that user.", ephemeral: true);
+            return;
+        }
 
         var ownerId = member.Id;
         var hasTengokuApp = appsParam.Contains(AppType.RHYTHMTENGOKU.ToString());
@@ -40,7 +45,7 @@ public class CellSystem {
         var hasPuyoApp = appsParam.Contains(AppType.PUYOPUYOFEVER.ToString());
         var hasLeafGreenApp = appsParam.Contains(AppType.POKEMONLEAFGREEN.ToString());
         var hasTetrisApp = appsParam.Contains(AppType.TETRIS.ToString());
-        
+
         var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{hasTengokuApp}|{hasMadouApp}|{hasPuyoApp}|{hasLeafGreenApp}|{hasTetrisApp}";
         var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, false, false, false, false, caseType, charmType, wallpaperType, isFront: true, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
 
@@ -63,12 +68,14 @@ public class CellSystem {
         if (member != command.User && !command.CommandName.Contains("other")) {
             try {
                 await member.SendFilesAsync(
-                    text: ". . And here's your loaned Work Cellphone!",
                     attachments: new[] { cellAttachment },
                     components: components
                 );
+                await member.SendMessageAsync(". . And here's your loaned Work Cellphone!");
             }
-            catch (Discord.Net.HttpException ex) { await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message); }
+            catch (Discord.Net.HttpException ex) {
+                await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message);
+            }
         } else {
             await command.FollowupWithFilesAsync(
                 attachments: new[] { cellAttachment },
@@ -99,11 +106,11 @@ public class CellSystem {
         }
     }
 
-    public async Task HandleFlipOver(SocketMessageComponent component, 
-                                         string state, 
-                                         int yen, 
-                                         int currentWeekEarnings, 
-                                         double percentChange, 
+    public async Task HandleFlipOver(SocketMessageComponent component,
+                                         string state,
+                                         int yen,
+                                         int currentWeekEarnings,
+                                         double percentChange,
                                          bool isIncrease) {
 
         try {
@@ -114,7 +121,7 @@ public class CellSystem {
                 await component.RespondAsync("This isn't your cell! You like touching things that don't belong to you?", ephemeral: true);
                 return;
             }
-            
+
             var currentSide = parts[1];
             var caseType = parts[2];
             var charmType = parts[3];
@@ -164,14 +171,14 @@ public class CellSystem {
                                                                           bool hasPuyoApp,
                                                                           bool hasLeafGreenApp,
                                                                           bool hasTetrisApp,
-                                                                          string caseType, 
-                                                                          string charmType, 
-                                                                          string wallpaperType, 
-                                                                          bool isFront, 
-                                                                          int yen, 
-                                                                          ulong userId, 
-                                                                          int currentWeekEarnings, 
-                                                                          double percentChange, 
+                                                                          string caseType,
+                                                                          string charmType,
+                                                                          string wallpaperType,
+                                                                          bool isFront,
+                                                                          int yen,
+                                                                          ulong userId,
+                                                                          int currentWeekEarnings,
+                                                                          double percentChange,
                                                                           bool isIncrease) {
 
         var fontCollection = new FontCollection();
@@ -181,11 +188,11 @@ public class CellSystem {
         var fontTiny = fontFamily.CreateFont(50);
         var fontSmall = fontFamily.CreateFont(65);
         var fontBal = fontFamily.CreateFont(80);
-        
+
         var caseFile = "";
         var charmFile = "";
         var wallpaperFile = "";
-        
+
         switch (caseType) {
             case "BLACK":
                 caseFile = isFront ? "black-case-front.png" : "black-case-back.png";
@@ -224,18 +231,18 @@ public class CellSystem {
                 wallpaperFile = "tech-wallpaper.png";
                 break;
         }
-        
+
         var casePath = Path.Combine(AppContext.BaseDirectory, "Images", caseFile);
         var wallpaperPath = Path.Combine(AppContext.BaseDirectory, "Images", wallpaperFile);
-        
+
         using var cellCase = Image.Load(casePath);
         using var wallpaper = Image.Load(wallpaperPath);
         using var charm = string.IsNullOrEmpty(charmFile) ? null : Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", charmFile + (isFront ? "-front.png" : "-back.png")));
-        
+
         using var clone = cellCase.Clone(ipc => {
 
             if (isFront) {
-                
+
                 if (charm != null) {
                     ipc.DrawImage(charm, new Point(0, 0), 1);
                 }
@@ -251,31 +258,31 @@ public class CellSystem {
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
                 if (hasMadouApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "madou-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
                 if (hasPuyoApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "puyo-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
                 if (hasLeafGreenApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "leafgreen-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
                 if (hasTetrisApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "tetris-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
             } else {
                 if (charm != null) {
                     ipc.DrawImage(charm, new Point(0, 0), 1);
@@ -288,14 +295,14 @@ public class CellSystem {
 
         var composedFileName = "composed-cell.png";
         var composedAttachment = new FileAttachment(outputStream, composedFileName);
-        
+
         var composedUrl = $"attachment://{composedAttachment.FileName}";
 
         return (composedAttachment, composedUrl);
     }
 
     private static Color GetFontColor(string wallpaperType) {
-        
+
         switch (wallpaperType) {
             case "BASIC":
                 return Color.FromRgba(15, 15, 15, 255);
@@ -308,12 +315,12 @@ public class CellSystem {
         }
         return new Color();
     }
-    
+
     private static string BuildEarningsSummary(int currentWeekEarnings, double percentChange, bool isIncrease) {
         var arrow = isIncrease ? "▲" : "▼";
         return $"¥{currentWeekEarnings:N0} this week ({arrow} {Math.Abs(percentChange):F1}%)";
     }
-    
+
     public async Task EditWorkCell(SocketSlashCommand command, DiscordSocketClient client) {
 
         await command.DeferAsync();
@@ -376,6 +383,11 @@ public class CellSystem {
         var (currentWeekEarnings, previousWeekEarnings, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
         var member = client.GetGuild((ulong)command.GuildId).GetUser(enlisted.Id);
 
+        if (member == null) {
+            await command.FollowupAsync("Could not find that user.", ephemeral: true);
+            return;
+        }
+
         await BuildCell(command, member, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id), currentWeekEarnings, percentChange, isIncrease);
     }
 
@@ -402,6 +414,11 @@ public class CellSystem {
         var appsParam = await _db.GetApps(enlisted.Id);
         var (currentWeekEarnings, previousWeekEarnings, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
         var member = client.GetGuild((ulong)command.GuildId).GetUser(enlisted.Id);
+
+        if (member == null) {
+            await command.FollowupAsync("Could not find that user.", ephemeral: true);
+            return;
+        }
 
         await BuildCell(command, member, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id), currentWeekEarnings, percentChange, isIncrease);
     }
@@ -454,13 +471,13 @@ public class CellSystem {
         }
 
         foreach (var member in enlisteds) {
-            
+
             if (add)
                 await _db.AddYen(member.Id, yen);
             else
                 await _db.RemoveYen(member.Id, yen);
         }
-        
+
         await command.RespondAsync("Done!");
     }
 
@@ -497,7 +514,7 @@ public class CellSystem {
                     return;
             }
         }
-        
+
         if (member == null) {
             await command.FollowupAsync("Unrecognized user.", ephemeral: true);
             return;
