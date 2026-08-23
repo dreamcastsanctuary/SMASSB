@@ -72,8 +72,7 @@ public class CellSystem {
         } else {
             await command.FollowupWithFilesAsync(
                 attachments: new[] { cellAttachment },
-                components: components,
-                flags: MessageFlags.ComponentsV2
+                components: components
             );
         }
     }
@@ -376,7 +375,7 @@ public class CellSystem {
         var wallpaperParam = await _db.GetWallpaperType(enlisted.Id);
         var appsParam = await _db.GetApps(enlisted.Id);
         var (currentWeekEarnings, previousWeekEarnings, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
-        var member = client.GetUser(enlisted.Id) as SocketGuildUser;
+        var member = client.GetGuild((ulong)command.GuildId).GetUser(enlisted.Id);
 
         await BuildCell(command, member, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id), currentWeekEarnings, percentChange, isIncrease);
     }
@@ -403,7 +402,7 @@ public class CellSystem {
         var wallpaperParam = await _db.GetWallpaperType(enlisted.Id);
         var appsParam = await _db.GetApps(enlisted.Id);
         var (currentWeekEarnings, previousWeekEarnings, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
-        var member = client.GetUser(enlisted.Id) as SocketGuildUser;
+        var member = client.GetGuild((ulong)command.GuildId).GetUser(enlisted.Id);
 
         await BuildCell(command, member, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id), currentWeekEarnings, percentChange, isIncrease);
     }
