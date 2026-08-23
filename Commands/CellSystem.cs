@@ -149,7 +149,6 @@ public class CellSystem {
             await component.UpdateAsync(msg => {
                 msg.Attachments = new List<FileAttachment> { cellAttachment };
                 msg.Components = components;
-                msg.Flags = MessageFlags.ComponentsV2;
             });
         } catch (Exception ex) {
             Console.WriteLine($"HandleFlipOver failed: {ex}");
