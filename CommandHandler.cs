@@ -563,13 +563,13 @@ public class CommandHandler {
                 break;
             
             case "showworkcell":
-                await _cellSystem.ShowWorkCell(command);
+                await _cellSystem.ShowWorkCell(command, _client);
                 break;
             case "editworkcell":
-                await _cellSystem.EditWorkCell(command);
+                await _cellSystem.EditWorkCell(command, _client);
                 break;
             case "showotherworkcell":
-                await _cellSystem.ShowWorkCell(command);
+                await _cellSystem.ShowWorkCell(command, _client);
                 break;
             case "addyen":
                 await _cellSystem.EditYen(command, true);
