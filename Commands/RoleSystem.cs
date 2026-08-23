@@ -535,8 +535,6 @@ public class RoleSystem
         List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
         IRole addedRank = null;
         IRole addedRankCategory = null;
-        IRole removedRank = null;
-        IRole removedRankCategory = null;
         bool IsChoreographerO1 = false;
         bool IsChoreographerO2 = false;
         bool IsEventConceptor = false;
