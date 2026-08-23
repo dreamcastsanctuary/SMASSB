@@ -489,10 +489,14 @@ public class ExtraneousHandler {
 
                 if (stateParts.Length < 1 || !ulong.TryParse(stateParts[0], out var flipOwnerId)) return;
 
-                var earningsSummary = await _db.GetEarningsSummary(flipOwnerId);
                 var yen = await _db.GetYen(flipOwnerId);
 
-                await _cellSystem.HandleFlipOver(component, statePayload, yen, earningsSummary.Item1, earningsSummary.Item3, earningsSummary.Item4);
+                try {
+                    var earningsSummary = await _db.GetEarningsSummary(flipOwnerId);
+                    await _cellSystem.HandleFlipOver(component, statePayload, yen, earningsSummary.Item1, earningsSummary.Item3, earningsSummary.Item4);
+                } catch {
+                    await _cellSystem.HandleFlipOver(component, statePayload, yen, 0, 0.0, false);
+                }
             } catch (Exception ex) {
                 Console.WriteLine($"flip_over button error: {ex.Message}");
             }
@@ -500,8 +504,12 @@ public class ExtraneousHandler {
         }
 
         if (id.StartsWith("launch_emulatorjs:")) {
-            var ownerId = ulong.Parse(id.Substring("launch_emulatorjs:".Length));
-            await _cellSystem.HandleLaunchEmulatorJs(component, ownerId);
+            try {
+                if (!ulong.TryParse(id.Substring("launch_emulatorjs:".Length), out var ownerId)) return;
+                await _cellSystem.HandleLaunchEmulatorJs(component, ownerId);
+            } catch (Exception ex) {
+                Console.WriteLine($"launch_emulatorjs button error: {ex.Message}");
+            }
             return;
         }
 
