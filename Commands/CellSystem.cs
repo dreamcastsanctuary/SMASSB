@@ -8,6 +8,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
 using SMASSB.Data;
+using SMASSB.Exceptions;
 using Image = SixLabors.ImageSharp.Image;
 using Color = SixLabors.ImageSharp.Color;
 
@@ -22,7 +23,8 @@ public class CellSystem {
         _db = db;
     }
 
-    private static async Task BuildCell(SocketSlashCommand command,
+    public static async Task BuildCell(SocketSlashCommand command,
+                                         SocketGuildUser member,
                                          string caseType,
                                          string charmType,
                                          string wallpaperType,
@@ -32,7 +34,7 @@ public class CellSystem {
                                          double percentChange, 
                                          bool isIncrease) {
 
-        var ownerId = command.User.Id; 
+        var ownerId = member.Id;
         var hasTengokuApp = appsParam.Contains(AppType.RHYTHMTENGOKU.ToString());
         var hasMadouApp = appsParam.Contains(AppType.MADOUMONOGATARI.ToString());
         var hasPuyoApp = appsParam.Contains(AppType.PUYOPUYOFEVER.ToString());
@@ -58,11 +60,22 @@ public class CellSystem {
             .AddComponent(container)
             .Build();
 
-        await command.FollowupWithFilesAsync(
-            attachments: new[] { cellAttachment },
-            components: components,
-            flags: MessageFlags.ComponentsV2
-        );
+        if (member != command.User && !command.CommandName.Contains("other")) {
+            try {
+                await member.SendFilesAsync(
+                    text: ". . And here's your loaned Work Cellphone!",
+                    attachments: new[] { cellAttachment },
+                    components: components
+                );
+            }
+            catch (Discord.Net.HttpException ex) { await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message); }
+        } else {
+            await command.FollowupWithFilesAsync(
+                attachments: new[] { cellAttachment },
+                components: components,
+                flags: MessageFlags.ComponentsV2
+            );
+        }
     }
 
     public async Task HandleLaunchEmulatorJs(SocketMessageComponent component, ulong ownerId) {
@@ -303,7 +316,7 @@ public class CellSystem {
         return $"¥{currentWeekEarnings:N0} this week ({arrow} {Math.Abs(percentChange):F1}%)";
     }
     
-    public async Task EditWorkCell(SocketSlashCommand command) {
+    public async Task EditWorkCell(SocketSlashCommand command, DiscordSocketClient client) {
 
         await command.DeferAsync();
 
@@ -363,11 +376,12 @@ public class CellSystem {
         var wallpaperParam = await _db.GetWallpaperType(enlisted.Id);
         var appsParam = await _db.GetApps(enlisted.Id);
         var (currentWeekEarnings, previousWeekEarnings, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
+        var member = client.GetUser(enlisted.Id) as SocketGuildUser;
 
-        await BuildCell(command, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id), currentWeekEarnings, percentChange, isIncrease);
+        await BuildCell(command, member, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id), currentWeekEarnings, percentChange, isIncrease);
     }
 
-    public async Task ShowWorkCell(SocketSlashCommand command) {
+    public async Task ShowWorkCell(SocketSlashCommand command, DiscordSocketClient client) {
 
         await command.DeferAsync();
         SocketGuildUser enlisted = (SocketGuildUser)command.User;
@@ -389,8 +403,9 @@ public class CellSystem {
         var wallpaperParam = await _db.GetWallpaperType(enlisted.Id);
         var appsParam = await _db.GetApps(enlisted.Id);
         var (currentWeekEarnings, previousWeekEarnings, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
+        var member = client.GetUser(enlisted.Id) as SocketGuildUser;
 
-        await BuildCell(command, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id), currentWeekEarnings, percentChange, isIncrease);
+        await BuildCell(command, member, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id), currentWeekEarnings, percentChange, isIncrease);
     }
 
     public async Task EditYen(SocketSlashCommand command, bool add) {

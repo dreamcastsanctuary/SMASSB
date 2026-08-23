@@ -441,9 +441,37 @@ public class PointSystem {
 
         if (description.Length == 0) description = "Nothing to process! The message looks empty.";
 
-        embedBuilder.WithDescription(description);
+        const int maxDescriptionLength = 4096;
 
-        await command.FollowupAsync(embed: embedBuilder.Build());
+        if (description.Length <= maxDescriptionLength) {
+            embedBuilder.WithDescription(description);
+            await command.FollowupAsync(embed: embedBuilder.Build());
+        } else {
+            
+            var chunks = new List<string>();
+            var descLines = description.Split('\n');
+            var currentChunk = "";
+    
+            foreach (var line in descLines) {
+                if ((currentChunk + line + "\n").Length > maxDescriptionLength) {
+                    if (!string.IsNullOrEmpty(currentChunk)) chunks.Add(currentChunk.TrimEnd());
+                    currentChunk = line + "\n";
+                } else {
+                    currentChunk += line + "\n";
+                }
+            }
+    
+            if (!string.IsNullOrEmpty(currentChunk)) chunks.Add(currentChunk.TrimEnd());
+    
+            foreach (var (chunk, index) in chunks.Select((c, i) => (c, i))) {
+                var embed = new EmbedBuilder()
+                    .WithTitle($"❖﹒Batch points . . (Part {index + 1}/{chunks.Count})")
+                    .WithColor(0xBFA55F)
+                    .WithDescription(chunk)
+                    .Build();
+                await command.FollowupAsync(embed: embed);
+            }
+        }
     }
 
     public async Task HandleBatchRecruits(SocketSlashCommand command) {

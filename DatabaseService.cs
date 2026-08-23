@@ -210,7 +210,11 @@ public class DatabaseService
         await SetCharmType(ulong.Parse(accIdParam), charmParam);
         await GiveNewWallpaper(ulong.Parse(accIdParam), wallpaperParam);
         await SetWallpaperType(ulong.Parse(accIdParam), wallpaperParam);
+        var appsParam = await GetApps(ulong.Parse(accIdParam));
+        var (currentWeekEarnings, previousWeekEarnings, percentChange, isIncrease) = await GetEarningsSummary(ulong.Parse(accIdParam));
+        
         await IdSystem.BuildId(command, member, claimParam, null, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, catchphraseParam, usernameParam, idTypeParam);
+        await CellSystem.BuildCell(command, member, caseParam, charmParam, wallpaperParam, appsParam, await GetYen(ulong.Parse(accIdParam)), currentWeekEarnings, percentChange, isIncrease);
         await member.AddRoleAsync(1537202109336920096);
     }
 
