@@ -503,6 +503,7 @@ public class PointSystem {
                 try {
                     await _db.AddPoints(user.Id, 1);
                     await _db.AddRecruits(user.Id, 1);
+                    await _db.AddYen(user.Id, 800);
                     desc += $"Parsed **{user.Username}**'s message successfully.\n";
                 } catch {
                     desc += $"Failed to parse message sent by **{user.Username}**. Run /addpoints for them instead.\n";
