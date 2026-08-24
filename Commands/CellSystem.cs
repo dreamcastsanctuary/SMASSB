@@ -53,14 +53,22 @@ public class CellSystem {
             .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
             .AddComponent(new ActionRowBuilder().WithButton("Flip Cellphone Over", customId: flipCustomId, style: ButtonStyle.Secondary));
 
-        if (hasTengokuApp || hasLeafGreenApp) {
+        var appButtons = new List<(string Label, string Game)>();
+
+        if (hasTengokuApp) appButtons.Add(("Play Rhythm Tengoku", "tengoku"));
+        if (hasLeafGreenApp) appButtons.Add(("Play Pokémon LeafGreen", "leafgreen"));
+        if (hasMadouApp) appButtons.Add(("Play Madou Monogatari", "madou"));
+        if (hasPuyoApp) appButtons.Add(("Play Puyo Puyo Fever", "puyo"));
+        if (hasTetrisApp) appButtons.Add(("Play Tetris", "tetris"));
+
+        const int maxButtonsPerRow = 5;
+
+        foreach (var rowButtons in appButtons.Chunk(maxButtonsPerRow)) {
             var actionRow = new ActionRowBuilder();
 
-            if (hasTengokuApp)
-                actionRow.WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}:tengoku", style: ButtonStyle.Success);
-
-            if (hasLeafGreenApp)
-                actionRow.WithButton("Play Pokémon LeafGreen", customId: $"launch_emulatorjs:{ownerId}:leafgreen", style: ButtonStyle.Success);
+            foreach (var (label, game) in rowButtons) {
+                actionRow.WithButton(label, customId: $"launch_emulatorjs:{ownerId}:{game}", style: ButtonStyle.Success);
+            }
 
             container.AddComponent(actionRow);
         }
@@ -157,14 +165,22 @@ public class CellSystem {
                 .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
                 .AddComponent(new ActionRowBuilder().WithButton("Flip Cell Over", customId: nextCustomId, style: ButtonStyle.Secondary));
 
-            if (hasTengokuApp || hasLeafGreenApp) {
+            var appButtons = new List<(string Label, string Game)>();
+
+            if (hasTengokuApp) appButtons.Add(("Play Rhythm Tengoku", "tengoku"));
+            if (hasLeafGreenApp) appButtons.Add(("Play Pokémon LeafGreen", "leafgreen"));
+            if (hasMadouApp) appButtons.Add(("Play Madou Monogatari", "madou"));
+            if (hasPuyoApp) appButtons.Add(("Play Puyo Puyo Fever", "puyo"));
+            if (hasTetrisApp) appButtons.Add(("Play Tetris", "tetris"));
+
+            const int maxButtonsPerRow = 5;
+
+            foreach (var rowButtons in appButtons.Chunk(maxButtonsPerRow)) {
                 var actionRow = new ActionRowBuilder();
 
-                if (hasTengokuApp)
-                    actionRow.WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}:tengoku", style: ButtonStyle.Success);
-
-                if (hasLeafGreenApp)
-                    actionRow.WithButton("Play Pokémon LeafGreen", customId: $"launch_emulatorjs:{ownerId}:leafgreen", style: ButtonStyle.Success);
+                foreach (var (label, game) in rowButtons) {
+                    actionRow.WithButton(label, customId: $"launch_emulatorjs:{ownerId}:{game}", style: ButtonStyle.Success);
+                }
 
                 container.AddComponent(actionRow);
             }
