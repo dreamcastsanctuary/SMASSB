@@ -94,6 +94,12 @@ public class DatabaseService
                 Key TEXT PRIMARY KEY,
                 Value TEXT NOT NULL
             );
+
+            CREATE TABLE IF NOT EXISTS PendingGame (
+                UserId TEXT PRIMARY KEY,
+                Game TEXT NOT NULL,
+                SetAt INTEGER NOT NULL
+            );
         ";
         
         command.ExecuteNonQuery();
@@ -1743,5 +1749,33 @@ public class DatabaseService
                 await SetWeekStartYen(userId, currentYen);
             }
         }
+    }
+    
+    public void SetPendingGame(string userId, string game) {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            INSERT INTO PendingGame (UserId, Game, SetAt)
+            VALUES ($id, $game, $now)
+            ON CONFLICT(UserId) DO UPDATE SET Game = $game, SetAt = $now;
+        ";
+        command.Parameters.AddWithValue("$id", userId);
+        command.Parameters.AddWithValue("$game", game);
+        command.Parameters.AddWithValue("$now", DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+        command.ExecuteNonQuery();
+    }
+
+    public string? GetPendingGame(string userId) {
+        using var connection = new SqliteConnection(_connectionString);
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT Game FROM PendingGame WHERE UserId = $id AND SetAt > $cutoff;";
+        command.Parameters.AddWithValue("$id", userId);
+        command.Parameters.AddWithValue("$cutoff", DateTimeOffset.UtcNow.AddSeconds(-60).ToUnixTimeSeconds());
+
+        return command.ExecuteScalar() as string;
     }
 }

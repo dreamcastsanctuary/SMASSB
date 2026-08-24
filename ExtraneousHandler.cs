@@ -501,8 +501,15 @@ public class ExtraneousHandler {
 
         if (id.StartsWith("launch_emulatorjs:")) {
             try {
-                if (!ulong.TryParse(id.Substring("launch_emulatorjs:".Length), out var ownerId)) return;
-                await _cellSystem.HandleLaunchEmulatorJs(component, ownerId);
+                var payload = id.Substring("launch_emulatorjs:".Length);
+                var payloadParts = payload.Split(':');
+                
+                if (payloadParts.Length < 2) return;
+                if (!ulong.TryParse(payloadParts[0], out var ownerId)) return;
+
+                var game = payloadParts[1];
+                await _cellSystem.HandleLaunchEmulatorJs(component, ownerId, game);
+                
             } catch (Exception ex) {
                 Console.WriteLine($"launch_emulatorjs button error: {ex.Message}");
             }

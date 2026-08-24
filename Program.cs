@@ -1,8 +1,8 @@
 ﻿using System.Collections.Concurrent;
+using System.Text.Json;
 using Discord;
 using Discord.WebSocket;
 using SMASSB.Commands;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace SMASSB;
 public class Program {
@@ -14,6 +14,7 @@ public class Program {
     private ExtraneousHandler _extraneousHandler;
     private LogHandler _logHandler;
     private MeetingSystem _meetingSystem;
+    private DatabaseService _db;
     
     private static IServiceProvider _serviceProvider;
     private ConcurrentDictionary<string, int> _inviteCache = new();
@@ -36,7 +37,10 @@ public class Program {
         _extraneousHandler = _serviceProvider.GetRequiredService<ExtraneousHandler>();
         _logHandler = _serviceProvider.GetRequiredService<LogHandler>();
         _meetingSystem = _serviceProvider.GetRequiredService<MeetingSystem>();
-        
+        _db = _serviceProvider.GetRequiredService<DatabaseService>();
+
+        StartPendingGameServer();
+
         var token = Environment.GetEnvironmentVariable("BOT_TOKEN") ?? throw new Exception("BOT_TOKEN environment variable not set.");
         _guildId = ulong.Parse(Environment.GetEnvironmentVariable("GUILD_ID") ?? throw new Exception("GUILD_ID environment variable not set."));
         
@@ -94,6 +98,34 @@ public class Program {
         await Task.Delay(-1);
     }
     
+    /// <summary>
+    /// Runs a good for nothing miniscule HTTP server so that the stupid games can be run side by side.
+    /// </summary>
+    private void StartPendingGameServer() {
+
+        var builder = WebApplication.CreateBuilder();
+        var app = builder.Build();
+
+        app.MapGet("/pending-game/{userId}", (string userId) => {
+            var game = _db.GetPendingGame(userId);
+            return Results.Ok(new { game });
+        });
+
+        app.MapPost("/pending-game", async (HttpContext context) => {
+            var body = await JsonSerializer.DeserializeAsync<PendingGameRequest>(context.Request.Body);
+            if (body is null || string.IsNullOrEmpty(body.UserId) || string.IsNullOrEmpty(body.Game))
+                return Results.BadRequest();
+
+            _db.SetPendingGame(body.UserId, body.Game);
+            return Results.Ok();
+        });
+
+        var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+        _ = app.RunAsync($"http://0.0.0.0:{port}");
+    }
+
+    private record PendingGameRequest(string UserId, string Game);
+
     /// <summary>
     /// Gets sent to our backend and ExceptionWatch.
     /// </summary>

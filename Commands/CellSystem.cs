@@ -53,9 +53,15 @@ public class CellSystem {
             .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
             .AddComponent(new ActionRowBuilder().WithButton("Flip Cellphone Over", customId: flipCustomId, style: ButtonStyle.Secondary));
 
-        if (hasTengokuApp) {
-            var actionRow = new ActionRowBuilder()
-                .WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}", style: ButtonStyle.Success);
+        if (hasTengokuApp || hasLeafGreenApp) {
+            var actionRow = new ActionRowBuilder();
+
+            if (hasTengokuApp)
+                actionRow.WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}:tengoku", style: ButtonStyle.Success);
+
+            if (hasLeafGreenApp)
+                actionRow.WithButton("Play Pokémon LeafGreen", customId: $"launch_emulatorjs:{ownerId}:leafgreen", style: ButtonStyle.Success);
+
             container.AddComponent(actionRow);
         }
 
@@ -90,12 +96,14 @@ public class CellSystem {
         }
     }
 
-    public async Task HandleLaunchEmulatorJs(SocketMessageComponent component, ulong ownerId) {
+    public async Task HandleLaunchEmulatorJs(SocketMessageComponent component, ulong ownerId, string game) {
 
         if (component.User.Id != ownerId) {
             await component.RespondAsync("This isn't your cell! You like touching things that don't belong to you?", ephemeral: true);
             return;
         }
+        
+        _db.SetPendingGame(ownerId.ToString(), game);
 
         var payload = new { type = 12 };
         var json = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
@@ -149,9 +157,15 @@ public class CellSystem {
                 .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
                 .AddComponent(new ActionRowBuilder().WithButton("Flip Cell Over", customId: nextCustomId, style: ButtonStyle.Secondary));
 
-            if (hasTengokuApp) {
-                var actionRow = new ActionRowBuilder()
-                    .WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}", style: ButtonStyle.Success);
+            if (hasTengokuApp || hasLeafGreenApp) {
+                var actionRow = new ActionRowBuilder();
+
+                if (hasTengokuApp)
+                    actionRow.WithButton("Play Rhythm Tengoku", customId: $"launch_emulatorjs:{ownerId}:tengoku", style: ButtonStyle.Success);
+
+                if (hasLeafGreenApp)
+                    actionRow.WithButton("Play Pokémon LeafGreen", customId: $"launch_emulatorjs:{ownerId}:leafgreen", style: ButtonStyle.Success);
+
                 container.AddComponent(actionRow);
             }
 
