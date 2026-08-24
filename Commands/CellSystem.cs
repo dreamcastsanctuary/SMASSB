@@ -57,8 +57,8 @@ public class CellSystem {
 
         if (hasTengokuApp) appButtons.Add(("Play Rhythm Tengoku", "tengoku"));
         if (hasLeafGreenApp) appButtons.Add(("Play Pokémon LeafGreen", "leafgreen"));
-        if (hasMadouApp) appButtons.Add(("Play Madou Monogatari", "madou"));
-        if (hasPuyoApp) appButtons.Add(("Play Puyo Puyo Fever", "puyo"));
+        if (hasMadouApp) appButtons.Add(("Play Madou Monogatari", "madou-monogatari"));
+        if (hasPuyoApp) appButtons.Add(("Play Puyo Puyo Fever", "puyo-puyo-fever"));
         if (hasTetrisApp) appButtons.Add(("Play Tetris", "tetris"));
 
         const int maxButtonsPerRow = 5;
@@ -169,8 +169,8 @@ public class CellSystem {
 
             if (hasTengokuApp) appButtons.Add(("Play Rhythm Tengoku", "tengoku"));
             if (hasLeafGreenApp) appButtons.Add(("Play Pokémon LeafGreen", "leafgreen"));
-            if (hasMadouApp) appButtons.Add(("Play Madou Monogatari", "madou"));
-            if (hasPuyoApp) appButtons.Add(("Play Puyo Puyo Fever", "puyo"));
+            if (hasMadouApp) appButtons.Add(("Play Madou Monogatari", "madou-monogatari"));
+            if (hasPuyoApp) appButtons.Add(("Play Puyo Puyo Fever", "puyo-puyo-fever"));
             if (hasTetrisApp) appButtons.Add(("Play Tetris", "tetris"));
 
             const int maxButtonsPerRow = 5;
