@@ -63,7 +63,7 @@ public class CellSystem {
                        | (hasHeavenApp ? 512 : 0);
 
         var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{appFlags}";
-        var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, false, false, false, false, caseType, charmType, wallpaperType, isFront: true, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
+        var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, hasMadouApp, hasPuyoApp, hasLeafGreenApp, hasTetrisApp, hasTomodachiApp, hasSonicAdvanceApp, hasWarioApp, hasShantaeApp, hasHeavenApp, caseType, charmType, wallpaperType, isFront: true, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
 
         var container = new ContainerBuilder()
             .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
@@ -186,7 +186,7 @@ public class CellSystem {
             var isFrontNext = nextSide == "front";
 
             var nextCustomId = $"flip_over:{ownerId}|{nextSide}|{caseType}|{charmType}|{wallpaperType}|{appFlags}";
-            var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, hasMadouApp, hasPuyoApp, hasLeafGreenApp, hasTetrisApp, caseType, charmType, wallpaperType, isFront: isFrontNext, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
+            var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, hasMadouApp, hasPuyoApp, hasLeafGreenApp, hasTetrisApp, hasTomodachiApp, hasSonicAdvanceApp, hasWarioApp, hasShantaeApp, hasHeavenApp, caseType, charmType, wallpaperType, isFront: isFrontNext, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
 
             var container = new ContainerBuilder()
                 .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
@@ -239,6 +239,11 @@ public class CellSystem {
                                                                           bool hasPuyoApp,
                                                                           bool hasLeafGreenApp,
                                                                           bool hasTetrisApp,
+                                                                          bool hasTomodachiApp,
+                                                                          bool hasSonicAdvanceApp,
+                                                                          bool hasWarioApp,
+                                                                          bool hasShantaeApp,
+                                                                          bool hasHeavenApp,
                                                                           string caseType,
                                                                           string charmType,
                                                                           string wallpaperType,
@@ -347,6 +352,36 @@ public class CellSystem {
 
                 if (hasTetrisApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "tetris-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+
+                if (hasTomodachiApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "tomodachi-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+
+                if (hasSonicAdvanceApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "sonic-advance-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+
+                if (hasWarioApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "warioware-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+
+                if (hasShantaeApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "shantae-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+
+                if (hasHeavenApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "rhythm-heaven-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
