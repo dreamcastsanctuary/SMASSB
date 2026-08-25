@@ -50,7 +50,17 @@ public class CellSystem {
         var hasWarioApp = appsParam.Contains(AppType.WARIOWARE.ToString());
         var hasShantaeApp = appsParam.Contains(AppType.SHANTAE.ToString());
 
-        var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{hasTengokuApp}|{hasMadouApp}|{hasPuyoApp}|{hasLeafGreenApp}|{hasTetrisApp}|{hasTomodachiApp}|{hasSonicAdvanceApp}|{hasWarioApp}|{hasShantaeApp}";
+        var appFlags = (hasTengokuApp ? 1 : 0)
+                       | (hasMadouApp ? 2 : 0)
+                       | (hasPuyoApp ? 4 : 0)
+                       | (hasLeafGreenApp ? 8 : 0)
+                       | (hasTetrisApp ? 16 : 0)
+                       | (hasTomodachiApp ? 32 : 0)
+                       | (hasSonicAdvanceApp ? 64 : 0)
+                       | (hasWarioApp ? 128 : 0)
+                       | (hasShantaeApp ? 256 : 0);
+
+        var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{appFlags}";
         var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, false, false, false, false, caseType, charmType, wallpaperType, isFront: true, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
 
         var container = new ContainerBuilder()
@@ -156,21 +166,22 @@ public class CellSystem {
             var caseType = parts[2];
             var charmType = parts[3];
             var wallpaperType = parts[4];
-            var hasTengokuApp = bool.Parse(parts[5]);
-            var hasMadouApp = bool.Parse(parts[6]);
-            var hasPuyoApp = bool.Parse(parts[7]);
-            var hasLeafGreenApp = bool.Parse(parts[8]);
-            var hasTetrisApp = bool.Parse(parts[9]);
-            var hasTomodachiApp = bool.Parse(parts[10]);
-            var hasSonicAdvanceApp = bool.Parse(parts[11]);
-            var hasWarioApp = bool.Parse(parts[12]);
-            var hasShantaeApp = bool.Parse(parts[13]);
+            var appFlags = int.Parse(parts[5]);
+
+            var hasTengokuApp      = (appFlags & 1)   != 0;
+            var hasMadouApp        = (appFlags & 2)   != 0;
+            var hasPuyoApp         = (appFlags & 4)   != 0;
+            var hasLeafGreenApp    = (appFlags & 8)   != 0;
+            var hasTetrisApp       = (appFlags & 16)  != 0;
+            var hasTomodachiApp    = (appFlags & 32)  != 0;
+            var hasSonicAdvanceApp = (appFlags & 64)  != 0;
+            var hasWarioApp        = (appFlags & 128) != 0;
+            var hasShantaeApp      = (appFlags & 256) != 0;
 
             var nextSide = currentSide == "front" ? "back" : "front";
             var isFrontNext = nextSide == "front";
 
-            var nextCustomId = $"flip_over:{ownerId}|{nextSide}|{caseType}|{charmType}|{wallpaperType}|{hasTengokuApp}|{hasMadouApp}|{hasPuyoApp}|{hasLeafGreenApp}|{hasTetrisApp}|{hasTomodachiApp}|{hasSonicAdvanceApp}|{hasWarioApp}|{hasShantaeApp}";
-
+            var nextCustomId = $"flip_over:{ownerId}|{nextSide}|{caseType}|{charmType}|{wallpaperType}|{appFlags}";
             var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, hasMadouApp, hasPuyoApp, hasLeafGreenApp, hasTetrisApp, caseType, charmType, wallpaperType, isFront: isFrontNext, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
 
             var container = new ContainerBuilder()
