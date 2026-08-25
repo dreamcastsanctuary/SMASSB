@@ -177,6 +177,19 @@ public class CommandHandler {
             .AddOption("auto_promote", ApplicationCommandOptionType.Boolean, "Automatically promote everyone here to the next rank.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
+        // added by ACRASIA AKUMI  -  8/22/2026 ;  PROMOTESTAFF command
+        commands.Add(new SlashCommandBuilder()
+            .WithName("promotestaff")
+            .WithDescription("Promotes the users to the following rank.")
+            .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
+            .AddOption("add rank", ApplicationCommandOptionType.Integer, "Add the rank to promote the enlisted to.", isRequired: false)
+            .AddOption("add rank category", ApplicationCommandOptionType.Integer, "Add the rank category to promote the enlisted to.", isRequired: false)
+            .AddOption("Choreographer O1", ApplicationCommandOptionType.Integer, "Promote the enlisted to Choreographyer O1.", isRequired: false)
+            .AddOption("Choreographer O2", ApplicationCommandOptionType.Integer, "Promote the enlisted to Choreographyer O2.", isRequired: false)
+            .AddOption("Event Conceptor", ApplicationCommandOptionType.Integer, "Promote the enlisted to Event Conceptor.", isRequired: false)
+            .AddOption("Scouter", ApplicationCommandOptionType.Integer, "Promote the enlisted to Scouter.", isRequired: false)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
         
         // IDSYSTEM.
         
