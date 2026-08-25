@@ -49,6 +49,7 @@ public class CellSystem {
         var hasSonicAdvanceApp = appsParam.Contains(AppType.SONICADVANCE.ToString());
         var hasWarioApp = appsParam.Contains(AppType.WARIOWARE.ToString());
         var hasShantaeApp = appsParam.Contains(AppType.SHANTAE.ToString());
+        var hasHeavenApp = appsParam.Contains(AppType.RHYTHMHEAVEN.ToString());
 
         var appFlags = (hasTengokuApp ? 1 : 0)
                        | (hasMadouApp ? 2 : 0)
@@ -58,7 +59,8 @@ public class CellSystem {
                        | (hasTomodachiApp ? 32 : 0)
                        | (hasSonicAdvanceApp ? 64 : 0)
                        | (hasWarioApp ? 128 : 0)
-                       | (hasShantaeApp ? 256 : 0);
+                       | (hasShantaeApp ? 256 : 0)
+                       | (hasHeavenApp ? 512 : 0);
 
         var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{appFlags}";
         var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, false, false, false, false, caseType, charmType, wallpaperType, isFront: true, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
@@ -168,15 +170,16 @@ public class CellSystem {
             var wallpaperType = parts[4];
             var appFlags = int.Parse(parts[5]);
 
-            var hasTengokuApp      = (appFlags & 1)   != 0;
-            var hasMadouApp        = (appFlags & 2)   != 0;
-            var hasPuyoApp         = (appFlags & 4)   != 0;
-            var hasLeafGreenApp    = (appFlags & 8)   != 0;
-            var hasTetrisApp       = (appFlags & 16)  != 0;
-            var hasTomodachiApp    = (appFlags & 32)  != 0;
+            var hasTengokuApp = (appFlags & 1)   != 0;
+            var hasMadouApp = (appFlags & 2)   != 0;
+            var hasPuyoApp = (appFlags & 4)   != 0;
+            var hasLeafGreenApp = (appFlags & 8)   != 0;
+            var hasTetrisApp = (appFlags & 16)  != 0;
+            var hasTomodachiApp = (appFlags & 32)  != 0;
             var hasSonicAdvanceApp = (appFlags & 64)  != 0;
-            var hasWarioApp        = (appFlags & 128) != 0;
-            var hasShantaeApp      = (appFlags & 256) != 0;
+            var hasWarioApp = (appFlags & 128) != 0;
+            var hasShantaeApp = (appFlags & 256) != 0;
+            var hasHeavenApp = (appFlags & 512) != 0;
 
             var nextSide = currentSide == "front" ? "back" : "front";
             var isFrontNext = nextSide == "front";
@@ -199,6 +202,7 @@ public class CellSystem {
             if (hasSonicAdvanceApp) appButtons.Add(("Play Sonic Advance", "sonic-advance"));
             if (hasWarioApp) appButtons.Add(("Play WarioWare: Mega Microgames", "warioware"));
             if (hasShantaeApp) appButtons.Add(("Play Shantae", "shantae"));
+            if (hasHeavenApp) appButtons.Add(("Play Rhythm Heaven", "rhythm-heaven"));
 
             const int maxButtonsPerRow = 5;
 
