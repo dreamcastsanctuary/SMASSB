@@ -80,6 +80,7 @@ public class CellSystem {
         if (hasSonicAdvanceApp) appButtons.Add(("Play Sonic Advance", "sonic-advance"));
         if (hasWarioApp) appButtons.Add(("Play WarioWare: Mega Microgames", "warioware"));
         if (hasShantaeApp) appButtons.Add(("Play Shantae", "shantae"));
+        if (hasHeavenApp) appButtons.Add(("Play Rhythm Heaven", "rhythm-heaven"));
 
         const int maxButtonsPerRow = 5;
 
