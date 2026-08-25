@@ -45,8 +45,12 @@ public class CellSystem {
         var hasPuyoApp = appsParam.Contains(AppType.PUYOPUYOFEVER.ToString());
         var hasLeafGreenApp = appsParam.Contains(AppType.POKEMONLEAFGREEN.ToString());
         var hasTetrisApp = appsParam.Contains(AppType.TETRIS.ToString());
+        var hasTomodachiApp = appsParam.Contains(AppType.TOMODACHICOLLECTION.ToString());
+        var hasSonicAdvanceApp = appsParam.Contains(AppType.SONICADVANCE.ToString());
+        var hasWarioApp = appsParam.Contains(AppType.WARIOWARE.ToString());
+        var hasShantaeApp = appsParam.Contains(AppType.SHANTAE.ToString());
 
-        var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{hasTengokuApp}|{hasMadouApp}|{hasPuyoApp}|{hasLeafGreenApp}|{hasTetrisApp}";
+        var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{hasTengokuApp}|{hasMadouApp}|{hasPuyoApp}|{hasLeafGreenApp}|{hasTetrisApp}|{hasTomodachiApp}|{hasSonicAdvanceApp}|{hasWarioApp}|{hasShantaeApp}";
         var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, false, false, false, false, caseType, charmType, wallpaperType, isFront: true, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
 
         var container = new ContainerBuilder()
@@ -60,6 +64,10 @@ public class CellSystem {
         if (hasMadouApp) appButtons.Add(("Play Madou Monogatari", "madou-monogatari"));
         if (hasPuyoApp) appButtons.Add(("Play Puyo Puyo Fever", "puyo-puyo-fever"));
         if (hasTetrisApp) appButtons.Add(("Play Tetris", "tetris"));
+        if (hasTomodachiApp) appButtons.Add(("Play Tomodachi Collection", "tomodachi"));
+        if (hasSonicAdvanceApp) appButtons.Add(("Play Sonic Advance", "sonic-advance"));
+        if (hasWarioApp) appButtons.Add(("Play WarioWare: Mega Microgames", "warioware"));
+        if (hasShantaeApp) appButtons.Add(("Play Shantae", "shantae"));
 
         const int maxButtonsPerRow = 5;
 
@@ -153,11 +161,15 @@ public class CellSystem {
             var hasPuyoApp = bool.Parse(parts[7]);
             var hasLeafGreenApp = bool.Parse(parts[8]);
             var hasTetrisApp = bool.Parse(parts[9]);
+            var hasTomodachiApp = bool.Parse(parts[10]);
+            var hasSonicAdvanceApp = bool.Parse(parts[11]);
+            var hasWarioApp = bool.Parse(parts[12]);
+            var hasShantaeApp = bool.Parse(parts[13]);
 
             var nextSide = currentSide == "front" ? "back" : "front";
             var isFrontNext = nextSide == "front";
 
-            var nextCustomId = $"flip_over:{ownerId}|{nextSide}|{caseType}|{charmType}|{wallpaperType}|{hasTengokuApp}|{hasMadouApp}|{hasPuyoApp}|{hasLeafGreenApp}|{hasTetrisApp}";
+            var nextCustomId = $"flip_over:{ownerId}|{nextSide}|{caseType}|{charmType}|{wallpaperType}|{hasTengokuApp}|{hasMadouApp}|{hasPuyoApp}|{hasLeafGreenApp}|{hasTetrisApp}|{hasTomodachiApp}|{hasSonicAdvanceApp}|{hasWarioApp}|{hasShantaeApp}";
 
             var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, hasMadouApp, hasPuyoApp, hasLeafGreenApp, hasTetrisApp, caseType, charmType, wallpaperType, isFront: isFrontNext, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
 
@@ -172,6 +184,10 @@ public class CellSystem {
             if (hasMadouApp) appButtons.Add(("Play Madou Monogatari", "madou-monogatari"));
             if (hasPuyoApp) appButtons.Add(("Play Puyo Puyo Fever", "puyo-puyo-fever"));
             if (hasTetrisApp) appButtons.Add(("Play Tetris", "tetris"));
+            if (hasTomodachiApp) appButtons.Add(("Play Tomodachi Collection", "tomodachi"));
+            if (hasSonicAdvanceApp) appButtons.Add(("Play Sonic Advance", "sonic-advance"));
+            if (hasWarioApp) appButtons.Add(("Play WarioWare: Mega Microgames", "warioware"));
+            if (hasShantaeApp) appButtons.Add(("Play Shantae", "shantae"));
 
             const int maxButtonsPerRow = 5;
 
