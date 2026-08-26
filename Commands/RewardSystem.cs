@@ -107,7 +107,7 @@ public class RewardSystem {
         string[] itemPackIdol1 = {"Thin Scarf", "Neck Headphones", "Neck Ribbon", "Cravat", "Sleeveless Shirt", "Longer Sleeves", "Heart Headphones", "Flowy Sleeves", "Skirt / Pants Change, Chest Acc. Change,"};
         string[] itemPackIdol2 = {"Circle Headphones", "No Mask Perms OR Chest Acc. Change", "No Headphones Perms", "Ear Acc. Change (Cannot Remove Them)", "Foreleg Pattern Change", "Spiked Collar", "Heart Front Socks", "No Mask Perms OR Chest Acc. Change", "Hindleg Acc. Change"};
         
-        var channel = client.GetChannel(1473209020285452360) as ITextChannel;
+        var channel = client.GetChannel(1542227176387121182) as ITextChannel;
         var enlisteds = new List<SocketGuildUser>();
         var desc = "";
         int item = 0;
