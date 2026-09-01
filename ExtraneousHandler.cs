@@ -164,11 +164,8 @@ public class ExtraneousHandler {
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
 
-                    case 1481753776745611505:
-                        await user.AddRoleAsync(1521908472344743976);
-                        break;
-                    case 1481753799071633499:
-                        await user.AddRoleAsync(1521908373992378539);
+                    case 1492222638980989138:
+                        await user.AddRoleAsync(1544434735173083207);
                         break;
                 }
             }
@@ -311,11 +308,8 @@ public class ExtraneousHandler {
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
 
-                    case 1481753776745611505:
-                        await user.RemoveRoleAsync(1521908472344743976);
-                        break;
-                    case 1481753799071633499:
-                        await user.RemoveRoleAsync(1521908373992378539);
+                    case 1492222638980989138:
+                        await user.RemoveRoleAsync(1544434735173083207);
                         break;
                 }
             }
