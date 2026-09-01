@@ -160,7 +160,7 @@ public class ExtraneousHandler {
                 }
             }
         }
-        else if (reaction.MessageId is 1524131916624953598) { // tanabata
+        else if (reaction.MessageId is 1544439498115383429) { // tanabata
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
 
@@ -304,7 +304,7 @@ public class ExtraneousHandler {
                         break;
                 }
             }
-        } else if (reaction.MessageId is 1524131916624953598) { // tanabata
+        } else if (reaction.MessageId is 1544439498115383429) { // tanabata
             if (reaction.Emote is Emote emote) {
                 switch (emote.Id) {
 
