@@ -149,7 +149,7 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
 
         commands.Add(new SlashCommandBuilder()
-            .WithName("forceremove")
+            .WithName("debugunenlist")
             .WithDescription("Force removes a user.")
             .AddOption("civilian", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
@@ -485,7 +485,7 @@ public class CommandHandler {
             case "forceenlist":
                 await _roleSystem.HandleForceEnlistCommand(command);
                 break;
-            case "forceremove":
+            case "debugunenlist":
                 await _roleSystem.HandleForceRemoveCommand(command);
                 break;
             case "checkpromotions":

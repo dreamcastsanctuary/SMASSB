@@ -173,35 +173,37 @@ public class DatabaseService
     }
 
     public async Task Remove(ulong userId) {
-        
         using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
         
         var command = connection.CreateCommand();
         command.CommandText = @"
-                                INSERT INTO EnlistedHistory (UserId, Claim, AvatarUrl, AvatarImage, Rank,Points,Bloodtype,IDType,Yen,Recruits,Cases,CaseType,Wallpapers,WallpaperType,Charms,CharmType,Apps,AppsCollected,IdsCollected,Frames) 
-                                VALUES ($id,$claim,$avatarUrl,$avatarImage,$rank,$points,$bloodtype,$idtype,$yen,$recruits,$cases,$caseType,$wallpapers,$wallpaperType,$charms,$charmType,$apps,$appsCollected,$idsCollected,$frames)";
+            INSERT INTO EnlistedHistory (UserId, Claim, AvatarUrl, AvatarImage, Rank, Points, Bloodtype, IDType, Yen, Recruits, Cases, CaseType, Wallpapers, WallpaperType, Charms, CharmType, Apps, AppsCollected, IdsCollected, Frames) 
+            VALUES ($id, $claim, $avatarUrl, $avatarImage, $rank, $points, $bloodtype, $idtype, $yen, $recruits, $cases, $caseType, $wallpapers, $wallpaperType, $charms, $charmType, $apps, $appsCollected, $idsCollected, $frames)
+            ON CONFLICT(UserId) DO UPDATE SET Claim = excluded.Claim, AvatarUrl = excluded.AvatarUrl, AvatarImage = excluded.AvatarImage,Rank = excluded.Rank,Points = excluded.Points,Bloodtype = excluded.Bloodtype,IDType = excluded.IDType,Yen = excluded.Yen,Recruits = excluded.Recruits,Cases = excluded.Cases,CaseType = excluded.CaseType,Wallpapers = excluded.Wallpapers,WallpaperType = excluded.WallpaperType, Charms = excluded.Charms, CharmType = excluded.CharmType, Apps = excluded.Apps, AppsCollected = excluded.AppsCollected, IdsCollected = excluded.IdsCollected, Frames = excluded.Frames";
+        
+        object ToDbValue(object? value) => value ?? DBNull.Value;
         
         command.Parameters.AddWithValue("$id", userId.ToString());
-        command.Parameters.AddWithValue("$claim", await GetClaim(userId));
-        command.Parameters.AddWithValue("$avatarUrl", await GetAvatarUrl(userId));
-        command.Parameters.AddWithValue("$avatarImage", await GetAvatarImage(userId));
-        command.Parameters.AddWithValue("$rank", await GetRank(userId));
-        command.Parameters.AddWithValue("$points", await GetPoints(userId));
-        command.Parameters.AddWithValue("$bloodtype", await GetBloodtype(userId));
-        command.Parameters.AddWithValue("$idtype", await GetIdType(userId));
-        command.Parameters.AddWithValue("$yen", await GetYen(userId));
-        command.Parameters.AddWithValue("$recruits", await GetRecruits(userId));
-        command.Parameters.AddWithValue("$caseType", await GetCaseType(userId));
-        command.Parameters.AddWithValue("$wallpaperType", await GetWallpaperType(userId));
-        command.Parameters.AddWithValue("$charmType", await GetCharmType(userId));
-        command.Parameters.AddWithValue("$cases", JsonSerializer.Serialize(await GetCases(userId)));
-        command.Parameters.AddWithValue("$wallpapers", JsonSerializer.Serialize(await GetWallpapers(userId)));
-        command.Parameters.AddWithValue("$charms", JsonSerializer.Serialize(await GetCharms(userId)));
-        command.Parameters.AddWithValue("$apps", JsonSerializer.Serialize(await GetApps(userId)));
-        command.Parameters.AddWithValue("$appsCollected", JsonSerializer.Serialize(await GetCollectedApps(userId)));
-        command.Parameters.AddWithValue("$idsCollected", JsonSerializer.Serialize(await GetIds(userId)));
-        command.Parameters.AddWithValue("$frames", JsonSerializer.Serialize(await GetFrames(userId)));
+        command.Parameters.AddWithValue("$claim", ToDbValue(await GetClaim(userId)));
+        command.Parameters.AddWithValue("$avatarUrl", ToDbValue(await GetAvatarUrl(userId)));
+        command.Parameters.AddWithValue("$avatarImage", ToDbValue(await GetAvatarImage(userId)));
+        command.Parameters.AddWithValue("$rank", ToDbValue(await GetRank(userId)));
+        command.Parameters.AddWithValue("$points", ToDbValue(await GetPoints(userId)));
+        command.Parameters.AddWithValue("$bloodtype", ToDbValue(await GetBloodtype(userId)));
+        command.Parameters.AddWithValue("$idtype", ToDbValue(await GetIdType(userId)));
+        command.Parameters.AddWithValue("$yen", ToDbValue(await GetYen(userId)));
+        command.Parameters.AddWithValue("$recruits", ToDbValue(await GetRecruits(userId)));
+        command.Parameters.AddWithValue("$cases", ToDbValue(JsonSerializer.Serialize(await GetCases(userId))));
+        command.Parameters.AddWithValue("$caseType", ToDbValue(await GetCaseType(userId)));
+        command.Parameters.AddWithValue("$wallpapers", ToDbValue(JsonSerializer.Serialize(await GetWallpapers(userId))));
+        command.Parameters.AddWithValue("$wallpaperType", ToDbValue(await GetWallpaperType(userId)));
+        command.Parameters.AddWithValue("$charms", ToDbValue(JsonSerializer.Serialize(await GetCharms(userId))));
+        command.Parameters.AddWithValue("$charmType", ToDbValue(await GetCharmType(userId)));
+        command.Parameters.AddWithValue("$apps", ToDbValue(JsonSerializer.Serialize(await GetApps(userId))));
+        command.Parameters.AddWithValue("$appsCollected", ToDbValue(JsonSerializer.Serialize(await GetCollectedApps(userId))));
+        command.Parameters.AddWithValue("$idsCollected", ToDbValue(JsonSerializer.Serialize(await GetIds(userId))));
+        command.Parameters.AddWithValue("$frames", ToDbValue(JsonSerializer.Serialize(await GetFrames(userId))));
         
         await command.ExecuteNonQueryAsync();
         
@@ -718,7 +720,8 @@ public class DatabaseService
     public async Task<int> SetIsProspect(ulong userId, bool hit) {
         
         await using var connection = new SqliteConnection(_connectionString);
-        connection.OpenAsync();
+        await connection.OpenAsync();
+        
         var command = connection.CreateCommand();
         command.CommandText = @"INSERT INTO Addons (UserId, IsProspect) VALUES ($id, $hit)
                                 ON CONFLICT(UserId) DO UPDATE SET IsProspect = $hit";
@@ -768,7 +771,8 @@ public class DatabaseService
     public async Task<int> SetIsEnlisted(ulong userId, bool hit) {
         
         await using var connection = new SqliteConnection(_connectionString);
-        connection.OpenAsync();
+        await connection.OpenAsync();
+        
         var command = connection.CreateCommand();
         command.CommandText = @"INSERT INTO Addons (UserId, IsEnlisted) VALUES ($id, $hit)
                                 ON CONFLICT(UserId) DO UPDATE SET IsEnlisted = $hit";
@@ -794,7 +798,8 @@ public class DatabaseService
     public async Task<int> SetIsPartner(ulong userId, bool hit) {
         
         await using var connection = new SqliteConnection(_connectionString);
-        connection.OpenAsync();
+        await connection.OpenAsync();
+        
         var command = connection.CreateCommand();
         command.CommandText = @"INSERT INTO Addons (UserId, IsPartner) VALUES ($id, $hit)
                                 ON CONFLICT(UserId) DO UPDATE SET IsPartner = $hit";
@@ -820,7 +825,7 @@ public class DatabaseService
     public async Task<int> SetIsCivilian(ulong userId, bool hit) {
         
         await using var connection = new SqliteConnection(_connectionString);
-        connection.OpenAsync();
+        await connection.OpenAsync();
         var command = connection.CreateCommand();
         command.CommandText = @"INSERT INTO Addons (UserId, IsCivilian) VALUES ($id, $hit)
                                 ON CONFLICT(UserId) DO UPDATE SET IsCivilian = $hit";
@@ -846,7 +851,7 @@ public class DatabaseService
     public async Task<int> SetIsFan(ulong userId, bool hit) {
         
         await using var connection = new SqliteConnection(_connectionString);
-        connection.OpenAsync();
+        await connection.OpenAsync();
         
         var command = connection.CreateCommand();
         command.CommandText = @"INSERT INTO Addons (UserId, IsFan) VALUES ($id, $hit)
@@ -993,7 +998,7 @@ public class DatabaseService
     public async Task<int> AddItem(string item, int cost) {
         
         await using var connection = new SqliteConnection(_connectionString);
-        connection.OpenAsync();
+        await connection.OpenAsync();
         
         var command = connection.CreateCommand();
         command.CommandText = @"INSERT INTO Shop (Item, Cost) VALUES ($item, $cost)
