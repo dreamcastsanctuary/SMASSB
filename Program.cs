@@ -1,25 +1,24 @@
-﻿using System.Collections.Concurrent;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Discord;
 using Discord.WebSocket;
 using SMASSB.Commands;
+using SMASSB.Models;
 
 namespace SMASSB;
 public class Program {
     
-    private DiscordSocketClient _client;
+    private DiscordSocketClient? _client;
     private ulong _guildId;
     
-    private CommandHandler _commandHandler;
-    private ExtraneousHandler _extraneousHandler;
-    private LogHandler _logHandler;
-    private MeetingSystem _meetingSystem;
-    private DatabaseService _db;
+    private CommandHandler? _commandHandler;
+    private ExtraneousHandler? _extraneousHandler;
+    private LogHandler? _logHandler;
+    private MeetingSystem? _meetingSystem;
+    private DatabaseService? _db;
     
-    private static IServiceProvider _serviceProvider;
-    private ConcurrentDictionary<string, int> _inviteCache = new();
-    private static readonly HashSet<ulong> _startedLoops = new();
-    private static readonly object _startedLoopsLock = new();
+    private static IServiceProvider? _serviceProvider;
+    private static readonly HashSet<ulong>? StartedLoops = new();
+    private static readonly Lock StartedLoopsLock = new();
 
     /// <summary>
     /// Where the magic starts.
@@ -76,18 +75,21 @@ public class Program {
         var guild = _client.GetGuild(_guildId); 
         
         _ = Task.Run(async () => {
-            await _logHandler.CreateOrUpdateStatChannel(guild);
-            await _commandHandler.RegisterCommands(guild);
-            
-            bool shouldStartLoops;
-            lock (_startedLoopsLock) {
-                shouldStartLoops = _startedLoops.Add(guild.Id);
-            }
+            await _logHandler.CreateOrUpdateStatChannel();
+            await _commandHandler.RegisterCommands();
 
-            if (shouldStartLoops) {
-                _ = _extraneousHandler.KickUnEnlisted(guild);
-                _ = _extraneousHandler.AutoEnlistKohosei(guild);
-                _ = _extraneousHandler.WeeklyEarningsRollover();
+            if (StartedLoops != null) {
+                bool shouldStartLoops;
+                
+                lock (StartedLoopsLock) {
+                    shouldStartLoops = StartedLoops.Add(guild.Id);
+                }
+                
+                if (shouldStartLoops) {
+                    _ = _extraneousHandler.KickUnEnlisted();
+                    _ = _extraneousHandler.AutoEnlistKohosei();
+                    _ = _extraneousHandler.WeeklyEarningsRollover();
+                }
             }
         });
     };
@@ -107,7 +109,7 @@ public class Program {
         var app = builder.Build();
 
         app.MapGet("/pending-game/{userId}", (string userId) => {
-            var game = _db.GetPendingGame(userId);
+            var game = _db?.GetPendingGame(userId);
             return Results.Ok(new { game });
         });
 
@@ -116,7 +118,7 @@ public class Program {
             if (body is null || string.IsNullOrEmpty(body.UserId) || string.IsNullOrEmpty(body.Game))
                 return Results.BadRequest();
 
-            _db.SetPendingGame(body.UserId, body.Game);
+            _db?.SetPendingGame(body.UserId, body.Game);
             return Results.Ok();
         });
 
@@ -133,7 +135,7 @@ public class Program {
         
         Console.WriteLine(msg.ToString());
         _guildId = ulong.Parse(Environment.GetEnvironmentVariable("GUILD_ID") ?? throw new Exception("GUILD_ID environment variable not set."));
-        await _logHandler.LogExceptionWatch(msg, _guildId);
+        if (_logHandler != null) await _logHandler.LogExceptionWatch(_guildId, msg);
         
         return Task.CompletedTask;
     }
@@ -143,6 +145,7 @@ public class Program {
     /// </summary>
     private static ServiceProvider CreateProvider() {
         
+        var guildId = ulong.Parse(Environment.GetEnvironmentVariable("GUILD_ID") ?? throw new Exception("GUILD_ID environment variable not set."));
         var config = new DiscordSocketConfig {
             
             MessageCacheSize = 100,
@@ -158,6 +161,8 @@ public class Program {
         
         return new ServiceCollection()
             .AddSingleton(config)
+            .AddSingleton(new GuildConfiguration(guildId))
+            
             .AddSingleton<DiscordSocketClient>()
             .AddSingleton<CommandHandler>()
             .AddSingleton<ExtraneousHandler>()

@@ -2,21 +2,25 @@
 using Discord.WebSocket;
 using SMASSB.Commands;
 using SMASSB.Data;
+using SMASSB.Models;
 
 namespace SMASSB;
 public class CommandHandler {
     
     private readonly DiscordSocketClient _client;
-    private RewardSystem _rewardSystem;
-    private MeetingSystem _meetingSystem;
-    private RoleSystem _roleSystem;
-    private IdSystem _idSystem;
-    private PointSystem _pointSystem;
-    private GeneralSystem _generalSystem;
-    private CellSystem _cellSystem;
-    private ShopSystem _shopSystem;
+    private readonly RewardSystem _rewardSystem;
+    private readonly MeetingSystem _meetingSystem;
+    private readonly RoleSystem _roleSystem;
+    private readonly IdSystem _idSystem;
+    private readonly PointSystem _pointSystem;
+    private readonly GeneralSystem _generalSystem;
+    private readonly CellSystem _cellSystem;
+    private readonly ShopSystem _shopSystem;
+    private readonly LogHandler _logHandler;
+    private SocketGuild _guild;
 
     public CommandHandler(DiscordSocketClient client,
+                          LogHandler logHandler,
                           RewardSystem rewardSystem,
                           MeetingSystem meetingSystem,
                           RoleSystem roleSystem,
@@ -24,7 +28,8 @@ public class CommandHandler {
                           PointSystem pointSystem,
                           GeneralSystem generalSystem,
                           CellSystem cellSystem,
-                          ShopSystem shopSystem) {
+                          ShopSystem shopSystem,
+                          GuildConfiguration guildConfig) {
         _client = client;
         _client.SlashCommandExecuted += SlashCommandHandler;
         _rewardSystem = rewardSystem;
@@ -35,6 +40,9 @@ public class CommandHandler {
         _generalSystem = generalSystem;
         _cellSystem = cellSystem;
         _shopSystem = shopSystem;
+        _logHandler = logHandler;
+        var guildId = guildConfig.GuildId;
+        _guild = client.GetGuild(guildId);
     }
     
     /// <summary>
@@ -46,15 +54,11 @@ public class CommandHandler {
             try {
                 await HandleSlashCommand(command);
             } catch (Exception ex) {
-                
-                Console.WriteLine($"Unhandled exception in command '{command.Data.Name}': {ex}");
-                try {
-                    if (command.HasResponded)
-                        await command.FollowupAsync(ex.Message, ephemeral: true);
-                    else
-                        await command.RespondAsync(ex.Message, ephemeral: true);
-                } catch {
-                }
+                await _logHandler.LogExceptionWatch(_guild.Id, exception: ex);
+                if (command.HasResponded)
+                    await command.FollowupAsync(ex.Message, ephemeral: true);
+                else
+                    await command.RespondAsync(ex.Message, ephemeral: true);
             }
         });
         return Task.CompletedTask;
@@ -64,10 +68,9 @@ public class CommandHandler {
     /// This actually registers the commands.
     /// It makes a List of SlashCommandBuilders, then builds them all at the same time.
     /// </summary>
-    public async Task RegisterCommands(SocketGuild guild) {
+    public async Task RegisterCommands() {
         
         List<SlashCommandBuilder> commands = new List<SlashCommandBuilder>();
-        
         
         // REWARDSYSTEM
         
@@ -270,11 +273,6 @@ public class CommandHandler {
         // POINTSYSTEM.
         
         commands.Add(new SlashCommandBuilder()
-            .WithName("showpoints")
-            .WithDescription("Shows the points of a member.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The aforementioned member.", isRequired: false));
-
-        commands.Add(new SlashCommandBuilder()
             .WithName("leaderboard")
             .WithDescription("Shows the point leaderboard.")
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
@@ -289,13 +287,13 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
-            .WithName("addbatchpoints")
+            .WithName("batchpoints")
             .WithDescription("Reads a message link full of 'Name pN rN' lines and applies points / recruits to matching members.")
             .AddOption("message_link", ApplicationCommandOptionType.String, "The link to the message with the point list.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
-            .WithName("parsebatchrecruits")
+            .WithName("batchrecruits")
             .WithDescription("Parses the recruits channel and gives points to all. Can fail.")
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
@@ -320,11 +318,6 @@ public class CommandHandler {
             .WithDescription("Checks if inputted name has been claimed before.")
             .AddOption("name", ApplicationCommandOptionType.String, "The name to check.", isRequired:true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
-        
-        commands.Add(new SlashCommandBuilder()
-            .WithName("postlore")
-            .WithDescription("Posts... posts lore.")
-            .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
         // CELLSYSTEM
         
@@ -419,7 +412,7 @@ public class CommandHandler {
             wallpaperOption.AddChoice(name, name);
 
         commands.Add(new SlashCommandBuilder()
-            .WithName("givecelladdons")
+            .WithName("addcelladdons")
             .WithDescription("Give a member a WorkCell addon.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member the addon will go to.", isRequired: true)
             .AddOption(appOption)
@@ -441,11 +434,6 @@ public class CommandHandler {
         );
 
         // SHOPSYSTEM
-        
-        commands.Add(new SlashCommandBuilder()
-            .WithName("initweeklybaselines")
-            .WithDescription("One-time setup: seeds everyone's weekly earnings baseline.")
-            .WithDefaultMemberPermissions(GuildPermission.Administrator));
 
         commands.Add(new SlashCommandBuilder()
             .WithName("shoppost")
@@ -455,10 +443,11 @@ public class CommandHandler {
         
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
-            await ((IGuild)guild).BulkOverwriteApplicationCommandsAsync(builtCommands);
+            await ((IGuild)_guild).BulkOverwriteApplicationCommandsAsync(builtCommands);
             
         } catch (Exception ex) {
             Console.WriteLine($"Command registration failed: {ex}");
+            await _logHandler.LogExceptionWatch(_guild.Id, exception: ex, text: "Command registration failed.");
         }
     }
     
@@ -473,24 +462,24 @@ public class CommandHandler {
                 await _rewardSystem.HandleRewardKoCommand(command);
                 break;
             case "rewardaccomp":
-                await _rewardSystem.HandleRewardAccompCommand(command, _client);
+                await _rewardSystem.HandleRewardAccompCommand(command);
                 break;
             
             case "meetingpr":
-                await _meetingSystem.HandleMeetingPRCommand(command, _client);
+                await _meetingSystem.HandleMeetingPrCommand(command);
                 break;
             case "meetingreprimand":
-                await _meetingSystem.HandleMeetingReprimandCommand(command, _client);
+                await _meetingSystem.HandleMeetingReprimandCommand(command);
                 break;
             case "meetingclose":
-                await _meetingSystem.HandleMeetingCloseCommand(command, _client);
+                await _meetingSystem.HandleMeetingCloseCommand(command);
                 break;
             
             case "preenlist":
                 await _roleSystem.HandlePreEnlistCommand(command);
                 break;
             case "enlist":
-                await _roleSystem.HandleEnlistCommand(command, _client);
+                await _roleSystem.HandleEnlistCommand(command);
                 break;
             case "forceenlist":
                 await _roleSystem.HandleForceEnlistCommand(command);
@@ -499,42 +488,39 @@ public class CommandHandler {
                 await _roleSystem.HandleForceRemoveCommand(command);
                 break;
             case "checkpromotions":
-                await _roleSystem.HandleCheckPromosCommand(command, _client);
+                await _roleSystem.HandleCheckPromosCommand(command);
                 break;
             case "duo":
                 await _roleSystem.HandleDuoCommand(command);
                 break;
             
             case "showid":
-                await _idSystem.ShowId(command, _client);
+                await _idSystem.ShowId(command);
                 break;
             case "showotherid":
-                await _idSystem.ShowId(command, _client);
+                await _idSystem.ShowId(command);
                 break;
             case "editid":
-                await _idSystem.EditId(command, _client);
+                await _idSystem.EditId(command);
                 break;
             case "giveidskin":
-                await _idSystem.GainId(command, _client);
+                await _idSystem.GainId(command);
                 break;
             case "removeidskin":
-                await _idSystem.RemoveId(command, _client);
+                await _idSystem.RemoveId(command);
                 break;
             case "changeclaim":
                 await _idSystem.HandleForceUpdateCommand(command);
                 break;
             
-            case "showpoints":
-                await _pointSystem.ShowPoints(command);
-                break;
             case "addpoints":
                 await _pointSystem.EditPoints(command, true);
                 break;
             case "removepoints":
                 await _pointSystem.EditPoints(command, false);
                 break;
-            case "addbatchpoints":
-                await _pointSystem.HandleBatchPoints(command, _client);
+            case "batchpoints":
+                await _pointSystem.HandleBatchPoints(command);
                 break;
             case "leaderboard":
                 await _pointSystem.Leaderboard(command);
@@ -545,7 +531,7 @@ public class CommandHandler {
             case "removerecruits":
                 await _pointSystem.EditRecruits(command, false);
                 break;
-            case "parsebatchrecruits":
+            case "batchrecruits":
                 await _pointSystem.HandleBatchRecruits(command);
                 break;
                 
@@ -556,20 +542,17 @@ public class CommandHandler {
                 await _generalSystem.HandleCheckClaimedCommand(command);
                 break;
             case "parsenontrained":
-                await _generalSystem.HandleParseNonTrainedKohoseiCommand(command, _client);
-                break;
-            case "postlore":
-                await _generalSystem.PostLore(command);
+                await _generalSystem.HandleParseNonTrainedKohoseiCommand(command);
                 break;
             
             case "showworkcell":
-                await _cellSystem.ShowWorkCell(command, _client);
+                await _cellSystem.ShowWorkCell(command);
                 break;
             case "editworkcell":
-                await _cellSystem.EditWorkCell(command, _client);
+                await _cellSystem.EditWorkCell(command);
                 break;
             case "showotherworkcell":
-                await _cellSystem.ShowWorkCell(command, _client);
+                await _cellSystem.ShowWorkCell(command);
                 break;
             case "addyen":
                 await _cellSystem.EditYen(command, true);
@@ -577,7 +560,7 @@ public class CommandHandler {
             case "removeyen":
                 await _cellSystem.EditYen(command, false);
                 break;
-            case "givecelladdons":
+            case "addcelladdons":
                 await _cellSystem.EditAddons(command, true);
                 break;
             case "removecelladdons":

@@ -1,27 +1,34 @@
 ﻿using Discord;
-using Discord.Interactions;
 using Discord.WebSocket;
 using SMASSB.Exceptions;
+using SMASSB.Models;
 
 namespace SMASSB.Commands;
 
 public class RoleSystem {
     
-    private DatabaseService _db;
+    private readonly DiscordSocketClient _client;
+    private readonly DatabaseService _db;
+    private readonly LogHandler _logHandler;
+    private readonly SocketGuild _guild;
     
-    public RoleSystem(DatabaseService db) {
+    public RoleSystem(DiscordSocketClient client, LogHandler logHandler, DatabaseService db, GuildConfiguration guildConfig) {
+        _client = client;
+        _logHandler = logHandler;
         _db = db;
+        var guildId = guildConfig.GuildId;
+        _guild = client.GetGuild(guildId);
     }
 
     public async Task HandlePreEnlistCommand(SocketSlashCommand command) {
 
         await command.DeferAsync();
-        SocketGuildUser civilian = null;
+        SocketGuildUser? civilian = null;
         var claim = "";
 
-        foreach (var option in command.Data.Options)
-        {
+        foreach (var option in command.Data.Options) {
             switch (option.Name) {
+                
                 case "civilian":
                     civilian = ((SocketGuildUser)option.Value);
                     break;
@@ -35,36 +42,30 @@ public class RoleSystem {
             await command.FollowupAsync("Unrecognized account.", ephemeral: true);
             return;
         }
+        
+        await civilian.AddRoleAsync(1473369036766052445);
+        await civilian.AddRoleAsync(1475886792174604484);
+        await civilian.RemoveRoleAsync(1473369383471677461);
 
-        try {
-            await civilian.AddRoleAsync(1473369036766052445);
-            await civilian.AddRoleAsync(1475886792174604484);
-            await civilian.RemoveRoleAsync(1473369383471677461);
+        await civilian.ModifyAsync(x => x.Nickname = "Kō. " + claim);
 
-            await civilian.ModifyAsync(x => x.Nickname = "Kō. " + claim);
-
+        if (claim != null) {
             await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Kōhosei", 0, 0, "N/A", "", civilian.Username, "ENLISTEDMAIN", "BLACK", "NONE", "BASIC");
 
             try {
-                await UserExtensions.SendMessageAsync(civilian,
-                    $"Welcome to SANGŌ, **Kō. {claim}**! We're very happy to have you.\n" +
-                    "Your first event *must* be of type **CIVT / Civilian Training**. Please be on the lookout for it.");
+                await civilian.SendMessageAsync($"Welcome to SANGŌ, **Kō. {claim}**! We're very happy to have you.\n" + "Your first event *must* be of type **CIVT / Civilian Training**. Please be on the lookout for it.");
             } catch (Discord.Net.HttpException ex) {
                 await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message);
-            } 
-        } catch (Exception ex) {
+            }
         }
     }
     
-    [DefaultMemberPermissions(GuildPermission.ManageRoles)]
-    public async Task HandleEnlistCommand(SocketSlashCommand command, DiscordSocketClient client) {
+    public async Task HandleEnlistCommand(SocketSlashCommand command) {
         
         await command.DeferAsync();
-        SocketGuildUser civilian = null;
-        var guild = client.GetGuild((ulong)command.GuildId);
+        SocketGuildUser? civilian = null;
         
-        foreach (var option in command.Data.Options)
-        {
+        foreach (var option in command.Data.Options) {
             switch (option.Name) {
                 
                 case "kōhosei":
@@ -86,17 +87,16 @@ public class RoleSystem {
         await civilian.RemoveRoleAsync(1475886792174604484);
         await civilian.RemoveRoleAsync(1537202109336920096);
 
-        IRole niShi = guild.GetRole(1475886748268625962);
+        IRole niShi = _guild.GetRole(1475886748268625962);
         await Promote(civilian, niShi, command);
     }
 
-    public async Task HandleCheckPromosCommand(SocketSlashCommand command, DiscordSocketClient client) {
+    public async Task HandleCheckPromosCommand(SocketSlashCommand command) {
         
         await command.DeferAsync();
         bool promote = false;
         
-        foreach (var option in command.Data.Options)
-        {
+        foreach (var option in command.Data.Options) {
             switch (option.Name) {
                 
                 case "auto_promote":
@@ -117,19 +117,17 @@ public class RoleSystem {
             (1475886657545961472, 1500),
         };
 
-        List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
-        SocketGuild guild = client.GetGuild((ulong)command.GuildId);
-        List<SocketGuildUser> promotable = new List<SocketGuildUser>();
+        var enlisteds = new List<SocketGuildUser>();
+        var promotable = new List<SocketGuildUser>();
         
         foreach (var userId in _db.GetEnlisted()) {
-            enlisteds.Add(guild.GetUser(ulong.Parse(userId)));
+            enlisteds.Add(_guild.GetUser(ulong.Parse(userId)));
         }
 
         foreach (var enlisted in enlisteds) {
-            if (enlisted == null) continue; 
             
             foreach (var rank in ranks) {
-                var role = guild.GetRole(rank.RoleId);
+                var role = _guild.GetRole(rank.RoleId);
                 if (role == null) continue;
 
                 if (role.Name.Contains(await _db.GetRank(enlisted.Id)) && await _db.GetPoints(enlisted.Id) >= rank.Threshold) {
@@ -158,23 +156,23 @@ public class RoleSystem {
         if (promote) {
             foreach (var enlisted in promotable) {
 
-                for (int i = 0; i < ranks.Count; i++) {
-                    var role = guild.GetRole(ranks[i].RoleId);
+                for (var i = 0; i < ranks.Count; i++) {
+                    var role = _guild.GetRole(ranks[i].RoleId);
                     if (role == null) continue;
 
                     if (role.Name.Contains(await _db.GetRank(enlisted.Id))) {
 
                         if (i + 1 < ranks.Count) {
-                            await Promote(enlisted, guild.GetRole(ranks[i + 1].RoleId));
+                            await Promote(enlisted, _guild.GetRole(ranks[i + 1].RoleId));
 
-                            for (int j = i; j >= Math.Max(0, i - 3); j--) {
-                                var oldRole = guild.GetRole(ranks[j].RoleId);
+                            for (var j = i; j >= Math.Max(0, i - 3); j--) {
+                                var oldRole = _guild.GetRole(ranks[j].RoleId);
                                 if (oldRole != null) {
                                     await enlisted.RemoveRoleAsync(oldRole);
                                 }
                             }
 
-                            await enlisted.AddRoleAsync(guild.GetRole(ranks[i + 1].RoleId));
+                            await enlisted.AddRoleAsync(_guild.GetRole(ranks[i + 1].RoleId));
                         }
                         break;
                     }
@@ -182,72 +180,45 @@ public class RoleSystem {
             }
             builder.WithTitle("Viable Promotions Completed!");
         }
-        
-        var channel = command.Channel as ITextChannel;
-        await channel.SendMessageAsync(embed: builder.Build());
+
+        if (command.Channel is ITextChannel channel) await channel.SendMessageAsync(embed: builder.Build());
     }
 
-    [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandlePromoteCommand(SocketSlashCommand command) {
 
         await command.DeferAsync();
-        List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
-        IRole addedRank = null; IRole addedRankCategory = null; IRole removedRank = null; IRole removedRankCategory = null;
         
-        foreach (var option in command.Data.Options)
-        {
-            switch (option.Name) {
-                
-                case "enlisted1":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted2":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted3":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted4":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted5":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted6":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted7":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted8":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted9":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted10":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
+        var enlisteds = new List<SocketGuildUser>();
+        IRole? addedRank = null; 
+        IRole? addedRankCategory = null; 
+        IRole? removedRank = null; 
+        IRole? removedRankCategory = null;
+        
+        foreach (var option in command.Data.Options) {
+            
+            if (option.Name.StartsWith("enlisted")) {
+                enlisteds.Add((SocketGuildUser)option.Value);
+            } else switch (option.Name) {
                 case "add_rank":
                     addedRank = (IRole)option.Value;
                     break;
                 case "remove_rank":
-                    removedRank = (IRole)option.Value;
+                    addedRankCategory = (IRole)option.Value;
                     break;
                 case "add_rank_category":
-                    addedRankCategory = (IRole)option.Value;
+                    removedRank = (IRole)option.Value;
                     break;
                 case "remove_rank_category":
-                    addedRankCategory = (IRole)option.Value;
+                    removedRankCategory = (IRole)option.Value;
                     break;
                 default:
-                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
-                    break;
+                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    return;
             }
         }
 
         if (addedRank != null) {
-            foreach (SocketGuildUser enlisted in enlisteds) {
+            foreach (var enlisted in enlisteds) {
                 
                 await enlisted.AddRoleAsync(addedRank);
                 if (addedRankCategory != null) {
@@ -264,14 +235,13 @@ public class RoleSystem {
         await command.FollowupAsync("Completed task.", ephemeral: true);
     }
     
-    [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandleForceEnlistCommand(SocketSlashCommand command) {
         await command.DeferAsync();
         
-        SocketGuildUser civilian = null;
+        SocketGuildUser? civilian = null;
         var claim = "";
         var rank = "";
-        bool isStaff = false;
+        var isStaff = false;
         
         foreach (var option in command.Data.Options)
         {
@@ -303,22 +273,22 @@ public class RoleSystem {
         var idType = "ENLISTEDMAIN";
         if (isStaff) { idType = "STAFFMAIN"; }
         
-        await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, rank,0,0,"N/A","", civilian.Username, idType, "BLACK", "NONE", "BASIC"); 
+        if (claim != null && rank != null) await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, rank,0,0,"N/A","", civilian.Username, idType, "BLACK", "NONE", "BASIC"); 
     }
 
-    public async Task Promote(SocketGuildUser enlisted, IRole rank, SocketSlashCommand command = null, string newClaim = null, string response = null) {
+    public async Task Promote(SocketGuildUser enlisted, IRole rank, SocketSlashCommand? command = null, string? newClaim = null, string? response = null) {
         
-        string nickname = enlisted.Nickname;
-        string rankName = rank.Name;
+        var nickname = enlisted.Nickname;
+        var rankName = rank.Name;
 
-        int dotIndex = rankName.IndexOf('.');
-        string fixedRankNick = rankName.Substring(1, dotIndex);
-        string fixedRankFull = rankName.Substring(dotIndex + 2);
-        int spaceIndex = nickname.IndexOf(' ');
-        string claim = "";
+        var dotIndex = rankName.IndexOf('.');
+        var fixedRankNick = rankName.Substring(1, dotIndex);
+        var fixedRankFull = rankName[(dotIndex + 2)..];
+        var spaceIndex = nickname.IndexOf(' ');
+        string? claim;
         
         if (String.IsNullOrEmpty(newClaim)) {
-            claim = spaceIndex >= 0 ? nickname.Substring(spaceIndex + 1) : nickname;
+            claim = spaceIndex >= 0 ? nickname[(spaceIndex + 1)..] : nickname;
         }
         else {
             claim = newClaim; 
@@ -328,18 +298,16 @@ public class RoleSystem {
         await enlisted.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claim);
         await _db.SetRank(enlisted.Id, fixedRankFull);
 
-        var message = String.IsNullOrEmpty(response) ? "Welcome to your new life as an enlisted, <@" + enlisted.Id + ">!" : response;
+        var message = string.IsNullOrEmpty(response) ? "Welcome to your new life as an enlisted, <@" + enlisted.Id + ">!" : response;
         
         if (command != null) { await command.FollowupAsync(message); }
     }
 
-    [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandleForceRemoveCommand(SocketSlashCommand command) {
         
-        SocketGuildUser civilian = null;
+        SocketGuildUser? civilian = null;
         
-        foreach (var option in command.Data.Options)
-        {
+        foreach (var option in command.Data.Options) {
             switch (option.Name) {
                 
                 case "civilian":
@@ -350,66 +318,9 @@ public class RoleSystem {
                     break;
             }
         }
-        await _db.Remove(civilian.Id);
+
+        if (civilian != null) await _db.Remove(civilian.Id);
         await command.RespondAsync("Completed task.");
-    }
-
-    [DefaultMemberPermissions(GuildPermission.ManageRoles)]
-    public async Task HandleFinishCeremony(SocketSlashCommand command, DiscordSocketClient client) {
-        
-        List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
-
-        foreach (var option in command.Data.Options)
-        {
-            switch (option.Name) {
-                
-                case "enlisted1":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted2":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted3":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted4":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted5":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted6":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted7":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted8":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted9":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted10":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
-                    break;
-            }
-        }
-        
-        SocketGuild guild = client.GetGuild((ulong)command.GuildId);
-        var channel = guild.GetTextChannel(1473516609397063680);
-        
-        await command.RespondAsync("Completed task.");
-
-        foreach (SocketGuildUser enlisted in enlisteds) {
-            await channel.AddPermissionOverwriteAsync(enlisted, new OverwritePermissions(viewChannel: PermValue.Allow));
-            await enlisted.SendMessageAsync("Congratulations on the ceremony. We hope to see much more from you in the future.\nYou've earned your final uniforms, which you can find in the new \"ENLISTED\" uniform channel.\n\nNote that you've already got the Parade Dress uniform, so skip that unless you're making a new claim.");
-            await _db.RemovePoints(enlisted.Id, 14);
-        }
-        
     }
     
     public async Task HandleFinishKo(IGuildUser kohosei, ITextChannel channel) {
@@ -421,8 +332,8 @@ public class RoleSystem {
 
     public async Task HandleDuoCommand(SocketSlashCommand command) {
 
-        SocketGuildUser member1 = null;
-        SocketGuildUser member2 = null;
+        SocketGuildUser? member1 = null;
+        SocketGuildUser? member2 = null;
 
         foreach (var option in command.Data.Options) {
             switch (option.Name) {
@@ -439,6 +350,11 @@ public class RoleSystem {
             }
         }
 
+        if (member1 == null || member2 == null) {
+            await command.RespondAsync("Couldn't find one of the members!", ephemeral: true);
+            return;
+        }
+        
         await member1.AddRoleAsync(1473369962788950248);
         await member2.AddRoleAsync(1473369962788950248);
 

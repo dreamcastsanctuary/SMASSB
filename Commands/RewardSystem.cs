@@ -1,61 +1,38 @@
 ﻿using Discord;
-using Discord.Interactions;
 using Discord.WebSocket;
 using SMASSB.Exceptions;
+using SMASSB.Models;
 
 namespace SMASSB.Commands;
 
 public class RewardSystem {
 
-    private DatabaseService _db;
+    private readonly DiscordSocketClient _client;
+    private readonly DatabaseService _db;
+    private readonly LogHandler _logHandler;
+    private readonly SocketGuild _guild;
     
-    public RewardSystem(DatabaseService db) {
+    public RewardSystem(DiscordSocketClient client, LogHandler logHandler, DatabaseService db, GuildConfiguration guildConfig) {
+        
+        _client = client;
+        _logHandler = logHandler;
         _db = db;
+        var guildId = guildConfig.GuildId;
+        _guild = client.GetGuild(guildId);
     }
     
-    [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task HandleRewardKoCommand(SocketSlashCommand command) {
 
         await command.DeferAsync();
-        List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
+        var enlisteds = new List<SocketGuildUser>();
 
-        foreach (var option in command.Data.Options)
-        {
-            switch (option.Name) {
-                
-                case "enlisted1":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted2":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted3":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted4":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted5":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted6":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted7":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted8":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted9":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted10":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                default:
-                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
-                    break;
+        foreach (var option in command.Data.Options) {
+            
+            if (option.Name.StartsWith("enlisted")) {
+                enlisteds.Add((SocketGuildUser)option.Value);
+            } else {
+                await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                return;
             }
         }
 
@@ -81,8 +58,8 @@ public class RewardSystem {
         
         foreach (SocketGuildUser enlisted in enlisteds) {
             try {
-                await UserExtensions.SendMessageAsync(enlisted, null, false, embedHeadphones);
-                await UserExtensions.SendMessageAsync(enlisted, null, false, embedSword);
+                await enlisted.SendMessageAsync(null, false, embedHeadphones);
+                await enlisted.SendMessageAsync(null, false, embedSword);
                 await enlisted.RemoveRoleAsync(1537202109336920096);
             } catch (Discord.Net.HttpException ex) {
                 failures.Add(new MessageSendException(enlisted.Username, ex));
@@ -94,33 +71,30 @@ public class RewardSystem {
         }
     }
 
-    [DefaultMemberPermissions(GuildPermission.ManageRoles)]
-    public async Task HandleRewardAccompCommand(SocketSlashCommand command, DiscordSocketClient client) {
+    public async Task HandleRewardAccompCommand(SocketSlashCommand command) {
         
         await command.DeferAsync();
         
-        string[] accompName = {"TRANSFER", "SUPPORTER", "HIGH SCOUTER", "MAX SCOUTER", "PERFECT PITCH", "WORLD-CLASS IDOL", "RIKUGUN BUKŌSHŌ I", "RIKUGUN BUKŌSHŌ II", "REBIRTH", "A NUTRITIOUS BREAKFAST", "STALEMATE"};
-        string[] paradeLocation = {"Left Wing, Main Color 3", "Right Wing, Main Color 3", "Left Wing, Outline 2", "Right Wing, Outline 2", "Left Sleeve, Outline 1", "Left Sleeve, Main Color 5", "Right Sleeve, Outline 1", "Right Sleeve, Main Color 5", "Chest Acc., Color 5"};
-        string[] paradeHex = {"#5d6866", "#5d6866","#839390", "#839390", "#5d6866", "#839390","#5d6866", "#839390", "#839390"};
-        string[] itemPackTrack1 = {"", " and Custom Itempack", "", " and Custom Itempack", "", " and Custom Itempack", " and Custom Itempack", " and Custom Itempack", " and Custom Itempack"};
-        string[] itemPackTrack2 = {"", "\n   - You may change or add ONE item to your tracksuit.", "", "\n   - You may change or add ONE item to your tracksuit.", "", "\n   - You may change or add ONE item to your tracksuit.", "\n   - You may change or add ONE item to your tracksuit.", "\n   - You may change or add ONE item to your tracksuit.", "\n   - You may change or add ONE item to your tracksuit."};
-        string[] itemPackIdol1 = {"Thin Scarf", "Neck Headphones", "Neck Ribbon", "Cravat", "Sleeveless Shirt", "Longer Sleeves", "Heart Headphones", "Flowy Sleeves", "Skirt / Pants Change, Chest Acc. Change,"};
-        string[] itemPackIdol2 = {"Circle Headphones", "No Mask Perms OR Chest Acc. Change", "No Headphones Perms", "Ear Acc. Change (Cannot Remove Them)", "Foreleg Pattern Change", "Spiked Collar", "Heart Front Socks", "No Mask Perms OR Chest Acc. Change", "Hindleg Acc. Change"};
+        string[] accompName = ["TRANSFER", "SUPPORTER", "HIGH SCOUTER", "MAX SCOUTER", "PERFECT PITCH", "WORLD-CLASS IDOL", "RIKUGUN BUKŌSHŌ I", "RIKUGUN BUKŌSHŌ II", "REBIRTH", "A NUTRITIOUS BREAKFAST", "STALEMATE"];
+        string[] paradeLocation = ["Left Wing, Main Color 3", "Right Wing, Main Color 3", "Left Wing, Outline 2", "Right Wing, Outline 2", "Left Sleeve, Outline 1", "Left Sleeve, Main Color 5", "Right Sleeve, Outline 1", "Right Sleeve, Main Color 5", "Chest Acc., Color 5"];
+        string[] paradeHex = ["#5d6866", "#5d6866","#839390", "#839390", "#5d6866", "#839390","#5d6866", "#839390", "#839390"];
+        string[] itemPackTrack1 = ["", " and Custom Itempack", "", " and Custom Itempack", "", " and Custom Itempack", " and Custom Itempack", " and Custom Itempack", " and Custom Itempack"];
+        string[] itemPackTrack2 = ["", "\n   - You may change or add ONE item to your tracksuit.", "", "\n   - You may change or add ONE item to your tracksuit.", "", "\n   - You may change or add ONE item to your tracksuit.", "\n   - You may change or add ONE item to your tracksuit.", "\n   - You may change or add ONE item to your tracksuit.", "\n   - You may change or add ONE item to your tracksuit."];
+        string[] itemPackIdol1 = ["Thin Scarf", "Neck Headphones", "Neck Ribbon", "Cravat", "Sleeveless Shirt", "Longer Sleeves", "Heart Headphones", "Flowy Sleeves", "Skirt / Pants Change, Chest Acc. Change,"];
+        string[] itemPackIdol2 = ["Circle Headphones", "No Mask Perms OR Chest Acc. Change", "No Headphones Perms", "Ear Acc. Change (Cannot Remove Them)", "Foreleg Pattern Change", "Spiked Collar", "Heart Front Socks", "No Mask Perms OR Chest Acc. Change", "Hindleg Acc. Change"];
         
-        var channel = client.GetChannel(1542227176387121182) as ITextChannel;
+        var channel = _guild.GetChannel(1542227176387121182) as ITextChannel;
         var enlisteds = new List<SocketGuildUser>();
         var desc = "";
-        int item = 0;
-        int value = 0;
+        var item = 0;
+        var value = 0;
 
         foreach (var option in command.Data.Options) {
             
             if (option.Name.StartsWith("enlisted")) {
                 enlisteds.Add((SocketGuildUser)option.Value);
-                
             } else if (option.Name == "item") {
                 item = (int)(long)option.Value;
-                
             } else {
                 await command.RespondAsync("Unrecognized command.", ephemeral: true);
                 return;
@@ -130,7 +104,6 @@ public class RewardSystem {
         foreach (var assignedTo in enlisteds) {
 
             desc += "<@" + assignedTo.Id + ">, ";
-
             switch (item) {
 
                 case 1:
@@ -185,15 +158,13 @@ public class RewardSystem {
                     return;
             }
 
-            List<EmbedBuilder> embeds = new List<EmbedBuilder>();
-
-            embeds.Add(new EmbedBuilder()
-                .WithAuthor("Dear Enlistee, you have completed the . . .")
-                .WithTitle(accompName[value - 1] + " ACCOMPLISHMENT!")
-                .WithColor(0xBFA55F)
-                .WithDescription(". . And have been awarded with the following :")
-                .WithThumbnailUrl(
-                    "https://64.media.tumblr.com/7d47f90161168afdb17720c3e645e120/b35d6053bfb9fc2a-03/s400x600/5ed0e321f4aeac2aa3542a520f1df49cbeff1752.pnj"));
+            List<EmbedBuilder> embeds = [new EmbedBuilder()
+                    .WithAuthor("Dear Enlistee, you have completed the . . .")
+                    .WithTitle(accompName[value - 1] + " ACCOMPLISHMENT!")
+                    .WithColor(0xBFA55F)
+                    .WithDescription(". . And have been awarded with the following :")
+                    .WithThumbnailUrl(
+                        "https://64.media.tumblr.com/7d47f90161168afdb17720c3e645e120/b35d6053bfb9fc2a-03/s400x600/5ed0e321f4aeac2aa3542a520f1df49cbeff1752.pnj")];
 
             if (value < 10) {
 
@@ -240,13 +211,13 @@ public class RewardSystem {
             }
 
             foreach (var embed in embeds) {
-                try { await UserExtensions.SendMessageAsync(assignedTo, "", false, embed.Build()); }
+                try { await assignedTo.SendMessageAsync("", false, embed.Build()); }
                 catch (Discord.Net.HttpException ex) { await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message); }
             }
         }
         
         desc = desc.TrimEnd(',', ' ');
-        await channel.SendMessageAsync("## Au__tomatic Messaging Syst__em . . \nPlease congratulate " + desc + " in <#1473211757269876831> \nfor achieving the accomplishment **__" + accompName[value - 1]+ "__**!\n\n<@&1473370613992394864>");
+        if (channel != null) await channel.SendMessageAsync("## Au__tomatic Messaging Syst__em . . \nPlease congratulate " + desc + " in <#1473211757269876831> \nfor achieving the accomplishment **__" + accompName[value - 1]+ "__**!\n\n<@&1473370613992394864>");
         await command.FollowupAsync(text: "Rewarded members with accomplishment " + accompName[value - 1] + ".", ephemeral: true);
     }
 }

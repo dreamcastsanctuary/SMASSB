@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using SMASSB.Models;
 using Image = SixLabors.ImageSharp.Image;
 using Color = Discord.Color;
 
@@ -9,10 +10,18 @@ namespace SMASSB.Commands;
 
 public class ShopSystem {
     
-    private DatabaseService _db;
+    private readonly DiscordSocketClient _client;
+    private readonly DatabaseService _db;
+    private readonly LogHandler _logHandler;
+    private readonly SocketGuild _guild;
     
-    public ShopSystem(DatabaseService db) {
+    public ShopSystem(DiscordSocketClient client, LogHandler logHandler, DatabaseService db, GuildConfiguration guildConfig) {
+        
+        _client = client;
+        _logHandler = logHandler;
         _db = db;
+        var guildId = guildConfig.GuildId;
+        _guild = client.GetGuild(guildId);
     }
     
     public async Task PostShopContents(SocketSlashCommand command) {
@@ -112,13 +121,13 @@ public class ShopSystem {
         
         var channel = command.Channel;
 
-        async Task SendShop(ContainerBuilder container, FileAttachment attachment) { // note for the person fronting later: yes i know this is a bad idea. im sorry
+        async Task SendShop(ContainerBuilder container, FileAttachment attachment) {
             var components = new ComponentBuilderV2()
                 .AddComponent(container)
                 .Build();
 
             await channel.SendFilesAsync(
-                attachments: new[] { attachment },
+                attachments: [attachment],
                 components: components,
                 flags: MessageFlags.ComponentsV2
             );
@@ -134,26 +143,26 @@ public class ShopSystem {
     }
 
     private async Task<FileAttachment> BuildShelfAttachment(string outputFileName, params string[] itemFileNames) {
-        using var shelf = Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "shelf.png"));
+        using var shelf = await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", "shelf.png"));
 
         var loadedItems = new Image[itemFileNames.Length];
-        for (int i = 0; i < itemFileNames.Length; i++) {
-            loadedItems[i] = Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", itemFileNames[i]));
+        for (var i = 0; i < itemFileNames.Length; i++) {
+            loadedItems[i] = await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", itemFileNames[i]));
         }
 
         try {
-            int slotWidth  = shelf.Width / loadedItems.Length;
-            int shelfLineY = (int)(shelf.Height * 0.75); 
+            var slotWidth  = shelf.Width / loadedItems.Length;
+            var shelfLineY = (int)(shelf.Height * 0.75); 
 
             shelf.Mutate(ctx => {
-                for (int i = 0; i < loadedItems.Length; i++) {
+                for (var i = 0; i < loadedItems.Length; i++) {
                     var item = loadedItems[i];
 
-                    bool isCharm = itemFileNames[i].Contains("charm", StringComparison.OrdinalIgnoreCase);
-                    double sizeMultiplier = isCharm ? 1.75 : 1.0;
+                    var isCharm = itemFileNames[i].Contains("charm", StringComparison.OrdinalIgnoreCase);
+                    var sizeMultiplier = isCharm ? 1.75 : 1.0;
 
-                    int maxItemHeight = (int)(shelfLineY * 0.85 * sizeMultiplier);
-                    int maxItemWidth  = (int)(slotWidth * 0.8 * sizeMultiplier);
+                    var maxItemHeight = (int)(shelfLineY * 0.85 * sizeMultiplier);
+                    var maxItemWidth  = (int)(slotWidth * 0.8 * sizeMultiplier);
 
                     if (item.Width > maxItemWidth || item.Height > maxItemHeight) {
                         item.Mutate(o => o.Resize(new ResizeOptions {
@@ -162,12 +171,12 @@ public class ShopSystem {
                         }));
                     }
 
-                    double slotMultiplier = isCharm ? 1.2 : 1.0;
-                    int charmYOffset = isCharm ? 230 : 0;
+                    var slotMultiplier = isCharm ? 1.2 : 1.0;
+                    var charmYOffset = isCharm ? 230 : 0;
                     
-                    int slotCenterX = slotWidth * i + slotWidth / 2;
-                    int x = (int)((slotCenterX - item.Width / 2) * slotMultiplier);
-                    int y = (shelfLineY - item.Height + 100) + charmYOffset;
+                    var slotCenterX = slotWidth * i + slotWidth / 2;
+                    var x = (int) Math.Round((slotCenterX - item.Width / 2.0) * slotMultiplier);
+                    var y = (shelfLineY - item.Height + 100) + charmYOffset;
 
                     ctx.DrawImage(item, new Point(x, y), 1f);
                 }
@@ -184,12 +193,12 @@ public class ShopSystem {
         }
     }
 
-    public async Task Buy(int num, ulong ownerId, ulong channelId, SocketGuild guild) {
+    public async Task Buy(int num, ulong ownerId, ulong channelId) {
 
         var prices = new[] {8000, 3000, 4000, 10000};
-        var channel = guild.GetTextChannel(channelId);
-        string boughtName = null;
-        string alreadyOwnedMessage = null;
+        string? boughtName = null;
+        string? alreadyOwnedMessage = null;
+        string? isApp = "";
 
         switch (num) {
             case 1:
@@ -317,22 +326,23 @@ public class ShopSystem {
                     await _db.GiveNewApp(ownerId, "RHYTHMTENGOKU");
                     boughtName = "Rhythm Tengoku";
                 }
+                isApp = "\nMake sure to run */editworkcell* to add your new app to your homescreen!";
                 break;
         }
         
-        var user = guild.GetUser(ownerId);
+        var user = _guild.GetUser(ownerId);
 
         if (alreadyOwnedMessage != null) {
-            await UserExtensions.SendMessageAsync(user, alreadyOwnedMessage);
+            await user.SendMessageAsync(alreadyOwnedMessage);
             return;
         }
 
         if (boughtName == null) {
-            await UserExtensions.SendMessageAsync(user, "You don't have the funds for this.");
+            await user.SendMessageAsync("You don't have the funds for this.");
             return;
         }
         
-        await UserExtensions.SendMessageAsync(user, $"You've bought a new **{boughtName}**! Enjoy. ^^");
+        await user.SendMessageAsync($"You've bought a new **{boughtName}**! Enjoy. ^^{isApp}");
     }
 
     private async Task<bool> CheckBeforeBuy(ulong ownerId, int num) {

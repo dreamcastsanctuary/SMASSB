@@ -3,24 +3,29 @@ using Discord.Net;
 using Discord.WebSocket;
 using SMASSB.Commands;
 using SMASSB.Exceptions;
+using SMASSB.Models;
 
 namespace SMASSB;
 
 public class ExtraneousHandler {
 
     private readonly DiscordSocketClient _client;
-    private RoleSystem _roleSystem;
-    private PointSystem _pointSystem;
-    private CellSystem _cellSystem;
-    private ShopSystem _shopSystem;
-    private DatabaseService _db;
+    private readonly RoleSystem _roleSystem;
+    private readonly PointSystem _pointSystem;
+    private readonly CellSystem _cellSystem;
+    private readonly ShopSystem _shopSystem;
+    private readonly DatabaseService _db;
+    private readonly LogHandler _logHandler;
+    private SocketGuild _guild;
 
     public ExtraneousHandler(DiscordSocketClient client,
+        LogHandler logHandler,
         RoleSystem roleSystem,
         PointSystem pointSystem,
         CellSystem cellSystem,
         ShopSystem shopSystem,
-        DatabaseService db) {
+        DatabaseService db,
+        GuildConfiguration guildConfig) {
 
         _client = client;
         _roleSystem = roleSystem;
@@ -28,10 +33,12 @@ public class ExtraneousHandler {
         _cellSystem = cellSystem;
         _shopSystem = shopSystem;
         _db = db;
+        _logHandler = logHandler;
+        var guildId = guildConfig.GuildId;
+        _guild = client.GetGuild(guildId);
     }
 
-    public async Task ReactionAddedHandler(SocketGuild guild, Cacheable<IUserMessage, ulong> cache,
-        Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction) {
+    public async Task ReactionAddedHandler(SocketGuild guild, Cacheable<IUserMessage, ulong> cache, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction) {
 
         var user = guild.GetUser(reaction.UserId);
         if (user is null) {
@@ -46,16 +53,14 @@ public class ExtraneousHandler {
             var starEmote = new Emoji("⭐");
 
             var freshMessage = await message.Channel.GetMessageAsync(message.Id) as IUserMessage;
-            int starCount = freshMessage?.Reactions.TryGetValue(starEmote, out var meta) == true
-                ? meta.ReactionCount
-                : 1;
+            var starCount = freshMessage?.Reactions.TryGetValue(starEmote, out var meta) == true ? meta.ReactionCount : 1;
 
             if (starCount < 3) return;
 
             var author = message.Author as SocketGuildUser;
             var builder = new EmbedBuilder()
                 .WithAuthor("|| " + author?.Nickname, author?.GetGuildAvatarUrl() ?? author?.GetAvatarUrl())
-                .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ https://discordapp.com/channels/{guild.Id}/{message.Channel.Id}/{message.Id}")
+                .WithTitle($"⭐ {starCount} stars! ﹒ https://discordapp.com/channels/{guild.Id}/{message.Channel.Id}/{message.Id}")
                 .WithDescription(message.Content)
                 .WithFooter($"{message.Timestamp:M/d/yyyy HH:mm:ss tt}")
                 .WithColor(0xBFA55F);
@@ -63,8 +68,7 @@ public class ExtraneousHandler {
             if (message.Attachments.Count > 0) {
 
                 var attachment = message.Attachments.First();
-                bool isVideo = attachment.ContentType?.StartsWith("video/") == true
-                               || IsVideoExtension(attachment.Filename);
+                var isVideo = attachment.ContentType?.StartsWith("video/") == true || IsVideoExtension(attachment.Filename);
 
                 if (attachment.IsSpoiler()) {
                     var label = isVideo ? "Spoilered video." : "Spoilered image.";
@@ -79,14 +83,13 @@ public class ExtraneousHandler {
             var starboard = guild.GetChannel(1473214696109903883) as ITextChannel;
             if (starboard == null) return;
 
-            string? existingId = _db.GetStarboardMessageId(message.Id);
+            var existingId = _db.GetStarboardMessageId(message.Id);
 
             if (existingId is null) {
 
                 var sent = await starboard.SendMessageAsync(embed: builder.Build());
                 _db.SaveStarboardMessageId(message.Id, sent.Id);
             } else {
-
                 if (ulong.TryParse(existingId, out var existingUlong) &&
                     await starboard.GetMessageAsync(existingUlong) is IUserMessage existing) {
                     await existing.ModifyAsync(m => m.Embed = builder.Build());
@@ -94,80 +97,83 @@ public class ExtraneousHandler {
             }
         }
 
-        if (reaction.MessageId is 1495182123924197396) {
-            // roe
-            if (reaction.Emote is Emote emote) {
-                switch (emote.Id) {
+        switch (reaction.MessageId) {
+            case 1495182123924197396: { // roe
+                if (reaction.Emote is Emote emote) {
+                    switch (emote.Id) {
 
-                    case 1481753776745611505:
-                        await user.AddRoleAsync(1473369383471677461);
-                        break;
-                    case 1481753799071633499:
-                        await user.AddRoleAsync(1475720710910382310);
-                        break;
+                        case 1481753776745611505:
+                            await user.AddRoleAsync(1473369383471677461);
+                            break;
+                        case 1481753799071633499:
+                            await user.AddRoleAsync(1475720710910382310);
+                            break;
+                    }
                 }
-            }
-        } else if (reaction.MessageId is 1515073043184226555) { // roles, personal
-            if (reaction.Emote is Emote emote) {
-                switch (emote.Id) {
+                break;
+            } case 1515073043184226555: { // roles, personal
+                if (reaction.Emote is Emote emote) {
+                    switch (emote.Id) {
 
-                    case 1481753776745611505:
-                        await user.AddRoleAsync(1473370170826428626);
-                        break;
-                    case 1481753799071633499:
-                        await user.AddRoleAsync(1473370195010785464);
-                        break;
-                    case 1481753821637251112:
-                        await user.AddRoleAsync(1473370218259546192);
-                        break;
-                    case 1481753839668564029:
-                        await user.AddRoleAsync(1473370251872698530);
-                        break;
-                    case 1481753863194284032:
-                        await user.AddRoleAsync(1473370274073153708);
-                        break;
-                    case 1481753878834970654:
-                        await user.AddRoleAsync(1473370375739015259);
-                        break;
+                        case 1481753776745611505:
+                            await user.AddRoleAsync(1473370170826428626);
+                            break;
+                        case 1481753799071633499:
+                            await user.AddRoleAsync(1473370195010785464);
+                            break;
+                        case 1481753821637251112:
+                            await user.AddRoleAsync(1473370218259546192);
+                            break;
+                        case 1481753839668564029:
+                            await user.AddRoleAsync(1473370251872698530);
+                            break;
+                        case 1481753863194284032:
+                            await user.AddRoleAsync(1473370274073153708);
+                            break;
+                        case 1481753878834970654:
+                            await user.AddRoleAsync(1473370375739015259);
+                            break;
+                    }
                 }
-            }
+                break;
+            } case 1515073044773736528: { // roles, pings
+                if (reaction.Emote is Emote emote) {
+                    switch (emote.Id) {
 
-        } else if (reaction.MessageId is 1515073044773736528) { // roles, pings
-            if (reaction.Emote is Emote emote) {
-                switch (emote.Id) {
-
-                    case 1481753776745611505:
-                        await user.AddRoleAsync(1473370497524699382);
-                        break;
-                    case 1481753799071633499:
-                        await user.AddRoleAsync(1473370613992394864);
-                        break;
-                    case 1481753821637251112:
-                        await user.AddRoleAsync(1481786695254016020);
-                        break;
-                    case 1481753839668564029:
-                        await user.AddRoleAsync(1477868383524618270);
-                        break;
-                    case 1481753863194284032:
-                        await user.AddRoleAsync(1473370861422772349);
-                        break;
-                    case 1481753878834970654:
-                        await user.AddRoleAsync(1473370973448310980);
-                        break;
-                    case 1481753919624446063:
-                        await user.AddRoleAsync(1473371104604061768);
-                        break;
+                        case 1481753776745611505:
+                            await user.AddRoleAsync(1473370497524699382);
+                            break;
+                        case 1481753799071633499:
+                            await user.AddRoleAsync(1473370613992394864);
+                            break;
+                        case 1481753821637251112:
+                            await user.AddRoleAsync(1481786695254016020);
+                            break;
+                        case 1481753839668564029:
+                            await user.AddRoleAsync(1477868383524618270);
+                            break;
+                        case 1481753863194284032:
+                            await user.AddRoleAsync(1473370861422772349);
+                            break;
+                        case 1481753878834970654:
+                            await user.AddRoleAsync(1473370973448310980);
+                            break;
+                        case 1481753919624446063:
+                            await user.AddRoleAsync(1473371104604061768);
+                            break;
+                    }
                 }
-            }
-        }
-        else if (reaction.MessageId is 1544439498115383429) { // tanabata
-            if (reaction.Emote is Emote emote) {
-                switch (emote.Id) {
+                break;
+            } case 1544439498115383429: { // tanabata
+                if (reaction.Emote is Emote emote) {
+                    switch (emote.Id) {
 
-                    case 1492222638980989138:
-                        await user.AddRoleAsync(1544434735173083207);
-                        break;
+                        case 1492222638980989138:
+                            await user.AddRoleAsync(1544434735173083207);
+                            break;
+                    }
                 }
+                break;
             }
         }
     }
@@ -187,32 +193,28 @@ public class ExtraneousHandler {
             var starEmote = new Emoji("⭐");
 
             var freshMessage = await message.Channel.GetMessageAsync(message.Id) as IUserMessage;
-            int starCount = freshMessage?.Reactions.TryGetValue(starEmote, out var meta) == true
-                ? meta.ReactionCount
-                : 0;
+            var starCount = freshMessage?.Reactions.TryGetValue(starEmote, out var meta) == true ? meta.ReactionCount : 0;
 
             var starboard = guild.GetChannel(1473214696109903883) as ITextChannel;
             if (starboard == null) return;
 
-            string? existingId = _db.GetStarboardMessageId(message.Id);
+            var existingId = _db.GetStarboardMessageId(message.Id);
             if (existingId is null) return;
 
             if (!ulong.TryParse(existingId, out var existingUlong)) return;
 
             if (starCount < 3) {
 
-                if (await starboard.GetMessageAsync(existingUlong) is IUserMessage existing)
-                {
+                if (await starboard.GetMessageAsync(existingUlong) is IUserMessage existing) {
                     await existing.DeleteAsync();
                 }
-
                 _db.DeleteStarboardEntry(message.Id);
             } else {
 
                 var author = message.Author as SocketGuildUser;
                 var builder = new EmbedBuilder()
                     .WithAuthor("|| " + author?.Nickname, author?.GetGuildAvatarUrl() ?? author?.GetAvatarUrl())
-                    .WithTitle($"⭐ {starCount} star{(starCount != 1 ? "s" : "")}! ﹒ https://discordapp.com/channels/{guild.Id}/{message.Channel.Id}/{message.Id}")
+                    .WithTitle($"⭐ {starCount} stars! ﹒ https://discordapp.com/channels/{guild.Id}/{message.Channel.Id}/{message.Id}")
                     .WithDescription(message.Content)
                     .WithFooter($"{message.Timestamp:M/d/yyyy HH:mm:ss tt}")
                     .WithColor(0xBFA55F);
@@ -220,8 +222,7 @@ public class ExtraneousHandler {
                 if (message.Attachments.Count > 0) {
 
                     var attachment = message.Attachments.First();
-                    bool isVideo = attachment.ContentType?.StartsWith("video/") == true
-                                   || IsVideoExtension(attachment.Filename);
+                    var isVideo = attachment.ContentType?.StartsWith("video/") == true || IsVideoExtension(attachment.Filename);
 
                     if (attachment.IsSpoiler()) {
                         var label = isVideo ? "Spoilered video." : "Spoilered image.";
@@ -232,86 +233,90 @@ public class ExtraneousHandler {
                         builder.WithImageUrl(attachment.Url);
                     }
                 }
-
-                if (await starboard.GetMessageAsync(existingUlong) is IUserMessage existing)
-                {
+                
+                if (await starboard.GetMessageAsync(existingUlong) is IUserMessage existing) {
                     await existing.ModifyAsync(m => m.Embed = builder.Build());
                 }
             }
         }
 
-        if (reaction.MessageId is 1495182123924197396) { // roe
-            if (reaction.Emote is Emote emote) {
-                switch (emote.Id) {
+        switch (reaction.MessageId) {
+            case 1495182123924197396: { // roe
+                if (reaction.Emote is Emote emote) {
+                    switch (emote.Id) {
 
-                    case 1481753776745611505:
-                        await user.RemoveRoleAsync(1473369383471677461);
-                        break;
-                    case 1481753799071633499:
-                        await user.RemoveRoleAsync(1475720710910382310);
-                        break;
+                        case 1481753776745611505:
+                            await user.RemoveRoleAsync(1473369383471677461);
+                            break;
+                        case 1481753799071633499:
+                            await user.RemoveRoleAsync(1475720710910382310);
+                            break;
+                    }
                 }
-            }
+                break;
+            } case 1515073043184226555: { // roles, personal
+                if (reaction.Emote is Emote emote) {
+                    switch (emote.Id) {
 
-        } else if (reaction.MessageId is 1515073043184226555) { // roles, personal
-            if (reaction.Emote is Emote emote) {
-                switch (emote.Id) {
-
-                    case 1481753776745611505:
-                        await user.RemoveRoleAsync(1473370170826428626);
-                        break;
-                    case 1481753799071633499:
-                        await user.RemoveRoleAsync(1473370195010785464);
-                        break;
-                    case 1481753821637251112:
-                        await user.RemoveRoleAsync(1473370218259546192);
-                        break;
-                    case 1481753839668564029:
-                        await user.RemoveRoleAsync(1473370251872698530);
-                        break;
-                    case 1481753863194284032:
-                        await user.RemoveRoleAsync(1473370274073153708);
-                        break;
-                    case 1481753878834970654:
-                        await user.RemoveRoleAsync(1473370375739015259);
-                        break;
+                        case 1481753776745611505:
+                            await user.RemoveRoleAsync(1473370170826428626);
+                            break;
+                        case 1481753799071633499:
+                            await user.RemoveRoleAsync(1473370195010785464);
+                            break;
+                        case 1481753821637251112:
+                            await user.RemoveRoleAsync(1473370218259546192);
+                            break;
+                        case 1481753839668564029:
+                            await user.RemoveRoleAsync(1473370251872698530);
+                            break;
+                        case 1481753863194284032:
+                            await user.RemoveRoleAsync(1473370274073153708);
+                            break;
+                        case 1481753878834970654:
+                            await user.RemoveRoleAsync(1473370375739015259);
+                            break;
+                    }
                 }
-            }
-        } else if (reaction.MessageId is 1515073044773736528) { // roles, pings
-            if (reaction.Emote is Emote emote) {
-                switch (emote.Id) {
+                break;
+            } case 1515073044773736528: { // roles, pings
+                if (reaction.Emote is Emote emote) {
+                    switch (emote.Id) {
 
-                    case 1481753776745611505:
-                        await user.RemoveRoleAsync(1473370497524699382);
-                        break;
-                    case 1481753799071633499:
-                        await user.RemoveRoleAsync(1473370613992394864);
-                        break;
-                    case 1481753821637251112:
-                        await user.RemoveRoleAsync(1481786695254016020);
-                        break;
-                    case 1481753839668564029:
-                        await user.RemoveRoleAsync(1477868383524618270);
-                        break;
-                    case 1481753863194284032:
-                        await user.RemoveRoleAsync(1473370861422772349);
-                        break;
-                    case 1481753878834970654:
-                        await user.RemoveRoleAsync(1473370973448310980);
-                        break;
-                    case 1481753919624446063:
-                        await user.RemoveRoleAsync(1473371104604061768);
-                        break;
+                        case 1481753776745611505:
+                            await user.RemoveRoleAsync(1473370497524699382);
+                            break;
+                        case 1481753799071633499:
+                            await user.RemoveRoleAsync(1473370613992394864);
+                            break;
+                        case 1481753821637251112:
+                            await user.RemoveRoleAsync(1481786695254016020);
+                            break;
+                        case 1481753839668564029:
+                            await user.RemoveRoleAsync(1477868383524618270);
+                            break;
+                        case 1481753863194284032:
+                            await user.RemoveRoleAsync(1473370861422772349);
+                            break;
+                        case 1481753878834970654:
+                            await user.RemoveRoleAsync(1473370973448310980);
+                            break;
+                        case 1481753919624446063:
+                            await user.RemoveRoleAsync(1473371104604061768);
+                            break;
+                    }
                 }
-            }
-        } else if (reaction.MessageId is 1544439498115383429) { // tanabata
-            if (reaction.Emote is Emote emote) {
-                switch (emote.Id) {
+                break;
+            } case 1544439498115383429: { // tanabata
+                if (reaction.Emote is Emote emote) {
+                    switch (emote.Id) {
 
-                    case 1492222638980989138:
-                        await user.RemoveRoleAsync(1544434735173083207);
-                        break;
+                        case 1492222638980989138:
+                            await user.RemoveRoleAsync(1544434735173083207);
+                            break;
+                    }
                 }
+                break;
             }
         }
     }
@@ -321,11 +326,9 @@ public class ExtraneousHandler {
         if (after.VoiceChannel?.Id == 1473221413749129367) {
             var category = guild.GetCategoryChannel(1473221350826184734);
 
-            int voiceChannelCount = category.Channels.OfType<SocketVoiceChannel>().Count() - 1;
+            var voiceChannelCount = category.Channels.OfType<SocketVoiceChannel>().Count() - 1;
             var nameCount = voiceChannelCount switch {
-                0 => "i", 1 => "ii", 2 => "iii", 3 => "iv", 4 => "v",
-                5 => "vi", 6 => "vii", 7 => "iix", 8 => "ix", 9 => "x",
-                _ => voiceChannelCount.ToString()
+                0 => "i", 1 => "ii", 2 => "iii", 3 => "iv", 4 => "v", 5 => "vi", 6 => "vii", 7 => "iix", 8 => "ix", 9 => "x", _ => voiceChannelCount.ToString()
             };
 
             var name = "∥・mic・ready・" + nameCount;
@@ -351,13 +354,13 @@ public class ExtraneousHandler {
         }
     }
 
-    public async Task AutoEnlistKohosei(SocketGuild guild) {
+    public async Task AutoEnlistKohosei() {
 
         using var timer = new PeriodicTimer(TimeSpan.FromHours(1));
-        var channel = guild.GetTextChannel(1473516609397063680);
+        var channel = _guild.GetTextChannel(1473516609397063680);
 
         while (await timer.WaitForNextTickAsync()) {
-            IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> collection = guild.GetUsersAsync();
+            IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> collection = _guild.GetUsersAsync();
 
             await foreach (var members in collection) {
                 foreach (var member in members) {
@@ -366,21 +369,21 @@ public class ExtraneousHandler {
                     var isEligible = (await _db.GetPoints(member.Id) >= 15);
                     var overwrite = channel.GetPermissionOverwrite(member);
 
-                    if (isUnenlisted && isEligible && overwrite?.ViewChannel != PermValue.Allow) {
-                        await Task.Delay(1500);
-                        await _roleSystem.HandleFinishKo(member, channel);
-                    }
+                    if (!isUnenlisted || !isEligible || overwrite?.ViewChannel == PermValue.Allow) continue;
+                    
+                    await Task.Delay(1500);
+                    await _roleSystem.HandleFinishKo(member, channel);
                 }
             }
         }
     }
 
-    public async Task KickUnEnlisted(SocketGuild guild) {
+    public async Task KickUnEnlisted() {
 
         using var timer = new PeriodicTimer(TimeSpan.FromDays(3));
 
         while (await timer.WaitForNextTickAsync()) {
-            IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> collection = guild.GetUsersAsync();
+            IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> collection = _guild.GetUsersAsync();
 
             await foreach (var members in collection) {
                 foreach (var user in members) {
@@ -393,25 +396,28 @@ public class ExtraneousHandler {
 
                     ulong[] unverifiedRoles = [1473369716792885402, 1473370059950002318, 1473370439526125599, 1473371454790832304];
 
-                    bool isUnverified = guildUser.Roles
+                    var isUnverified = guildUser != null && guildUser.Roles
                         .Where(r => !r.IsEveryone)
                         .All(r => unverifiedRoles.Contains(r.Id));
 
-                    if ((isCivilian || isProspect || isUnverified) && isInactive) {
+                    if ((!isCivilian && !isProspect && !isUnverified) || !isInactive) continue;
+                    
+                    var channel = _guild.GetChannel(1486431270941622363) as ITextChannel;
 
-                        var channel = guild.GetChannel(1486431270941622363) as ITextChannel;
+                    try {
+                        await user.SendMessageAsync("Hello! This is the *Automatic Messaging System* at the Sangō Idol-Defense Force.\n\nWe are messaging you in regards to your activity. As outlined in our syllabus, prospects and civilians (who are NOT fans) are to be kicked from the server in the case that they are inactive for more than 2 months in order to keep member counts accurate.\n\nWe thank you for attempting to experience Sangō!\n\nIf you feel this is a mistake, please friend request and send a message to *@fastestthingalive* in order to regain access to the server. If it is not, yet you still wish to join back, please give yourself __a week or so__ and do as previously instructed. Just to make sure you *really* want to!\n\nPlease have a good day, " + user.Username + "!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
+                        await user.SendMessageAsync("https://64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj");
+                    } catch (HttpException ex) {
+                        if (channel != null)
+                            await channel.SendMessageAsync(new MessageSendException(ex.Message, ex).Message);
+                    }
 
-                        try {
-                            await UserExtensions.SendMessageAsync(user, "Hello! This is the *Automatic Messaging System* at the Sangō Idol-Defense Force.\n\nWe are messaging you in regards to your activity. As outlined in our syllabus, prospects and civilians (who are NOT fans) are to be kicked from the server in the case that they are inactive for more than 2 months in order to keep member counts accurate.\n\nWe thank you for attempting to experience Sangō!\n\nIf you feel this is a mistake, please friend request and send a message to *@fastestthingalive* in order to regain access to the server. If it is not, yet you still wish to join back, please give yourself __a week or so__ and do as previously instructed. Just to make sure you *really* want to!\n\nPlease have a good day, " + user.Username + "!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
-                            await UserExtensions.SendMessageAsync(user, "https://64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj");
-                        } catch (HttpException ex)
-                        { await channel.SendMessageAsync(new MessageSendException(ex.Message, ex).Message); }
-
-                        try {
-                            await Task.Delay(1500);
-                            await user.KickAsync("Inactive for 2+ months");
-                            await Task.Delay(1000);
-                        } catch (Exception ex) { await channel.SendMessageAsync(ex.Message); }
+                    try {
+                        await Task.Delay(1500);
+                        await user.KickAsync("Inactive for 2+ months");
+                        await Task.Delay(1000);
+                    } catch (Exception ex) {
+                        if (channel != null) await channel.SendMessageAsync(ex.Message);
                     }
                 }
             }
@@ -419,6 +425,7 @@ public class ExtraneousHandler {
     }
 
     public async Task WeeklyEarningsRollover() {
+        
         await _db.InitializeWeeklyBaselines();
         _db.SetLastRolloverTime(DateTimeOffset.UtcNow);
 
@@ -453,7 +460,6 @@ public class ExtraneousHandler {
     public async Task ButtonHandler(SocketMessageComponent component) {
 
         var id = component.Data.CustomId;
-        var guild = _client.GetGuild((1471660035854569505));
 
         if (id.StartsWith("buy_item_")) {
             try {
@@ -466,9 +472,12 @@ public class ExtraneousHandler {
 
                 await component.DeferAsync(ephemeral: true);
 
-                await _shopSystem.Buy(itemNum, buyerId, channelId, guild);
+                await _shopSystem.Buy(itemNum, buyerId, channelId);
+                
             } catch (Exception ex) {
+                await _logHandler.LogExceptionWatch(_guild.Id, exception: ex);
                 Console.WriteLine($"buy_item button error: {ex.Message}");
+                
                 if (!component.HasResponded) {
                     await component.DeferAsync(ephemeral: true);
                 }
@@ -477,7 +486,8 @@ public class ExtraneousHandler {
         }
 
         if (id.StartsWith("flip_over:")) {
-            var statePayload = id.Substring("flip_over:".Length);
+            
+            var statePayload = id["flip_over:".Length..];
             var stateParts = statePayload.Split('|');
 
             if (stateParts.Length < 1 || !ulong.TryParse(stateParts[0], out var flipOwnerId)) return;
@@ -489,11 +499,13 @@ public class ExtraneousHandler {
                 await _cellSystem.HandleFlipOver(component, statePayload, yen, earningsSummary.Item1, earningsSummary.Item3, earningsSummary.Item4);
             } catch (Exception ex) {
                 Console.WriteLine($"flip_over error: {ex}");
+                await _logHandler.LogExceptionWatch(_guild.Id, exception: ex, text: "flip_over error.");
             }
             return;
         }
 
         if (id.StartsWith("launch_emulatorjs:")) {
+            
             try {
                 var payload = id.Substring("launch_emulatorjs:".Length);
                 var payloadParts = payload.Split(':');
@@ -506,6 +518,7 @@ public class ExtraneousHandler {
                 
             } catch (Exception ex) {
                 Console.WriteLine($"launch_emulatorjs button error: {ex.Message}");
+                await _logHandler.LogExceptionWatch(_guild.Id, exception: ex, text: "launch_emulatorjs button error.");
             }
             return;
         }
@@ -518,22 +531,17 @@ public class ExtraneousHandler {
                 int newPage = id.StartsWith("leaderboard_back_") ? currentPage - 1 : currentPage + 1;
 
                 var entries = _db.GetLeaderboard();
-                if (entries == null) {
-                    Console.WriteLine("GetLeaderboard returned null");
-                    return;
-                }
 
                 var embed = _pointSystem.BuildLeaderboardEmbed(entries, newPage);
                 var components = _pointSystem.BuildLeaderboardComponents(newPage, entries.Count);
 
-                if (embed != null && components != null) {
-                    await component.UpdateAsync(x => {
-                        x.Embed = embed;
-                        x.Components = components;
-                    });
-                }
+                await component.UpdateAsync(x => {
+                    x.Embed = embed;
+                    x.Components = components;
+                });
             } catch (Exception ex) {
                 Console.WriteLine($"leaderboard button error: {ex}");
+                await _logHandler.LogExceptionWatch(_guild.Id, exception: ex, text: "leaderboard button error.");
             }
         }
     }
@@ -611,7 +619,7 @@ public class ExtraneousHandler {
     }
 
     private bool IsVideoExtension(string filename) {
-        var videoExts = new[] { ".mp4", ".mov", ".webm", ".mkv", ".avi", ".m4v" };
-        return videoExts.Any(ext => filename.EndsWith(ext, StringComparison.OrdinalIgnoreCase));
+        var videoExtensions = new[] { ".mp4", ".mov", ".webm", ".mkv", ".avi", ".m4v" };
+        return videoExtensions.Any(ext => filename.EndsWith(ext, StringComparison.OrdinalIgnoreCase));
     }
 }

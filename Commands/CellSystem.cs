@@ -9,6 +9,7 @@ using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
 using SMASSB.Data;
 using SMASSB.Exceptions;
+using SMASSB.Models;
 using Image = SixLabors.ImageSharp.Image;
 using Color = SixLabors.ImageSharp.Color;
 
@@ -16,11 +17,19 @@ namespace SMASSB.Commands;
 
 public class CellSystem {
 
-    private DatabaseService _db;
-    private static readonly HttpClient _httpClient = new HttpClient();
+    private readonly DiscordSocketClient _client;
+    private readonly DatabaseService _db;
+    private readonly LogHandler _logHandler;
+    private static readonly HttpClient HttpClient = new HttpClient();
+    private readonly SocketGuild _guild;
 
-    public CellSystem(DatabaseService db) {
+    public CellSystem(DiscordSocketClient client, LogHandler logHandler, DatabaseService db, GuildConfiguration guildConfig) {
+        
+        _client = client;
+        _logHandler = logHandler;
         _db = db;
+        var guildId = guildConfig.GuildId;
+        _guild = client.GetGuild(guildId);
     }
 
     public static async Task BuildCell(SocketSlashCommand command,
@@ -34,22 +43,17 @@ public class CellSystem {
                                          double percentChange,
                                          bool isIncrease) {
 
-        if (member == null) {
-            await command.FollowupAsync("Could not find that user.", ephemeral: true);
-            return;
-        }
-
         var ownerId = member.Id;
-        var hasTengokuApp = appsParam.Contains(AppType.RHYTHMTENGOKU.ToString());
-        var hasMadouApp = appsParam.Contains(AppType.MADOUMONOGATARI.ToString());
-        var hasPuyoApp = appsParam.Contains(AppType.PUYOPUYOFEVER.ToString());
-        var hasLeafGreenApp = appsParam.Contains(AppType.POKEMONLEAFGREEN.ToString());
-        var hasTetrisApp = appsParam.Contains(AppType.TETRIS.ToString());
-        var hasTomodachiApp = appsParam.Contains(AppType.TOMODACHICOLLECTION.ToString());
-        var hasSonicAdvanceApp = appsParam.Contains(AppType.SONICADVANCE.ToString());
-        var hasWarioApp = appsParam.Contains(AppType.WARIOWARE.ToString());
-        var hasShantaeApp = appsParam.Contains(AppType.SHANTAE.ToString());
-        var hasHeavenApp = appsParam.Contains(AppType.RHYTHMHEAVEN.ToString());
+        var hasTengokuApp = appsParam.Contains(nameof(AppType.RHYTHMTENGOKU));
+        var hasMadouApp = appsParam.Contains(nameof(AppType.MADOUMONOGATARI));
+        var hasPuyoApp = appsParam.Contains(nameof(AppType.PUYOPUYOFEVER));
+        var hasLeafGreenApp = appsParam.Contains(nameof(AppType.POKEMONLEAFGREEN));
+        var hasTetrisApp = appsParam.Contains(nameof(AppType.TETRIS));
+        var hasTomodachiApp = appsParam.Contains(nameof(AppType.TOMODACHICOLLECTION));
+        var hasSonicAdvanceApp = appsParam.Contains(nameof(AppType.SONICADVANCE));
+        var hasWarioApp = appsParam.Contains(nameof(AppType.WARIOWARE));
+        var hasShantaeApp = appsParam.Contains(nameof(AppType.SHANTAE));
+        var hasHeavenApp = appsParam.Contains(nameof(AppType.RHYTHMHEAVEN));
 
         var appFlags = (hasTengokuApp ? 1 : 0)
                        | (hasMadouApp ? 2 : 0)
@@ -103,7 +107,7 @@ public class CellSystem {
             
             try {
                 await member.SendFilesAsync(
-                    attachments: new[] { cellAttachment },
+                    attachments: [cellAttachment],
                     components: components
                 );
             }
@@ -119,7 +123,7 @@ public class CellSystem {
                 .Build();
             
             await command.FollowupWithFilesAsync(
-                attachments: new[] { cellAttachment },
+                attachments: [cellAttachment],
                 components: components
             );
         }
@@ -137,14 +141,12 @@ public class CellSystem {
         var payload = new { type = 12 };
         var json = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
 
-        var response = await _httpClient.PostAsync(
-            $"https://discord.com/api/v10/interactions/{component.Id}/{component.Token}/callback",
-            json
-        );
+        var response = await HttpClient.PostAsync($"https://discord.com/api/v10/interactions/{component.Id}/{component.Token}/callback", json);
 
         if (!response.IsSuccessStatusCode) {
             var errorBody = await response.Content.ReadAsStringAsync();
             Console.WriteLine($"LaunchActivity failed: {response.StatusCode} - {errorBody}");
+            await _logHandler.LogExceptionWatch(_guild.Id, text: $"LaunchActivity failed: {response.StatusCode} - {errorBody}");
             await component.RespondAsync("Couldn't launch the app... Ask for help!", ephemeral: true);
         }
     }
@@ -209,11 +211,10 @@ public class CellSystem {
 
             foreach (var rowButtons in appButtons.Chunk(maxButtonsPerRow)) {
                 var actionRow = new ActionRowBuilder();
-
+                
                 foreach (var (label, game) in rowButtons) {
                     actionRow.WithButton(label, customId: $"launch_emulatorjs:{ownerId}:{game}", style: ButtonStyle.Success);
                 }
-
                 container.AddComponent(actionRow);
             }
 
@@ -227,6 +228,7 @@ public class CellSystem {
             });
         } catch (Exception ex) {
             Console.WriteLine($"HandleFlipOver failed: {ex}");
+            await _logHandler.LogExceptionWatch(_guild.Id, exception: ex, text: "HandleFlipOver failed.");
 
             if (!component.HasResponded) {
                 await component.RespondAsync("Something went wrong flipping the cell.", ephemeral: true);
@@ -308,12 +310,11 @@ public class CellSystem {
         var casePath = Path.Combine(AppContext.BaseDirectory, "Images", caseFile);
         var wallpaperPath = Path.Combine(AppContext.BaseDirectory, "Images", wallpaperFile);
 
-        using var cellCase = Image.Load(casePath);
-        using var wallpaper = Image.Load(wallpaperPath);
-        using var charm = string.IsNullOrEmpty(charmFile) ? null : Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", charmFile + (isFront ? "-front.png" : "-back.png")));
+        var cellCase = Image.Load(casePath);
+        var wallpaper = Image.Load(wallpaperPath);
+        var charm = string.IsNullOrEmpty(charmFile) ? null : Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", charmFile + (isFront ? "-front.png" : "-back.png")));
 
         using var clone = cellCase.Clone(ipc => {
-
             if (isFront) {
 
                 if (charm != null) {
@@ -392,6 +393,7 @@ public class CellSystem {
                 }
             }
         });
+        
         var outputStream = new MemoryStream();
         clone.Save(outputStream, new PngEncoder());
         outputStream.Position = 0;
@@ -424,16 +426,16 @@ public class CellSystem {
         return $"¥{currentWeekEarnings:N0} this week ({arrow} {Math.Abs(percentChange):F1}%)";
     }
 
-    public async Task EditWorkCell(SocketSlashCommand command, DiscordSocketClient client) {
+    public async Task EditWorkCell(SocketSlashCommand command) {
 
         await command.DeferAsync();
 
-        SocketGuildUser enlisted = (SocketGuildUser)command.User;
-        string addedApp = null;
-        string removedApp = null;
-        string cellCase = null;
-        string charm = null;
-        string wallpaper = null;
+        var enlisted = (SocketGuildUser)command.User;
+        string? addedApp = null;
+        string? removedApp = null;
+        string? cellCase = null;
+        string? charm = null;
+        string? wallpaper = null;
 
         foreach (var option in command.Data.Options) {
             switch (option.Name) {
@@ -483,8 +485,8 @@ public class CellSystem {
         var charmParam = await _db.GetCharmType(enlisted.Id);
         var wallpaperParam = await _db.GetWallpaperType(enlisted.Id);
         var appsParam = await _db.GetApps(enlisted.Id);
-        var (currentWeekEarnings, previousWeekEarnings, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
-        var member = client.GetGuild((ulong)command.GuildId).GetUser(enlisted.Id);
+        var (currentWeekEarnings, _, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
+        var member = _guild.GetUser(enlisted.Id);
 
         if (member == null) {
             await command.FollowupAsync("Could not find that user.", ephemeral: true);
@@ -494,7 +496,7 @@ public class CellSystem {
         await BuildCell(command, member, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id), currentWeekEarnings, percentChange, isIncrease);
     }
 
-    public async Task ShowWorkCell(SocketSlashCommand command, DiscordSocketClient client) {
+    public async Task ShowWorkCell(SocketSlashCommand command) {
 
         await command.DeferAsync();
         SocketGuildUser enlisted = (SocketGuildUser)command.User;
@@ -515,8 +517,8 @@ public class CellSystem {
         var charmParam = await _db.GetCharmType(enlisted.Id);
         var wallpaperParam = await _db.GetWallpaperType(enlisted.Id);
         var appsParam = await _db.GetApps(enlisted.Id);
-        var (currentWeekEarnings, previousWeekEarnings, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
-        var member = client.GetGuild((ulong)command.GuildId).GetUser(enlisted.Id);
+        var (currentWeekEarnings, _, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
+        var member = _guild.GetUser(enlisted.Id);
 
         if (member == null) {
             await command.FollowupAsync("Could not find that user.", ephemeral: true);
@@ -528,42 +530,14 @@ public class CellSystem {
 
     public async Task EditYen(SocketSlashCommand command, bool add) {
 
-        List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
+        var enlisteds = new List<SocketGuildUser>();
         var yen = 0;
 
         foreach (var option in command.Data.Options) {
-            switch (option.Name) {
-
-                case "enlisted1":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted2":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted3":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted4":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted5":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted6":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted7":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted8":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted9":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted10":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
+            
+            if (option.Name.StartsWith("enlisted")) {
+                enlisteds.Add((SocketGuildUser)option.Value);
+            } else switch (option.Name) {
                 case "amount":
                     yen = (int)(long)option.Value;
                     break;
@@ -588,11 +562,11 @@ public class CellSystem {
 
         await command.DeferAsync();
 
-        SocketGuildUser member = null;
-        string app = null;
-        string caseType = null;
-        string charmType = null;
-        string wallpaperType = null;
+        SocketGuildUser? member = null;
+        string? app = null;
+        string? caseType = null;
+        string? charmType = null;
+        string? wallpaperType = null;
 
         foreach (var option in command.Data.Options) {
             switch (option.Name) {

@@ -37,6 +37,30 @@ public class DatabaseService
                 Recruits INTEGER NOT NULL DEFAULT 0
             );
 
+            CREATE TABLE IF NOT EXISTS EnlistedHistory (
+                UserId TEXT PRIMARY KEY,
+                Claim TEXT,
+                AvatarUrl TEXT NOT NULL,
+                AvatarImage BLOB,
+                Rank TEXT NOT NULL,
+                Points INTEGER DEFAULT 0,
+                Bloodtype TEXT NOT NULL,
+                IDType TEXT NOT NULL,
+                Yen INTEGER NOT NULL DEFAULT 0,
+                Recruits INTEGER NOT NULL DEFAULT 0,
+                Cases TEXT,
+                CaseType TEXT,
+                Wallpapers TEXT,
+                WallpaperType TEXT,
+                Charms TEXT,
+                CharmType TEXT,
+                Apps TEXT,
+                AppsCollected TEXT,
+                IdsCollected TEXT NOT NULL,
+                Frames TEXT,
+                FrameType TEXT
+            );
+
             CREATE TABLE IF NOT EXISTS Id (
                 UserId TEXT PRIMARY KEY,
                 Collected TEXT NOT NULL,
@@ -70,16 +94,6 @@ public class DatabaseService
                 IsFan TINYINT NOT NULL DEFAULT 0
             );
 
-            CREATE TABLE IF NOT EXISTS EnrolledHistory (
-                UserId TEXT PRIMARY KEY,
-                Claim TEXT,
-                Rank TEXT NOT NULL,
-                Points INTEGER DEFAULT 0,
-                Recruits INTEGER NOT NULL DEFAULT 0,
-                IDType TEXT NOT NULL,
-                Username TEXT NOT NULL
-            );
-
             CREATE TABLE IF NOT EXISTS Starboard (
                 OriginalId TEXT PRIMARY KEY,
                 StarboardId TEXT NOT NULL
@@ -104,72 +118,6 @@ public class DatabaseService
         
         command.ExecuteNonQuery();
         MigrateWorkCellTable(connection);
-    }
-    
-    private void MigrateWorkCellTable(SqliteConnection connection) {
-
-        var columnInfo = new Dictionary<string, bool>();
-
-        var pragmaCmd = connection.CreateCommand();
-        pragmaCmd.CommandText = "PRAGMA table_info(WorkCell);";
-
-        using (var reader = pragmaCmd.ExecuteReader()) {
-            while (reader.Read()) {
-                var name = reader.GetString(reader.GetOrdinal("name"));
-                var notNull = reader.GetInt32(reader.GetOrdinal("notnull")) == 1;
-                columnInfo[name] = notNull;
-            }
-        }
-
-        void AddColumnIfMissing(string columnName) {
-            if (columnInfo.ContainsKey(columnName)) return;
-
-            var alterCmd = connection.CreateCommand();
-            alterCmd.CommandText = $"ALTER TABLE WorkCell ADD COLUMN {columnName} TEXT;";
-            alterCmd.ExecuteNonQuery();
-            columnInfo[columnName] = false;
-        }
-
-        AddColumnIfMissing("CaseType");
-        AddColumnIfMissing("WallpaperType");
-        AddColumnIfMissing("CharmType");
-        AddColumnIfMissing("WeekStartYen");
-        AddColumnIfMissing("PreviousEarnings");
-        
-        var needsRebuild = (columnInfo.TryGetValue("Cases", out var casesNotNull) && casesNotNull)
-                         || (columnInfo.TryGetValue("Wallpapers", out var wallpapersNotNull) && wallpapersNotNull);
-
-        if (!needsRebuild) return;
-
-        using var transaction = connection.BeginTransaction();
-
-        var rebuildCmd = connection.CreateCommand();
-        rebuildCmd.Transaction = transaction;
-        rebuildCmd.CommandText = @"
-            CREATE TABLE WorkCell_new (
-                UserId TEXT PRIMARY KEY,
-                Yen INTEGER NOT NULL DEFAULT 0,
-                Cases TEXT,
-                CaseType TEXT,
-                Wallpapers TEXT,
-                WallpaperType TEXT,
-                Charms TEXT,
-                CharmType TEXT,
-                Apps TEXT,
-                Collected TEXT
-            );
-
-            INSERT INTO WorkCell_new (UserId, Yen, Cases, CaseType, Wallpapers, WallpaperType, Charms, CharmType, Apps, Collected)
-            SELECT UserId, Yen, Cases, CaseType, Wallpapers, WallpaperType, Charms, CharmType, Apps, Collected
-            FROM WorkCell;
-
-            DROP TABLE WorkCell;
-
-            ALTER TABLE WorkCell_new RENAME TO WorkCell;
-        ";
-        rebuildCmd.ExecuteNonQuery();
-
-        transaction.Commit();
     }
 
     public async Task PreEnlist(SocketSlashCommand command,
@@ -224,135 +172,55 @@ public class DatabaseService
         await member.AddRoleAsync(1537202109336920096);
     }
 
-    public async Task GiveCell(SocketSlashCommand command) {
-
-        await command.DeferAsync();
-
-        foreach (var enlisted in GetEnlisted()) {
-            
-            await RemoveAllApps(ulong.Parse(enlisted));
-            await RemoveAppsFromHome(ulong.Parse(enlisted), "RHYTHMTENGOKU");
-            await RemoveCase(ulong.Parse(enlisted), "BLACK");
-            await RemoveCharm(ulong.Parse(enlisted), "NONE");
-            await RemoveWallpaper(ulong.Parse(enlisted), "BASIC");
-            
-            await GiveNewCase(ulong.Parse(enlisted), "BLACK");
-            await SetCaseType(ulong.Parse(enlisted), "BLACK");
-            await GiveNewCharm(ulong.Parse(enlisted), "NONE");
-            await SetCharmType(ulong.Parse(enlisted), "NONE");
-            await GiveNewWallpaper(ulong.Parse(enlisted), "BASIC");
-            await SetWallpaperType(ulong.Parse(enlisted), "BASIC");
-        }
-        
-        await command.FollowupAsync("Done.");
-    }
-    
-// UNENROLL CHECK COMMANDS.
-    
-    /**
-     * For use when checking if someone was previously enrolled.
-     */
-    
-    public async Task<string> UnenrolledExists(ulong userId, DiscordSocketClient client) {
-    
-        using var connection = new SqliteConnection(_connectionString);
-        await connection.OpenAsync();
-
-        var command = connection.CreateCommand();
-        command.CommandText = "SELECT COUNT(1) FROM Unenrolled WHERE UserId = $id;";
-        command.Parameters.AddWithValue("$id", userId.ToString());
-
-        var result = await command.ExecuteScalarAsync();
-        var ans = Convert.ToInt32(result) > 0;
-
-        if (ans) {
-            var user = client.GetUser(userId) as SocketGuildUser;
-            if (user != null) {
-                await user.AddRoleAsync(1473369036766052445);
-                await TransferFromUnenrolledToEnrolled(userId, client);
-
-                return "This user was " + await GetUClaim(userId) + "before, had ***" + await GetUPoints(userId) +
-                       "*** points, and was ranked ***" + await GetURank(userId) +
-                       "***.\nRanks, points, automatically, anything else can be done by the enlistee / staff.";
-            }
-        }
-        return "This user was not enlisted fully!";
-    }
-
-    private async Task<int> GetUPoints(ulong userId) {
-        
-        using var connection = new SqliteConnection(_connectionString);
-        await connection.OpenAsync();
-
-        var command = connection.CreateCommand();
-        command.CommandText = "SELECT Points FROM Unenrolled WHERE UserId = $id;";
-        command.Parameters.AddWithValue("$id", userId.ToString());
-
-        var result = await command.ExecuteScalarAsync();
-        return result != null ? Convert.ToInt32(result) : 0;
-    }
-
-    public async Task TransferFromEnrolledToUnenrolled(ulong userId) {
-
-        using var connection = new SqliteConnection(_connectionString);
-        await connection.OpenAsync();
-
-        var command = connection.CreateCommand();
-        command.CommandText = "INSERT INTO Unenrolled (UserId, Claim, Rank, Points, Username) SELECT UserId, Claim, Rank, Points, Username FROM Enrolled WHERE UserId = $id;";
-        command.Parameters.AddWithValue("$id", userId.ToString());
-        await command.ExecuteNonQueryAsync();
-        
-        var command2 = connection.CreateCommand();
-        command2.CommandText = "DELETE FROM Enrolled WHERE UserId = $id;";
-        command2.Parameters.AddWithValue("$id", userId.ToString());
-        await command2.ExecuteNonQueryAsync();
-    }
-
-    private async Task TransferFromUnenrolledToEnrolled(ulong userId, DiscordSocketClient client) {
-        
-        using var connection = new SqliteConnection(_connectionString);
-        await connection.OpenAsync();
-
-        var command = connection.CreateCommand();
-        command.CommandText = "INSERT INTO Enrolled (UserId, Claim, Rank, Points, Username) SELECT UserId, Claim, Rank, Points, Username FROM Unenrolled WHERE UserId = $id;";
-        command.Parameters.AddWithValue("$id", userId.ToString());
-        await command.ExecuteNonQueryAsync();
-
-        await TransferURankToERank(userId, await GetURank(userId), client);
-    }
-
-    private async Task TransferURankToERank(ulong userId, string uRank, DiscordSocketClient client) {
-        
-        var student = client.GetUser(userId) as SocketGuildUser;
-
-        if (student != null) {
-            if (uRank.Equals("Nitō Shi"))
-                await student.AddRoleAsync(1475886748268625962);
-            else if (uRank.Equals("Ittō Shi"))
-                await student.AddRoleAsync(1475886729561899212);
-            else if (uRank.Equals("Shichō"))
-                await student.AddRoleAsync(1475886715368509753);
-            else if (uRank.Equals("Santō Sō"))
-                await student.AddRoleAsync(1475886697118957660);
-            else if (uRank.Equals("Nitō Sō"))
-                await student.AddRoleAsync(1475886671919579310);
-            else if (uRank.Equals("Ittō Sō"))
-                await student.AddRoleAsync(1475886657545961472);
-            else
-                await student.AddRoleAsync(1475886640429011125);
-        }
-    }
-
     public async Task Remove(ulong userId) {
         
         using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
         
         var command = connection.CreateCommand();
-        command.CommandText = @"DELETE FROM Enrolled WHERE UserId = $id;
-                                DELETE FROM Id WHERE UserId = $id;";
+        command.CommandText = @"
+                                INSERT INTO EnlistedHistory (UserId, Claim, AvatarUrl, AvatarImage, Rank,Points,Bloodtype,IDType,Yen,Recruits,Cases,CaseType,Wallpapers,WallpaperType,Charms,CharmType,Apps,AppsCollected,IdsCollected,Frames) 
+                                VALUES ($id,$claim,$avatarUrl,$avatarImage,$rank,$points,$bloodtype,$idtype,$yen,$recruits,$cases,$caseType,$wallpapers,$wallpaperType,$charms,$charmType,$apps,$appsCollected,$idsCollected,$frames)";
+        
         command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$claim", await GetClaim(userId));
+        command.Parameters.AddWithValue("$avatarUrl", await GetAvatarUrl(userId));
+        command.Parameters.AddWithValue("$avatarImage", await GetAvatarImage(userId));
+        command.Parameters.AddWithValue("$rank", await GetRank(userId));
+        command.Parameters.AddWithValue("$points", await GetPoints(userId));
+        command.Parameters.AddWithValue("$bloodtype", await GetBloodtype(userId));
+        command.Parameters.AddWithValue("$idtype", await GetIdType(userId));
+        command.Parameters.AddWithValue("$yen", await GetYen(userId));
+        command.Parameters.AddWithValue("$recruits", await GetRecruits(userId));
+        command.Parameters.AddWithValue("$caseType", await GetCaseType(userId));
+        command.Parameters.AddWithValue("$wallpaperType", await GetWallpaperType(userId));
+        command.Parameters.AddWithValue("$charmType", await GetCharmType(userId));
+        command.Parameters.AddWithValue("$cases", JsonSerializer.Serialize(await GetCases(userId)));
+        command.Parameters.AddWithValue("$wallpapers", JsonSerializer.Serialize(await GetWallpapers(userId)));
+        command.Parameters.AddWithValue("$charms", JsonSerializer.Serialize(await GetCharms(userId)));
+        command.Parameters.AddWithValue("$apps", JsonSerializer.Serialize(await GetApps(userId)));
+        command.Parameters.AddWithValue("$appsCollected", JsonSerializer.Serialize(await GetCollectedApps(userId)));
+        command.Parameters.AddWithValue("$idsCollected", JsonSerializer.Serialize(await GetIds(userId)));
+        command.Parameters.AddWithValue("$frames", JsonSerializer.Serialize(await GetFrames(userId)));
+        
         await command.ExecuteNonQueryAsync();
+        
+        var tables = new[] { "Enrolled", "Id", "WorkCell", "Addons", "PendingGame" };
+    
+        foreach (var table in tables) {
+            var deleteCmd = connection.CreateCommand();
+            deleteCmd.CommandText = $"DELETE FROM {table} WHERE UserId = $id;";
+            deleteCmd.Parameters.AddWithValue("$id", userId.ToString());
+            
+            await deleteCmd.ExecuteNonQueryAsync();
+        }
+    }
+
+    public async Task ReinstateEnlistment(ulong userId, DiscordSocketClient client) {
+        // add everything into the correct database shit.
+        // perform what preenlist does lol.
+        // correct roles and shit lol
+        // dm the person
     }
 
     public async Task<int> GetPoints(ulong userId) {
@@ -1737,6 +1605,72 @@ public class DatabaseService
         }
 
         return (currentWeekEarnings, previousWeekEarnings, percentChange, percentChange >= 0);
+    }
+    
+    private void MigrateWorkCellTable(SqliteConnection connection) {
+
+        var columnInfo = new Dictionary<string, bool>();
+
+        var pragmaCmd = connection.CreateCommand();
+        pragmaCmd.CommandText = "PRAGMA table_info(WorkCell);";
+
+        using (var reader = pragmaCmd.ExecuteReader()) {
+            while (reader.Read()) {
+                var name = reader.GetString(reader.GetOrdinal("name"));
+                var notNull = reader.GetInt32(reader.GetOrdinal("notnull")) == 1;
+                columnInfo[name] = notNull;
+            }
+        }
+
+        void AddColumnIfMissing(string columnName) {
+            if (columnInfo.ContainsKey(columnName)) return;
+
+            var alterCmd = connection.CreateCommand();
+            alterCmd.CommandText = $"ALTER TABLE WorkCell ADD COLUMN {columnName} TEXT;";
+            alterCmd.ExecuteNonQuery();
+            columnInfo[columnName] = false;
+        }
+
+        AddColumnIfMissing("CaseType");
+        AddColumnIfMissing("WallpaperType");
+        AddColumnIfMissing("CharmType");
+        AddColumnIfMissing("WeekStartYen");
+        AddColumnIfMissing("PreviousEarnings");
+        
+        var needsRebuild = (columnInfo.TryGetValue("Cases", out var casesNotNull) && casesNotNull)
+                         || (columnInfo.TryGetValue("Wallpapers", out var wallpapersNotNull) && wallpapersNotNull);
+
+        if (!needsRebuild) return;
+
+        using var transaction = connection.BeginTransaction();
+
+        var rebuildCmd = connection.CreateCommand();
+        rebuildCmd.Transaction = transaction;
+        rebuildCmd.CommandText = @"
+            CREATE TABLE WorkCell_new (
+                UserId TEXT PRIMARY KEY,
+                Yen INTEGER NOT NULL DEFAULT 0,
+                Cases TEXT,
+                CaseType TEXT,
+                Wallpapers TEXT,
+                WallpaperType TEXT,
+                Charms TEXT,
+                CharmType TEXT,
+                Apps TEXT,
+                Collected TEXT
+            );
+
+            INSERT INTO WorkCell_new (UserId, Yen, Cases, CaseType, Wallpapers, WallpaperType, Charms, CharmType, Apps, Collected)
+            SELECT UserId, Yen, Cases, CaseType, Wallpapers, WallpaperType, Charms, CharmType, Apps, Collected
+            FROM WorkCell;
+
+            DROP TABLE WorkCell;
+
+            ALTER TABLE WorkCell_new RENAME TO WorkCell;
+        ";
+        rebuildCmd.ExecuteNonQuery();
+
+        transaction.Commit();
     }
 
     public async Task InitializeWeeklyBaselines() {

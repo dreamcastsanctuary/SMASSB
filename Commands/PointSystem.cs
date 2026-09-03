@@ -1,8 +1,5 @@
-﻿using System.Linq;
-using System.Net.Http.Json;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Discord;
-using Discord.Interactions;
 using Discord.WebSocket;
 using SMASSB.Exceptions;
 using SMASSB.Models;
@@ -11,22 +8,29 @@ namespace SMASSB.Commands;
 
 public class PointSystem {
     
-    private DatabaseService _db;
-    private static readonly HttpClient _internalClient = new HttpClient {
+    private readonly DiscordSocketClient _client;
+    private readonly DatabaseService _db;
+    private readonly SocketGuild _guild;
+    private readonly LogHandler _logHandler;
+    private static readonly HttpClient HttpClient = new HttpClient {
         BaseAddress = new Uri(Environment.GetEnvironmentVariable("BOT_B_API_URL") ?? throw new Exception("BOT_B_API_URL environment variable not set.")),
         DefaultRequestHeaders = { { "X-Internal-Key", Environment.GetEnvironmentVariable("INTERNAL_API_KEY") } }
     };
     
-    public PointSystem(DatabaseService db) {
+    public PointSystem(DiscordSocketClient client, LogHandler logHandler, DatabaseService db, GuildConfiguration guildConfig) {
+        
+        _client = client;
+        _logHandler = logHandler;
         _db = db;
+        var guildId = guildConfig.GuildId;
+        _guild = client.GetGuild(guildId);
     }
 
     public async Task ShowPoints(SocketSlashCommand command) {
         
         SocketGuildUser member = (SocketGuildUser)command.User;
         
-        foreach (var option in command.Data.Options)
-        {
+        foreach (var option in command.Data.Options) {
             switch (option.Name) {
                 
                 case "member":
@@ -41,7 +45,7 @@ public class PointSystem {
         int points;
         try { points = await _db.GetPoints(member.Id); } catch { await command.RespondAsync("Forgot to enlist someone?"); return; }
 
-        Embed embed = (new EmbedBuilder()
+        var embed = (new EmbedBuilder()
             .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())
             .WithTitle("❖﹒Points . .")
             .WithDescription("This member has earned ***" + points + "*** points.")
@@ -51,49 +55,18 @@ public class PointSystem {
         await command.RespondAsync(embed: embed);
     }
 
-    [DefaultMemberPermissions(GuildPermission.ManageRoles)]
     public async Task EditPoints(SocketSlashCommand command, bool add) {
         
-        List<SocketGuildUser> enlisteds = new List<SocketGuildUser>();
+        var enlisteds = new List<SocketGuildUser>();
         var points = 0;
         var recruits = 0;
         var currency = 0;
         
-        foreach (var option in command.Data.Options)
-        {
-            switch (option.Name) {
-                
-                case "enlisted1":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted2":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted3":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted4":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted5":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted6":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted7":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted8":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted9":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                case "enlisted10":
-                    enlisteds.Add(((SocketGuildUser)option.Value));
-                    break;
-                
+        foreach (var option in command.Data.Options) {
+            
+            if (option.Name.StartsWith("enlisted")) {
+                enlisteds.Add((SocketGuildUser)option.Value);
+            } else switch (option.Name) {
                 case "amount":
                     points = (int)(long) option.Value;
                     break;
@@ -112,44 +85,26 @@ public class PointSystem {
         await command.DeferAsync();
         var currencyFailures = new List<CurrencySyncException>();
         
-        foreach (SocketGuildUser member in enlisteds)
-        {
-            EmbedBuilder embedBuilder = new EmbedBuilder();
+        foreach (var member in enlisteds) {
+            var embedBuilder = new EmbedBuilder();
+            
             if (add) {
                 await _db.AddPoints(member.Id, points);
                 await _db.AddRecruits(member.Id, recruits);
                 var current = await _db.GetPoints(member.Id);
                 var currentR = await _db.GetRecruits(member.Id);
-            
-                var s = "s";
-                if (current == 1) { s = ""; }
-
-                var sPre = "s";
-                if (points == 1) { sPre = ""; }
-
-                var sR = "s";
-                if (currentR == 1) { sR = ""; }
-                
-                var sPreR = "s";
-                if (recruits == 1) { sPreR = ""; }
 
                 if (recruits == 0) {
-                    embedBuilder.WithDescription("This member has been given ***" + points + "*** point" + sPre + ", and now has ***" + current + "*** point" + s + ".");
+                    embedBuilder.WithDescription("This member has been given ***" + points + "*** point" + (points == 1 ? "" : "s") + ", and now has ***" + current + "*** point" + (current == 1 ? "" : "s") + ".");
                 } else {
-                    embedBuilder.WithDescription("This member has been given ***" + points + "*** point" + sPre +",\nand now has ***" + current + "*** point" + s + ".\n\nThey've also scouted ***" + recruits + "*** recruit" + sPreR + ", and now has scouted ***" + currentR + "*** recruit" + sR + " in total!");
+                    embedBuilder.WithDescription("This member has been given ***" + points + "*** point" + (points == 1 ? "" : "s") +",\nand now has ***" + current + "*** point" + (current == 1 ? "" : "s") + ".\n\nThey've also scouted ***" + recruits + "*** recruit" + (recruits == 1 ? "" : "s") + ", and now has scouted ***" + currentR + "*** recruit" + (currentR == 1 ? "" : "s") + " in total!");
                 }
                 
             } else {
                 await _db.RemovePoints(member.Id, points);
                 var current = await _db.GetPoints(member.Id);
             
-                var s = "s";
-                if (current == 1) { s = ""; }
-                
-                var sPre = "s";
-                if (points == 1) { sPre = ""; }
-            
-                embedBuilder.WithDescription("You have removed ***" + points + "*** point" + sPre + " from this member.\nThey now have ***" + current + "*** point" + s + ".");
+                embedBuilder.WithDescription("You have removed ***" + points + "*** point" + (points == 1 ? "" : "s") + " from this member.\nThey now have ***" + current + "*** point" + (current == 1 ? "" : "s") + ".");
             }
 
             embedBuilder
@@ -158,16 +113,17 @@ public class PointSystem {
                 .WithColor(0xBFA55F);
         
             await command.FollowupAsync(embed: embedBuilder.Build());
+
+            if (currency == 0) continue;
             
-            if (currency != 0) {
-                
-                try {
-                    var response = await _internalClient.PostAsJsonAsync("/internal/currency",
-                        new CurrencyModels.CurrencyRequest(member.Id, currency));
+            try {
+                var response = await HttpClient.PostAsJsonAsync("/internal/currency",
+                    new CurrencyModels.CurrencyRequest(member.Id, currency));
 
-                    response.EnsureSuccessStatusCode();
-                    var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
+                response.EnsureSuccessStatusCode();
+                var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
 
+                if (result != null) {
                     var currencyEmbed = new EmbedBuilder()
                         .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())
                         .WithTitle("★﹒I wish, and wish, and wish . .")
@@ -176,16 +132,14 @@ public class PointSystem {
                         .Build();
 
                     await command.FollowupAsync(embed: currencyEmbed);
-                } catch (HttpRequestException ex) {
-                    currencyFailures.Add(new CurrencySyncException(member.Username, $"Failed to sync currency for '{member.Username}'.", ex));
                 }
+            } catch (HttpRequestException ex) {
+                currencyFailures.Add(new CurrencySyncException(member.Username, $"Failed to sync currency for '{member.Username}'.", ex));
             }
         }
 
-        if (currencyFailures.Count > 0)
-        {
-            foreach (var e in currencyFailures)
-            {
+        if (currencyFailures.Count > 0) {
+            foreach (var e in currencyFailures) {
                 await command.FollowupAsync(e.ToString());
             }
         }
@@ -193,7 +147,7 @@ public class PointSystem {
 
     public async Task EditRecruits(SocketSlashCommand command, bool add) {
         
-        SocketGuildUser member = null;
+        SocketGuildUser? member = null;
         var recruits = 0;
         
         foreach (var option in command.Data.Options)
@@ -216,27 +170,19 @@ public class PointSystem {
 
         if (member == null) return;
         
-        EmbedBuilder embedBuilder = new EmbedBuilder();
-        var sPreR = "s";
-        if (recruits == 1) { sPreR = ""; }
+        var embedBuilder = new EmbedBuilder();
         
         if (add) {
             await _db.AddRecruits(member.Id, recruits);
             var current = await _db.GetRecruits(member.Id);
             
-            var s = "s";
-            if (current == 1) { s = ""; }
-            
-            embedBuilder.WithDescription("This member has scouted ***" + recruits + "*** recruit" + sPreR + ", and now has scouted ***" + current + "*** recruit" + s + " in total!");
+            embedBuilder.WithDescription("This member has scouted ***" + recruits + "*** recruit" + (recruits == 1 ? "" : "s") + ", and now has scouted ***" + current + "*** recruit" + (current == 1 ? "" : "s") + " in total!");
         } else {
             
             await _db.RemoveRecruits(member.Id, recruits);
             var current = await _db.GetRecruits(member.Id);
             
-            var s = "s";
-            if (current == 1) { s = ""; }
-            
-            embedBuilder.WithDescription("You have removed ***" + recruits + "*** recruitpoint" + sPreR + " from this member.\nThey now have ***" + current + "*** recruitpoint" + s + ".");
+            embedBuilder.WithDescription("You have removed ***" + recruits + "*** recruitpoint" + (recruits == 1 ? "" : "s") + " from this member.\nThey now have ***" + current + "*** recruitpoint" + (current == 1 ? "" : "s") + ".");
         }
 
         embedBuilder
@@ -247,18 +193,12 @@ public class PointSystem {
         await command.RespondAsync(embed: embedBuilder.Build());
     }
     
-    private static readonly Regex BatchLineRegex = new Regex(
-        @"^\s*(?<name>.+?)\s+(?<tokens>(?:[pcry]\d+\s*)+)$",
-        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex BatchLineRegex = new Regex(@"^\s*(?<name>.+?)\s+(?<tokens>(?:[pcry]\d+\s*)+)$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex TokenRegex = new Regex(@"(?<type>[pcry])(?<value>\d+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-    private static readonly Regex TokenRegex = new Regex(
-        @"(?<type>[pcry])(?<value>\d+)",
-        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    public async Task HandleBatchPoints(SocketSlashCommand command) {
 
-    [DefaultMemberPermissions(GuildPermission.ManageRoles)]
-    public async Task HandleBatchPoints(SocketSlashCommand command, DiscordSocketClient client) {
-
-        string messageLink = null;
+        string? messageLink = null;
         var currencyFailures = new List<CurrencySyncException>();
         
         foreach (var option in command.Data.Options) {
@@ -284,19 +224,17 @@ public class PointSystem {
         }
 
         await command.DeferAsync();
-
-        ulong guildId = ulong.Parse(linkMatch.Groups[1].Value);
-        ulong channelId = ulong.Parse(linkMatch.Groups[2].Value);
-        ulong messageId = ulong.Parse(linkMatch.Groups[3].Value);
-
-        var guild = client.GetGuild(guildId);
-        var channel = guild?.GetTextChannel(channelId);
+        
+        var channelId = ulong.Parse(linkMatch.Groups[2].Value);
+        var messageId = ulong.Parse(linkMatch.Groups[3].Value);
+        
+        var channel = _guild.GetTextChannel(channelId);
         if (channel == null) {
             await command.FollowupAsync("I couldn't find that channel! Does it... exist?");
             return;
         }
 
-        IMessage message;
+        IMessage? message;
         try {
             message = await channel.GetMessageAsync(messageId);
         } catch {
@@ -397,35 +335,36 @@ public class PointSystem {
             if (wasFuzzy) summary += $" *(matched \"{name}\" → \"{matches[0].Claim}\", {bestDistance} char{(bestDistance == 1 ? "" : "s")} off)*";
             summary += "\n";
             
-            // if (currency != 0) {
-            //     SocketGuildUser member = guild.GetUser(userId);
-            //     try {
-            //         var response = await _internalClient.PostAsJsonAsync("/internal/currency",
-            //             new CurrencyModels.CurrencyRequest(userId, currency));
-            //
-            //         response.EnsureSuccessStatusCode();
-            //         var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
-            //
-            //         var currencyEmbed = new EmbedBuilder()
-            //             .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())
-            //             .WithTitle("★﹒I wish, and wish, and wish . .")
-            //             .WithDescription($"This member has been given ***{currency}*** Star Piece{(currency == 1 ? "" : "s")},\nand now has ***{result.NewBalance}*** Star Piece{(result.NewBalance == 1 ? "" : "s")}.")
-            //             .WithColor(0xBFA55F)
-            //             .Build();
-            //
-            //         await command.FollowupAsync(embed: currencyEmbed);
-            //     } catch (HttpRequestException ex) {
-            //         currencyFailures.Add(new CurrencySyncException(member.Username, $"Failed to sync currency for '{member.Username}'.", ex));
-            //     }
-            // }
+            if (currency != 0) {
+                if (_guild != null) {
+                    var member = _guild.GetUser(userId);
+                    try {
+                        var response = await HttpClient.PostAsJsonAsync("/internal/currency",
+                            new CurrencyModels.CurrencyRequest(userId, currency));
             
+                        response.EnsureSuccessStatusCode();
+                        var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
+
+                        if (result != null) {
+                            var currencyEmbed = new EmbedBuilder()
+                                .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())
+                                .WithTitle("★﹒I wish, and wish, and wish . .")
+                                .WithDescription($"This member has been given ***{currency}*** Star Piece{(currency == 1 ? "" : "s")},\nand now has ***{result.NewBalance}*** Star Piece{(result.NewBalance == 1 ? "" : "s")}.")
+                                .WithColor(0xBFA55F)
+                                .Build();
+            
+                            await command.FollowupAsync(embed: currencyEmbed);
+                        }
+                    } catch (HttpRequestException ex) {
+                        currencyFailures.Add(new CurrencySyncException(member.Username, $"Failed to sync currency for '{member.Username}'.", ex));
+                    }
+                }
+            }
             successes.Add(summary);
         }
 
-        if (currencyFailures.Count > 0)
-        {
-            foreach (var e in currencyFailures)
-            {
+        if (currencyFailures.Count > 0) {
+            foreach (var e in currencyFailures) {
                 await command.FollowupAsync(e.ToString());
             }
         }
@@ -479,7 +418,10 @@ public class PointSystem {
         await command.DeferAsync();
 
         var channel = command.Channel;
-        if (channel.Id != 1475729416264093787) return;
+        if (channel.Id != 1475729416264093787) {
+            await command.FollowupAsync("This isn't the Prospects channel!");
+            return;
+        }
         var messagesAsync = channel.GetMessagesAsync();
 
         var cutoff = DateTimeOffset.UtcNow.AddDays(-3);
@@ -535,13 +477,13 @@ public class PointSystem {
 
     public Embed BuildLeaderboardEmbed(List<(string UserId, string Username, int Points)> entries, int page) {
     
-        int totalPages = (int)Math.Ceiling(entries.Count / (double)PageSize);
-        int start = page * PageSize;
-        int end = Math.Min(start + PageSize, entries.Count);
+        var totalPages = (int)Math.Ceiling(entries.Count / (double)PageSize);
+        var start = page * PageSize;
+        var end = Math.Min(start + PageSize, entries.Count);
     
         var description = "";
-        for (int i = start; i < end; i++) {
-            var (userId, username, points) = entries[i];
+        for (var i = start; i < end; i++) {
+            var (userId, _, points) = entries[i];
             var s = points == 1 ? "" : "s";
             description += $"{i + 1}) **<@{userId}>** — **{points}** point{s}\n";
         }
@@ -564,12 +506,11 @@ public class PointSystem {
             .Build();
     }
 
-    public async Task RestoreProgress(SocketSlashCommand command, DiscordSocketClient client) {
+    public async Task ReinstateEnlistment(SocketSlashCommand command) {
 
-        SocketGuildUser member = null;
+        SocketGuildUser? member = null;
         
-        foreach (var option in command.Data.Options)
-        {
+        foreach (var option in command.Data.Options) {
             switch (option.Name) {
                 
                 case "member":
@@ -580,97 +521,54 @@ public class PointSystem {
                     break;
             }
         }
-        
-        await command.RespondAsync(await _db.UnenrolledExists(member.Id, client));
-    }
-    
-    [DefaultMemberPermissions(GuildPermission.ManageRoles)]
-    public async Task HandleKoNotes(SocketSlashCommand command, bool alreadyDeferred = false, SocketGuildUser member = null, string add = "") {
-        
-        if (!alreadyDeferred) await command.DeferAsync(ephemeral: true);
 
         if (member == null)
-        {
-            foreach (var option in command.Data.Options)
-            {
-                switch (option.Name)
-                {
-
-                    case "member":
-                        member = ((SocketGuildUser)option.Value);
-                        break;
-                    case "writenote":
-                        add = option.Value.ToString();
-                        break;
-                    case "amount":
-                        break;
-                    default:
-                        await command.FollowupAsync("Unrecognized command.", ephemeral: true);
-                        break;
-                }
-            }
-        }
-
-        if (member == null) return;
+            return;
         
-        var note = await _db.GetKoNotes(member.Id) + add + "\n";
-        await _db.SetKoNotes(member.Id, note);
-        
-        await command.FollowupAsync(note, ephemeral: true);
+        await _db.ReinstateEnlistment(member.Id, _client);
     }
 
-    public async Task FestivalRewards(SocketSlashCommand command, DiscordSocketClient client)
-    {
-
-        await command.RespondAsync("What do you think you're doing?");
+    public async Task FestivalRewards(SocketSlashCommand command) {
 
         var enlisted = new List<SocketGuildUser>();
-        var guild = client.GetGuild((ulong)command.GuildId);
         var currencyFailures = new List<CurrencySyncException>();
         var results = new List<(SocketGuildUser User, long Balance)>();
         
         await command.DeferAsync();
         
-        foreach (var userId in _db.GetEnlisted())
-        {
-            var member = guild.GetUser(ulong.Parse(userId));
+        foreach (var userId in _db.GetEnlisted()) {
+            var member = _guild.GetUser(ulong.Parse(userId));
             if (member != null) enlisted.Add(member);
         }
         
         foreach (var user in enlisted) {
-            try
-            {
-                var response = await _internalClient.PostAsJsonAsync("/internal/currency",
+            try {
+                var response = await HttpClient.PostAsJsonAsync("/internal/currency",
                     new CurrencyModels.CurrencyRequest(user.Id, 0));
         
                 response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
-        
-                results.Add((user, result.NewBalance));
-            }
-            catch (HttpRequestException ex)
-            {
-                currencyFailures.Add(new CurrencySyncException(user.Username,
-                    $"Failed to find AND / OR sync currency for '{user.Username}'.", ex));
+
+                if (result != null) results.Add((user, result.NewBalance));
+                
+            } catch (HttpRequestException ex) {
+                currencyFailures.Add(new CurrencySyncException(user.Username, $"Failed to find AND / OR sync currency for '{user.Username}'.", ex));
             }
         }
         
-        
-        
         foreach (var (user, balance) in results) {
-            if (balance >= 10) {
-                    var points = (int)(balance / 3);
-                    await _db.AddPoints(user.Id, points);
-                    await command.FollowupAsync($"Rewarded <@{user.Id}> {points} points.");
-                    await user.AddRoleAsync(1527906014060609586);
-            }
-                
+            if (balance < 10) continue;
+            
+            var points = (int)(balance / 3);
+            await _db.AddPoints(user.Id, points);
+            await command.FollowupAsync($"Rewarded <@{user.Id}> {points} points.");
+            await user.AddRoleAsync(1527906014060609586);
         }
         
         var ranked = results.OrderByDescending(r => r.Balance).ToList();
-        int limit = Math.Min(7, ranked.Count);
+        var limit = Math.Min(7, ranked.Count);
         
-        for (int i = 0; i < limit; i++) {
+        for (var i = 0; i < limit; i++) {
             
             var user = ranked[i].User;
                 await _db.GiveNewId(user.Id, "ENLISTEDTANABATA");
@@ -692,12 +590,11 @@ public class PointSystem {
                     embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\n\nFor this reason alone, you have placed **1ST** in the Festival event and gained the following rewards:\n\n- The Tier 1 Badge : The Golden Tanzaku\n- A headshot of your character drawn by the main server artist, KAPS\n- A third of your currency transformed into points (nice rank skip!)\n- The limited Starry Night ID skin (use /editid to check it out!)\n- The ability to help design the special Parade Dress for our debut event!\n\nMake sure to message Mikage Makina for more information about the headshot from KAPS!\nMessage Kamikawa Hiromi to discuss more about the future Parade Dress you'll be helping with!\n\nGood job, you did wonderfully. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
                 } else if (i is 1 or 2 or 3) {
                     embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\n\nFor this reason alone, you have placed **{place}** in the Festival event and gained the following rewards:\n\n- The Tier 2 Badge : The Silver Tanzaku\n- An art piece of your character drawn by the main server artist, Tokiwa Cho\n- A third of your currency transformed into points\n- The limited Starry Night ID skin (use /editid to check it out!)\n\nMake sure to message Tokiwa Cho for more information about the art they'll draw for you!\n\nGood job, you did wonderfully. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
-                }
-                else {
+                } else {
                     await user.AddRoleAsync(1527905990329110669);
                     embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\n\nFor this reason alone, you have placed **{place}** in the Festival event and gained the following rewards:\n\n- The Tier 2 Badge : The Silver Tanzaku\n- A third of your currency transformed into points\n- The limited Starry Night ID skin (use /editid to check it out!)\n\nGood job, you did wonderfully. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
                 }
-                await UserExtensions.SendMessageAsync(user, embed: embedBuilder.Build());
+                await user.SendMessageAsync(embed: embedBuilder.Build());
         }
         
         if (currencyFailures.Count > 0) {
@@ -706,20 +603,17 @@ public class PointSystem {
         }
     }
     
-    private static string ToOrdinal(int number)
-    {
+    private static string ToOrdinal(int number) {
         if (number <= 0) return number.ToString();
 
-        switch (number % 100)
-        {
+        switch (number % 100) {
             case 11:
             case 12:
             case 13:
                 return number + "TH";
         }
 
-        switch (number % 10)
-        {
+        switch (number % 10) {
             case 1: return number + "ST";
             case 2: return number + "ND";
             case 3: return number + "RD";
@@ -728,8 +622,7 @@ public class PointSystem {
     }
     
     private static int MaxAllowedDistance(string name) {
-        if (name.Length <= 4) return 1;
-        return Math.Min(2, name.Length / 5 + 1);
+        return name.Length <= 4 ? 1 : Math.Min(2, name.Length / 5 + 1);
     }
 
     private static int FuzzyContainsDistance(string haystack, string needle) {
@@ -737,13 +630,13 @@ public class PointSystem {
         if (haystack.Contains(needle, StringComparison.OrdinalIgnoreCase)) return 0;
         if (haystack.Length < needle.Length - 1) return LevenshteinDistance(haystack, needle);
 
-        int best = int.MaxValue;
-        int n = needle.Length;
+        var best = int.MaxValue;
+        var n = needle.Length;
 
-        for (int windowLen = Math.Max(1, n - 1); windowLen <= n + 1 && windowLen <= haystack.Length; windowLen++) {
-            for (int start = 0; start <= haystack.Length - windowLen; start++) {
+        for (var windowLen = Math.Max(1, n - 1); windowLen <= n + 1 && windowLen <= haystack.Length; windowLen++) {
+            for (var start = 0; start <= haystack.Length - windowLen; start++) {
                 var window = haystack.Substring(start, windowLen);
-                int dist = LevenshteinDistance(window, needle);
+                var dist = LevenshteinDistance(window, needle);
                 if (dist < best) best = dist;
                 if (best == 0) return 0;
             }
@@ -757,18 +650,17 @@ public class PointSystem {
         b = b.ToLowerInvariant();
         var dp = new int[a.Length + 1, b.Length + 1];
 
-        for (int i = 0; i <= a.Length; i++) dp[i, 0] = i;
-        for (int j = 0; j <= b.Length; j++) dp[0, j] = j;
+        for (var i = 0; i <= a.Length; i++) dp[i, 0] = i;
+        for (var j = 0; j <= b.Length; j++) dp[0, j] = j;
 
-        for (int i = 1; i <= a.Length; i++) {
-            for (int j = 1; j <= b.Length; j++) {
-                int cost = a[i - 1] == b[j - 1] ? 0 : 1;
+        for (var i = 1; i <= a.Length; i++) {
+            for (var j = 1; j <= b.Length; j++) {
+                var cost = a[i - 1] == b[j - 1] ? 0 : 1;
                 dp[i, j] = Math.Min(
                     Math.Min(dp[i - 1, j] + 1, dp[i, j - 1] + 1),
                     dp[i - 1, j - 1] + cost);
             }
         }
-
         return dp[a.Length, b.Length];
     }
 }

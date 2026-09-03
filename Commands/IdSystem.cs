@@ -1,5 +1,5 @@
-﻿using Discord;
-using Discord.Interactions;
+﻿using System.Text.RegularExpressions;
+using Discord;
 using Discord.WebSocket;
 using GenCode128;
 using SixLabors.Fonts;
@@ -8,6 +8,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SMASSB.Exceptions;
+using SMASSB.Models;
 using Color = SixLabors.ImageSharp.Color;
 using Image = SixLabors.ImageSharp.Image;
 
@@ -15,14 +16,25 @@ namespace SMASSB.Commands;
 
 public class IdSystem {
     
-    private DatabaseService _db;
-    private RoleSystem _roleSystem;
-    private static readonly HttpClient _httpClient = new HttpClient();
+    private readonly DiscordSocketClient _client;
+    private readonly DatabaseService _db;
+    private readonly RoleSystem _roleSystem;
+    private readonly LogHandler _logHandler;
+    private SocketGuild _guild;
+    private static readonly HttpClient HttpClient = new HttpClient();
     
-    public IdSystem(DatabaseService db,
-                    RoleSystem roleSystem) {
+    public IdSystem(DiscordSocketClient client, 
+                    LogHandler logHandler, 
+                    DatabaseService db,
+                    RoleSystem roleSystem, 
+                    GuildConfiguration guildConfig) {
+        
+        _client = client;
+        _logHandler = logHandler;
         _db = db;
         _roleSystem = roleSystem;
+        var guildId = guildConfig.GuildId;
+        _guild = client.GetGuild(guildId);
     }
 
     public static async Task BuildId(SocketSlashCommand command,
@@ -47,31 +59,26 @@ public class IdSystem {
         var fontId = fontFamily.CreateFont(35);
         var fontSmall = fontFamily.CreateFont(35);
 
-        Image idImg = null;
-        
-        try { idImg = LoadID(idType); } catch { await command.FollowupAsync("Did you forget to pre/enlist this person? ;)", ephemeral: true); return; }
-        
-        
-        
+        Image idImg;
+        try { idImg = LoadId(idType); } catch { await command.FollowupAsync("Did you forget to pre/enlist this person? ;)", ephemeral: true); return; }
         Image avatar;
+        
         if (avatarImageParam != null) {
             try {
                 using var avatarStream = new MemoryStream(avatarImageParam);
-                avatar = Image.Load(avatarStream);
+                avatar = await Image.LoadAsync(avatarStream);
             } catch (UnknownImageFormatException) {
                 await command.FollowupAsync("It seems like your avatar is corrupted. Please run /editid to fix it, or contact a staff member for assistance.", ephemeral: true);
                 return;
             }
         } else {
-            string sizedAvatarUrl = avatarUrlParam.Contains('?')
-                ? avatarUrlParam + "&size=4096"
-                : avatarUrlParam + "?size=4096";
+            var sizedAvatarUrl = avatarUrlParam.Contains('?') ? avatarUrlParam + "&size=4096" : avatarUrlParam + "?size=4096";
 
             try {
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-                var avatarBytes = await _httpClient.GetByteArrayAsync(sizedAvatarUrl, cts.Token);
+                var avatarBytes = await HttpClient.GetByteArrayAsync(sizedAvatarUrl, cts.Token);
                 using var avatarStream = new MemoryStream(avatarBytes);
-                avatar = Image.Load(avatarStream);
+                avatar = await Image.LoadAsync(avatarStream, cts.Token);
                 
             } catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException) {
                 await command.FollowupAsync("Couldn't load the avatar image. Try again in a moment, or contact a staff member for assistance.", ephemeral: true);
@@ -100,16 +107,15 @@ public class IdSystem {
         var catchphrasePos = new Point(70,953);
         var barcodePos = new Point(95,688);
         
-        List<Color> colors = LoadColors(idType);
-        System.Drawing.Image barcode = Code128Rendering.MakeBarcodeImage(usernameParam, 1, true);
-        
+        var colors = LoadColors(idType);
+        var barcode = Code128Rendering.MakeBarcodeImage(usernameParam, 1, true);
         
         var stream = new MemoryStream();
         barcode.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
         stream.Position = 0;
         
-        var barcodeImg = Image.Load(stream);
-        using var coloredBarcode = new Image<Rgba32>(barcodeImg.Width, barcodeImg.Height, colors[3]);
+        var barcodeImg = await Image.LoadAsync(stream);
+        var coloredBarcode = new Image<Rgba32>(barcodeImg.Width, barcodeImg.Height, colors[3]);
         
         coloredBarcode.Mutate(ctx => ctx.DrawImage(barcodeImg, new Point(0, 0), PixelColorBlendingMode.Multiply, PixelAlphaCompositionMode.SrcOver, 1f));
         coloredBarcode.Mutate(x => x.Resize(new ResizeOptions {
@@ -141,8 +147,8 @@ public class IdSystem {
                 
                 var spaceIndex = claimParam.IndexOf(' ');
                 if (spaceIndex > 0) {
-                    var firstName = claimParam.Substring(0, spaceIndex);
-                    var lastName = claimParam.Substring(spaceIndex + 1);
+                    var firstName = claimParam[..spaceIndex];
+                    var lastName = claimParam[(spaceIndex + 1)..];
                     claimParam = $"{firstName}\n{lastName}";
                 }
                 
@@ -162,13 +168,13 @@ public class IdSystem {
 
         var output = Path.Combine(Path.GetTempPath(), $"id_{accIdParam}.png");
         
-        clone.Save(output);
+        await clone.SaveAsync(output);
         foreach (var (img, _) in badgesToDraw) img.Dispose();
         
         if (member != command.User && !command.CommandName.Contains("other")) {
             try { 
                 await member.SendMessageAsync("Here you are! Your new **Identification Card** and loaned **Work Cellphone**!\nKeep them safe.");
-                await UserExtensions.SendFileAsync(member, output);
+                await member.SendFileAsync(output);
             }
             catch (Discord.Net.HttpException ex) { await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message); }
         } else {
@@ -178,17 +184,15 @@ public class IdSystem {
         File.Delete(output);
     }
     
-    [DefaultMemberPermissions(GuildPermission.CreatePublicThreads)]
-    public async Task EditId(SocketSlashCommand command, DiscordSocketClient client) {
+    public async Task EditId(SocketSlashCommand command) {
 
         await command.DeferAsync();
         
-        SocketGuildUser enlisted = (SocketGuildUser)command.User;
-        string claim = null;
-        string avatarUrl = null;
-        string catchphrase = null;
-        string bloodtype = null;
-        string idType = null;
+        var enlisted = (SocketGuildUser)command.User;
+        string? claim = null;
+        string? avatarUrl = null;
+        string? bloodtype = null;
+        string? idType = null;
         
         foreach (var option in command.Data.Options) {
             switch (option.Name)
@@ -215,13 +219,13 @@ public class IdSystem {
         if (!string.IsNullOrEmpty(avatarUrl)) {
             
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
-            var resolvedUrl = await ResolveImgurUrlAsync(avatarUrl, _httpClient, cts.Token);
+            var resolvedUrl = await ResolveImgurUrlAsync(avatarUrl, HttpClient, cts.Token);
 
             try {
-                var bytes = await _httpClient.GetByteArrayAsync(resolvedUrl, cts.Token);
+                var bytes = await HttpClient.GetByteArrayAsync(resolvedUrl, cts.Token);
 
                 using (var testStream = new MemoryStream(bytes)) {
-                    using var _ = Image.Load(testStream);
+                    using var _ = await Image.LoadAsync(testStream, cts.Token);
                 }
 
                 await _db.SetAvatarImage(enlisted.Id, bytes);
@@ -249,24 +253,22 @@ public class IdSystem {
             await _db.SetIdType(enlisted.Id, idType);
         }
         
-        string claimParam = await _db.GetClaim(enlisted.Id);
-        string avatarUrlParam = await _db.GetAvatarUrl(enlisted.Id);
-        string accIdParam = enlisted.Id.ToString();
-        DateTimeOffset dateParam = enlisted.JoinedAt ?? enlisted.CreatedAt;
-        string rankParam = await _db.GetRank(enlisted.Id);
-        int pointsParam = await _db.GetPoints(enlisted.Id);
-        int recruitsParam = await _db.GetRecruits(enlisted.Id);
-        string bloodtypeParam = await _db.GetBloodtype(enlisted.Id);
-        string usernameParam = await _db.GetUsername(enlisted.Id);
-        byte[]? avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
-        string idTypeParam = await _db.GetIdType(enlisted.Id);
+        var claimParam = await _db.GetClaim(enlisted.Id);
+        var avatarUrlParam = await _db.GetAvatarUrl(enlisted.Id);
+        var accIdParam = enlisted.Id.ToString();
+        var dateParam = enlisted.JoinedAt ?? enlisted.CreatedAt;
+        var rankParam = await _db.GetRank(enlisted.Id);
+        var pointsParam = await _db.GetPoints(enlisted.Id);
+        var recruitsParam = await _db.GetRecruits(enlisted.Id);
+        var bloodtypeParam = await _db.GetBloodtype(enlisted.Id);
+        var usernameParam = await _db.GetUsername(enlisted.Id);
+        var avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
+        var idTypeParam = await _db.GetIdType(enlisted.Id);
         
         await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, "", usernameParam, idTypeParam);
-
     }
     
-    [DefaultMemberPermissions(GuildPermission.CreatePublicThreads)]
-    public async Task ShowId(SocketSlashCommand command, DiscordSocketClient client) {
+    public async Task ShowId(SocketSlashCommand command) {
         
         await command.DeferAsync();
         SocketGuildUser enlisted = (SocketGuildUser)command.User;
@@ -283,24 +285,24 @@ public class IdSystem {
             }
         }
         
-        string claimParam = await _db.GetClaim(enlisted.Id);
-        string avatarUrlParam = await _db.GetAvatarUrl(enlisted.Id);
-        string accIdParam = enlisted.Id.ToString();
-        DateTimeOffset dateParam = enlisted.JoinedAt ?? enlisted.CreatedAt;
-        string rankParam = await _db.GetRank(enlisted.Id);
-        int pointsParam = await _db.GetPoints(enlisted.Id);
-        int recruitsParam = await _db.GetRecruits(enlisted.Id);
-        string bloodtypeParam = await _db.GetBloodtype(enlisted.Id);
-        string usernameParam = await _db.GetUsername(enlisted.Id);
-        byte[]? avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
-        string idTypeParam = await _db.GetIdType(enlisted.Id);
+        var claimParam = await _db.GetClaim(enlisted.Id);
+        var avatarUrlParam = await _db.GetAvatarUrl(enlisted.Id);
+        var accIdParam = enlisted.Id.ToString();
+        var dateParam = enlisted.JoinedAt ?? enlisted.CreatedAt;
+        var rankParam = await _db.GetRank(enlisted.Id);
+        var pointsParam = await _db.GetPoints(enlisted.Id);
+        var recruitsParam = await _db.GetRecruits(enlisted.Id);
+        var bloodtypeParam = await _db.GetBloodtype(enlisted.Id);
+        var usernameParam = await _db.GetUsername(enlisted.Id);
+        var avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
+        var idTypeParam = await _db.GetIdType(enlisted.Id);
         
         await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, "", usernameParam, idTypeParam);
     }
 
-    public async Task GainId(SocketSlashCommand command, DiscordSocketClient client) {
+    public async Task GainId(SocketSlashCommand command) {
         
-        SocketGuildUser member = null;
+        SocketGuildUser? member = null;
         var id = "";
         
         foreach (var option in command.Data.Options) {
@@ -319,13 +321,13 @@ public class IdSystem {
             }
         }
 
-        await _db.GiveNewId(member.Id, id);
+        if (member != null && id != null) await _db.GiveNewId(member.Id, id);
         await command.RespondAsync("Completed task.", ephemeral: true);
     }
     
-    public async Task RemoveId(SocketSlashCommand command, DiscordSocketClient client) {
+    public async Task RemoveId(SocketSlashCommand command) {
         
-        SocketGuildUser member = null;
+        SocketGuildUser? member = null;
         var id = "";
         
         foreach (var option in command.Data.Options) {
@@ -344,6 +346,9 @@ public class IdSystem {
             }
         }
 
+        if (member == null || id == null)
+            return; 
+        
         await _db.RemoveId(member.Id, id);
 
         if (id.Equals(await _db.GetIdType(member.Id))) {
@@ -360,10 +365,10 @@ public class IdSystem {
     public async Task HandleForceUpdateCommand(SocketSlashCommand command) {
         
         await command.DeferAsync();
-        SocketGuildUser member = null;
+        SocketGuildUser? member = null;
         var claim = "";
-        IRole rank = null;
-        bool avatarBorked = false;
+        IRole? rank = null;
+        var avatarFoobar = false;
         
         foreach (var option in command.Data.Options)
         {
@@ -379,7 +384,7 @@ public class IdSystem {
                     rank = (IRole)option.Value;
                     break;
                 case "avatar_fix":
-                    avatarBorked = option.Value.ToString() == "True";
+                    avatarFoobar = option.Value.ToString() == "True";
                     break;
                 default:
                     await command.FollowupAsync("Unrecognized command.", ephemeral: true);
@@ -392,23 +397,23 @@ public class IdSystem {
             return;
         }
 
-        if (avatarBorked) {
+        if (avatarFoobar) {
             var avatarUrl = member.GetGuildAvatarUrl() ??  member.GetAvatarUrl() ?? member.GetDefaultAvatarUrl();
-            var bytes = await _httpClient.GetByteArrayAsync(avatarUrl);
+            var bytes = await HttpClient.GetByteArrayAsync(avatarUrl);
             await _db.SetAvatarUrl(member.Id, avatarUrl);
             await _db.SetAvatarImage(member.Id, bytes);
         }
 
-        if (!String.IsNullOrEmpty(claim) && rank != null) {
+        if (!string.IsNullOrEmpty(claim) && rank != null) {
             
             await _roleSystem.Promote(member, rank, command, claim, "Changed claim.");
-
+            
         } else if (!String.IsNullOrEmpty(claim)) {
             
-            string nickname = member.Nickname;
-            int dotIndex = nickname.IndexOf('.');
+            var nickname = member.Nickname;
+            var dotIndex = nickname.IndexOf('.');
             
-            string fixedRankNick = nickname.Substring(0, dotIndex + 1);
+            var fixedRankNick = nickname.Substring(0, dotIndex + 1);
             await member.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claim);
             
             await _db.SetClaim(member.Id, claim);
@@ -416,12 +421,11 @@ public class IdSystem {
             
         } else if (rank != null) {
             
-            string rankName = rank.Name;
+            var rankName = rank.Name;
+            var dotIndex = rankName.IndexOf('.');
             
-            int dotIndex = rankName.IndexOf('.');
-            
-            string fixedRankNick = rankName.Substring(1, dotIndex);
-            string fixedRankFull = rankName.Substring(dotIndex + 2);
+            var fixedRankNick = rankName.Substring(1, dotIndex);
+            var fixedRankFull = rankName[(dotIndex + 2)..];
             var oldClaim = await _db.GetClaim(member.Id);
             
             await member.ModifyAsync(x => x.Nickname = fixedRankNick + " " + oldClaim);
@@ -438,8 +442,7 @@ public class IdSystem {
         var path = Path.Combine(AppContext.BaseDirectory, "Images", filename);
         var img = Image.Load(path);
         
-        if (filename.Contains("tanzaku"))
-        {
+        if (filename.Contains("tanzaku")) {
             img.Mutate(x => x.Resize(new ResizeOptions {
                 Size = new Size(w, h),
                 Mode = ResizeMode.Pad,
@@ -457,9 +460,9 @@ public class IdSystem {
         return img;
     }
 
-    static Image LoadID(string idType) {
+    static Image LoadId(string idType) {
         
-        string imgPath = "";
+        var imgPath = "";
 
         switch (idType) {
             
@@ -503,14 +506,14 @@ public class IdSystem {
     
     static Image LoadFrames(string frameType) {
         
-        string imgPath = "";
+        var imgPath = "";
         
         return Image.Load(imgPath);
     }
 
      static List<Color> LoadColors(string idType) {
 
-        List<Color> colors = new List<Color>();
+         var colors = new List<Color>();
         
         switch (idType) {
             
@@ -587,16 +590,12 @@ public class IdSystem {
     
     private static async Task<string> ResolveImgurUrlAsync(string url, HttpClient httpClient, CancellationToken ct) {
         
-        if (!url.Contains("imgur.com", StringComparison.OrdinalIgnoreCase))
-            return url;
-        
-        if (url.Contains("i.imgur.com", StringComparison.OrdinalIgnoreCase))
+        if (!url.Contains("imgur.com", StringComparison.OrdinalIgnoreCase) || url.Contains("i.imgur.com", StringComparison.OrdinalIgnoreCase))
             return url;
 
         try {
             var html = await httpClient.GetStringAsync(url, ct);
-            var match = System.Text.RegularExpressions.Regex.Match(
-                html, @"<meta\s+property=[""']og:image[""']\s+content=[""']([^""']+)[""']");
+            var match = Regex.Match(html, @"<meta\s+property=[""']og:image[""']\s+content=[""']([^""']+)[""']");
 
             return match.Success ? match.Groups[1].Value : url;
             
