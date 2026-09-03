@@ -86,8 +86,8 @@ public class Program {
                 }
                 
                 if (shouldStartLoops) {
-                    _ = _extraneousHandler.KickUnEnlisted();
-                    _ = _extraneousHandler.AutoEnlistKohosei();
+                    _ = _extraneousHandler.KickUnEnlisted(guild);
+                    _ = _extraneousHandler.AutoEnlistKohosei(guild);
                     _ = _extraneousHandler.WeeklyEarningsRollover();
                 }
             }

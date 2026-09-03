@@ -10,15 +10,14 @@ public class GeneralSystem {
     private readonly DiscordSocketClient _client;
     private readonly LogHandler _logHandler;
     private readonly DatabaseService _db;
-    private readonly SocketGuild _guild;
+    private readonly ulong? _guildId;
 
     public GeneralSystem(DiscordSocketClient client, LogHandler logHandler, DatabaseService db, GuildConfiguration guildConfig) {
         
         _client = client;
         _logHandler = logHandler;
         _db = db;
-        var guildId = guildConfig.GuildId;
-        _guild = client.GetGuild(guildId);
+        _guildId = guildConfig.GuildId;
     }
 
     public async Task HandleMassRemoveCommand(SocketSlashCommand command) {
@@ -75,13 +74,14 @@ public class GeneralSystem {
         
         var preCivt = new List<SocketGuildUser>();
         var enlisted = new List<SocketGuildUser>();
+        var guild = _client.GetGuild((ulong)_guildId!);
         
-        await _guild.DownloadUsersAsync();
+        await guild.DownloadUsersAsync();
                     
         var failures = new List<MessageSendException>();
         var failures2 = new List<DmParseException>();
 
-        foreach (var userId in _db.GetEnlisted()) { enlisted.Add(_guild.GetUser(ulong.Parse(userId))); }
+        foreach (var userId in _db.GetEnlisted()) { enlisted.Add(guild.GetUser(ulong.Parse(userId))); }
         
         foreach (var user in enlisted) {
             
@@ -163,10 +163,11 @@ public class GeneralSystem {
         
         var preCivt = new List<SocketGuildUser>();
         var enlisted = new List<SocketGuildUser>();
+        var guild = _client.GetGuild((ulong)_guildId!);
         
-        await _guild.DownloadUsersAsync();
+        await guild.DownloadUsersAsync();
 
-        foreach (var userId in _db.GetEnlisted()) { enlisted.Add(_guild.GetUser(ulong.Parse(userId))); }
+        foreach (var userId in _db.GetEnlisted()) { enlisted.Add(guild.GetUser(ulong.Parse(userId))); }
         foreach (var user in enlisted) {
             
             var dmChannel = await user.CreateDMChannelAsync();

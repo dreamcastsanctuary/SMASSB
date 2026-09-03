@@ -20,7 +20,7 @@ public class IdSystem {
     private readonly DatabaseService _db;
     private readonly RoleSystem _roleSystem;
     private readonly LogHandler _logHandler;
-    private SocketGuild _guild;
+    private readonly ulong? _guildId;
     private static readonly HttpClient HttpClient = new HttpClient();
     
     public IdSystem(DiscordSocketClient client, 
@@ -33,8 +33,7 @@ public class IdSystem {
         _logHandler = logHandler;
         _db = db;
         _roleSystem = roleSystem;
-        var guildId = guildConfig.GuildId;
-        _guild = client.GetGuild(guildId);
+        _guildId = guildConfig.GuildId;
     }
 
     public static async Task BuildId(SocketSlashCommand command,

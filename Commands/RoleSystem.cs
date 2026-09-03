@@ -10,14 +10,13 @@ public class RoleSystem {
     private readonly DiscordSocketClient _client;
     private readonly DatabaseService _db;
     private readonly LogHandler _logHandler;
-    private readonly SocketGuild _guild;
+    private readonly ulong? _guildId;
     
     public RoleSystem(DiscordSocketClient client, LogHandler logHandler, DatabaseService db, GuildConfiguration guildConfig) {
         _client = client;
         _logHandler = logHandler;
         _db = db;
-        var guildId = guildConfig.GuildId;
-        _guild = client.GetGuild(guildId);
+        _guildId = guildConfig.GuildId;
     }
 
     public async Task HandlePreEnlistCommand(SocketSlashCommand command) {
@@ -87,14 +86,16 @@ public class RoleSystem {
         await civilian.RemoveRoleAsync(1475886792174604484);
         await civilian.RemoveRoleAsync(1537202109336920096);
 
-        IRole niShi = _guild.GetRole(1475886748268625962);
+        var guild = _client.GetGuild((ulong)_guildId!);
+        IRole niShi = guild.GetRole(1475886748268625962);
         await Promote(civilian, niShi, command);
     }
 
     public async Task HandleCheckPromosCommand(SocketSlashCommand command) {
         
         await command.DeferAsync();
-        bool promote = false;
+        var promote = false;
+        var guild = _client.GetGuild((ulong)_guildId!);
         
         foreach (var option in command.Data.Options) {
             switch (option.Name) {
@@ -121,13 +122,13 @@ public class RoleSystem {
         var promotable = new List<SocketGuildUser>();
         
         foreach (var userId in _db.GetEnlisted()) {
-            enlisteds.Add(_guild.GetUser(ulong.Parse(userId)));
+            enlisteds.Add(guild.GetUser(ulong.Parse(userId)));
         }
 
         foreach (var enlisted in enlisteds) {
             
             foreach (var rank in ranks) {
-                var role = _guild.GetRole(rank.RoleId);
+                var role = guild.GetRole(rank.RoleId);
                 if (role == null) continue;
 
                 if (role.Name.Contains(await _db.GetRank(enlisted.Id)) && await _db.GetPoints(enlisted.Id) >= rank.Threshold) {
@@ -157,22 +158,22 @@ public class RoleSystem {
             foreach (var enlisted in promotable) {
 
                 for (var i = 0; i < ranks.Count; i++) {
-                    var role = _guild.GetRole(ranks[i].RoleId);
+                    var role = guild.GetRole(ranks[i].RoleId);
                     if (role == null) continue;
 
                     if (role.Name.Contains(await _db.GetRank(enlisted.Id))) {
 
                         if (i + 1 < ranks.Count) {
-                            await Promote(enlisted, _guild.GetRole(ranks[i + 1].RoleId));
+                            await Promote(enlisted, guild.GetRole(ranks[i + 1].RoleId));
 
                             for (var j = i; j >= Math.Max(0, i - 3); j--) {
-                                var oldRole = _guild.GetRole(ranks[j].RoleId);
+                                var oldRole = guild.GetRole(ranks[j].RoleId);
                                 if (oldRole != null) {
                                     await enlisted.RemoveRoleAsync(oldRole);
                                 }
                             }
 
-                            await enlisted.AddRoleAsync(_guild.GetRole(ranks[i + 1].RoleId));
+                            await enlisted.AddRoleAsync(guild.GetRole(ranks[i + 1].RoleId));
                         }
                         break;
                     }

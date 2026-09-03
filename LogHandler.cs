@@ -13,7 +13,7 @@ public class LogHandler {
     
     private readonly DiscordSocketClient _client;
     private readonly DatabaseService _db;
-    private readonly SocketGuild _guild;
+    private readonly ulong? _guildId;
     private static readonly HttpClient HttpClient = new HttpClient();
 
     public LogHandler(DiscordSocketClient client,
@@ -22,8 +22,7 @@ public class LogHandler {
         
         _client = client;
         _db = db;
-        var guildId = guildConfig.GuildId;
-        _guild = client.GetGuild(guildId);
+        _guildId = guildConfig.GuildId;
     }
 
     public async Task LogMemberUpdate(Cacheable<SocketGuildUser, ulong> before, SocketGuildUser after, SocketGuild guild) {
@@ -92,7 +91,7 @@ public class LogHandler {
                         await channel.SendFileAsync(stream, "combined.png", embed: embedBuilder.Build());
                 }
             } catch {
-                await LogExceptionWatch(_guild.Id, text: $"{beforeUser.Nickname}'s avatar wasn't cached!");
+                await LogExceptionWatch(guild.Id, text: $"{beforeUser.Nickname}'s avatar wasn't cached!");
             }
 
             var addedRoles = after.Roles.Except(beforeUser.Roles);
@@ -237,7 +236,7 @@ public class LogHandler {
                 await _db.Remove(user.Id);
             }
         } catch (Exception e) {
-            await LogExceptionWatch(_guild.Id, exception: e);
+            await LogExceptionWatch(guild.Id, exception: e);
         }
     }
 
@@ -254,7 +253,7 @@ public class LogHandler {
 
             if (channel == null) {
                 Console.WriteLine("Channel was not cached.");
-                await LogExceptionWatch(_guild.Id, text: "Channel was not cached.");
+                await LogExceptionWatch(guild.Id, text: "Channel was not cached.");
                 return;
             }
 
@@ -299,7 +298,7 @@ public class LogHandler {
                 attachmentUrls.Add($"attachment://{filename}");
             } catch (Exception ex) {
                 Console.WriteLine(ex);
-                await LogExceptionWatch(_guild.Id, exception: ex);
+                await LogExceptionWatch(guild.Id, exception: ex);
             }
         }
 
@@ -363,7 +362,7 @@ public class LogHandler {
             if (channel != null) await channel.SendMessageAsync("Staff, make sure this Webhook change is legitimate.", embed: embed);
         } catch (Exception e) {
             Console.WriteLine(e);
-            await LogExceptionWatch(_guild.Id, exception: e);
+            await LogExceptionWatch(guild.Id, exception: e);
         }
     }
 
@@ -390,27 +389,30 @@ public class LogHandler {
             }
         } catch (Exception e) {
             Console.WriteLine(e);
-            await LogExceptionWatch(_guild.Id, exception: e);
+            var guild = _client.GetGuild((ulong)_guildId!);
+            await LogExceptionWatch(guild.Id, exception: e);
         }
     }
     
     public async Task CreateOrUpdateStatChannel() {
         
         SocketVoiceChannel? channel = null;
-        await _guild.DownloadUsersAsync();
-        var memberCount = _guild.Users.Count(u => !u.IsBot);
+        var guild = _client.GetGuild((ulong)_guildId!);
         
-        var channelId = _db.GetStatChannel(_guild.Id);
+        await guild.DownloadUsersAsync();
+        var memberCount = guild.Users.Count(u => !u.IsBot);
+        
+        var channelId = _db.GetStatChannel(guild.Id);
         if (channelId != null)
-            channel = _guild.GetChannel(channelId.Value) as SocketVoiceChannel;
+            channel = guild.GetChannel(channelId.Value) as SocketVoiceChannel;
         if (channel == null) {
-            var created = await _guild.CreateVoiceChannelAsync($"✦ idols : {memberCount}", props => {
+            var created = await guild.CreateVoiceChannelAsync($"✦ idols : {memberCount}", props => {
                 props.CategoryId = 1473208155210252381;
             });
-            _db.SetStatChannel(_guild.Id, created.Id);
+            _db.SetStatChannel(guild.Id, created.Id);
         }
         
-        await UpdateStatChannel(_guild, memberCount);
+        await UpdateStatChannel(guild, memberCount);
         await _client.SetActivityAsync(new CustomStatusGame("Helping " + memberCount + " enlisted..."));
     }
     

@@ -17,7 +17,7 @@ public class CommandHandler {
     private readonly CellSystem _cellSystem;
     private readonly ShopSystem _shopSystem;
     private readonly LogHandler _logHandler;
-    private SocketGuild _guild;
+    private readonly ulong? _guildId;
 
     public CommandHandler(DiscordSocketClient client,
                           LogHandler logHandler,
@@ -41,8 +41,7 @@ public class CommandHandler {
         _cellSystem = cellSystem;
         _shopSystem = shopSystem;
         _logHandler = logHandler;
-        var guildId = guildConfig.GuildId;
-        _guild = client.GetGuild(guildId);
+        _guildId = guildConfig.GuildId;
     }
     
     /// <summary>
@@ -54,7 +53,8 @@ public class CommandHandler {
             try {
                 await HandleSlashCommand(command);
             } catch (Exception ex) {
-                await _logHandler.LogExceptionWatch(_guild.Id, exception: ex);
+                var guild = _client.GetGuild((ulong)_guildId!);
+                await _logHandler.LogExceptionWatch(guild.Id, exception: ex);
                 if (command.HasResponded)
                     await command.FollowupAsync(ex.Message, ephemeral: true);
                 else
@@ -71,6 +71,7 @@ public class CommandHandler {
     public async Task RegisterCommands() {
         
         List<SlashCommandBuilder> commands = new List<SlashCommandBuilder>();
+        var guild = _client.GetGuild((ulong)_guildId!);
         
         // REWARDSYSTEM
         
@@ -443,11 +444,11 @@ public class CommandHandler {
         
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
-            await ((IGuild)_guild).BulkOverwriteApplicationCommandsAsync(builtCommands);
+            await ((IGuild)guild).BulkOverwriteApplicationCommandsAsync(builtCommands);
             
         } catch (Exception ex) {
             Console.WriteLine($"Command registration failed: {ex}");
-            await _logHandler.LogExceptionWatch(_guild.Id, exception: ex, text: "Command registration failed.");
+            await _logHandler.LogExceptionWatch(guild.Id, exception: ex, text: "Command registration failed.");
         }
     }
     
@@ -540,9 +541,6 @@ public class CommandHandler {
                 break;
             case "checkclaimed":
                 await _generalSystem.HandleCheckClaimedCommand(command);
-                break;
-            case "parsenontrained":
-                await _generalSystem.HandleParseNonTrainedKohoseiCommand(command);
                 break;
             
             case "showworkcell":

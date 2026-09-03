@@ -10,15 +10,14 @@ public class RewardSystem {
     private readonly DiscordSocketClient _client;
     private readonly DatabaseService _db;
     private readonly LogHandler _logHandler;
-    private readonly SocketGuild _guild;
+    private readonly ulong? _guildId;
     
     public RewardSystem(DiscordSocketClient client, LogHandler logHandler, DatabaseService db, GuildConfiguration guildConfig) {
         
         _client = client;
         _logHandler = logHandler;
         _db = db;
-        var guildId = guildConfig.GuildId;
-        _guild = client.GetGuild(guildId);
+        _guildId = guildConfig.GuildId;
     }
     
     public async Task HandleRewardKoCommand(SocketSlashCommand command) {
@@ -83,7 +82,8 @@ public class RewardSystem {
         string[] itemPackIdol1 = ["Thin Scarf", "Neck Headphones", "Neck Ribbon", "Cravat", "Sleeveless Shirt", "Longer Sleeves", "Heart Headphones", "Flowy Sleeves", "Skirt / Pants Change, Chest Acc. Change,"];
         string[] itemPackIdol2 = ["Circle Headphones", "No Mask Perms OR Chest Acc. Change", "No Headphones Perms", "Ear Acc. Change (Cannot Remove Them)", "Foreleg Pattern Change", "Spiked Collar", "Heart Front Socks", "No Mask Perms OR Chest Acc. Change", "Hindleg Acc. Change"];
         
-        var channel = _guild.GetChannel(1542227176387121182) as ITextChannel;
+        var guild = _client.GetGuild((ulong)_guildId!);
+        var channel = guild.GetChannel(1542227176387121182) as ITextChannel;
         var enlisteds = new List<SocketGuildUser>();
         var desc = "";
         var item = 0;

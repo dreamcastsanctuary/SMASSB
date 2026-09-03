@@ -11,7 +11,7 @@ public class MeetingSystem {
     private readonly DiscordSocketClient _client;
     private readonly DatabaseService _db;
     private readonly LogHandler _logHandler;
-    private readonly SocketGuild _guild;
+    private readonly ulong? _guildId;
     private static readonly HttpClient HttpClient = new HttpClient();
     private const string SiteBaseUrl = "https://sangoidoldefenseforce.vercel.app";
     private readonly string _meetingApiSecret = Environment.GetEnvironmentVariable("MEETING_API_SECRET") ?? throw new Exception("MEETING_API_SECRET environment variable not set.");
@@ -22,14 +22,14 @@ public class MeetingSystem {
         _client = client;
         _logHandler = logHandler;
         _db = db;
-        var guildId = guildConfig.GuildId;
-        _guild = client.GetGuild(guildId);
+        _guildId = guildConfig.GuildId;
     }
     
     public async Task HandleMeetingPrCommand(SocketSlashCommand command) {
         
         await command.RespondAsync("Creating blacklist meeting room.", ephemeral: true);
-        var channel = _guild.GetChannel(1482455836776333322) as SocketTextChannel;
+        var guild = _client.GetGuild((ulong)_guildId!);
+        var channel = guild.GetChannel(1482455836776333322) as SocketTextChannel;
         SocketGuildUser? person = null;
         var meetingName = "";
         var type = "";
@@ -86,7 +86,8 @@ public class MeetingSystem {
     public async Task HandleMeetingReprimandCommand(SocketSlashCommand command) {
         
         await command.RespondAsync("Creating reprimand meeting room.", ephemeral: true);
-        var channel = _guild.GetChannel(1482455836776333322) as SocketTextChannel;
+        var guild = _client.GetGuild((ulong)_guildId!);
+        var channel = guild.GetChannel(1482455836776333322) as SocketTextChannel;
         SocketGuildUser? person = null;
         var meetingName = "";
         
@@ -113,13 +114,13 @@ public class MeetingSystem {
         await person.AddRoleAsync(1492674198345224293);
         await person.AddRoleAsync(1492678150025379860);
         
-        var freshPerson = _guild.GetUser(person.Id);
+        var freshPerson = guild.GetUser(person.Id);
 
-        await _db.SetIsCivilian(freshPerson.Id, freshPerson.Roles.Contains(_guild.GetRole(1473369383471677461)));
-        await _db.SetIsEnlisted(freshPerson.Id, freshPerson.Roles.Contains(_guild.GetRole(1473368797023961139)));
-        await _db.SetIsFan(freshPerson.Id, person.Roles.Contains(_guild.GetRole(1475720710910382310)));
-        await _db.SetIsPartner(freshPerson.Id, freshPerson.Roles.Contains(_guild.GetRole(1473514553240322148)));
-        await _db.SetIsProspect(freshPerson.Id, freshPerson.Roles.Contains(_guild.GetRole(1473369036766052445)));
+        await _db.SetIsCivilian(freshPerson.Id, freshPerson.Roles.Contains(guild.GetRole(1473369383471677461)));
+        await _db.SetIsEnlisted(freshPerson.Id, freshPerson.Roles.Contains(guild.GetRole(1473368797023961139)));
+        await _db.SetIsFan(freshPerson.Id, person.Roles.Contains(guild.GetRole(1475720710910382310)));
+        await _db.SetIsPartner(freshPerson.Id, freshPerson.Roles.Contains(guild.GetRole(1473514553240322148)));
+        await _db.SetIsProspect(freshPerson.Id, freshPerson.Roles.Contains(guild.GetRole(1473369036766052445)));
         
         if (await _db.GetIsCivilian(freshPerson.Id)) {
             await freshPerson.RemoveRoleAsync(1473369383471677461);
@@ -221,26 +222,28 @@ public class MeetingSystem {
         
         var json = JsonSerializer.Serialize(payload);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var guild = _client.GetGuild((ulong)_guildId!);
 
         try {
             var response = await HttpClient.PostAsync($"{SiteBaseUrl}/api/meeting", content);
             if (!response.IsSuccessStatusCode) {
                 Console.WriteLine($"[ MeetingLog ] Failed to post {label}: {response.StatusCode}");
-                await _logHandler.LogExceptionWatch(_guild.Id, text: $"[ MeetingLog ] Failed to post {label}: {response.StatusCode}");
+                await _logHandler.LogExceptionWatch(guild.Id, text: $"[ MeetingLog ] Failed to post {label}: {response.StatusCode}");
             }
         } catch (Exception ex) {
             Console.WriteLine($"[ MeetingLog ] Error posting {label}: {ex.Message}");
-            await _logHandler.LogExceptionWatch(_guild.Id, text: $"[ MeetingLog ] Error posting {label}:\n {ex.Message}");
+            await _logHandler.LogExceptionWatch(guild.Id, text: $"[ MeetingLog ] Error posting {label}:\n {ex.Message}");
         }
     }
 
     public async Task HandleMeetingCloseCommand(SocketSlashCommand command) {
         
-        SocketChannel channel = _guild.GetChannel(command.ChannelId!.Value);
+        var guild = _client.GetGuild((ulong)_guildId!);
+        SocketChannel channel = guild.GetChannel(command.ChannelId!.Value);
         
         if (((SocketTextChannel)channel).Name.Contains("meeting-") && channel is IThreadChannel) {
             await command.RespondAsync("Closing meeting room.", ephemeral: true);
-            var thread = _guild.GetThreadChannel(channel.Id);
+            var thread = guild.GetThreadChannel(channel.Id);
             IReadOnlyCollection<SocketThreadUser> users = await thread.GetUsersAsync();
             
             var messages = (await thread.GetMessagesAsync(500).FlattenAsync()).OrderBy(m => m.Timestamp).ToList(); 
@@ -256,13 +259,13 @@ public class MeetingSystem {
             }
 
             await CloseMeetingLog(thread.Name);
-            var logChannel = _guild.GetChannel(1516597401287131176) as IThreadChannel;
+            var logChannel = guild.GetChannel(1516597401287131176) as IThreadChannel;
             
             try {
                 if (logChannel != null) await logChannel.SendMessageAsync($"Meeting Log saved: {SiteBaseUrl}/meeting/{thread.Name}\n\nUsers:\n" + userList);
             } catch (Exception ex) {
                 Console.WriteLine($"[MeetingLog] Could not send followup: {ex.Message}");
-                await _logHandler.LogExceptionWatch(_guild.Id, text: $"[MeetingLog] Could not send followup:\n {ex.Message}");
+                await _logHandler.LogExceptionWatch(guild.Id, text: $"[MeetingLog] Could not send followup:\n {ex.Message}");
             }
 
             if (((SocketTextChannel)channel).Name.Contains("meeting-repri-")) {

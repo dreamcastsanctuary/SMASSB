@@ -13,15 +13,14 @@ public class ShopSystem {
     private readonly DiscordSocketClient _client;
     private readonly DatabaseService _db;
     private readonly LogHandler _logHandler;
-    private readonly SocketGuild _guild;
+    private readonly ulong? _guildId;
     
     public ShopSystem(DiscordSocketClient client, LogHandler logHandler, DatabaseService db, GuildConfiguration guildConfig) {
         
         _client = client;
         _logHandler = logHandler;
         _db = db;
-        var guildId = guildConfig.GuildId;
-        _guild = client.GetGuild(guildId);
+        _guildId = guildConfig.GuildId;
     }
     
     public async Task PostShopContents(SocketSlashCommand command) {
@@ -330,7 +329,8 @@ public class ShopSystem {
                 break;
         }
         
-        var user = _guild.GetUser(ownerId);
+        var guild = _client.GetGuild((ulong)_guildId!);
+        var user = guild.GetUser(ownerId);
 
         if (alreadyOwnedMessage != null) {
             await user.SendMessageAsync(alreadyOwnedMessage);

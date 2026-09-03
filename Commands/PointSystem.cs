@@ -10,7 +10,7 @@ public class PointSystem {
     
     private readonly DiscordSocketClient _client;
     private readonly DatabaseService _db;
-    private readonly SocketGuild _guild;
+    private readonly ulong? _guildId;
     private readonly LogHandler _logHandler;
     private static readonly HttpClient HttpClient = new HttpClient {
         BaseAddress = new Uri(Environment.GetEnvironmentVariable("BOT_B_API_URL") ?? throw new Exception("BOT_B_API_URL environment variable not set.")),
@@ -22,8 +22,7 @@ public class PointSystem {
         _client = client;
         _logHandler = logHandler;
         _db = db;
-        var guildId = guildConfig.GuildId;
-        _guild = client.GetGuild(guildId);
+        _guildId = guildConfig.GuildId;
     }
 
     public async Task ShowPoints(SocketSlashCommand command) {
@@ -228,7 +227,8 @@ public class PointSystem {
         var channelId = ulong.Parse(linkMatch.Groups[2].Value);
         var messageId = ulong.Parse(linkMatch.Groups[3].Value);
         
-        var channel = _guild.GetTextChannel(channelId);
+        var guild = _client.GetGuild((ulong)_guildId!);
+        var channel = guild.GetTextChannel(channelId);
         if (channel == null) {
             await command.FollowupAsync("I couldn't find that channel! Does it... exist?");
             return;
@@ -336,8 +336,8 @@ public class PointSystem {
             summary += "\n";
             
             if (currency != 0) {
-                if (_guild != null) {
-                    var member = _guild.GetUser(userId);
+                if (guild != null) {
+                    var member = guild.GetUser(userId);
                     try {
                         var response = await HttpClient.PostAsJsonAsync("/internal/currency",
                             new CurrencyModels.CurrencyRequest(userId, currency));
@@ -533,11 +533,12 @@ public class PointSystem {
         var enlisted = new List<SocketGuildUser>();
         var currencyFailures = new List<CurrencySyncException>();
         var results = new List<(SocketGuildUser User, long Balance)>();
+        var guild = _client.GetGuild((ulong)_guildId!);
         
         await command.DeferAsync();
         
         foreach (var userId in _db.GetEnlisted()) {
-            var member = _guild.GetUser(ulong.Parse(userId));
+            var member = guild.GetUser(ulong.Parse(userId));
             if (member != null) enlisted.Add(member);
         }
         

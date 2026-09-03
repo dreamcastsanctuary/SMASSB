@@ -16,7 +16,7 @@ public class ExtraneousHandler {
     private readonly ShopSystem _shopSystem;
     private readonly DatabaseService _db;
     private readonly LogHandler _logHandler;
-    private SocketGuild _guild;
+    private readonly ulong? _guildId;
 
     public ExtraneousHandler(DiscordSocketClient client,
         LogHandler logHandler,
@@ -34,8 +34,7 @@ public class ExtraneousHandler {
         _shopSystem = shopSystem;
         _db = db;
         _logHandler = logHandler;
-        var guildId = guildConfig.GuildId;
-        _guild = client.GetGuild(guildId);
+        _guildId = guildConfig.GuildId;
     }
 
     public async Task ReactionAddedHandler(SocketGuild guild, Cacheable<IUserMessage, ulong> cache, Cacheable<IMessageChannel, ulong> channel, SocketReaction reaction) {
@@ -354,13 +353,13 @@ public class ExtraneousHandler {
         }
     }
 
-    public async Task AutoEnlistKohosei() {
-
+    public async Task AutoEnlistKohosei(SocketGuild guild) {
+        
         using var timer = new PeriodicTimer(TimeSpan.FromHours(1));
-        var channel = _guild.GetTextChannel(1473516609397063680);
+        var channel = guild.GetTextChannel(1473516609397063680);
 
         while (await timer.WaitForNextTickAsync()) {
-            IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> collection = _guild.GetUsersAsync();
+            IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> collection = guild.GetUsersAsync();
 
             await foreach (var members in collection) {
                 foreach (var member in members) {
@@ -378,12 +377,12 @@ public class ExtraneousHandler {
         }
     }
 
-    public async Task KickUnEnlisted() {
+    public async Task KickUnEnlisted(SocketGuild guild) {
 
         using var timer = new PeriodicTimer(TimeSpan.FromDays(3));
 
         while (await timer.WaitForNextTickAsync()) {
-            IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> collection = _guild.GetUsersAsync();
+            IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> collection = guild.GetUsersAsync();
 
             await foreach (var members in collection) {
                 foreach (var user in members) {
@@ -402,7 +401,7 @@ public class ExtraneousHandler {
 
                     if ((!isCivilian && !isProspect && !isUnverified) || !isInactive) continue;
                     
-                    var channel = _guild.GetChannel(1486431270941622363) as ITextChannel;
+                    var channel = guild.GetChannel(1486431270941622363) as ITextChannel;
 
                     try {
                         await user.SendMessageAsync("Hello! This is the *Automatic Messaging System* at the Sangō Idol-Defense Force.\n\nWe are messaging you in regards to your activity. As outlined in our syllabus, prospects and civilians (who are NOT fans) are to be kicked from the server in the case that they are inactive for more than 2 months in order to keep member counts accurate.\n\nWe thank you for attempting to experience Sangō!\n\nIf you feel this is a mistake, please friend request and send a message to *@fastestthingalive* in order to regain access to the server. If it is not, yet you still wish to join back, please give yourself __a week or so__ and do as previously instructed. Just to make sure you *really* want to!\n\nPlease have a good day, " + user.Username + "!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
@@ -460,7 +459,8 @@ public class ExtraneousHandler {
     public async Task ButtonHandler(SocketMessageComponent component) {
 
         var id = component.Data.CustomId;
-
+        var guild = _client.GetGuild((ulong)component.GuildId!);
+        
         if (id.StartsWith("buy_item_")) {
             try {
                 var parts = id.Split('_');
@@ -475,7 +475,7 @@ public class ExtraneousHandler {
                 await _shopSystem.Buy(itemNum, buyerId, channelId);
                 
             } catch (Exception ex) {
-                await _logHandler.LogExceptionWatch(_guild.Id, exception: ex);
+                await _logHandler.LogExceptionWatch(guild.Id, exception: ex);
                 Console.WriteLine($"buy_item button error: {ex.Message}");
                 
                 if (!component.HasResponded) {
@@ -499,7 +499,7 @@ public class ExtraneousHandler {
                 await _cellSystem.HandleFlipOver(component, statePayload, yen, earningsSummary.Item1, earningsSummary.Item3, earningsSummary.Item4);
             } catch (Exception ex) {
                 Console.WriteLine($"flip_over error: {ex}");
-                await _logHandler.LogExceptionWatch(_guild.Id, exception: ex, text: "flip_over error.");
+                await _logHandler.LogExceptionWatch(guild.Id, exception: ex, text: "flip_over error.");
             }
             return;
         }
@@ -518,7 +518,7 @@ public class ExtraneousHandler {
                 
             } catch (Exception ex) {
                 Console.WriteLine($"launch_emulatorjs button error: {ex.Message}");
-                await _logHandler.LogExceptionWatch(_guild.Id, exception: ex, text: "launch_emulatorjs button error.");
+                await _logHandler.LogExceptionWatch(guild.Id, exception: ex, text: "launch_emulatorjs button error.");
             }
             return;
         }
@@ -541,7 +541,7 @@ public class ExtraneousHandler {
                 });
             } catch (Exception ex) {
                 Console.WriteLine($"leaderboard button error: {ex}");
-                await _logHandler.LogExceptionWatch(_guild.Id, exception: ex, text: "leaderboard button error.");
+                await _logHandler.LogExceptionWatch(guild.Id, exception: ex, text: "leaderboard button error.");
             }
         }
     }

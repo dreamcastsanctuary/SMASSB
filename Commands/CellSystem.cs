@@ -21,15 +21,14 @@ public class CellSystem {
     private readonly DatabaseService _db;
     private readonly LogHandler _logHandler;
     private static readonly HttpClient HttpClient = new HttpClient();
-    private readonly SocketGuild _guild;
+    private readonly ulong? _guildId;
 
     public CellSystem(DiscordSocketClient client, LogHandler logHandler, DatabaseService db, GuildConfiguration guildConfig) {
         
         _client = client;
         _logHandler = logHandler;
         _db = db;
-        var guildId = guildConfig.GuildId;
-        _guild = client.GetGuild(guildId);
+        _guildId = guildConfig.GuildId;
     }
 
     public static async Task BuildCell(SocketSlashCommand command,
@@ -130,7 +129,7 @@ public class CellSystem {
     }
 
     public async Task HandleLaunchEmulatorJs(SocketMessageComponent component, ulong ownerId, string game) {
-
+        
         if (component.User.Id != ownerId) {
             await component.RespondAsync("This isn't your cell! You like touching things that don't belong to you?", ephemeral: true);
             return;
@@ -146,7 +145,9 @@ public class CellSystem {
         if (!response.IsSuccessStatusCode) {
             var errorBody = await response.Content.ReadAsStringAsync();
             Console.WriteLine($"LaunchActivity failed: {response.StatusCode} - {errorBody}");
-            await _logHandler.LogExceptionWatch(_guild.Id, text: $"LaunchActivity failed: {response.StatusCode} - {errorBody}");
+            
+            var guild = _client.GetGuild((ulong)_guildId!);
+            await _logHandler.LogExceptionWatch(guild.Id, text: $"LaunchActivity failed: {response.StatusCode} - {errorBody}");
             await component.RespondAsync("Couldn't launch the app... Ask for help!", ephemeral: true);
         }
     }
@@ -228,7 +229,8 @@ public class CellSystem {
             });
         } catch (Exception ex) {
             Console.WriteLine($"HandleFlipOver failed: {ex}");
-            await _logHandler.LogExceptionWatch(_guild.Id, exception: ex, text: "HandleFlipOver failed.");
+            var guild = _client.GetGuild((ulong)_guildId!);
+            await _logHandler.LogExceptionWatch(guild.Id, exception: ex, text: "HandleFlipOver failed.");
 
             if (!component.HasResponded) {
                 await component.RespondAsync("Something went wrong flipping the cell.", ephemeral: true);
@@ -431,6 +433,7 @@ public class CellSystem {
         await command.DeferAsync();
 
         var enlisted = (SocketGuildUser)command.User;
+        var guild = _client.GetGuild((ulong)_guildId!);
         string? addedApp = null;
         string? removedApp = null;
         string? cellCase = null;
@@ -486,7 +489,7 @@ public class CellSystem {
         var wallpaperParam = await _db.GetWallpaperType(enlisted.Id);
         var appsParam = await _db.GetApps(enlisted.Id);
         var (currentWeekEarnings, _, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
-        var member = _guild.GetUser(enlisted.Id);
+        var member = guild.GetUser(enlisted.Id);
 
         if (member == null) {
             await command.FollowupAsync("Could not find that user.", ephemeral: true);
@@ -499,7 +502,9 @@ public class CellSystem {
     public async Task ShowWorkCell(SocketSlashCommand command) {
 
         await command.DeferAsync();
-        SocketGuildUser enlisted = (SocketGuildUser)command.User;
+        
+        var enlisted = (SocketGuildUser)command.User;
+        var guild = _client.GetGuild((ulong)_guildId!);
 
         foreach (var option in command.Data.Options) {
             switch (option.Name) {
@@ -518,7 +523,7 @@ public class CellSystem {
         var wallpaperParam = await _db.GetWallpaperType(enlisted.Id);
         var appsParam = await _db.GetApps(enlisted.Id);
         var (currentWeekEarnings, _, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
-        var member = _guild.GetUser(enlisted.Id);
+        var member = guild.GetUser(enlisted.Id);
 
         if (member == null) {
             await command.FollowupAsync("Could not find that user.", ephemeral: true);
