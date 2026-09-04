@@ -96,7 +96,7 @@ public class IdSystem {
         }));
         
         var namePos = new Point(827, 452);
-        var avatarPos = new Point(93,369);
+        var avatarPos = new Point(93,373);
         var idPos = new Point(1219,154);
         var datePos = new Point(827,531);
         var rankPos = new Point(827,609);
