@@ -135,7 +135,6 @@ public class Program {
         
         Console.WriteLine(msg.ToString());
         _guildId = ulong.Parse(Environment.GetEnvironmentVariable("GUILD_ID") ?? throw new Exception("GUILD_ID environment variable not set."));
-        if (_logHandler != null) await _logHandler.LogExceptionWatch(_guildId, msg);
         
         return Task.CompletedTask;
     }

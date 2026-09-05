@@ -91,7 +91,7 @@ public class LogHandler {
                         await channel.SendFileAsync(stream, "combined.png", embed: embedBuilder.Build());
                 }
             } catch {
-                await LogExceptionWatch(guild.Id, text: $"{beforeUser.Nickname}'s avatar wasn't cached!");
+                Console.WriteLine($"{beforeUser.Nickname}'s avatar wasn't cached!");
             }
 
             var addedRoles = after.Roles.Except(beforeUser.Roles);
