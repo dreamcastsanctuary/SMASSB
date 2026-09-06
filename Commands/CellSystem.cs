@@ -93,7 +93,6 @@ public class CellSystem {
             foreach (var (label, game) in rowButtons) {
                 actionRow.WithButton(label, customId: $"launch_emulatorjs:{ownerId}:{game}", style: ButtonStyle.Success);
             }
-
             container.AddComponent(actionRow);
         }
 
@@ -110,9 +109,7 @@ public class CellSystem {
                     components: components
                 );
             }
-            catch (Discord.Net.HttpException ex) {
-                await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message);
-            }
+            catch {}
         } else {
             
             var components = new ComponentBuilderV2()
