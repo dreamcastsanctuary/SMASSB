@@ -155,20 +155,6 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
         commands.Add(new SlashCommandBuilder()
-            .WithName("addrecruits")
-            .WithDescription("Add to a member's recruit counter.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
-            .AddOption("recruitpoints", ApplicationCommandOptionType.Integer, "How many recruits did this person get? (If applicable.)", isRequired: true)
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
-        
-        commands.Add(new SlashCommandBuilder()
-            .WithName("removerecruits")
-            .WithDescription("Subtract from a member's recruit counter.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
-            .AddOption("recruitpoints", ApplicationCommandOptionType.Integer, "Messed up with the count? www", isRequired: true)
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
-        
-        commands.Add(new SlashCommandBuilder()
             .WithName("duo")
             .WithDescription("Gives two people the Duo Group role.")
             .AddOption("member1", ApplicationCommandOptionType.User, "The first member this applies to.", isRequired: true)
@@ -279,12 +265,12 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         commands.Add(new SlashCommandBuilder()
-            .WithName("addpoints")
-            .WithDescription("Adds points to a member.")
+            .WithName("addvalues")
+            .WithDescription("Adds certain values to a member.")
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
-            .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to add.", isRequired: true)
+            .AddOption("points", ApplicationCommandOptionType.Integer, "The amount of points to add. (If applicable.)")
             .AddOption("recruitpoints", ApplicationCommandOptionType.Integer, "How many recruits did this person get? (If applicable.)")
-            .AddOption("currency", ApplicationCommandOptionType.Integer, "How many star pieces did this person get? (If applicable.)")
+            .AddOption("yen", ApplicationCommandOptionType.Integer, "How much yen did this person get? (If applicable.)")
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
@@ -299,10 +285,12 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         commands.Add(new SlashCommandBuilder()
-            .WithName("removepoints")
-            .WithDescription("Removes points from a member.")
+            .WithName("removevalues")
+            .WithDescription("Removes certain values from a member.")
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
-            .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to remove.", isRequired: true)
+            .AddOption("points", ApplicationCommandOptionType.Integer, "The amount of points to remove. (If applicable.)")
+            .AddOption("recruitpoints", ApplicationCommandOptionType.Integer, "How many recruits did this person get? (If applicable.)")
+            .AddOption("yen", ApplicationCommandOptionType.Integer, "How much yen did this person get? (If applicable.)")
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         
@@ -364,20 +352,6 @@ public class CommandHandler {
             .WithName("showotherworkcell")
             .WithDescription("Shows another member's Work Cellphone.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
-        
-        commands.Add(new SlashCommandBuilder()
-            .WithName("addyen")
-            .WithDescription("Adds yen to a member.")
-            .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
-            .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to add.", isRequired: true)
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
-        
-        commands.Add(new SlashCommandBuilder()
-            .WithName("removeyen")
-            .WithDescription("Removes yen from a member.")
-            .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
-            .AddOption("amount", ApplicationCommandOptionType.Integer, "The amount of points to remove.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         var appOption = new SlashCommandOptionBuilder()
@@ -514,23 +488,17 @@ public class CommandHandler {
                 await _idSystem.HandleForceUpdateCommand(command);
                 break;
             
-            case "addpoints":
-                await _pointSystem.EditPoints(command, true);
+            case "addvalues":
+                await _pointSystem.EditValues(command, true);
                 break;
-            case "removepoints":
-                await _pointSystem.EditPoints(command, false);
+            case "removevalues":
+                await _pointSystem.EditValues(command, false);
                 break;
             case "batchpoints":
                 await _pointSystem.HandleBatchPoints(command);
                 break;
             case "leaderboard":
                 await _pointSystem.Leaderboard(command);
-                break;
-            case "addrecruits":
-                await _pointSystem.EditRecruits(command, true);
-                break;
-            case "removerecruits":
-                await _pointSystem.EditRecruits(command, false);
                 break;
             case "batchrecruits":
                 await _pointSystem.HandleBatchRecruits(command);
@@ -551,12 +519,6 @@ public class CommandHandler {
                 break;
             case "showotherworkcell":
                 await _cellSystem.ShowWorkCell(command);
-                break;
-            case "addyen":
-                await _cellSystem.EditYen(command, true);
-                break;
-            case "removeyen":
-                await _cellSystem.EditYen(command, false);
                 break;
             case "addcelladdons":
                 await _cellSystem.EditAddons(command, true);

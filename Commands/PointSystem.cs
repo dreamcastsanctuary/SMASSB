@@ -54,11 +54,12 @@ public class PointSystem {
         await command.RespondAsync(embed: embed);
     }
 
-    public async Task EditPoints(SocketSlashCommand command, bool add) {
+    public async Task EditValues(SocketSlashCommand command, bool add) {
         
         var enlisteds = new List<SocketGuildUser>();
         var points = 0;
         var recruits = 0;
+        var yen = 0;
         var currency = 0;
         
         foreach (var option in command.Data.Options) {
@@ -66,8 +67,11 @@ public class PointSystem {
             if (option.Name.StartsWith("enlisted")) {
                 enlisteds.Add((SocketGuildUser)option.Value);
             } else switch (option.Name) {
-                case "amount":
+                case "points":
                     points = (int)(long) option.Value;
+                    break;
+                case "yen":
+                    yen = (int)(long) option.Value;
                     break;
                 case "recruitpoints":
                     recruits = (int)(long) option.Value;
@@ -90,20 +94,40 @@ public class PointSystem {
             if (add) {
                 await _db.AddPoints(member.Id, points);
                 await _db.AddRecruits(member.Id, recruits);
-                var current = await _db.GetPoints(member.Id);
+                await _db.AddYen(member.Id, yen);
+                var currentP = await _db.GetPoints(member.Id);
                 var currentR = await _db.GetRecruits(member.Id);
+                var currentY = await _db.GetYen(member.Id);
 
-                if (recruits == 0) {
-                    embedBuilder.WithDescription("This member has been given ***" + points + "*** point" + (points == 1 ? "" : "s") + ", and now has ***" + current + "*** point" + (current == 1 ? "" : "s") + ".");
-                } else {
-                    embedBuilder.WithDescription("This member has been given ***" + points + "*** point" + (points == 1 ? "" : "s") +",\nand now has ***" + current + "*** point" + (current == 1 ? "" : "s") + ".\n\nThey've also scouted ***" + recruits + "*** recruit" + (recruits == 1 ? "" : "s") + ", and now has scouted ***" + currentR + "*** recruit" + (currentR == 1 ? "" : "s") + " in total!");
+                var desc = "";
+
+                if (yen != 0) {
+                    desc += $"\nThey've received ¥{yen} and now have a balance of ***{currentY}*** yen in total.";
                 }
+                if (recruits != 0) {
+                    desc += $"\nThey've also scouted ***{recruits}*** recruit{(recruits == 1 ? "" : "s")}, and now has scouted ***{currentR}*** recruit{(currentR == 1 ? "" : "s")} in total!";
+                }
+                
+                embedBuilder.WithDescription($"This member has been given ***{points}*** point{(points == 1 ? "" : "s")}, and now has ***{currentP}*** point{(currentP == 1 ? "" : "s")}.{desc}");
                 
             } else {
                 await _db.RemovePoints(member.Id, points);
-                var current = await _db.GetPoints(member.Id);
+                await _db.RemoveRecruits(member.Id, recruits);
+                await _db.RemoveYen(member.Id, yen);
+                var currentP = await _db.GetPoints(member.Id);
+                var currentR = await _db.GetRecruits(member.Id);
+                var currentY = await _db.GetYen(member.Id);
             
-                embedBuilder.WithDescription("You have removed ***" + points + "*** point" + (points == 1 ? "" : "s") + " from this member.\nThey now have ***" + current + "*** point" + (current == 1 ? "" : "s") + ".");
+                var desc = "";
+                
+                if (yen != 0) {
+                    desc += $"\nYou've removed ¥{yen}, this user now has a balance of ***{currentY}*** yen in total.";
+                }
+                if (recruits != 0) {
+                    desc += $"\nYou've removed ***{recruits}*** recruit{(recruits == 1 ? "" : "s")}, this person's total scouting count is now ***{currentR}*** recruit{(currentR == 1 ? "" : "s")} in total!";
+                }
+                
+                embedBuilder.WithDescription($"You have removed ***{points}*** point{(points == 1 ? "" : "s")} from this member. They now have ***{currentP}*** point{(currentP == 1 ? "" : "s")}.{desc}");
             }
 
             embedBuilder
@@ -142,54 +166,6 @@ public class PointSystem {
                 await command.FollowupAsync(e.ToString());
             }
         }
-    }
-
-    public async Task EditRecruits(SocketSlashCommand command, bool add) {
-        
-        SocketGuildUser? member = null;
-        var recruits = 0;
-        
-        foreach (var option in command.Data.Options)
-        {
-            switch (option.Name)
-            {
-                case "member":
-                    member = ((SocketGuildUser)option.Value);
-                    break;
-                case "recruitpoints":
-                    recruits = (int)(long)option.Value;
-                    break;
-                case "amount":
-                    break;
-                default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
-                    break;
-            }
-        }
-
-        if (member == null) return;
-        
-        var embedBuilder = new EmbedBuilder();
-        
-        if (add) {
-            await _db.AddRecruits(member.Id, recruits);
-            var current = await _db.GetRecruits(member.Id);
-            
-            embedBuilder.WithDescription("This member has scouted ***" + recruits + "*** recruit" + (recruits == 1 ? "" : "s") + ", and now has scouted ***" + current + "*** recruit" + (current == 1 ? "" : "s") + " in total!");
-        } else {
-            
-            await _db.RemoveRecruits(member.Id, recruits);
-            var current = await _db.GetRecruits(member.Id);
-            
-            embedBuilder.WithDescription("You have removed ***" + recruits + "*** recruitpoint" + (recruits == 1 ? "" : "s") + " from this member.\nThey now have ***" + current + "*** recruitpoint" + (current == 1 ? "" : "s") + ".");
-        }
-
-        embedBuilder
-            .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())
-            .WithTitle("❖﹒Done and done!")
-            .WithColor(0x44786F);
-        
-        await command.RespondAsync(embed: embedBuilder.Build());
     }
     
     private static readonly Regex BatchLineRegex = new Regex(@"^\s*(?<name>.+?)\s+(?<tokens>(?:[pcry]\d+\s*)+)$", RegexOptions.IgnoreCase | RegexOptions.Compiled);

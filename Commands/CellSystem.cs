@@ -8,7 +8,6 @@ using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
 using SMASSB.Data;
-using SMASSB.Exceptions;
 using SMASSB.Models;
 using Image = SixLabors.ImageSharp.Image;
 using Color = SixLabors.ImageSharp.Color;
@@ -528,36 +527,6 @@ public class CellSystem {
         }
 
         await BuildCell(command, member, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id), currentWeekEarnings, percentChange, isIncrease);
-    }
-
-    public async Task EditYen(SocketSlashCommand command, bool add) {
-
-        var enlisteds = new List<SocketGuildUser>();
-        var yen = 0;
-
-        foreach (var option in command.Data.Options) {
-            
-            if (option.Name.StartsWith("enlisted")) {
-                enlisteds.Add((SocketGuildUser)option.Value);
-            } else switch (option.Name) {
-                case "amount":
-                    yen = (int)(long)option.Value;
-                    break;
-                default:
-                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
-                    return;
-            }
-        }
-
-        foreach (var member in enlisteds) {
-
-            if (add)
-                await _db.AddYen(member.Id, yen);
-            else
-                await _db.RemoveYen(member.Id, yen);
-        }
-
-        await command.RespondAsync("Done!");
     }
 
     public async Task EditAddons(SocketSlashCommand command, bool add) {
