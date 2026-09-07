@@ -444,8 +444,8 @@ public class PointSystem {
         }
         
         var messagesAsync = channel.GetMessagesAsync();
-        
         var desc = "";
+        const int messageLimit = 1900;
 
         await foreach (var batch in messagesAsync) {
             foreach (var message in batch) {
@@ -455,16 +455,28 @@ public class PointSystem {
                     continue;
                 }
 
+                var line = "";
                 try {
                     await _db.AddPoints(user.Id, 2);
-                    desc += $"Parsed **{user.Username}**.\n";
+                    line = $"Parsed **{user.Username}**.\n";
                 } catch {
-                    desc += $"Failed **{user.Username}**.\n";
+                    line = $"Failed **{user.Username}**.\n";
+                }
+
+                if ((desc + line).Length > messageLimit) {
+                    await command.FollowupAsync(desc);
+                    desc = line;
+                } else {
+                    desc += line;
                 }
             }
         }
 
-        await command.FollowupAsync(desc + "\n\nThere should be no more responses in this channel.");
+        if (!string.IsNullOrEmpty(desc)) {
+            await command.FollowupAsync(desc);
+        }
+
+        await command.FollowupAsync("There should be no more responses in this channel.");
     }
 
 
