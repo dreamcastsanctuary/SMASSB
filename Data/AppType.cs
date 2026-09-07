@@ -11,5 +11,8 @@ public enum AppType {
     TOMODACHICOLLECTION,
     SONICADVANCE,
     WARIOWARE,
-    SHANTAE
+    SHANTAE,
+    EARTHBOUND,
+    RISTAR,
+    PACMAN
 }

@@ -52,6 +52,9 @@ public class CellSystem {
         var hasWarioApp = appsParam.Contains(nameof(AppType.WARIOWARE));
         var hasShantaeApp = appsParam.Contains(nameof(AppType.SHANTAE));
         var hasHeavenApp = appsParam.Contains(nameof(AppType.RHYTHMHEAVEN));
+        var hasMotherApp = appsParam.Contains(nameof(AppType.EARTHBOUND));
+        var hasRistarApp = appsParam.Contains(nameof(AppType.RISTAR));
+        var hasPacmanApp = appsParam.Contains(nameof(AppType.PACMAN));
 
         var appFlags = (hasTengokuApp ? 1 : 0)
                        | (hasMadouApp ? 2 : 0)
@@ -62,10 +65,13 @@ public class CellSystem {
                        | (hasSonicAdvanceApp ? 64 : 0)
                        | (hasWarioApp ? 128 : 0)
                        | (hasShantaeApp ? 256 : 0)
-                       | (hasHeavenApp ? 512 : 0);
+                       | (hasHeavenApp ? 512 : 0)
+                       | (hasMotherApp ? 1024 : 0)
+                       | (hasRistarApp ? 2048 : 0)
+                       | (hasPacmanApp ? 4096 : 0);
 
         var flipCustomId = $"flip_over:{ownerId}|front|{caseType}|{charmType}|{wallpaperType}|{appFlags}";
-        var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, hasMadouApp, hasPuyoApp, hasLeafGreenApp, hasTetrisApp, hasTomodachiApp, hasSonicAdvanceApp, hasWarioApp, hasShantaeApp, hasHeavenApp, caseType, charmType, wallpaperType, isFront: true, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
+        var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, hasMadouApp, hasPuyoApp, hasLeafGreenApp, hasTetrisApp, hasTomodachiApp, hasSonicAdvanceApp, hasWarioApp, hasShantaeApp, hasHeavenApp, hasMotherApp, hasRistarApp, hasPacmanApp, caseType, charmType, wallpaperType, isFront: true, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
 
         var container = new ContainerBuilder()
             .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
@@ -83,6 +89,9 @@ public class CellSystem {
         if (hasWarioApp) appButtons.Add(("Play WarioWare: Mega Microgames", "warioware"));
         if (hasShantaeApp) appButtons.Add(("Play Shantae", "shantae"));
         if (hasHeavenApp) appButtons.Add(("Play Rhythm Heaven", "rhythm-heaven"));
+        if (hasMotherApp) appButtons.Add(("Play Earthbound", "earthbound"));
+        if (hasRistarApp) appButtons.Add(("Play Ristar", "ristar"));
+        if (hasPacmanApp) appButtons.Add(("Play Pacman", "pacman"));
 
         const int maxButtonsPerRow = 5;
 
@@ -180,12 +189,15 @@ public class CellSystem {
             var hasWarioApp = (appFlags & 128) != 0;
             var hasShantaeApp = (appFlags & 256) != 0;
             var hasHeavenApp = (appFlags & 512) != 0;
+            var hasMotherApp = (appFlags & 1024) != 0;
+            var hasRistarApp = (appFlags & 2048) != 0;
+            var hasPacmanApp = (appFlags & 4096) != 0;
 
             var nextSide = currentSide == "front" ? "back" : "front";
             var isFrontNext = nextSide == "front";
 
             var nextCustomId = $"flip_over:{ownerId}|{nextSide}|{caseType}|{charmType}|{wallpaperType}|{appFlags}";
-            var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, hasMadouApp, hasPuyoApp, hasLeafGreenApp, hasTetrisApp, hasTomodachiApp, hasSonicAdvanceApp, hasWarioApp, hasShantaeApp, hasHeavenApp, caseType, charmType, wallpaperType, isFront: isFrontNext, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
+            var (cellAttachment, cellImageUrl) = GetCellImage(hasTengokuApp, hasMadouApp, hasPuyoApp, hasLeafGreenApp, hasTetrisApp, hasTomodachiApp, hasSonicAdvanceApp, hasWarioApp, hasShantaeApp, hasHeavenApp, hasMotherApp, hasRistarApp, hasPacmanApp, caseType, charmType, wallpaperType, isFront: isFrontNext, yen: yen, userId: ownerId, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
 
             var container = new ContainerBuilder()
                 .AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl)))
@@ -203,6 +215,9 @@ public class CellSystem {
             if (hasWarioApp) appButtons.Add(("Play WarioWare: Mega Microgames", "warioware"));
             if (hasShantaeApp) appButtons.Add(("Play Shantae", "shantae"));
             if (hasHeavenApp) appButtons.Add(("Play Rhythm Heaven", "rhythm-heaven"));
+            if (hasMotherApp) appButtons.Add(("Play Earthbound", "earthbound"));
+            if (hasRistarApp) appButtons.Add(("Play Ristar", "ristar"));
+            if (hasPacmanApp) appButtons.Add(("Play Pacman", "pacman"));
 
             const int maxButtonsPerRow = 5;
 
@@ -244,6 +259,9 @@ public class CellSystem {
                                                                           bool hasWarioApp,
                                                                           bool hasShantaeApp,
                                                                           bool hasHeavenApp,
+                                                                          bool hasMotherApp,
+                                                                          bool hasRistarApp,
+                                                                          bool hasPacmanApp,
                                                                           string caseType,
                                                                           string charmType,
                                                                           string wallpaperType,
@@ -331,59 +349,77 @@ public class CellSystem {
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
 
-                if (hasMadouApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "madou-app.png");
-                    using var appImage = Image.Load(app);
-                    ipc.DrawImage(appImage, new Point(0, 0), 1);
-                }
-
-                if (hasPuyoApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "puyo-app.png");
-                    using var appImage = Image.Load(app);
-                    ipc.DrawImage(appImage, new Point(0, 0), 1);
-                }
-
-                if (hasLeafGreenApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "leafgreen-app.png");
-                    using var appImage = Image.Load(app);
-                    ipc.DrawImage(appImage, new Point(0, 0), 1);
-                }
-
-                if (hasTetrisApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "tetris-app.png");
-                    using var appImage = Image.Load(app);
-                    ipc.DrawImage(appImage, new Point(0, 0), 1);
-                }
-
-                if (hasTomodachiApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "tomodachi-app.png");
-                    using var appImage = Image.Load(app);
-                    ipc.DrawImage(appImage, new Point(0, 0), 1);
-                }
-
-                if (hasSonicAdvanceApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "sonic-advance-app.png");
-                    using var appImage = Image.Load(app);
-                    ipc.DrawImage(appImage, new Point(0, 0), 1);
-                }
-
-                if (hasWarioApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "warioware-app.png");
-                    using var appImage = Image.Load(app);
-                    ipc.DrawImage(appImage, new Point(0, 0), 1);
-                }
-
-                if (hasShantaeApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "shantae-app.png");
-                    using var appImage = Image.Load(app);
-                    ipc.DrawImage(appImage, new Point(0, 0), 1);
-                }
-
-                if (hasHeavenApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "rhythm-heaven-app.png");
-                    using var appImage = Image.Load(app);
-                    ipc.DrawImage(appImage, new Point(0, 0), 1);
-                }
+                // if (hasMadouApp) {
+                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "madou-app.png");
+                //     using var appImage = Image.Load(app);
+                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
+                // }
+                //
+                // if (hasPuyoApp) {
+                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "puyo-app.png");
+                //     using var appImage = Image.Load(app);
+                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
+                // }
+                //
+                // if (hasLeafGreenApp) {
+                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "leafgreen-app.png");
+                //     using var appImage = Image.Load(app);
+                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
+                // }
+                //
+                // if (hasTetrisApp) {
+                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "tetris-app.png");
+                //     using var appImage = Image.Load(app);
+                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
+                // }
+                //
+                // if (hasTomodachiApp) {
+                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "tomodachi-app.png");
+                //     using var appImage = Image.Load(app);
+                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
+                // }
+                //
+                // if (hasSonicAdvanceApp) {
+                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "sonic-advance-app.png");
+                //     using var appImage = Image.Load(app);
+                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
+                // }
+                //
+                // if (hasWarioApp) {
+                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "warioware-app.png");
+                //     using var appImage = Image.Load(app);
+                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
+                // }
+                //
+                // if (hasShantaeApp) {
+                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "shantae-app.png");
+                //     using var appImage = Image.Load(app);
+                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
+                // }
+                //
+                // if (hasHeavenApp) {
+                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "rhythm-heaven-app.png");
+                //     using var appImage = Image.Load(app);
+                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
+                // }
+                //
+                // if (hasMotherApp) {
+                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "earthbound-app.png");
+                //     using var appImage = Image.Load(app);
+                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
+                // }
+                //
+                // if (hasRistarApp) {
+                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "ristar-app.png");
+                //     using var appImage = Image.Load(app);
+                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
+                // }
+                //
+                // if (hasPacmanApp) {
+                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "pacman-app.png");
+                //     using var appImage = Image.Load(app);
+                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
+                // }
 
             } else {
                 if (charm != null) {
