@@ -432,6 +432,40 @@ public class PointSystem {
 
         await command.FollowupAsync(desc + "\n\nFeel free to use /purgemessages to remove the above messages.");
     }
+    
+    public async Task HandleBatchQotd(SocketSlashCommand command) {
+
+        await command.DeferAsync();
+
+        var channel = command.Channel;
+        if (channel is not SocketThreadChannel) {
+            await command.FollowupAsync("This isn't a QOTD thread!");
+            return;
+        }
+        
+        var messagesAsync = channel.GetMessagesAsync();
+        
+        var desc = "";
+
+        await foreach (var batch in messagesAsync) {
+            foreach (var message in batch) {
+
+                var user = message.Author;
+                if (user == null || user.IsBot) {
+                    continue;
+                }
+
+                try {
+                    await _db.AddPoints(user.Id, 2);
+                    desc += $"Parsed **{user.Username}**.\n";
+                } catch {
+                    desc += $"Failed **{user.Username}**.\n";
+                }
+            }
+        }
+
+        await command.FollowupAsync(desc + "\n\nThere should be no more responses in this channel.");
+    }
 
 
     public async Task Leaderboard(SocketSlashCommand command) {
