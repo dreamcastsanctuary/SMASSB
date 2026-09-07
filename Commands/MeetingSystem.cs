@@ -38,7 +38,7 @@ public class MeetingSystem {
             switch (option.Name) {
                 
                 case "person":
-                    person = ((SocketGuildUser)option.Value);
+                    person = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 case "meeting_name":
                     meetingName = option.Value.ToString();
@@ -95,7 +95,7 @@ public class MeetingSystem {
             switch (option.Name) {
                 
                 case "person":
-                    person = ((SocketGuildUser)option.Value);
+                    person = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 case "meeting_name":
                     meetingName = option.Value.ToString();

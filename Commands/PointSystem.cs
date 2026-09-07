@@ -26,14 +26,14 @@ public class PointSystem {
     }
 
     public async Task ShowPoints(SocketSlashCommand command) {
-        
-        SocketGuildUser member = (SocketGuildUser)command.User;
+
+        var member = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
         
         foreach (var option in command.Data.Options) {
             switch (option.Name) {
                 
                 case "member":
-                    member = ((SocketGuildUser)option.Value);
+                    member = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);
@@ -65,7 +65,7 @@ public class PointSystem {
         foreach (var option in command.Data.Options) {
             
             if (option.Name.StartsWith("enlisted")) {
-                enlisteds.Add((SocketGuildUser)option.Value);
+                enlisteds.Add(_client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id));
             } else switch (option.Name) {
                 case "points":
                     points = (int)(long) option.Value;
@@ -490,7 +490,7 @@ public class PointSystem {
             switch (option.Name) {
                 
                 case "member":
-                    member = ((SocketGuildUser)option.Value);
+                    member = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);

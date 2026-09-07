@@ -187,7 +187,7 @@ public class IdSystem {
 
         await command.DeferAsync();
         
-        var enlisted = (SocketGuildUser)command.User;
+        var enlisted = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
         string? claim = null;
         string? avatarUrl = null;
         string? bloodtype = null;
@@ -270,13 +270,13 @@ public class IdSystem {
     public async Task ShowId(SocketSlashCommand command) {
         
         await command.DeferAsync();
-        SocketGuildUser enlisted = (SocketGuildUser)command.User;
+        var enlisted = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
         
         foreach (var option in command.Data.Options) {
             switch (option.Name)
             {
                 case "member":
-                    enlisted = (SocketGuildUser)option.Value;
+                    enlisted = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 default:
                     await command.FollowupAsync("Unrecognized command.", ephemeral: true);
@@ -309,7 +309,7 @@ public class IdSystem {
             {
 
                 case "member":
-                    member = (SocketGuildUser)option.Value;
+                    member = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 case "id":
                     id = option.Value.ToString();
@@ -334,7 +334,7 @@ public class IdSystem {
             {
 
                 case "member":
-                    member = (SocketGuildUser)option.Value;
+                    member = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 case "id":
                     id = option.Value.ToString();
@@ -374,7 +374,7 @@ public class IdSystem {
             switch (option.Name) {
                 
                 case "member":
-                    member = ((SocketGuildUser)option.Value);
+                    member = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 case "claim_name":
                     claim = option.Value.ToString();

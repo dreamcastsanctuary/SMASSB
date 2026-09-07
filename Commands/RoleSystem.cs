@@ -29,7 +29,7 @@ public class RoleSystem {
             switch (option.Name) {
                 
                 case "civilian":
-                    civilian = ((SocketGuildUser)option.Value);
+                    civilian = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 case "claim_name":
                     claim = option.Value.ToString();
@@ -67,7 +67,7 @@ public class RoleSystem {
             switch (option.Name) {
                 
                 case "kōhosei":
-                    civilian = ((SocketGuildUser)option.Value);
+                    civilian = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 default:
                     await command.FollowupAsync("Unrecognized command.", ephemeral: true);
@@ -197,7 +197,7 @@ public class RoleSystem {
         foreach (var option in command.Data.Options) {
             
             if (option.Name.StartsWith("enlisted")) {
-                enlisteds.Add((SocketGuildUser)option.Value);
+                enlisteds.Add(_client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id));
             } else switch (option.Name) {
                 case "add_rank":
                     addedRank = (IRole)option.Value;
@@ -248,7 +248,7 @@ public class RoleSystem {
             switch (option.Name) {
                 
                 case "civilian":
-                    civilian = ((SocketGuildUser)option.Value);
+                    civilian = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 case "claim_name":
                     claim = option.Value.ToString();
@@ -311,7 +311,7 @@ public class RoleSystem {
             switch (option.Name) {
                 
                 case "civilian":
-                    civilian = ((SocketGuildUser)option.Value);
+                    civilian = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);
@@ -339,10 +339,10 @@ public class RoleSystem {
             switch (option.Name) {
 
                 case "member1":
-                    member1 = (SocketGuildUser)option.Value;
+                    member1 = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 case "member2":
-                    member2 = (SocketGuildUser)option.Value;
+                    member2 = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 default:
                     await command.RespondAsync("Unrecognized command.", ephemeral: true);

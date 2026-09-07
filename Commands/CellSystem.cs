@@ -464,7 +464,7 @@ public class CellSystem {
 
         await command.DeferAsync();
 
-        var enlisted = (SocketGuildUser)command.User;
+        var enlisted = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
         var guild = _client.GetGuild((ulong)_guildId!);
         string? addedApp = null;
         string? removedApp = null;
@@ -535,14 +535,14 @@ public class CellSystem {
 
         await command.DeferAsync();
         
-        var enlisted = (SocketGuildUser)command.User;
+        var enlisted = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
         var guild = _client.GetGuild((ulong)_guildId!);
 
         foreach (var option in command.Data.Options) {
             switch (option.Name) {
 
                 case "member":
-                    enlisted = (SocketGuildUser)option.Value;
+                    enlisted = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 default:
                     await command.FollowupAsync("Unrecognized command.", ephemeral: true);
@@ -579,7 +579,7 @@ public class CellSystem {
             switch (option.Name) {
 
                 case "member":
-                    member = (SocketGuildUser)option.Value;
+                    member = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
                 case "app":
                     app = option.Value.ToString();

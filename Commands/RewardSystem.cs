@@ -28,7 +28,7 @@ public class RewardSystem {
         foreach (var option in command.Data.Options) {
             
             if (option.Name.StartsWith("enlisted")) {
-                enlisteds.Add((SocketGuildUser)option.Value);
+                enlisteds.Add(_client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id));
             } else {
                 await command.RespondAsync("Unrecognized command.", ephemeral: true);
                 return;
@@ -92,7 +92,7 @@ public class RewardSystem {
         foreach (var option in command.Data.Options) {
             
             if (option.Name.StartsWith("enlisted")) {
-                enlisteds.Add((SocketGuildUser)option.Value);
+                enlisteds.Add(_client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id));
             } else if (option.Name == "item") {
                 item = (int)(long)option.Value;
             } else {
