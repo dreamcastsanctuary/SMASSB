@@ -445,6 +445,7 @@ public class PointSystem {
         
         var messagesAsync = channel.GetMessagesAsync();
         var desc = "";
+        var enlisted = new List<SocketGuildUser>();
         const int messageLimit = 1900;
 
         await foreach (var batch in messagesAsync) {
@@ -457,7 +458,7 @@ public class PointSystem {
 
                 var line = "";
                 try {
-                    await _db.AddPoints(user.Id, 2);
+                    if (!enlisted.Contains(user)) enlisted.Add(_client.GetGuild((ulong)_guildId!).GetUser(user.Id));
                     line = $"Parsed **{user.Username}**.\n";
                 } catch {
                     line = $"Failed **{user.Username}**.\n";
@@ -476,6 +477,10 @@ public class PointSystem {
             await command.FollowupAsync(desc);
         }
 
+        foreach (SocketGuildUser user in enlisted) {
+            await _db.AddPoints(user.Id, 2);
+        }
+        
         await command.FollowupAsync("There should be no more responses in this channel.");
     }
 
