@@ -438,7 +438,8 @@ public class PointSystem {
         await command.DeferAsync();
 
         var channel = command.Channel;
-        if (channel is not SocketThreadChannel) {
+        await command.FollowupAsync($"Channel type: {channel.GetType().Name}");
+        if (channel is not IThreadChannel or SocketThreadChannel) {
             await command.FollowupAsync("This isn't a QOTD thread!");
             return;
         }
