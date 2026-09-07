@@ -459,10 +459,24 @@ public class PointSystem {
 
                 var line = "";
                 try {
-                    if (!enlisted.Contains(user)) enlisted.Add(_client.GetGuild((ulong)_guildId!).GetUser(user.Id));
-                    line = $"Parsed **{user.Username}**.\n";
-                } catch {
-                    line = $"Failed **{user.Username}**.\n";
+                    if (!enlisted.Contains(user)) {
+                        var guild = _client.GetGuild((ulong)_guildId!);
+                        if (guild != null) {
+                            var guildUser = guild.GetUser(user.Id);
+                            if (guildUser != null) {
+                                enlisted.Add(guildUser);
+                                line = $"Parsed **{user.Username}**.\n";
+                            } else {
+                                line = $"Failed to resolve **{user.Username}**.\n";
+                            }
+                        } else {
+                            line = $"Guild not found.\n";
+                        }
+                    } else {
+                        line = $"Already parsed **{user.Username}**.\n";
+                    }
+                } catch (Exception ex) {
+                    line = $"Error processing **{user.Username}**: {ex.Message}\n";
                 }
 
                 if ((desc + line).Length > messageLimit) {
