@@ -143,27 +143,27 @@ public class ShopSystem {
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Rhythm Tengoku!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### ### ∥・ Rhythm Tengoku!\n*\"Here we go!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{tengokuShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Tetris!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Tetris!\n*\"You've been Tetris-ized!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{tetrisShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Puyo Pop Fever!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Puyo Pop Fever!\n*\"Let's FEVER!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{puyoShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("∥・ WarioWare: Mega Microgames!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ WarioWare: Mega Microgames!\n*\"3, 2, 1, Go!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{wariowareShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Pacman!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Pacman!\n*\"Waka-waka!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{pacmanShowcase.FileName}")))
 
@@ -178,23 +178,23 @@ public class ShopSystem {
 
         var containerPlatformers = new ContainerBuilder()
             .WithAccentColor(new Color(255, 49, 44))
-            .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Platformer Apps!\nMake sure to use Save States in the Emulator's settings to save your progress!")))
+            .AddComponent(new TextDisplayBuilder()
+                .WithContent("## ❖・ Platformer Apps!\nMake sure to use Save States in the Emulator's settings to save your progress!"))
 
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Sonic Advance 2!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Sonic Advance 2!\n*\"Let's do it to it!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{sonicShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Shantae!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Shantae!\n*\"I'm Ret-2-Go!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{shantaeShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Ristar!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Ristar!\n*\"Hasta la vista!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{ristarShowcase.FileName}")))
 
@@ -206,28 +206,28 @@ public class ShopSystem {
 
         var containerAdventure = new ContainerBuilder()
             .WithAccentColor(new Color(255, 49, 44))
-            .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Adventure Apps!\nMake sure to use Save States in the Emulator's settings to save your progress!")))
+            .AddComponent(new TextDisplayBuilder()
+                .WithContent("## ❖・ Adventure Apps!\nMake sure to use Save States in the Emulator's settings to save your progress!"))
 
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Earthbound!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Earthbound!\n*OK desu ka?\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{earthboundShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Pokemon LeafGreen!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Pokemon LeafGreen!\n*\"Catch 'em all!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{leafgreenShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Madou Monogatari!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Madou Monogatari!\n*\"Ba-Bayoen!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{madouShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Tomodachi Collection!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Tomodachi Collection!\n*\"Hey there, Look-a-like!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{tomodachiShowcase.FileName}")))
 
