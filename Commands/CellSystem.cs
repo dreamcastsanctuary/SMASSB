@@ -349,77 +349,77 @@ public class CellSystem {
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
 
-                // if (hasMadouApp) {
-                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "madou-app.png");
-                //     using var appImage = Image.Load(app);
-                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
-                // }
-                //
-                // if (hasPuyoApp) {
-                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "puyo-app.png");
-                //     using var appImage = Image.Load(app);
-                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
-                // }
-                //
-                // if (hasLeafGreenApp) {
-                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "leafgreen-app.png");
-                //     using var appImage = Image.Load(app);
-                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
-                // }
-                //
-                // if (hasTetrisApp) {
-                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "tetris-app.png");
-                //     using var appImage = Image.Load(app);
-                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
-                // }
-                //
-                // if (hasTomodachiApp) {
-                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "tomodachi-app.png");
-                //     using var appImage = Image.Load(app);
-                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
-                // }
-                //
-                // if (hasSonicAdvanceApp) {
-                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "sonic-advance-app.png");
-                //     using var appImage = Image.Load(app);
-                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
-                // }
-                //
-                // if (hasWarioApp) {
-                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "warioware-app.png");
-                //     using var appImage = Image.Load(app);
-                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
-                // }
-                //
-                // if (hasShantaeApp) {
-                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "shantae-app.png");
-                //     using var appImage = Image.Load(app);
-                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
-                // }
-                //
-                // if (hasHeavenApp) {
-                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "rhythm-heaven-app.png");
-                //     using var appImage = Image.Load(app);
-                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
-                // }
-                //
-                // if (hasMotherApp) {
-                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "earthbound-app.png");
-                //     using var appImage = Image.Load(app);
-                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
-                // }
-                //
-                // if (hasRistarApp) {
-                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "ristar-app.png");
-                //     using var appImage = Image.Load(app);
-                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
-                // }
-                //
-                // if (hasPacmanApp) {
-                //     var app = Path.Combine(AppContext.BaseDirectory, "Images", "pacman-app.png");
-                //     using var appImage = Image.Load(app);
-                //     ipc.DrawImage(appImage, new Point(0, 0), 1);
-                // }
+                if (hasMadouApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "madou-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+                
+                if (hasPuyoApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "puyo-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+                
+                if (hasLeafGreenApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "leafgreen-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+                
+                if (hasTetrisApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "tetris-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+                
+                if (hasTomodachiApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "tomodachi-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+                
+                if (hasSonicAdvanceApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "sonic-advance-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+                
+                if (hasWarioApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "warioware-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+                
+                if (hasShantaeApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "shantae-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+                
+                if (hasHeavenApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "rhythm-heaven-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+                
+                if (hasMotherApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "earthbound-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+                
+                if (hasRistarApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "ristar-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
+                
+                if (hasPacmanApp) {
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "pacman-app.png");
+                    using var appImage = Image.Load(app);
+                    ipc.DrawImage(appImage, new Point(0, 0), 1);
+                }
 
             } else {
                 if (charm != null) {
