@@ -664,6 +664,6 @@ public class CellSystem {
         }
         await _db.RemoveAllApps(userId);
  
-        await command.FollowupAsync("Took all your shit.");
+        await command.FollowupAsync("Hello! I took all your shit.");
     }
 }
