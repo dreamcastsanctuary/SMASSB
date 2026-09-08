@@ -163,8 +163,8 @@ public class ShopSystem {
             
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy Sonic Advance 2 :: ¥10k", customId: $"buy_item_21_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy Shantae :: ¥10k", customId: $"buy_item_22_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy Ristar :: ¥10k", customId: $"buy_item_23_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Shantae :: ¥9k", customId: $"buy_item_22_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Ristar :: ¥9k", customId: $"buy_item_23_{command.Channel.Id}", style: ButtonStyle.Secondary)
            );
         
         var containerAdventure = new ContainerBuilder()
@@ -434,7 +434,7 @@ public class ShopSystem {
                 break;
             case 17:
                 if (await OwnsApp(ownerId, "TETRIS")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
-                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                if (await CheckBeforeBuy(ownerId, prices[3] - 2000)) {
                     await _db.GiveNewApp(ownerId, "TETRIS");
                     boughtName = "Tetris";
                 }
@@ -458,7 +458,7 @@ public class ShopSystem {
                 break;
             case 20:
                 if (await OwnsApp(ownerId, "PACMAN")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
-                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                if (await CheckBeforeBuy(ownerId, prices[3] - 2000)) {
                     await _db.GiveNewApp(ownerId, "PACMAN");
                     boughtName = "PacMan";
                 }
@@ -474,7 +474,7 @@ public class ShopSystem {
                 break;
             case 22:
                 if (await OwnsApp(ownerId, "SHANTAE")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
-                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                if (await CheckBeforeBuy(ownerId, prices[3] - 1000)) {
                     await _db.GiveNewApp(ownerId, "SHANTAE");
                     boughtName = "Shantae";
                 }
@@ -482,7 +482,7 @@ public class ShopSystem {
                 break;
             case 23:
                 if (await OwnsApp(ownerId, "RISTAR")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
-                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                if (await CheckBeforeBuy(ownerId, prices[3] - 1000)) {
                     await _db.GiveNewApp(ownerId, "RISTAR");
                     boughtName = "Ristar";
                 }
@@ -506,7 +506,7 @@ public class ShopSystem {
                 break;
             case 26:
                 if (await OwnsApp(ownerId, "MADOUMONOGATARI")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
-                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                if (await CheckBeforeBuy(ownerId, prices[3] - 2000)) {
                     await _db.GiveNewApp(ownerId, "MADOUMONOGATARI");
                     boughtName = "Madou Monogatari";
                 }
