@@ -143,7 +143,7 @@ public class ShopSystem {
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### ### ∥・ Rhythm Tengoku!\n*\"Here we go!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Rhythm Tengoku!\n*\"Here we go!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{tengokuShowcase.FileName}")))
 
@@ -212,7 +212,7 @@ public class ShopSystem {
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Earthbound!\n*OK desu ka?\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Earthbound!\n*\"OK desu ka?\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{earthboundShowcase.FileName}")))
 
