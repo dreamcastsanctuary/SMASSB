@@ -100,14 +100,113 @@ public class ShopSystem {
                 .WithButton($"Buy Blue {items[4]} :: ¥10k", customId: $"buy_item_15_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
         
-        var containerGames = new ContainerBuilder()
+        var containerArcade = new ContainerBuilder()
             .WithAccentColor(new Color(255, 49, 44))
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Buy new apps!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Arcade Apps!\nMake sure to use Save States in the Emulator's settings to save your progress!"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+            
+            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
+
+            .AddComponent(new SectionBuilder()
+                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Rhythm Tengoku!"))
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+
+            .AddComponent(new SectionBuilder()
+                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Tetris!"))
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+
+            .AddComponent(new SectionBuilder()
+                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Puyo Pop Fever!"))
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+
+            .AddComponent(new SectionBuilder()
+                .AddComponent(new TextDisplayBuilder().WithContent("∥・ WarioWare: Mega Microgames!"))
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+
+            .AddComponent(new SectionBuilder()
+                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Pacman!"))
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+
+            
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy Rhythm Tengoku :: ¥10k", customId: $"buy_item_16_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Tetris :: ¥8k", customId: $"buy_item_17_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Puyo Fever :: ¥10k", customId: $"buy_item_18_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy WarioWare :: ¥10k", customId: $"buy_item_19_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy PacMan :: ¥8k", customId: $"buy_item_20_{command.Channel.Id}", style: ButtonStyle.Secondary)
+            );
+        
+        var containerPlatformers = new ContainerBuilder()
+            .WithAccentColor(new Color(255, 49, 44))
+            .AddComponent(new SectionBuilder()
+                .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Platformer Apps!\nMake sure to use Save States in the Emulator's settings to save your progress!"))
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+            
+            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
+
+            .AddComponent(new SectionBuilder()
+                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Sonic Advance 2!"))
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+
+            .AddComponent(new SectionBuilder()
+                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Shantae!"))
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+
+            .AddComponent(new SectionBuilder()
+                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Ristar!"))
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+            
+            .AddComponent(new ActionRowBuilder()
+                .WithButton($"Buy Sonic Advance 2 :: ¥10k", customId: $"buy_item_21_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Shantae :: ¥10k", customId: $"buy_item_22_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Ristar :: ¥10k", customId: $"buy_item_23_{command.Channel.Id}", style: ButtonStyle.Secondary)
+           );
+        
+        var containerAdventure = new ContainerBuilder()
+            .WithAccentColor(new Color(255, 49, 44))
+            .AddComponent(new SectionBuilder()
+                .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Adventure Apps!\nMake sure to use Save States in the Emulator's settings to save your progress!"))
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+            
+            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
+
+            .AddComponent(new SectionBuilder()
+                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Earthbound!"))
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+
+            .AddComponent(new SectionBuilder()
+                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Pokemon LeafGreen!"))
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+
+            .AddComponent(new SectionBuilder()
+                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Madou Monogatari!"))
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+
+            .AddComponent(new SectionBuilder()
+                .AddComponent(new TextDisplayBuilder().WithContent("∥・ Tomodachi Collection!"))
+                .WithAccessory(new ThumbnailBuilder()
+                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+            
+            .AddComponent(new ActionRowBuilder()
+                .WithButton($"Buy Earthbound :: ¥10k", customId: $"buy_item_24_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Pokemon LeafGreen :: ¥10k", customId: $"buy_item_25_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Madou Monogatari :: ¥8k", customId: $"buy_item_26_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Tomodachi Collection :: ¥10k", customId: $"buy_item_27_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
         
         var containerHeader = new ContainerBuilder()
@@ -139,7 +238,7 @@ public class ShopSystem {
         await SendShop(containerSango, sangoAttachment);
         await SendShop(containerTech, techAttachment);
         await SendShop(containerIds, idsAttachment);
-        await SendShop(containerGames, techAttachment);
+        await SendShop(containerArcade, techAttachment);
     }
 
     private async Task<FileAttachment> BuildShelfAttachment(string outputFileName, params string[] itemFileNames) {
@@ -325,6 +424,94 @@ public class ShopSystem {
                 if (await CheckBeforeBuy(ownerId, prices[3])) {
                     await _db.GiveNewApp(ownerId, "RHYTHMTENGOKU");
                     boughtName = "Rhythm Tengoku";
+                }
+                isApp = "\nMake sure to run */editworkcell* to add your new app to your homescreen!";
+                break;
+            case 17:
+                if (await OwnsApp(ownerId, "TETRIS")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                    await _db.GiveNewApp(ownerId, "TETRIS");
+                    boughtName = "Tetris";
+                }
+                isApp = "\nMake sure to run */editworkcell* to add your new app to your homescreen!";
+                break;
+            case 18:
+                if (await OwnsApp(ownerId, "PUYOPUYOFEVER")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                    await _db.GiveNewApp(ownerId, "PUYOPUYOFEVER");
+                    boughtName = "Puyo Pop Fever";
+                }
+                isApp = "\nMake sure to run */editworkcell* to add your new app to your homescreen!";
+                break;
+            case 19:
+                if (await OwnsApp(ownerId, "WARIOWARE")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                    await _db.GiveNewApp(ownerId, "WARIOWARE");
+                    boughtName = "WarioWare";
+                }
+                isApp = "\nMake sure to run */editworkcell* to add your new app to your homescreen!";
+                break;
+            case 20:
+                if (await OwnsApp(ownerId, "PACMAN")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                    await _db.GiveNewApp(ownerId, "PACMAN");
+                    boughtName = "PacMan";
+                }
+                isApp = "\nMake sure to run */editworkcell* to add your new app to your homescreen!";
+                break;
+            case 21:
+                if (await OwnsApp(ownerId, "SONICADVANCE")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                    await _db.GiveNewApp(ownerId, "SONICADVANCE");
+                    boughtName = "Sonic Advance 2";
+                }
+                isApp = "\nMake sure to run */editworkcell* to add your new app to your homescreen!";
+                break;
+            case 22:
+                if (await OwnsApp(ownerId, "SHANTAE")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                    await _db.GiveNewApp(ownerId, "SHANTAE");
+                    boughtName = "Shantae";
+                }
+                isApp = "\nMake sure to run */editworkcell* to add your new app to your homescreen!";
+                break;
+            case 23:
+                if (await OwnsApp(ownerId, "RISTAR")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                    await _db.GiveNewApp(ownerId, "RISTAR");
+                    boughtName = "Ristar";
+                }
+                isApp = "\nMake sure to run */editworkcell* to add your new app to your homescreen!";
+                break;
+            case 24:
+                if (await OwnsApp(ownerId, "EARTHBOUND")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                    await _db.GiveNewApp(ownerId, "EARTHBOUND");
+                    boughtName = "Earthbound";
+                }
+                isApp = "\nMake sure to run */editworkcell* to add your new app to your homescreen!";
+                break;
+            case 25:
+                if (await OwnsApp(ownerId, "POKEMONLEAFGREEN")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                    await _db.GiveNewApp(ownerId, "POKEMONLEAFGREEN");
+                    boughtName = "Pokemon Leafgreen";
+                }
+                isApp = "\nMake sure to run */editworkcell* to add your new app to your homescreen!";
+                break;
+            case 26:
+                if (await OwnsApp(ownerId, "MADOUMONOGATARI")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                    await _db.GiveNewApp(ownerId, "MADOUMONOGATARI");
+                    boughtName = "Madou Monogatari";
+                }
+                isApp = "\nMake sure to run */editworkcell* to add your new app to your homescreen!";
+                break;
+            case 27:
+                if (await OwnsApp(ownerId, "TOMODACHICOLLECTION")) { alreadyOwnedMessage = "You already own Rhythm Tengoku!"; break; }
+                if (await CheckBeforeBuy(ownerId, prices[3])) {
+                    await _db.GiveNewApp(ownerId, "TOMODACHICOLLECTION");
+                    boughtName = "Tomodachi Collection";
                 }
                 isApp = "\nMake sure to run */editworkcell* to add your new app to your homescreen!";
                 break;
