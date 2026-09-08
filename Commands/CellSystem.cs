@@ -650,4 +650,20 @@ public class CellSystem {
 
         await command.FollowupAsync("Done!");
     }
+
+    public async Task ThePartWhereHeKillsYou(SocketSlashCommand command) {
+        
+        await command.DeferAsync().ConfigureAwait(false);
+ 
+        var enlisted = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
+        var userId = enlisted.Id;
+ 
+        var homeApps = await _db.GetApps(userId);
+        foreach (var app in homeApps) {
+            await _db.RemoveAppsFromHome(userId, app);
+        }
+        await _db.RemoveAllApps(userId);
+ 
+        await command.FollowupAsync("Took all your shit.");
+    }
 }

@@ -520,6 +520,10 @@ public class CommandHandler {
                 .WithType(ApplicationCommandOptionType.String))
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
+        commands.Add(new SlashCommandBuilder()
+            .WithName("commandthattakesawayallofhisshit")
+            .WithDescription("This is the part where I kill you!"));
+        
         
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
@@ -633,6 +637,9 @@ public class CommandHandler {
                 break;
             case "removecelladdons":
                 await _cellSystem.EditAddons(command, false);
+                break;
+            case "commandthattakesawayallofhisshit":
+                await _cellSystem.ThePartWhereHeKillsYou(command);
                 break;
             
             case "shoppost":
