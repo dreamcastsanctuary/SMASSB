@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
 using SMASSB.Models;
 using SMASSB.ServiceHandlers;
@@ -27,21 +28,16 @@ public class ShopSystem {
     public async Task PostShopContents(SocketSlashCommand command) {
         await command.DeferAsync().ConfigureAwait(false);
 
-        var sakuraAttachment = await BuildShelfAttachment(
-            "sakura-shelf.png",
-            "sakura-showcase.png", "sakura-case-back.png", "sakura-charm-front.png", "sakura-wallpaper.png");
+        var sakuraAttachment = await BuildShelfAttachment("sakura-shelf.png", "CellAddons", "sakura-showcase.png", "sakura-case-back.png", "sakura-charm-front.png", "sakura-wallpaper.png");
 
         var sangoAttachment = await BuildShelfAttachment(
-            "sango-shelf.png",
-            "sango-showcase.png", "sango-case-back.png", "sango-charm-front.png", "sango-wallpaper.png");
+            "sango-shelf.png", "CellAddons", "sango-showcase.png", "sango-case-back.png", "sango-charm-front.png", "sango-wallpaper.png");
 
         var techAttachment = await BuildShelfAttachment(
-            "tech-shelf.png",
-            "tech-showcase.png", "tech-case-back.png", "tech-wallpaper.png");
+            "tech-shelf.png", "CellAddons", "tech-showcase.png", "tech-case-back.png", "tech-wallpaper.png");
 
         var idsAttachment = await BuildShelfAttachment(
-            "ids-shelf.png",
-            "pink-template.png", "red-template.png", "green-template.png", "blue-template.png");
+            "ids-shelf.png", "IdAddons", "pink-template.png", "red-template.png", "green-template.png", "blue-template.png");
 
         var items = new[] { "Bundle", "Case", "Charm", "Wallpaper", "ID" };
         
@@ -112,27 +108,27 @@ public class ShopSystem {
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("∥・ Rhythm Tengoku!"))
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+                    .WithMedia(BuildShowcaseAttachments(await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "tengoku-showcase.png")), "tengoku-showcase"))))
 
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("∥・ Tetris!"))
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+                    .WithMedia(BuildShowcaseAttachments(await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "tetris-showcase.png")), "tetris-showcase"))))
 
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("∥・ Puyo Pop Fever!"))
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+                    .WithMedia(BuildShowcaseAttachments(await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "puyo-showcase.png")), "puyo-showcase"))))
 
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("∥・ WarioWare: Mega Microgames!"))
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+                    .WithMedia(BuildShowcaseAttachments(await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "warioware-showcase.png")), "warioware-showcase"))))
 
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("∥・ Pacman!"))
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+                    .WithMedia(BuildShowcaseAttachments(await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "pacman-showcase.png")), "pacman-showcase"))))
 
             
             .AddComponent(new ActionRowBuilder()
@@ -146,26 +142,24 @@ public class ShopSystem {
         var containerPlatformers = new ContainerBuilder()
             .WithAccentColor(new Color(255, 49, 44))
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Platformer Apps!\nMake sure to use Save States in the Emulator's settings to save your progress!"))
-                .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+                .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Platformer Apps!\nMake sure to use Save States in the Emulator's settings to save your progress!")))
             
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
 
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("∥・ Sonic Advance 2!"))
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+                    .WithMedia(BuildShowcaseAttachments(await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "sonic-advance-showcase.png")), "sonic-advance-showcase"))))
 
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("∥・ Shantae!"))
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+                    .WithMedia(BuildShowcaseAttachments(await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "shantae-showcase.png")), "shantae-showcase"))))
 
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("∥・ Ristar!"))
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+                    .WithMedia(BuildShowcaseAttachments(await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "ristar-showcase.png")), "ristar-showcase"))))
             
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy Sonic Advance 2 :: ¥10k", customId: $"buy_item_21_{command.Channel.Id}", style: ButtonStyle.Secondary)
@@ -176,31 +170,29 @@ public class ShopSystem {
         var containerAdventure = new ContainerBuilder()
             .WithAccentColor(new Color(255, 49, 44))
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Adventure Apps!\nMake sure to use Save States in the Emulator's settings to save your progress!"))
-                .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
-            
+                .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Adventure Apps!\nMake sure to use Save States in the Emulator's settings to save your progress!")))
+                
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
 
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("∥・ Earthbound!"))
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+                    .WithMedia(BuildShowcaseAttachments(await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "earthbound-showcase.png")), "earthbound-showcase"))))
 
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("∥・ Pokemon LeafGreen!"))
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+                    .WithMedia(BuildShowcaseAttachments(await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "leafgreen-showcase.png")), "leafgreen-showcase"))))
 
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("∥・ Madou Monogatari!"))
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+                    .WithMedia(BuildShowcaseAttachments(await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "madou-showcase.png")), "madou-showcase"))))
 
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("∥・ Tomodachi Collection!"))
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
+                    .WithMedia(BuildShowcaseAttachments(await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "tomodachi-showcase.png")), "tomodachi-showcase"))))
             
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy Earthbound :: ¥10k", customId: $"buy_item_24_{command.Channel.Id}", style: ButtonStyle.Secondary)
@@ -231,7 +223,6 @@ public class ShopSystem {
                 flags: MessageFlags.ComponentsV2
             );
         }
-
         
         await SendShop(containerHeader, sakuraAttachment);
         await SendShop(containerSakura, sakuraAttachment);
@@ -239,14 +230,16 @@ public class ShopSystem {
         await SendShop(containerTech, techAttachment);
         await SendShop(containerIds, idsAttachment);
         await SendShop(containerArcade, techAttachment);
+        await SendShop(containerPlatformers, techAttachment);
+        await SendShop(containerAdventure, techAttachment);
     }
 
-    private async Task<FileAttachment> BuildShelfAttachment(string outputFileName, params string[] itemFileNames) {
+    private async Task<FileAttachment> BuildShelfAttachment(string outputFileName, string itemDirectory, params string[] itemFileNames) {
         using var shelf = await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", "shelf.png"));
 
         var loadedItems = new Image[itemFileNames.Length];
         for (var i = 0; i < itemFileNames.Length; i++) {
-            loadedItems[i] = await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", itemFileNames[i]));
+            loadedItems[i] = await Image.LoadAsync(Path.Combine(AppContext.BaseDirectory, "Images", itemDirectory, itemFileNames[i]));
         }
 
         try {
@@ -292,12 +285,24 @@ public class ShopSystem {
         }
     }
 
+    private static string BuildShowcaseAttachments(Image image, string fileName) {
+        
+        var outputStream = new MemoryStream();
+        image.Save(outputStream, new PngEncoder());
+        outputStream.Position = 0;
+
+        var composedFileName = $"{fileName}.png";
+        var composedAttachment = new FileAttachment(outputStream, composedFileName);
+
+        return $"attachment://{composedAttachment.FileName}";
+    }
+
     public async Task Buy(int num, ulong ownerId, ulong channelId) {
 
         var prices = new[] {8000, 3000, 4000, 10000};
         string? boughtName = null;
         string? alreadyOwnedMessage = null;
-        string? isApp = "";
+        var isApp = "";
 
         switch (num) {
             case 1:

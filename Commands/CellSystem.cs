@@ -324,12 +324,12 @@ public class CellSystem {
                 break;
         }
 
-        var casePath = Path.Combine(AppContext.BaseDirectory, "Images", caseFile);
-        var wallpaperPath = Path.Combine(AppContext.BaseDirectory, "Images", wallpaperFile);
+        var casePath = Path.Combine(AppContext.BaseDirectory, "Images", "CellAddons", caseFile);
+        var wallpaperPath = Path.Combine(AppContext.BaseDirectory, "Images", "CellAddons", wallpaperFile);
 
         var cellCase = Image.Load(casePath);
         var wallpaper = Image.Load(wallpaperPath);
-        var charm = string.IsNullOrEmpty(charmFile) ? null : Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", charmFile + (isFront ? "-front.png" : "-back.png")));
+        var charm = string.IsNullOrEmpty(charmFile) ? null : Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "CellAddons", charmFile + (isFront ? "-front.png" : "-back.png")));
 
         using var clone = cellCase.Clone(ipc => {
             if (isFront) {
@@ -345,79 +345,79 @@ public class CellSystem {
                 ipc.DrawText(BuildEarningsSummary(currentWeekEarnings, percentChange, isIncrease), fontTiny, color, new Point(740, 963));
 
                 if (hasTengokuApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "tengoku-app.png");
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "tengoku-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
 
                 if (hasMadouApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "madou-app.png");
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "madou-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
                 
                 if (hasPuyoApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "puyo-app.png");
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "puyo-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
                 
                 if (hasLeafGreenApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "leafgreen-app.png");
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "leafgreen-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
                 
                 if (hasTetrisApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "tetris-app.png");
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "tetris-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
                 
                 if (hasTomodachiApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "tomodachi-app.png");
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "tomodachi-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
                 
                 if (hasSonicAdvanceApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "sonic-advance-app.png");
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "sonic-advance-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
                 
                 if (hasWarioApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "warioware-app.png");
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "warioware-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
                 
                 if (hasShantaeApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "shantae-app.png");
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "shantae-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
                 
                 if (hasHeavenApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "rhythm-heaven-app.png");
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "rhythm-heaven-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
                 
                 if (hasMotherApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "earthbound-app.png");
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "earthbound-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
                 
                 if (hasRistarApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "ristar-app.png");
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "ristar-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
                 
                 if (hasPacmanApp) {
-                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "pacman-app.png");
+                    var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "pacman-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }

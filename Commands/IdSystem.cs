@@ -128,10 +128,10 @@ public class IdSystem {
         
         var clone = idImg.Clone(ipc => {
             if (member.Roles.Select(r => r.Id).ToHashSet().Contains(1527907825836097556)) {
-                ipc.DrawImage(Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "badge10.png")), 1);
+                ipc.DrawImage(Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "Badges", "badge10.png")), 1);
             }
             if (member.Roles.Select(r => r.Id).ToHashSet().Contains(1527907819649630298)) {
-                ipc.DrawImage(Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "badge11.png")), 1);
+                ipc.DrawImage(Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "Badges", "badge11.png")), 1);
             }
             
             ipc.DrawImage(avatar, avatarPos, 1);
@@ -439,7 +439,7 @@ public class IdSystem {
     }
     
     static Image LoadBadges(string filename, int w, int h) {
-        var path = Path.Combine(AppContext.BaseDirectory, "Images", filename);
+        var path = Path.Combine(AppContext.BaseDirectory, "Images", "Badges", filename);
         var img = Image.Load(path);
         
         if (filename.Contains("tanzaku")) {
@@ -467,37 +467,37 @@ public class IdSystem {
         switch (idType) {
             
             case "ENLISTEDMAIN":
-                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "enlisted-main-template.png");
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "IdAddons", "enlisted-main-template.png");
                 break;
             case "ENLISTEDPRECIVT":
-                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "enlisted-precivt-template.png");
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "IdAddons", "enlisted-precivt-template.png");
                 break;
             case "STAFFMAIN":
-                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "staff-main-template.png");
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "IdAddons", "staff-main-template.png");
                 break;
             case "NEWGAMEPLUSENLISTED":
-                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "ngplus-template.png");
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "IdAddons", "ngplus-template.png");
                 break;
             case "NEWGAMEPLUSSTAFF":
-                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "ngplus-staff-template.png");
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "IdAddons", "ngplus-staff-template.png");
                 break;
             case "ENLISTEDTANABATA":
-                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "enlisted-tanabata-template.png");
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "IdAddons", "enlisted-tanabata-template.png");
                 break;
             case "STAFFTANABATA":
-                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "staff-tanabata-template.png");
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "IdAddons", "staff-tanabata-template.png");
                 break;
             case "PINK":
-                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "pink-template.png");
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "IdAddons", "pink-template.png");
                 break;
             case "RED":
-                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "red-template.png");
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "IdAddons", "red-template.png");
                 break;
             case "GREEN":
-                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "green-template.png");
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "IdAddons", "green-template.png");
                 break;
             case "BLUE":
-                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "blue-template.png");
+                imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "IdAddons", "blue-template.png");
                 break;  
         }
         
