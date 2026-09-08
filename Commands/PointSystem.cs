@@ -3,6 +3,7 @@ using Discord;
 using Discord.WebSocket;
 using SMASSB.Exceptions;
 using SMASSB.Models;
+using SMASSB.ServiceHandlers;
 
 namespace SMASSB.Commands;
 

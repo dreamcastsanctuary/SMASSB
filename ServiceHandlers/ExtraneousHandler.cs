@@ -5,7 +5,7 @@ using SMASSB.Commands;
 using SMASSB.Exceptions;
 using SMASSB.Models;
 
-namespace SMASSB;
+namespace SMASSB.ServiceHandlers;
 
 public class ExtraneousHandler {
 
@@ -84,15 +84,8 @@ public class ExtraneousHandler {
 
             var existingId = _db.GetStarboardMessageId(message.Id);
 
-            if (existingId is null) {
-
-                var sent = await starboard.SendMessageAsync(embed: builder.Build());
-                _db.SaveStarboardMessageId(message.Id, sent.Id);
-            } else {
-                if (ulong.TryParse(existingId, out var existingUlong) &&
-                    await starboard.GetMessageAsync(existingUlong) is IUserMessage existing) {
-                    await existing.ModifyAsync(m => m.Embed = builder.Build());
-                }
+            if (ulong.TryParse(existingId, out var existingUlong) && await starboard.GetMessageAsync(existingUlong) is IUserMessage existing) {
+                await existing.ModifyAsync(m => m.Embed = builder.Build());
             }
         }
 
@@ -198,7 +191,6 @@ public class ExtraneousHandler {
             if (starboard == null) return;
 
             var existingId = _db.GetStarboardMessageId(message.Id);
-            if (existingId is null) return;
 
             if (!ulong.TryParse(existingId, out var existingUlong)) return;
 
@@ -617,8 +609,29 @@ public class ExtraneousHandler {
 
         await interaction.RespondAsync(results);
     }
+    
+    public async Task TaskAutocompleteHandler(SocketAutocompleteInteraction interaction) {
 
-    private bool IsVideoExtension(string filename) {
+        if (interaction.Data.Current.Name != "task_name") {
+            return;
+        }
+
+        var currentInput = interaction.Data.Current.Value?.ToString() ?? "";
+        var userId = interaction.User.Id.ToString();
+
+        List<string> taskNames = interaction.Data.CommandName switch {
+            "updateprogress" => _db.GetTaskNamesForAssignedUser(userId, currentInput),
+            "removetask" or "updatetask" => _db.GetTaskNamesForAssigneeUser(userId, currentInput),
+            "viewtask" or "forceremovetask" or "forceupdatetask" => _db.GetAllTaskNames(currentInput),
+            _ => []
+        };
+
+        var results = taskNames.Select(name => new AutocompleteResult(name, name));
+
+        await interaction.RespondAsync(results);
+    }
+
+    private static bool IsVideoExtension(string filename) {
         var videoExtensions = new[] { ".mp4", ".mov", ".webm", ".mkv", ".avi", ".m4v" };
         return videoExtensions.Any(ext => filename.EndsWith(ext, StringComparison.OrdinalIgnoreCase));
     }

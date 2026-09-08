@@ -3,6 +3,7 @@ using Discord;
 using Discord.WebSocket;
 using SMASSB.Commands;
 using SMASSB.Models;
+using SMASSB.ServiceHandlers;
 
 namespace SMASSB;
 public class Program {
@@ -14,6 +15,7 @@ public class Program {
     private ExtraneousHandler? _extraneousHandler;
     private LogHandler? _logHandler;
     private MeetingSystem? _meetingSystem;
+    private ReminderService _reminderService;
     private DatabaseService? _db;
     
     private static IServiceProvider? _serviceProvider;
@@ -36,6 +38,7 @@ public class Program {
         _extraneousHandler = _serviceProvider.GetRequiredService<ExtraneousHandler>();
         _logHandler = _serviceProvider.GetRequiredService<LogHandler>();
         _meetingSystem = _serviceProvider.GetRequiredService<MeetingSystem>();
+        _reminderService = _serviceProvider.GetRequiredService<ReminderService>();
         _db = _serviceProvider.GetRequiredService<DatabaseService>();
 
         StartPendingGameServer();
@@ -68,6 +71,7 @@ public class Program {
             if (interaction.Data.Current.Name == "case_type") { await _extraneousHandler.CaseAutocompleteHandler(interaction); }
             if (interaction.Data.Current.Name == "charm_type") { await _extraneousHandler.CharmAutocompleteHandler(interaction); }
             if (interaction.Data.Current.Name == "wallpaper_type") { await _extraneousHandler.WallpaperAutocompleteHandler(interaction); }
+            if (interaction.Data.Current.Name == "task_name") { await _extraneousHandler.TaskAutocompleteHandler(interaction); }
         };
         
         _client.Ready += async () => {
@@ -77,6 +81,7 @@ public class Program {
         _ = Task.Run(async () => {
             await _logHandler.CreateOrUpdateStatChannel();
             await _commandHandler.RegisterCommands();
+            _reminderService.Start();
 
             if (StartedLoops != null) {
                 bool shouldStartLoops;
@@ -176,6 +181,9 @@ public class Program {
             .AddSingleton<GeneralSystem>()
             .AddSingleton<CellSystem>()
             .AddSingleton<ShopSystem>()
+            .AddSingleton<TaskSystem>()
+            
+            .AddSingleton<ReminderService>()
             
             .BuildServiceProvider();
     }

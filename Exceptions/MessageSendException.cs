@@ -3,8 +3,7 @@
 /// <summary>
 /// Triggered whenever someone's DMs are closed.
 /// </summary>
-public class MessageSendException : Exception
-{
+public class MessageSendException : Exception {
     public string UserName { get; }
 
     public MessageSendException(string userName) : base($"Failed to send a message to user '{userName}'.") {

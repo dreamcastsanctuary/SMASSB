@@ -3,6 +3,7 @@ using System.Text.Json;
 using Discord;
 using Discord.WebSocket;
 using SMASSB.Models;
+using SMASSB.ServiceHandlers;
 
 namespace SMASSB.Commands;
 

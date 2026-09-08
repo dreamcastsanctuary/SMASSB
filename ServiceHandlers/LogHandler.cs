@@ -4,6 +4,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SMASSB.Models;
+using SMASSB.ServiceHandlers;
 using Color = Discord.Color;
 using Image = SixLabors.ImageSharp.Image;
 

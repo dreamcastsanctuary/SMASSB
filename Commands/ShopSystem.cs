@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SMASSB.Models;
+using SMASSB.ServiceHandlers;
 using Image = SixLabors.ImageSharp.Image;
 using Color = Discord.Color;
 

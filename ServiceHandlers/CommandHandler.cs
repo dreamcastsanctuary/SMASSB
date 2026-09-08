@@ -4,7 +4,7 @@ using SMASSB.Commands;
 using SMASSB.Data;
 using SMASSB.Models;
 
-namespace SMASSB;
+namespace SMASSB.ServiceHandlers;
 public class CommandHandler {
     
     private readonly DiscordSocketClient _client;
@@ -17,6 +17,7 @@ public class CommandHandler {
     private readonly CellSystem _cellSystem;
     private readonly ShopSystem _shopSystem;
     private readonly LogHandler _logHandler;
+    private readonly TaskSystem _taskSystem;
     private readonly ulong? _guildId;
 
     public CommandHandler(DiscordSocketClient client,
@@ -29,6 +30,7 @@ public class CommandHandler {
                           GeneralSystem generalSystem,
                           CellSystem cellSystem,
                           ShopSystem shopSystem,
+                          TaskSystem taskSystem,
                           GuildConfiguration guildConfig) {
         _client = client;
         _client.SlashCommandExecuted += SlashCommandHandler;
@@ -41,6 +43,7 @@ public class CommandHandler {
         _cellSystem = cellSystem;
         _shopSystem = shopSystem;
         _logHandler = logHandler;
+        _taskSystem = taskSystem;
         _guildId = guildConfig.GuildId;
     }
     
@@ -421,6 +424,103 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.Administrator)
         );
         
+        // JIRA
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("assigntask")
+            .WithDescription("Assigns a task to the given user.")
+            .AddOption("assigned_to", ApplicationCommandOptionType.User, "The member receiving the task", isRequired: true)
+            .AddOption("task_name", ApplicationCommandOptionType.String, "The name of the task", isRequired: true)
+            .AddOption("description", ApplicationCommandOptionType.String, "The description of the task; the task itself", isRequired: true)
+            .AddOption(new SlashCommandOptionBuilder()
+                        .WithName("priority").WithDescription("The priority of the task").WithRequired(true)
+                        .AddChoice("Lowest", 1).AddChoice("Low", 2).AddChoice("Medium", 3).AddChoice("High", 4).AddChoice("Highest", 5)
+                        .WithType(ApplicationCommandOptionType.Integer))
+            .AddOption("deadline", ApplicationCommandOptionType.String, "The set deadline; must be in the format \"MM/DD/YYYY\"", isRequired: false)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+
+        commands.Add(new SlashCommandBuilder()
+            .WithName("removetask")
+            .WithDescription("Removes the given task from the database.")
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("task_name").WithDescription("The name of the task").WithRequired(true)
+                .WithAutocomplete(true)
+                .WithType(ApplicationCommandOptionType.String))
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+
+        commands.Add(new SlashCommandBuilder()
+            .WithName("forceremovetask")
+            .WithDescription("Removes the given task from the database.")
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("task_name").WithDescription("The name of the task").WithRequired(true)
+                .WithAutocomplete(true)
+                .WithType(ApplicationCommandOptionType.String))
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("updatetask")
+            .WithDescription("Updates the given task.")
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("task_name").WithDescription("The name of the task").WithRequired(true)
+                .WithAutocomplete(true)
+                .WithType(ApplicationCommandOptionType.String))
+            .AddOption("description", ApplicationCommandOptionType.String, "The description of the task; the task itself")
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("priority").WithDescription("The priority of the task")
+                .AddChoice("Lowest", 1).AddChoice("Low", 2).AddChoice("Medium", 3).AddChoice("High", 4).AddChoice("Highest", 5)
+                .WithType(ApplicationCommandOptionType.Integer))
+            .AddOption("deadline", ApplicationCommandOptionType.String, "The set deadline; must be in the format \"MM/DD/YYYY\"")
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+            
+        commands.Add(new SlashCommandBuilder()
+            .WithName("forceupdatetask")
+            .WithDescription("Updates the given task.")
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("task_name").WithDescription("The name of the task").WithRequired(true)
+                .WithAutocomplete(true)
+                .WithType(ApplicationCommandOptionType.String))
+            .AddOption("description", ApplicationCommandOptionType.String, "The description of the task; the task itself")
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("priority").WithDescription("The priority of the task")
+                .AddChoice("Lowest", 1).AddChoice("Low", 2).AddChoice("Medium", 3).AddChoice("High", 4).AddChoice("Highest", 5)
+                .WithType(ApplicationCommandOptionType.Integer))
+            .AddOption("deadline", ApplicationCommandOptionType.String, "The set deadline; must be in the format \"MM/DD/YYYY\"")
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("viewtask")
+            .WithDescription("Views a task.")
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("task_name").WithDescription("The name of the task").WithRequired(true)
+                .WithAutocomplete(true)
+                .WithType(ApplicationCommandOptionType.String))
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+
+        commands.Add(new SlashCommandBuilder()
+            .WithName("viewall")
+            .WithDescription("Views all tasks.")
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("vieweveryone")
+            .WithDescription("Views everyone's tasks.")
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("updatetaskprogress")
+            .WithDescription("Updates the given task's progress.")
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("task_name").WithDescription("The name of the task").WithRequired(true)
+                .WithAutocomplete(true)
+                .WithType(ApplicationCommandOptionType.String))
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("progress").WithDescription("The progress of the task").WithRequired(true)
+                .AddChoice("TO-DO", "TO-DO").AddChoice("IN PROGRESS", "IN PROGRESS").AddChoice("COMPLETED", "COMPLETED")
+                .WithType(ApplicationCommandOptionType.String))
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
             await ((IGuild)guild).BulkOverwriteApplicationCommandsAsync(builtCommands);
@@ -537,6 +637,34 @@ public class CommandHandler {
             
             case "shoppost":
                 await _shopSystem.PostShopContents(command);
+                break;
+            
+            case "assigntask":
+                await _taskSystem.HandleAssignTaskCommand(command);
+                break;
+            case "removetask":
+                await _taskSystem.HandleRemoveTaskCommand(command);
+                break;
+            case "forceremovetask":
+                await _taskSystem.HandleForceRemoveTaskCommand(command);
+                break;
+            case "updatetask":
+                await _taskSystem.HandleUpdateTaskCommand(command);
+                break;
+            case "forceupdatetask":
+                await _taskSystem.HandleForceUpdateTaskCommand(command);
+                break;
+            case "viewtask":
+                await _taskSystem.HandleViewTaskCommand(command);
+                break;
+            case "viewall":
+                await _taskSystem.HandleViewAllCommand(command);
+                break;
+            case "vieweveryone":
+                await _taskSystem.HandleViewEveryoneCommand(command);
+                break;
+            case "updatetaskprogress":
+                await _taskSystem.HandleUpdateProgressCommand(command);
                 break;
             
             default:

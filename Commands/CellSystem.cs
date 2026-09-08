@@ -9,6 +9,7 @@ using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
 using SMASSB.Data;
 using SMASSB.Models;
+using SMASSB.ServiceHandlers;
 using Image = SixLabors.ImageSharp.Image;
 using Color = SixLabors.ImageSharp.Color;
 
