@@ -171,7 +171,7 @@ public class IdSystem {
         await clone.SaveAsync(output);
         foreach (var (img, _) in badgesToDraw) img.Dispose();
         
-        if (member != command.User && !command.CommandName.Contains("other")) {
+        if (member != command.User && !command.CommandName.Contains("debug")) {
             try { 
                 await member.SendMessageAsync("Here you are! Your new **Identification Card** and loaned **Work Cellphone**!\nKeep them safe.");
                 await member.SendFileAsync(output);
@@ -182,6 +182,19 @@ public class IdSystem {
         }
         
         File.Delete(output);
+    }
+    
+    public async Task HandleIdCommand(SocketSlashCommand command) {
+        var subcommand = command.Data.Options.First().Name;
+    
+        switch (subcommand) {
+            case "show":
+                await ShowId(command);
+                break;
+            case "edit":
+                await EditId(command);
+                break;
+        }
     }
     
     public async Task EditId(SocketSlashCommand command) {
@@ -299,40 +312,17 @@ public class IdSystem {
         
         await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, "", usernameParam, idTypeParam);
     }
-
-    public async Task GainId(SocketSlashCommand command) {
-        
-        SocketGuildUser? member = null;
-        var id = "";
-        
-        foreach (var option in command.Data.Options) {
-            switch (option.Name)
-            {
-
-                case "member":
-                    member = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
-                    break;
-                case "id":
-                    id = option.Value.ToString();
-                    break;
-                default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
-                    return;
-            }
-        }
-
-        if (member != null && id != null) await _db.GiveNewId(member.Id, id);
-        await command.RespondAsync("Completed task.", ephemeral: true);
-    }
     
-    public async Task RemoveId(SocketSlashCommand command) {
-        
+    public async Task EditAddons(SocketSlashCommand command, bool add) {
+
+        await command.DeferAsync();
+
         SocketGuildUser? member = null;
-        var id = "";
-        
+        string? id = null;
+        string? frame = null;
+
         foreach (var option in command.Data.Options) {
-            switch (option.Name)
-            {
+            switch (option.Name) {
 
                 case "member":
                     member = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
@@ -340,45 +330,62 @@ public class IdSystem {
                 case "id":
                     id = option.Value.ToString();
                     break;
+                case "frame":
+                    frame = option.Value.ToString();
+                    break;
                 default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
                     return;
             }
         }
 
-        if (member == null || id == null)
-            return; 
-        
-        await _db.RemoveId(member.Id, id);
+        if (member == null) {
+            await command.FollowupAsync("Unrecognized user.", ephemeral: true);
+            return;
+        }
 
-        if (id.Equals(await _db.GetIdType(member.Id))) {
-            if (member.Roles.Any(r => r.Id == 1473508563887329447)) {
-                await _db.SetIdType(member.Id, "STAFFMAIN");
+        if (string.IsNullOrEmpty(id) && string.IsNullOrEmpty(frame)) {
+            await command.FollowupAsync("You must specify at least one addon to give or remove!", ephemeral: true);
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(id)) {
+            if (add)
+                await _db.GiveNewId(member.Id, id);
+            else {
+                await _db.RemoveId(member.Id, id);
+                if (id.Equals(await _db.GetIdType(member.Id))) {
+                    if (member.Roles.Any(r => r.Id == 1473508563887329447)) {
+                        await _db.SetIdType(member.Id, "STAFFMAIN");
+                    } else {
+                        await _db.SetIdType(member.Id, "ENLISTEDMAIN");
+                    }
+                }
+            }
+            
+        } if (!string.IsNullOrEmpty(frame)) {
+            if (add) {
+                await _db.GiveNewFrame(member.Id, frame);
             } else {
-                await _db.SetIdType(member.Id, "ENLISTEDMAIN");
+                await _db.RemoveFrame(member.Id, frame);
             }
         }
         
-        await command.RespondAsync("Completed task.", ephemeral: true);
+        await command.FollowupAsync("Done!");
     }
     
     public async Task HandleForceUpdateCommand(SocketSlashCommand command) {
         
         await command.DeferAsync();
         SocketGuildUser? member = null;
-        var claim = "";
         IRole? rank = null;
         var avatarFoobar = false;
         
-        foreach (var option in command.Data.Options)
-        {
+        foreach (var option in command.Data.Options) {
             switch (option.Name) {
                 
                 case "member":
                     member = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
-                    break;
-                case "claim_name":
-                    claim = option.Value.ToString();
                     break;
                 case "rank_name":
                     rank = (IRole)option.Value;
@@ -402,24 +409,11 @@ public class IdSystem {
             var bytes = await HttpClient.GetByteArrayAsync(avatarUrl);
             await _db.SetAvatarUrl(member.Id, avatarUrl);
             await _db.SetAvatarImage(member.Id, bytes);
+            
+            await command.FollowupAsync("Reset avatar.");
         }
 
-        if (!string.IsNullOrEmpty(claim) && rank != null) {
-            
-            await _roleSystem.Promote(member, rank, command, claim, "Changed claim.");
-            
-        } else if (!String.IsNullOrEmpty(claim)) {
-            
-            var nickname = member.Nickname;
-            var dotIndex = nickname.IndexOf('.');
-            
-            var fixedRankNick = nickname.Substring(0, dotIndex + 1);
-            await member.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claim);
-            
-            await _db.SetClaim(member.Id, claim);
-            await command.FollowupAsync("Changed claim.");
-            
-        } else if (rank != null) {
+        if (rank != null) {
             
             var rankName = rank.Name;
             var dotIndex = rankName.IndexOf('.');
@@ -431,7 +425,7 @@ public class IdSystem {
             await member.ModifyAsync(x => x.Nickname = fixedRankNick + " " + oldClaim);
             
             await _db.SetRank(member.Id, fixedRankFull);
-            await command.FollowupAsync("Completed task.");
+            await command.FollowupAsync("Changed rank.");
             
         } else {
             await command.FollowupAsync("Nothing needs to be set.", ephemeral: true);

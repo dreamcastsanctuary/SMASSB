@@ -105,7 +105,7 @@ public class CellSystem {
             container.AddComponent(actionRow);
         }
 
-        if (member != command.User && !command.CommandName.Contains("other")) {
+        if (member != command.User && !command.CommandName.Contains("debug")) {
             
             var components = new ComponentBuilderV2()
                 .WithSeparator(new SeparatorBuilder().WithIsDivider(false))
@@ -460,110 +460,61 @@ public class CellSystem {
         var arrow = isIncrease ? "▲" : "▼";
         return $"¥{currentWeekEarnings:N0} this week ({arrow} {Math.Abs(percentChange):F1}%)";
     }
-
-    public async Task EditWorkCell(SocketSlashCommand command) {
-
-        await command.DeferAsync();
-
-        var enlisted = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
-        var guild = _client.GetGuild((ulong)_guildId!);
-        string? addedApp = null;
-        string? removedApp = null;
-        string? cellCase = null;
-        string? charm = null;
-        string? wallpaper = null;
-
-        foreach (var option in command.Data.Options) {
-            switch (option.Name) {
-
-                case "add_apps":
-                    addedApp = option.Value.ToString();
-                    break;
-                case "remove_apps":
-                    removedApp = option.Value.ToString();
-                    break;
-                case "case_type":
-                    cellCase = option.Value.ToString();
-                    break;
-                case "charm_type":
-                    charm = option.Value.ToString();
-                    break;
-                case "wallpaper_type":
-                    wallpaper = option.Value.ToString();
-                    break;
-                default:
-                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
-                    return;
+    
+    public async Task HandleWorkCellCommand(SocketSlashCommand command) {
+        
+        IReadOnlyCollection<IApplicationCommandInteractionDataOption> options;
+        var memberOption = command.Data.Options.FirstOrDefault(o => o.Name == "member");
+        SocketGuildUser member;
+    
+        if (memberOption != null) {
+            member = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)memberOption.Value).Id);
+            if (member == null) {
+                await command.RespondAsync("Could not find that user.", ephemeral: true);
+                return;
             }
+            
+            var subcommand = command.Data.Options.First(o => o.Type == ApplicationCommandOptionType.SubCommand);
+            options = subcommand.Options;
+        } else {
+            member = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
+            options = command.Data.Options.First().Options;
         }
-
-        if (!string.IsNullOrEmpty(addedApp)) {
-            await _db.AddAppsToHome(enlisted.Id, addedApp);
-        }
-
-        if (!string.IsNullOrEmpty(removedApp)) {
-            await _db.RemoveAppsFromHome(enlisted.Id, removedApp);
-        }
-
-        if (!string.IsNullOrEmpty(cellCase)) {
-            await _db.SetCaseType(enlisted.Id, cellCase);
-        }
-
-        if (!string.IsNullOrEmpty(charm)) {
-            await _db.SetCharmType(enlisted.Id, charm);
-        }
-
-        if (!string.IsNullOrEmpty(wallpaper)) {
-            await _db.SetWallpaperType(enlisted.Id, wallpaper);
-        }
-
-        var caseParam = await _db.GetCaseType(enlisted.Id);
-        var charmParam = await _db.GetCharmType(enlisted.Id);
-        var wallpaperParam = await _db.GetWallpaperType(enlisted.Id);
-        var appsParam = await _db.GetApps(enlisted.Id);
-        var (currentWeekEarnings, _, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
-        var member = guild.GetUser(enlisted.Id);
-
-        if (member == null) {
-            await command.FollowupAsync("Could not find that user.", ephemeral: true);
-            return;
-        }
-
-        await BuildCell(command, member, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id), currentWeekEarnings, percentChange, isIncrease);
+    
+        await HandleWorkCell(command, member, options);
     }
 
-    public async Task ShowWorkCell(SocketSlashCommand command) {
-
+    private async Task HandleWorkCell(SocketSlashCommand command, SocketGuildUser member, IReadOnlyCollection<IApplicationCommandInteractionDataOption> options) {
+        
         await command.DeferAsync();
         
-        var enlisted = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
-        var guild = _client.GetGuild((ulong)_guildId!);
-
-        foreach (var option in command.Data.Options) {
+        foreach (var option in options) {
             switch (option.Name) {
-
-                case "member":
-                    enlisted = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
+                case "add_apps":
+                    await _db.AddAppsToHome(member.Id, option.Value.ToString());
                     break;
-                default:
-                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
-                    return;
+                case "remove_apps":
+                    await _db.RemoveAppsFromHome(member.Id, option.Value.ToString());
+                    break;
+                case "case_type":
+                    await _db.SetCaseType(member.Id, option.Value.ToString());
+                    break;
+                case "charm_type":
+                    await _db.SetCharmType(member.Id, option.Value.ToString());
+                    break;
+                case "wallpaper_type":
+                    await _db.SetWallpaperType(member.Id, option.Value.ToString());
+                    break;
             }
         }
 
-        var caseParam = await _db.GetCaseType(enlisted.Id);
-        var charmParam = await _db.GetCharmType(enlisted.Id);
-        var wallpaperParam = await _db.GetWallpaperType(enlisted.Id);
-        var appsParam = await _db.GetApps(enlisted.Id);
-        var (currentWeekEarnings, _, percentChange, isIncrease) = await _db.GetEarningsSummary(enlisted.Id);
-        var member = guild.GetUser(enlisted.Id);
-
-        if (member == null) {
-            await command.FollowupAsync("Could not find that user.", ephemeral: true);
-            return;
-        }
-
-        await BuildCell(command, member, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(enlisted.Id), currentWeekEarnings, percentChange, isIncrease);
+        var caseParam = await _db.GetCaseType(member.Id);
+        var charmParam = await _db.GetCharmType(member.Id);
+        var wallpaperParam = await _db.GetWallpaperType(member.Id);
+        var appsParam = await _db.GetApps(member.Id);
+        var (currentWeekEarnings, _, percentChange, isIncrease) = await _db.GetEarningsSummary(member.Id);
+        
+        await BuildCell(command, member, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(member.Id), currentWeekEarnings, percentChange, isIncrease);
     }
 
     public async Task EditAddons(SocketSlashCommand command, bool add) {

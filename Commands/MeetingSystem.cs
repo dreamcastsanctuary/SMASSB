@@ -18,28 +18,49 @@ public class MeetingSystem {
     private readonly string _meetingApiSecret = Environment.GetEnvironmentVariable("MEETING_API_SECRET") ?? throw new Exception("MEETING_API_SECRET environment variable not set.");
     private const long MaxEmbeddedAttachmentBytes = 3 * 1024 * 1024;
 
-    public MeetingSystem (DiscordSocketClient client, LogHandler logHandler, DatabaseService db, GuildConfiguration guildConfig) {
-        
+    public MeetingSystem(DiscordSocketClient client, LogHandler logHandler, DatabaseService db, GuildConfiguration guildConfig) {
         _client = client;
         _logHandler = logHandler;
         _db = db;
         _guildId = guildConfig.GuildId;
     }
     
-    public async Task HandleMeetingPrCommand(SocketSlashCommand command) {
+    public async Task HandleMeetingCommand(SocketSlashCommand command) {
         
-        await command.RespondAsync("Creating blacklist meeting room.", ephemeral: true);
+        var mainOption = command.Data.Options.First();
+        
+        switch (mainOption.Name) {
+            case "create":
+                var createType = mainOption.Options.First();
+                switch (createType.Name) {
+                    case "pr":
+                        await HandleMeetingPrCreate(command, createType.Options);
+                        break;
+                    case "reprimand":
+                        await HandleMeetingReprimandCreate(command, createType.Options);
+                        break;
+                }
+                break;
+            case "close":
+                await HandleMeetingClose(command);
+                break;
+        }
+    }
+
+    private async Task HandleMeetingPrCreate(SocketSlashCommand command, IReadOnlyCollection<IApplicationCommandInteractionDataOption> options) {
+        
+        await command.RespondAsync("Creating PR meeting room.", ephemeral: true);
         var guild = _client.GetGuild((ulong)_guildId!);
         var channel = guild.GetChannel(1482455836776333322) as SocketTextChannel;
+        
         SocketGuildUser? person = null;
         var meetingName = "";
         var type = "";
         
-        foreach (var option in command.Data.Options) {
+        foreach (var option in options) {
             switch (option.Name) {
-                
                 case "person":
-                    person = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
+                    person = guild.GetUser(((SocketUser)option.Value).Id);
                     break;
                 case "meeting_name":
                     meetingName = option.Value.ToString();
@@ -47,68 +68,54 @@ public class MeetingSystem {
                 case "type":
                     type = option.Value.ToString();
                     break;
-                default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
-                    break;
             }
         }
         
         if (person == null) {
-            await command.RespondAsync("Unrecognized account.", ephemeral: true);
+            await command.FollowupAsync("Unrecognized account.", ephemeral: true);
             return;
         }
         
         await person.AddRoleAsync(1492674198345224293);
 
-        switch (type) {
-            case "Partnering":
-                type = "partner";
-                break;
-            case "Blacklist":
-                type = "blist";
-                break;
-            case "Other":
-                type = "pr-gen";
-                break;
-            default:
-                await command.RespondAsync("Unrecognized command.", ephemeral: true);
-                return;
-        }
+        type = type switch {
+            "Partnering" => "partner",
+            "Blacklist" => "blist",
+            "Other" => "pr-gen",
+            _ => "pr-gen"
+        };
         
         var name = "meeting-" + type + "-" + meetingName;
 
         if (channel != null) {
             var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
             await Task.Delay(500);
-            await thread.SendMessageAsync("Welcome to Meeting Room " + meetingName + ".\nPlease wait here and be patient as <@274990117163368448> and <@&1473371232060702781> prepare to assist you, <@" + person.Id + ">.");
+            await thread.SendMessageAsync($"Welcome to Meeting Room {meetingName}.\nPlease wait here and be patient as <@274990117163368448> and <@&1473371232060702781> prepare to assist you, <@{person.Id}>.");
         }
     }
-    
-    public async Task HandleMeetingReprimandCommand(SocketSlashCommand command) {
+
+    private async Task HandleMeetingReprimandCreate(SocketSlashCommand command, IReadOnlyCollection<IApplicationCommandInteractionDataOption> options) {
         
         await command.RespondAsync("Creating reprimand meeting room.", ephemeral: true);
         var guild = _client.GetGuild((ulong)_guildId!);
         var channel = guild.GetChannel(1482455836776333322) as SocketTextChannel;
+        
         SocketGuildUser? person = null;
         var meetingName = "";
         
-        foreach (var option in command.Data.Options) {
+        foreach (var option in options) {
             switch (option.Name) {
-                
                 case "person":
-                    person = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
+                    person = guild.GetUser(((SocketUser)option.Value).Id);
                     break;
                 case "meeting_name":
                     meetingName = option.Value.ToString();
-                    break;
-                default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
                     break;
             }
         }
         
         if (person == null) {
-            await command.RespondAsync("Unrecognized account.", ephemeral: true);
+            await command.FollowupAsync("Unrecognized account.", ephemeral: true);
             return;
         }
         
@@ -123,33 +130,79 @@ public class MeetingSystem {
         await _db.SetIsPartner(freshPerson.Id, freshPerson.Roles.Contains(guild.GetRole(1473514553240322148)));
         await _db.SetIsProspect(freshPerson.Id, freshPerson.Roles.Contains(guild.GetRole(1473369036766052445)));
         
-        if (await _db.GetIsCivilian(freshPerson.Id)) {
-            await freshPerson.RemoveRoleAsync(1473369383471677461);
-        }
-        
-        if (await _db.GetIsEnlisted(freshPerson.Id)) {
-            await freshPerson.RemoveRoleAsync(1473368797023961139);
-        }
-        
-        if (await _db.GetIsFan(freshPerson.Id)) {
-            await freshPerson.RemoveRoleAsync(1475720710910382310);
-        }
-        
-        if (await _db.GetIsPartner(freshPerson.Id)) {
-            await freshPerson.RemoveRoleAsync(1473514553240322148);
-        }
-        
-        if (await _db.GetIsProspect(freshPerson.Id)) {
-            await freshPerson.RemoveRoleAsync(1473369036766052445);
-        }
+        if (await _db.GetIsCivilian(freshPerson.Id)) await freshPerson.RemoveRoleAsync(1473369383471677461);
+        if (await _db.GetIsEnlisted(freshPerson.Id)) await freshPerson.RemoveRoleAsync(1473368797023961139);
+        if (await _db.GetIsFan(freshPerson.Id)) await freshPerson.RemoveRoleAsync(1475720710910382310);
+        if (await _db.GetIsPartner(freshPerson.Id)) await freshPerson.RemoveRoleAsync(1473514553240322148);
+        if (await _db.GetIsProspect(freshPerson.Id)) await freshPerson.RemoveRoleAsync(1473369036766052445);
         
         var name = "meeting-repri-" + meetingName;
 
         if (channel != null) {
             var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
             await Task.Delay(500);
-            await thread.SendMessageAsync("Welcome to Meeting Room " + meetingName +".\nPlease wait here and be patient as <@274990117163368448> prepares to speak to you, <@" + freshPerson.Id + ">.");
+            await thread.SendMessageAsync($"Welcome to Meeting Room {meetingName}.\nPlease wait here and be patient as <@274990117163368448> prepares to speak to you, <@{freshPerson.Id}>.");
         }
+    }
+
+    private async Task HandleMeetingClose(SocketSlashCommand command) {
+        
+        var guild = _client.GetGuild((ulong)_guildId!);
+        var channel = guild.GetChannel(command.ChannelId!.Value);
+        
+        if (channel is not IThreadChannel || !((SocketTextChannel)channel).Name.Contains("meeting-")) {
+            await command.RespondAsync("This channel wasn't made by the Assistant!", ephemeral: true);
+            return;
+        }
+
+        await command.RespondAsync("Closing meeting room.", ephemeral: true);
+        var thread = guild.GetThreadChannel(channel.Id);
+        var users = await thread.GetUsersAsync();
+        var messages = (await thread.GetMessagesAsync(500).FlattenAsync()).OrderBy(m => m.Timestamp).ToList();
+        var userList = "";
+
+        foreach (var message in messages) {
+            await PostMessageToMeetingLog(thread.Name, message);
+            await Task.Delay(250);
+        }
+        
+        foreach (var user in users) {
+            userList += user.Username + "\n";
+        }
+
+        await CloseMeetingLog(thread.Name);
+        var logChannel = guild.GetChannel(1516597401287131176) as IThreadChannel;
+        
+        try {
+            if (logChannel != null) {
+                await logChannel.SendMessageAsync($"Meeting Log saved: {SiteBaseUrl}/meeting/{thread.Name}\n\nUsers:\n{userList}");
+            }
+        } catch (Exception ex) {
+            Console.WriteLine($"[MeetingLog] Could not send followup: {ex.Message}");
+            await _logHandler.LogExceptionWatch(guild.Id, text: $"[MeetingLog] Could not send followup:\n{ex.Message}");
+        }
+
+        if (((SocketTextChannel)channel).Name.Contains("meeting-repri-")) {
+            foreach (var user in users) {
+                var guildUser = (SocketGuildUser)user;
+                if (guildUser.Roles.All(r => r.Id != 1492678150025379860)) continue;
+                
+                await guildUser.RemoveRoleAsync(1492678150025379860);
+                if (await _db.GetIsCivilian(guildUser.Id)) await guildUser.AddRoleAsync(1473369383471677461);
+                if (await _db.GetIsEnlisted(guildUser.Id)) await guildUser.AddRoleAsync(1473368797023961139);
+                if (await _db.GetIsFan(guildUser.Id)) await guildUser.AddRoleAsync(1475720710910382310);
+                if (await _db.GetIsPartner(guildUser.Id)) await guildUser.AddRoleAsync(1473514553240322148);
+                if (await _db.GetIsProspect(guildUser.Id)) await guildUser.AddRoleAsync(1473369036766052445);
+            }
+        }
+        
+        foreach (var user in users) {
+            var guildUser = (SocketGuildUser)user;
+            if (guildUser.Roles.Any(r => r.Id == 1492674198345224293)) {
+                await guildUser.RemoveRoleAsync(1492674198345224293);
+            }
+        }
+        await thread.DeleteAsync();
     }
     
     public async Task HandleMeetingMessage(SocketMessage rawMessage) {
@@ -234,73 +287,6 @@ public class MeetingSystem {
         } catch (Exception ex) {
             Console.WriteLine($"[ MeetingLog ] Error posting {label}: {ex.Message}");
             await _logHandler.LogExceptionWatch(guild.Id, text: $"[ MeetingLog ] Error posting {label}:\n {ex.Message}");
-        }
-    }
-
-    public async Task HandleMeetingCloseCommand(SocketSlashCommand command) {
-        
-        var guild = _client.GetGuild((ulong)_guildId!);
-        SocketChannel channel = guild.GetChannel(command.ChannelId!.Value);
-        
-        if (((SocketTextChannel)channel).Name.Contains("meeting-") && channel is IThreadChannel) {
-            await command.RespondAsync("Closing meeting room.", ephemeral: true);
-            var thread = guild.GetThreadChannel(channel.Id);
-            IReadOnlyCollection<SocketThreadUser> users = await thread.GetUsersAsync();
-            
-            var messages = (await thread.GetMessagesAsync(500).FlattenAsync()).OrderBy(m => m.Timestamp).ToList(); 
-            var userList = "";
-
-            foreach (var message in messages) {
-                await PostMessageToMeetingLog(thread.Name, message);
-                await Task.Delay(250);
-            }
-            
-            foreach (var user in users) {
-                userList += user.Username + "\n";
-            }
-
-            await CloseMeetingLog(thread.Name);
-            var logChannel = guild.GetChannel(1516597401287131176) as IThreadChannel;
-            
-            try {
-                if (logChannel != null) await logChannel.SendMessageAsync($"Meeting Log saved: {SiteBaseUrl}/meeting/{thread.Name}\n\nUsers:\n" + userList);
-            } catch (Exception ex) {
-                Console.WriteLine($"[MeetingLog] Could not send followup: {ex.Message}");
-                await _logHandler.LogExceptionWatch(guild.Id, text: $"[MeetingLog] Could not send followup:\n {ex.Message}");
-            }
-
-            if (((SocketTextChannel)channel).Name.Contains("meeting-repri-")) {
-                
-                foreach (var user in users) {
-                    var guildUser = (SocketGuildUser)user;
-
-                    if (guildUser.Roles.All(r => r.Id != 1492678150025379860)) continue;
-                    
-                    await guildUser.RemoveRoleAsync(1492678150025379860);
-                        
-                    if (await _db.GetIsCivilian(guildUser.Id)) {
-                        await guildUser.AddRoleAsync(1473369383471677461);
-                    } if (await _db.GetIsEnlisted(guildUser.Id)) {
-                        await guildUser.AddRoleAsync(1473368797023961139);
-                    } if (await _db.GetIsFan(guildUser.Id)) {
-                        await guildUser.AddRoleAsync(1475720710910382310);
-                    } if (await _db.GetIsPartner(guildUser.Id)) {
-                        await guildUser.AddRoleAsync(1473514553240322148);
-                    } if (await _db.GetIsProspect(guildUser.Id)) {
-                        await guildUser.AddRoleAsync(1473369036766052445);
-                    }
-                }
-            }
-            
-            foreach (var user in users) {
-                var guildUser = (SocketGuildUser)user;
-                if (guildUser.Roles.Any(r => r.Id == 1492674198345224293)) {
-                    await guildUser.RemoveRoleAsync(1492674198345224293);
-                }
-            }
-            await thread.DeleteAsync();
-        } else {
-            await command.RespondAsync("This channel wasn't made by the Assistant!", ephemeral: true);
         }
     }
 }

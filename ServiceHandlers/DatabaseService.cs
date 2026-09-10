@@ -577,6 +577,7 @@ public class DatabaseService
     }
     
     public List<string> GetEnlisted() {
+        
         using var connection = new SqliteConnection(_connectionString);
         connection.OpenAsync();
 
@@ -593,6 +594,7 @@ public class DatabaseService
     }
     
     public List<(string UserId, string Claim)> GetAllClaims() {
+        
         using var connection = new SqliteConnection(_connectionString);
         connection.OpenAsync();
 

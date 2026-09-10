@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using SMASSB.Data;
 using SMASSB.Exceptions;
 using SMASSB.Models;
 using SMASSB.ServiceHandlers;
@@ -109,13 +110,15 @@ public class RoleSystem {
             }
         }
 
-        var ranks = new List<(ulong RoleId, int Threshold)> {
-            (1475886748268625962, 250),
-            (1475886729561899212, 500),
-            (1475886715368509753, 750),
-            (1475886697118957660, 1000),
-            (1475886671919579310, 1250),
-            (1475886657545961472, 1500),
+        var ranks = new Dictionary<RankType, ulong> {
+            { RankType.Kō, 1475886792174604484 },
+            { RankType.NiShi, 1475886748268625962 },
+            { RankType.ItShi, 1475886729561899212 },
+            { RankType.Shi, 1475886715368509753 },
+            { RankType.SaSō, 1475886697118957660 },
+            { RankType.NiSō, 1475886671919579310 },
+            { RankType.ItSō, 1475886657545961472 },
+            { RankType.Sō, 1475886640429011125 }
         };
 
         var enlisteds = new List<SocketGuildUser>();
@@ -127,13 +130,21 @@ public class RoleSystem {
 
         foreach (var enlisted in enlisteds) {
             
-            foreach (var rank in ranks) {
-                var role = guild.GetRole(rank.RoleId);
-                if (role == null) continue;
-
-                if (role.Name.Contains(await _db.GetRank(enlisted.Id)) && await _db.GetPoints(enlisted.Id) >= rank.Threshold) {
-                    promotable.Add(enlisted);
+            var currentRankStr = await _db.GetRank(enlisted.Id);
+            var currentPoints = await _db.GetPoints(enlisted.Id);
+            RankType? highestQualified = null;
+    
+            if (!Enum.TryParse<RankType>(currentRankStr, out var currentRank)) continue;
+            
+            foreach (var rankType in ranks.Keys.OrderByDescending(r => (int)r)) {
+                if (currentPoints >= (int)rankType) {
+                    highestQualified = rankType;
+                    break;
                 }
+            }
+    
+            if (highestQualified.HasValue && highestQualified.Value > currentRank) {
+                promotable.Add(enlisted);
             }
         }
 
@@ -156,32 +167,31 @@ public class RoleSystem {
 
         if (promote) {
             foreach (var enlisted in promotable) {
-
-                for (var i = 0; i < ranks.Count; i++) {
-                    var role = guild.GetRole(ranks[i].RoleId);
-                    if (role == null) continue;
-
-                    if (role.Name.Contains(await _db.GetRank(enlisted.Id))) {
-
-                        if (i + 1 < ranks.Count) {
-                            await Promote(enlisted, guild.GetRole(ranks[i + 1].RoleId));
-
-                            for (var j = i; j >= Math.Max(0, i - 3); j--) {
-                                var oldRole = guild.GetRole(ranks[j].RoleId);
-                                if (oldRole != null) {
-                                    await enlisted.RemoveRoleAsync(oldRole);
-                                }
-                            }
-
-                            await enlisted.AddRoleAsync(guild.GetRole(ranks[i + 1].RoleId));
+                
+                var currentPoints = await _db.GetPoints(enlisted.Id);
+                RankType? targetRank = null;
+                
+                foreach (var rank in ranks.Keys.OrderByDescending(r => (int)r)) {
+                    if (currentPoints < (int)rank) continue;
+                    targetRank = rank;
+                    break;
+                }
+        
+                if (targetRank.HasValue) {
+                    var targetRole = guild.GetRole(ranks[targetRank.Value]);
+                    if (targetRole == null) continue;
+                    
+                    foreach (var roleId in ranks.Values.Distinct()) {
+                        var role = guild.GetRole(roleId);
+                        if (role != null && enlisted.Roles.Contains(role)) {
+                            await enlisted.RemoveRoleAsync(role);
                         }
-                        break;
                     }
+                    await enlisted.AddRoleAsync(targetRole);
+                    await _db.SetRank(enlisted.Id, targetRank.Value.ToString());
                 }
             }
-            builder.WithTitle("Viable Promotions Completed!");
         }
-
         if (command.Channel is ITextChannel channel) await channel.SendMessageAsync(embed: builder.Build());
     }
 
@@ -241,11 +251,9 @@ public class RoleSystem {
         
         SocketGuildUser? civilian = null;
         var claim = "";
-        var rank = "";
-        var isStaff = false;
+        IRole? rank = null;
         
-        foreach (var option in command.Data.Options)
-        {
+        foreach (var option in command.Data.Options) {
             switch (option.Name) {
                 
                 case "civilian":
@@ -255,10 +263,7 @@ public class RoleSystem {
                     claim = option.Value.ToString();
                     break;
                 case "rank_name":
-                    rank = option.Value.ToString();
-                    break;
-                case "is_staff":
-                    isStaff = option.Value.ToString() == "True";
+                    rank = (IRole)option.Value;
                     break;
                 default:
                     await command.FollowupAsync("Unrecognized command.", ephemeral: true);
@@ -269,12 +274,23 @@ public class RoleSystem {
         if (civilian == null) {
             await command.FollowupAsync("Unrecognized account.", ephemeral: true);
             return;
+        } if (rank == null || string.IsNullOrWhiteSpace(claim)) {
+            await command.FollowupAsync("Unrecognized command.", ephemeral: true);
+            return;
         }
+        
+        var rankName = rank.Name;
+        var dotIndex = rankName.IndexOf('.');
+            
+        var fixedRankNick = rankName.Substring(1, dotIndex);
+        var fixedRankFull = rankName[(dotIndex + 2)..];
+            
+        await civilian.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claim);
 
         var idType = "ENLISTEDMAIN";
-        if (isStaff) { idType = "STAFFMAIN"; }
+        if ((int)Enum.Parse<RankType>(rankName[1..dotIndex]) == 50000) { idType = "STAFFMAIN"; }
         
-        if (claim != null && rank != null) await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, rank,0,0,"N/A","", civilian.Username, idType, "BLACK", "NONE", "BASIC"); 
+        await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, fixedRankFull,0,0,"N/A","", civilian.Username, idType, "BLACK", "NONE", "BASIC"); 
     }
 
     public async Task Promote(SocketGuildUser enlisted, IRole rank, SocketSlashCommand? command = null, string? newClaim = null, string? response = null) {
@@ -288,12 +304,17 @@ public class RoleSystem {
         var spaceIndex = nickname.IndexOf(' ');
         string? claim;
         
-        if (String.IsNullOrEmpty(newClaim)) {
+        if (string.IsNullOrEmpty(newClaim)) {
             claim = spaceIndex >= 0 ? nickname[(spaceIndex + 1)..] : nickname;
         }
         else {
             claim = newClaim; 
             await _db.SetClaim(enlisted.Id, claim);
+        }
+
+        if ((int)Enum.Parse<RankType>(rankName[1..dotIndex]) == 50000) {
+            await _db.GiveNewId(enlisted.Id, "STAFFMAIN");
+            await _db.SetIdType(enlisted.Id, "STAFFMAIN");
         }
 
         await enlisted.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claim);

@@ -124,37 +124,51 @@ public class GeneralSystem {
         await command.FollowupAsync(string.Join("FAILURES : \n", failures2.Select(f => f.ToString())));
     }
 
-    public async Task HandleCheckClaimedCommand(SocketSlashCommand command) {
-        
-        var name = "";
-
-        foreach (var option in command.Data.Options) {
-            switch (option.Name) {
-                
-                case "name":
-                    name = option.Value.ToString();
-                    break;
-                default:
-                    await command.RespondAsync("Unrecognized option.", ephemeral: true);
-                    return;
-            }
-        }
-        
-        var allClaims = _db.GetAllClaims();
-        
-        var matches = allClaims
-            .Where(m => !string.IsNullOrWhiteSpace(m.Claim) && name != null && m.Claim.Contains(name, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-
-        if (matches.Count == 0) {
-            await command.RespondAsync("No claims found!", ephemeral: true);
-        } else {
-            var matchDesc = "";
+    public async Task HandleCheckOrChangeClaimCommand(SocketSlashCommand command) {
+    
+        switch (command.Data.Options.First().Name) {
             
-            foreach (var match in matches) {
-                matchDesc += match.Claim + "\n";
+            case "check_claim": {
+                
+                var claimName = command.Data.Options.First().Options.First().Value.ToString();
+                var allClaims = _db.GetAllClaims();
+        
+                var matches = allClaims
+                    .Where(m => !string.IsNullOrWhiteSpace(m.Claim) && claimName != null && m.Claim.Contains(claimName, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                if (matches.Count == 0) {
+                    await command.RespondAsync("No claims found!", ephemeral: true);
+                } else {
+                    
+                    var matchDesc = "";
+                    foreach (var match in matches) {
+                        matchDesc += $"{match.Claim} :: <@{match.UserId}>\n";
+                    }
+                    await command.RespondAsync(matchDesc, ephemeral: true);
+                }
+                break;
+            } case "change_claim": {
+                
+                var claimName = command.Data.Options.First().Options.First().Value.ToString();
+                var member = (SocketGuildUser)command.Data.Options.First().Options.Last().Value;
+
+                if (claimName == null) {
+                    await command.FollowupAsync("Something's wrong with this command.", ephemeral: true);
+                    return;
+                }
+                
+                var nickname = member.Nickname;
+                var dotIndex = nickname.IndexOf('.');
+            
+                var fixedRankNick = nickname.Substring(0, dotIndex + 1);
+                await member.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claimName);
+            
+                await _db.SetClaim(member.Id, claimName);
+                await command.FollowupAsync("Changed claim.");
+                
+                break;
             }
-            await command.RespondAsync(matchDesc, ephemeral: true);
         }
     }
     

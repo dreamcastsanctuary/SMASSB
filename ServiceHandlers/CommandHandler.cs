@@ -101,29 +101,43 @@ public class CommandHandler {
         
         // MEETINGSYSTEM.
         
-        commands.Add(new SlashCommandBuilder()
-            .WithName("meetingpr")
-            .WithDescription("Creates a private meeting room with our PR Officer and the person provided.")
-            .AddOption("person", ApplicationCommandOptionType.User, "The @ of the person.", isRequired: true)
-            .AddOption("meeting_name", ApplicationCommandOptionType.String, "What you want to call this meeting; add - instead of spaces.", isRequired: true)
+        var prOption = new SlashCommandOptionBuilder()
+            .WithName("pr")
+            .WithDescription("Create a PR meeting")
+            .WithType(ApplicationCommandOptionType.SubCommand)
             .AddOption(new SlashCommandOptionBuilder()
                 .WithName("type")
-                .WithDescription("What kind of PR Meeting will this be?")
+                .WithDescription("What kind of PR meeting?")
                 .WithType(ApplicationCommandOptionType.String)
                 .WithRequired(true)
-                .AddChoice("Partnering", "Partnering").AddChoice("Blacklist", "Blacklist").AddChoice("Other", "Other"))
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
-        
+                .AddChoice("Partnering", "Partnering")
+                .AddChoice("Blacklist", "Blacklist")
+                .AddChoice("Other", "Other"))
+            .AddOption("person", ApplicationCommandOptionType.User, "The person for the meeting", isRequired: true)
+            .AddOption("meeting_name", ApplicationCommandOptionType.String, "Name for the meeting", isRequired: true);
+
+        var reprimandOption = new SlashCommandOptionBuilder()
+            .WithName("reprimand")
+            .WithDescription("Create a reprimand meeting")
+            .WithType(ApplicationCommandOptionType.SubCommand)
+            .AddOption("person", ApplicationCommandOptionType.User, "The person for the meeting", isRequired: true)
+            .AddOption("meeting_name", ApplicationCommandOptionType.String, "Name for the meeting", isRequired: true);
+
+        var createOption = new SlashCommandOptionBuilder()
+            .WithName("create")
+            .WithDescription("Create a meeting")
+            .WithType(ApplicationCommandOptionType.SubCommandGroup)
+            .AddOption(prOption)
+            .AddOption(reprimandOption);
+
         commands.Add(new SlashCommandBuilder()
-            .WithName("meetingreprimand")
-            .WithDescription("Creates a private meeting room with only the person provided, for use with discipline.")
-            .AddOption("person", ApplicationCommandOptionType.User, "The @ of the person.", isRequired: true)
-            .AddOption("meeting_name", ApplicationCommandOptionType.String, "What you want to call this meeting; add - instead of spaces.", isRequired: true)
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
-        
-        commands.Add(new SlashCommandBuilder()
-            .WithName("meetingclose")
-            .WithDescription("Closes the current thread if it is a meeting room.")
+            .WithName("meeting")
+            .WithDescription("Creates or closes a private meeting room with PR / Kamikawa and the person provided.")
+            .AddOption(createOption)
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("close")
+                .WithDescription("Close the current meeting room")
+                .WithType(ApplicationCommandOptionType.SubCommand))
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         
@@ -143,11 +157,11 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
-            .WithName("forceenlist")
+            .WithName("debugenlist")
             .WithDescription("Force enlists a user.")
             .AddOption("civilian", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
             .AddOption("claim_name", ApplicationCommandOptionType.String, "The claim name of the civilian.", isRequired: true)
-            .AddOption("rank_name", ApplicationCommandOptionType.String, "The rank to be placed in the database.", isRequired: true)
+            .AddOption("rank_name", ApplicationCommandOptionType.Role, "The rank to be placed in the database.", isRequired: false)
             .AddOption("is_staff", ApplicationCommandOptionType.Boolean, "Are they a staff member, or an enlisted?", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
 
@@ -173,32 +187,48 @@ public class CommandHandler {
         
         // IDSYSTEM.
         
+        var showOption = new SlashCommandOptionBuilder()
+            .WithName("show")
+            .WithDescription("Shows your Enlisted ID.")
+            .WithType(ApplicationCommandOptionType.SubCommand);
+
+        var bloodtypeOption = new SlashCommandOptionBuilder()
+            .WithName("bloodtype")
+            .WithDescription("The bloodtype of the member / character")
+            .WithType(ApplicationCommandOptionType.String)
+            .WithRequired(true)
+            .AddChoice("O (Optimistic)", "O (Optimistic)")
+            .AddChoice("A (Patient)", "A (Patient)")
+            .AddChoice("B (Active)", "B (Active)")
+            .AddChoice("AB (Rational)", "AB (Rational)");
+
+        var idTypeOption = new SlashCommandOptionBuilder()
+            .WithName("id_type")
+            .WithDescription("The ID to display.")
+            .WithType(ApplicationCommandOptionType.String)
+            .WithRequired(true)
+            .WithAutocomplete(true);
+
+        var editOption = new SlashCommandOptionBuilder()
+            .WithName("edit")
+            .WithDescription("Edits your Enlisted ID, then displays it.")
+            .WithType(ApplicationCommandOptionType.SubCommand)
+            .AddOption("avatar_url", ApplicationCommandOptionType.String, "The profile of the member / character", isRequired: true)
+            .AddOption(bloodtypeOption)
+            .AddOption(idTypeOption);
+
         commands.Add(new SlashCommandBuilder()
-            .WithName("showid")
-            .WithDescription("Shows your Idol ID."));
+            .WithName("id")
+            .WithDescription("Shows or edits your Enlisted ID.")
+            .AddOption(showOption)
+            .AddOption(editOption)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
-            .WithName("showotherid")
+            .WithName("debugid")
             .WithDescription("Shows another member's Idol ID.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
-
-        commands.Add(new SlashCommandBuilder()
-            .WithName("editid")
-            .WithDescription("Edits your Idol ID and displays it.")
-            .AddOption("avatar_url", ApplicationCommandOptionType.String, "The profile of the member / character.", isRequired: false)
-            .AddOption(new SlashCommandOptionBuilder()
-                .WithName("bloodtype")
-                .WithDescription("The bloodtype of the member / character")
-                .WithRequired(false)
-                .AddChoice("O (Optimistic)", "O (Optimistic)").AddChoice("A (Patient)", "A (Patient)").AddChoice("B (Active)", "B (Active)").AddChoice("AB (Rational)", "AB (Rational)")
-                .WithType(ApplicationCommandOptionType.String))
-            .AddOption(new SlashCommandOptionBuilder()
-                .WithName("id_type")
-                .WithDescription("The ID to display.")
-                .WithRequired(false)
-                .WithType(ApplicationCommandOptionType.String)
-                .WithAutocomplete(true)));
         
         var idOption = new SlashCommandOptionBuilder()
             .WithName("id")
@@ -208,22 +238,6 @@ public class CommandHandler {
 
         foreach (var name in Enum.GetNames<IdType>())
             idOption.AddChoice(name, name);
-
-        commands.Add(new SlashCommandBuilder()
-            .WithName("giveidskin")
-            .WithDescription("Give a member an ID skin.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The member the ID will go to.", isRequired: true)
-            .AddOption(idOption)
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
-        );
-        
-        commands.Add(new SlashCommandBuilder()
-            .WithName("removeidskin")
-            .WithDescription("Remove a member's ID skin.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The member.", isRequired: true)
-            .AddOption(idOption)
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
-        );
         
         var frameOption = new SlashCommandOptionBuilder()
             .WithName("frame")
@@ -233,28 +247,45 @@ public class CommandHandler {
 
         foreach (var name in Enum.GetNames<FrameType>())
             frameOption.AddChoice(name, name);
-        
+
         commands.Add(new SlashCommandBuilder()
-            .WithName("giveidframe")
-            .WithDescription("Give a member an ID frame.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The member the frame will go to.", isRequired: true)
+            .WithName("addidaddons")
+            .WithDescription("Give a member an ID addon.")
+            .AddOption("member", ApplicationCommandOptionType.User, "The member the addon will go to.", isRequired: true)
+            .AddOption(idOption)
             .AddOption(frameOption)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
         );
         
         commands.Add(new SlashCommandBuilder()
-            .WithName("removeidframe")
-            .WithDescription("Remove a member's ID frame.")
+            .WithName("removeidaddons")
+            .WithDescription("Remove an Addon from a member's ID.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member.", isRequired: true)
+            .AddOption(idOption)
             .AddOption(frameOption)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
         );
         
         commands.Add(new SlashCommandBuilder()
-            .WithName("changeclaim")
-            .WithDescription("Updates a user's DB entries. Use when changing someone's claim or for ID fixes.")
+            .WithName("checkorchangeclaim")
+            .WithDescription("Claim checking or claim changing. Pick your poison.")
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("check_claim")
+                .WithDescription("Check if a name has been claimed yet.")
+                .WithType(ApplicationCommandOptionType.SubCommand)
+                .AddOption("claim_name", ApplicationCommandOptionType.String, "The name to check.", isRequired: true))
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("change_claim")
+                .WithDescription("Change someone's claim name.")
+                .WithType(ApplicationCommandOptionType.SubCommand)
+                .AddOption("claim_name", ApplicationCommandOptionType.String, "The claim name.", isRequired: true)
+                .AddOption("member", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true))
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("debugfix")
+            .WithDescription("Updates a user's DB entries.")
             .AddOption("member", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
-            .AddOption("claim_name", ApplicationCommandOptionType.String, "The claim name of the user.", isRequired: false)
             .AddOption("rank_name", ApplicationCommandOptionType.Role, "The rank to be placed in the database.", isRequired: false)
             .AddOption("avatar_fix", ApplicationCommandOptionType.Boolean, "Got a borked avatar in the database? No you don't.")
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
@@ -310,21 +341,12 @@ public class CommandHandler {
             .AddOption("amount", ApplicationCommandOptionType.Integer, "Number of messages to delete (1-100).", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
-        commands.Add(new SlashCommandBuilder()
-            .WithName("checkclaimed")
-            .WithDescription("Checks if inputted name has been claimed before.")
-            .AddOption("name", ApplicationCommandOptionType.String, "The name to check.", isRequired:true)
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
-        
         // CELLSYSTEM
         
-        commands.Add(new SlashCommandBuilder()
-            .WithName("showworkcell")
-            .WithDescription("Shows your Work Cellphone."));
-        
-        commands.Add(new SlashCommandBuilder()
-            .WithName("editworkcell")
-            .WithDescription("Edits your Work Cellphone.")
+        var editWorkCellOption = new SlashCommandOptionBuilder()
+            .WithName("edit")
+            .WithDescription("Edits another member's Work Cellphone.")
+            .WithType(ApplicationCommandOptionType.SubCommand)
             .AddOption(new SlashCommandOptionBuilder()
                 .WithName("add_apps")
                 .WithDescription("Any apps need adding?")
@@ -354,12 +376,25 @@ public class CommandHandler {
                 .WithDescription("The Wallpaper to display.")
                 .WithRequired(false)
                 .WithType(ApplicationCommandOptionType.String)
-                .WithAutocomplete(true)));
+                .WithAutocomplete(true));
+
+        var showWorkCellOption = new SlashCommandOptionBuilder()
+            .WithName("show")
+            .WithDescription("Shows another member's Work Cellphone.")
+            .WithType(ApplicationCommandOptionType.SubCommand);
+
+        commands.Add(new SlashCommandBuilder()
+            .WithName("workcell")
+            .WithDescription("Shows or edits your Work Cellphone.")
+            .AddOption(showWorkCellOption)
+            .AddOption(editWorkCellOption));
         
         commands.Add(new SlashCommandBuilder()
-            .WithName("showotherworkcell")
-            .WithDescription("Shows another member's Work Cellphone.")
+            .WithName("debugworkcell")
+            .WithDescription("Shows or edits another member's Work Cellphone.")
             .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
+            .AddOption(showWorkCellOption)
+            .AddOption(editWorkCellOption)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         var appOption = new SlashCommandOptionBuilder()
@@ -520,11 +555,6 @@ public class CommandHandler {
                 .WithType(ApplicationCommandOptionType.String))
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
-        commands.Add(new SlashCommandBuilder()
-            .WithName("commandthattakesawayallofhisshit")
-            .WithDescription("This is the part where I kill you!"));
-        
-        
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
             await ((IGuild)guild).BulkOverwriteApplicationCommandsAsync(builtCommands);
@@ -549,14 +579,8 @@ public class CommandHandler {
                 await _rewardSystem.HandleRewardAccompCommand(command);
                 break;
             
-            case "meetingpr":
-                await _meetingSystem.HandleMeetingPrCommand(command);
-                break;
-            case "meetingreprimand":
-                await _meetingSystem.HandleMeetingReprimandCommand(command);
-                break;
-            case "meetingclose":
-                await _meetingSystem.HandleMeetingCloseCommand(command);
+            case "meeting":
+                await _meetingSystem.HandleMeetingCommand(command);
                 break;
             
             case "preenlist":
@@ -565,7 +589,7 @@ public class CommandHandler {
             case "enlist":
                 await _roleSystem.HandleEnlistCommand(command);
                 break;
-            case "forceenlist":
+            case "debugenlist":
                 await _roleSystem.HandleForceEnlistCommand(command);
                 break;
             case "debugunenlist":
@@ -578,22 +602,16 @@ public class CommandHandler {
                 await _roleSystem.HandleDuoCommand(command);
                 break;
             
-            case "showid":
-                await _idSystem.ShowId(command);
+            case "id":
+                await _idSystem.HandleIdCommand(command);
                 break;
-            case "showotherid":
-                await _idSystem.ShowId(command);
+            case "addidaddons":
+                await _idSystem.EditAddons(command, true);
                 break;
-            case "editid":
-                await _idSystem.EditId(command);
+            case "removeidaddons":
+                await _idSystem.EditAddons(command, false);
                 break;
-            case "giveidskin":
-                await _idSystem.GainId(command);
-                break;
-            case "removeidskin":
-                await _idSystem.RemoveId(command);
-                break;
-            case "changeclaim":
+            case "debugfix":
                 await _idSystem.HandleForceUpdateCommand(command);
                 break;
             
@@ -619,27 +637,21 @@ public class CommandHandler {
             case "purgemessages":
                 await _generalSystem.HandleMassRemoveCommand(command);
                 break;
-            case "checkclaimed":
-                await _generalSystem.HandleCheckClaimedCommand(command);
+            case "checkorchangeclaim":
+                await _generalSystem.HandleCheckOrChangeClaimCommand(command);
                 break;
             
-            case "showworkcell":
-                await _cellSystem.ShowWorkCell(command);
+            case "workcell":
+                await _cellSystem.HandleWorkCellCommand(command);
                 break;
-            case "editworkcell":
-                await _cellSystem.EditWorkCell(command);
-                break;
-            case "showotherworkcell":
-                await _cellSystem.ShowWorkCell(command);
+            case "debugworkcell":
+                await _cellSystem.HandleWorkCellCommand(command);
                 break;
             case "addcelladdons":
                 await _cellSystem.EditAddons(command, true);
                 break;
             case "removecelladdons":
                 await _cellSystem.EditAddons(command, false);
-                break;
-            case "commandthattakesawayallofhisshit":
-                await _cellSystem.ThePartWhereHeKillsYou(command);
                 break;
             
             case "shoppost":
