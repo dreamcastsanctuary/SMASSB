@@ -24,7 +24,7 @@ public class CellSystem {
     private readonly ulong? _guildId;
 
     public CellSystem(DiscordSocketClient client, LogHandler logHandler, DatabaseService db, GuildConfiguration guildConfig) {
-        
+
         _client = client;
         _logHandler = logHandler;
         _db = db;
@@ -106,12 +106,12 @@ public class CellSystem {
         }
 
         if (member != command.User && !command.CommandName.Contains("debug")) {
-            
+
             var components = new ComponentBuilderV2()
                 .WithSeparator(new SeparatorBuilder().WithIsDivider(false))
                 .AddComponent(container)
                 .Build();
-            
+
             try {
                 await member.SendFilesAsync(
                     attachments: [cellAttachment],
@@ -120,13 +120,13 @@ public class CellSystem {
             }
             catch {}
         } else {
-            
+
             var components = new ComponentBuilderV2()
                 .WithTextDisplay(new TextDisplayBuilder().WithContent("<:sango_emblem_mono:1492222638980989138> :: Loaded WorkCell!"))
                 .WithSeparator(new SeparatorBuilder().WithIsDivider(false))
                 .AddComponent(container)
                 .Build();
-            
+
             await command.FollowupWithFilesAsync(
                 attachments: [cellAttachment],
                 components: components
@@ -135,12 +135,12 @@ public class CellSystem {
     }
 
     public async Task HandleLaunchEmulatorJs(SocketMessageComponent component, ulong ownerId, string game) {
-        
+
         if (component.User.Id != ownerId) {
             await component.RespondAsync("This isn't your cell! You like touching things that don't belong to you?", ephemeral: true);
             return;
         }
-        
+
         _db.SetPendingGame(ownerId.ToString(), game);
 
         var payload = new { type = 12 };
@@ -151,7 +151,7 @@ public class CellSystem {
         if (!response.IsSuccessStatusCode) {
             var errorBody = await response.Content.ReadAsStringAsync();
             Console.WriteLine($"LaunchActivity failed: {response.StatusCode} - {errorBody}");
-            
+
             var guild = _client.GetGuild((ulong)_guildId!);
             await _logHandler.LogExceptionWatch(guild.Id, text: $"LaunchActivity failed: {response.StatusCode} - {errorBody}");
             await component.RespondAsync("Couldn't launch the app... Ask for help!", ephemeral: true);
@@ -224,7 +224,7 @@ public class CellSystem {
 
             foreach (var rowButtons in appButtons.Chunk(maxButtonsPerRow)) {
                 var actionRow = new ActionRowBuilder();
-                
+
                 foreach (var (label, game) in rowButtons) {
                     actionRow.WithButton(label, customId: $"launch_emulatorjs:{ownerId}:{game}", style: ButtonStyle.Success);
                 }
@@ -355,67 +355,67 @@ public class CellSystem {
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
                 if (hasPuyoApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "puyo-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
                 if (hasLeafGreenApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "leafgreen-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
                 if (hasTetrisApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "tetris-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
                 if (hasTomodachiApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "tomodachi-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
                 if (hasSonicAdvanceApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "sonic-advance-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
                 if (hasWarioApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "warioware-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
                 if (hasShantaeApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "shantae-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
                 if (hasHeavenApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "rhythm-heaven-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
                 if (hasMotherApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "earthbound-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
                 if (hasRistarApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "ristar-app.png");
                     using var appImage = Image.Load(app);
                     ipc.DrawImage(appImage, new Point(0, 0), 1);
                 }
-                
+
                 if (hasPacmanApp) {
                     var app = Path.Combine(AppContext.BaseDirectory, "Images", "Apps", "pacman-app.png");
                     using var appImage = Image.Load(app);
@@ -428,7 +428,7 @@ public class CellSystem {
                 }
             }
         });
-        
+
         var outputStream = new MemoryStream();
         clone.Save(outputStream, new PngEncoder());
         outputStream.Position = 0;
@@ -460,35 +460,35 @@ public class CellSystem {
         var arrow = isIncrease ? "▲" : "▼";
         return $"¥{currentWeekEarnings:N0} this week ({arrow} {Math.Abs(percentChange):F1}%)";
     }
-    
+
     public async Task HandleWorkCellCommand(SocketSlashCommand command) {
-        
-        IReadOnlyCollection<IApplicationCommandInteractionDataOption> options;
-        var memberOption = command.Data.Options.FirstOrDefault(o => o.Name == "member");
+
+        await command.DeferAsync();
+
+        // Get the subcommand (first option)
+        var subcommand = command.Data.Options.First(o => o.Type == ApplicationCommandOptionType.SubCommand);
+        var subcommandOptions = subcommand.Options;
+
+        // Check if there's a member option in the subcommand's options (debugworkcell path)
+        var memberOption = subcommandOptions.FirstOrDefault(o => o.Name == "member");
         SocketGuildUser member;
-    
+
         if (memberOption != null) {
+            // debugworkcell: member is specified in the subcommand
             member = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)memberOption.Value).Id);
             if (member == null) {
-                await command.RespondAsync("Could not find that user.", ephemeral: true);
+                await command.FollowupAsync("Could not find that user.", ephemeral: true);
                 return;
             }
-            
-            var subcommand = command.Data.Options.First(o => o.Type == ApplicationCommandOptionType.SubCommand);
-            options = subcommand.Options;
         } else {
+            // workcell: use the command issuer
             member = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
-            options = command.Data.Options.First().Options;
         }
-    
-        await HandleWorkCell(command, member, options);
-    }
 
-    private async Task HandleWorkCell(SocketSlashCommand command, SocketGuildUser member, IReadOnlyCollection<IApplicationCommandInteractionDataOption> options) {
-        
-        await command.DeferAsync();
-        
-        foreach (var option in options) {
+        // Process the subcommand options (excluding member if it exists)
+        foreach (var option in subcommandOptions) {
+            if (option.Name == "member") continue; // Skip the member option
+
             switch (option.Name) {
                 case "add_apps":
                     await _db.AddAppsToHome(member.Id, option.Value.ToString());
@@ -513,7 +513,7 @@ public class CellSystem {
         var wallpaperParam = await _db.GetWallpaperType(member.Id);
         var appsParam = await _db.GetApps(member.Id);
         var (currentWeekEarnings, _, percentChange, isIncrease) = await _db.GetEarningsSummary(member.Id);
-        
+
         await BuildCell(command, member, caseParam, charmParam, wallpaperParam, appsParam, await _db.GetYen(member.Id), currentWeekEarnings, percentChange, isIncrease);
     }
 
@@ -603,18 +603,18 @@ public class CellSystem {
     }
 
     public async Task ThePartWhereHeKillsYou(SocketSlashCommand command) {
-        
+
         await command.DeferAsync().ConfigureAwait(false);
- 
+
         var enlisted = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
         var userId = enlisted.Id;
- 
+
         var homeApps = await _db.GetApps(userId);
         foreach (var app in homeApps) {
             await _db.RemoveAppsFromHome(userId, app);
         }
         await _db.RemoveAllApps(userId);
- 
+
         await command.FollowupAsync("Hello! I took all your shit.");
     }
 }

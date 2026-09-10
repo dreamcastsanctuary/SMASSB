@@ -345,7 +345,7 @@ public class CommandHandler {
         
         var editWorkCellOption = new SlashCommandOptionBuilder()
             .WithName("edit")
-            .WithDescription("Edits another member's Work Cellphone.")
+            .WithDescription("Edits your Work Cellphone.")
             .WithType(ApplicationCommandOptionType.SubCommand)
             .AddOption(new SlashCommandOptionBuilder()
                 .WithName("add_apps")
@@ -380,7 +380,7 @@ public class CommandHandler {
 
         var showWorkCellOption = new SlashCommandOptionBuilder()
             .WithName("show")
-            .WithDescription("Shows another member's Work Cellphone.")
+            .WithDescription("Shows your Work Cellphone.")
             .WithType(ApplicationCommandOptionType.SubCommand);
 
         commands.Add(new SlashCommandBuilder()
@@ -389,12 +389,53 @@ public class CommandHandler {
             .AddOption(showWorkCellOption)
             .AddOption(editWorkCellOption));
         
+        var debugShowWorkCellOption = new SlashCommandOptionBuilder()
+            .WithName("show")
+            .WithDescription("Shows another member's Work Cellphone.")
+            .WithType(ApplicationCommandOptionType.SubCommand)
+            .AddOption("member", ApplicationCommandOptionType.User, "The member whose Work Cellphone to show.", isRequired: true);
+
+        var debugEditWorkCellOption = new SlashCommandOptionBuilder()
+            .WithName("edit")
+            .WithDescription("Edits another member's Work Cellphone.")
+            .WithType(ApplicationCommandOptionType.SubCommand)
+            .AddOption("member", ApplicationCommandOptionType.User, "The member whose Work Cellphone to edit.", isRequired: true)
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("add_apps")
+                .WithDescription("Any apps need adding?")
+                .WithRequired(false)
+                .WithType(ApplicationCommandOptionType.String)
+                .WithAutocomplete(true))
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("remove_apps")
+                .WithDescription("Any apps need removing?")
+                .WithRequired(false)
+                .WithType(ApplicationCommandOptionType.String)
+                .WithAutocomplete(true))
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("case_type")
+                .WithDescription("The Case to display.")
+                .WithRequired(false)
+                .WithType(ApplicationCommandOptionType.String)
+                .WithAutocomplete(true))
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("charm_type")
+                .WithDescription("The Charm to display.")
+                .WithRequired(false)
+                .WithType(ApplicationCommandOptionType.String)
+                .WithAutocomplete(true))
+            .AddOption(new SlashCommandOptionBuilder()
+                .WithName("wallpaper_type")
+                .WithDescription("The Wallpaper to display.")
+                .WithRequired(false)
+                .WithType(ApplicationCommandOptionType.String)
+                .WithAutocomplete(true));
+
         commands.Add(new SlashCommandBuilder()
             .WithName("debugworkcell")
             .WithDescription("Shows or edits another member's Work Cellphone.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The member this applies to.", isRequired: true)
-            .AddOption(showWorkCellOption)
-            .AddOption(editWorkCellOption)
+            .AddOption(debugShowWorkCellOption)
+            .AddOption(debugEditWorkCellOption)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         var appOption = new SlashCommandOptionBuilder()
@@ -569,7 +610,6 @@ public class CommandHandler {
     /// Handles every single slash command that is run.
     /// </summary>
     private async Task HandleSlashCommand(SocketSlashCommand command) {
-        
         switch(command.Data.Name) {
             
             case "rewardko":
