@@ -645,6 +645,9 @@ public class CommandHandler {
             case "id":
                 await _idSystem.HandleIdCommand(command);
                 break;
+            case "debugid":
+                await _idSystem.HandleIdCommand(command);
+                break;
             case "addidaddons":
                 await _idSystem.EditAddons(command, true);
                 break;

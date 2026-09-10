@@ -546,7 +546,16 @@ public class ExtraneousHandler {
 
     public async Task IdAutocompleteHandler(SocketAutocompleteInteraction interaction) {
 
-        var collected = await _db.GetIds(interaction.User.Id);
+        var memberOption = interaction.Data.Options.FirstOrDefault(o => o.Name == "member");
+        ulong memberId;
+
+        if (memberOption != null) {
+            memberId = ((SocketUser) memberOption.Value).Id;
+        } else {
+            memberId = interaction.User.Id;
+        }
+        
+        var collected = await _db.GetIds(memberId);
         var typed = (string)interaction.Data.Current.Value;
 
         var results = collected
@@ -558,7 +567,16 @@ public class ExtraneousHandler {
 
     public async Task AppAutocompleteHandler(SocketAutocompleteInteraction interaction) {
 
-        var collected = await _db.GetApps(interaction.User.Id);
+        var memberOption = interaction.Data.Options.FirstOrDefault(o => o.Name == "member");
+        ulong memberId;
+
+        if (memberOption != null) {
+            memberId = ((SocketUser) memberOption.Value).Id;
+        } else {
+            memberId = interaction.User.Id;
+        }
+        
+        var collected = await _db.GetApps(memberId);
         var typed = (string)interaction.Data.Current.Value;
 
         var results = collected
@@ -570,7 +588,16 @@ public class ExtraneousHandler {
 
     public async Task CollectedAppAutocompleteHandler(SocketAutocompleteInteraction interaction) {
 
-        var collected = await _db.GetCollectedApps(interaction.User.Id);
+        var memberOption = interaction.Data.Options.FirstOrDefault(o => o.Name == "member");
+        ulong memberId;
+
+        if (memberOption != null) {
+            memberId = ((SocketUser) memberOption.Value).Id;
+        } else {
+            memberId = interaction.User.Id;
+        }
+        
+        var collected = await _db.GetCollectedApps(memberId);
         var typed = (string)interaction.Data.Current.Value;
 
         var results = collected
@@ -582,7 +609,16 @@ public class ExtraneousHandler {
 
     public async Task CaseAutocompleteHandler(SocketAutocompleteInteraction interaction) {
 
-        var collected = await _db.GetCases(interaction.User.Id);
+        var memberOption = interaction.Data.Options.FirstOrDefault(o => o.Name == "member");
+        ulong memberId;
+
+        if (memberOption != null) {
+            memberId = ((SocketUser) memberOption.Value).Id;
+        } else {
+            memberId = interaction.User.Id;
+        }
+        
+        var collected = await _db.GetCases(memberId);
         var typed = (string)interaction.Data.Current.Value;
 
         var results = collected
@@ -594,7 +630,16 @@ public class ExtraneousHandler {
 
     public async Task CharmAutocompleteHandler(SocketAutocompleteInteraction interaction) {
 
-        var collected = await _db.GetCharms(interaction.User.Id);
+        var memberOption = interaction.Data.Options.FirstOrDefault(o => o.Name == "member");
+        ulong memberId;
+
+        if (memberOption != null) {
+            memberId = ((SocketUser) memberOption.Value).Id;
+        } else {
+            memberId = interaction.User.Id;
+        }
+        
+        var collected = await _db.GetCharms(memberId);
         var typed = (string)interaction.Data.Current.Value;
 
         var results = collected
@@ -606,7 +651,16 @@ public class ExtraneousHandler {
 
     public async Task WallpaperAutocompleteHandler(SocketAutocompleteInteraction interaction) {
 
-        var collected = await _db.GetWallpapers(interaction.User.Id);
+        var memberOption = interaction.Data.Options.FirstOrDefault(o => o.Name == "member");
+        ulong memberId;
+
+        if (memberOption != null) {
+            memberId = ((SocketUser) memberOption.Value).Id;
+        } else {
+            memberId = interaction.User.Id;
+        }
+        
+        var collected = await _db.GetWallpapers(memberId);
         var typed = (string)interaction.Data.Current.Value;
 
         var results = collected
