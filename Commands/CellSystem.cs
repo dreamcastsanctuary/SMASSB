@@ -478,13 +478,8 @@ public class CellSystem {
             member = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
         }
 
-        var hasEditOptions = command.Data.Options.Any(o => 
-            o.Name == "add_apps" || 
-            o.Name == "remove_apps" || 
-            o.Name == "case_type" || 
-            o.Name == "charm_type" || 
-            o.Name == "wallpaper_type");
-
+        var hasEditOptions = command.Data.Options.Any(o => o.Name == "add_apps" || o.Name == "remove_apps" || o.Name == "case_type" || o.Name == "charm_type" || o.Name == "wallpaper_type");
+        
         if (hasEditOptions) {
             await EditWorkCell(command, member);
         } else {

@@ -212,7 +212,7 @@ public class IdSystem {
         }
     }
 
-    public async Task EditId(SocketSlashCommand command, SocketGuildUser enlisted) {
+    private async Task EditId(SocketSlashCommand command, SocketGuildUser enlisted) {
 
         string? claim = null;
         string? avatarUrl = null;
@@ -288,7 +288,7 @@ public class IdSystem {
         await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, "", usernameParam, idTypeParam);
     }
 
-    public async Task ShowId(SocketSlashCommand command, SocketGuildUser enlisted) {
+    private async Task ShowId(SocketSlashCommand command, SocketGuildUser enlisted) {
 
         var claimParam = await _db.GetClaim(enlisted.Id);
         var avatarUrlParam = await _db.GetAvatarUrl(enlisted.Id);
