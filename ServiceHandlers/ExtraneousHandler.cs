@@ -86,6 +86,9 @@ public class ExtraneousHandler {
 
             if (ulong.TryParse(existingId, out var existingUlong) && await starboard.GetMessageAsync(existingUlong) is IUserMessage existing) {
                 await existing.ModifyAsync(m => m.Embed = builder.Build());
+            } else {
+                var starboardMessage = await starboard.SendMessageAsync(embed: builder.Build());
+                _db.SaveStarboardMessageId(message.Id, starboardMessage.Id);
             }
         }
 
