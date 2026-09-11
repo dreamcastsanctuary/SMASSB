@@ -465,29 +465,37 @@ public class CellSystem {
 
         await command.DeferAsync();
 
-        // Get the subcommand (first option)
-        var subcommand = command.Data.Options.First(o => o.Type == ApplicationCommandOptionType.SubCommand);
-        var subcommandOptions = subcommand.Options;
-
-        // Check if there's a member option in the subcommand's options (debugworkcell path)
-        var memberOption = subcommandOptions.FirstOrDefault(o => o.Name == "member");
+        var memberOption = command.Data.Options.FirstOrDefault(o => o.Name == "member");
         SocketGuildUser member;
 
         if (memberOption != null) {
-            // debugworkcell: member is specified in the subcommand
             member = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)memberOption.Value).Id);
             if (member == null) {
                 await command.FollowupAsync("Could not find that user.", ephemeral: true);
                 return;
             }
         } else {
-            // workcell: use the command issuer
             member = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
         }
 
-        // Process the subcommand options (excluding member if it exists)
-        foreach (var option in subcommandOptions) {
-            if (option.Name == "member") continue; // Skip the member option
+        var hasEditOptions = command.Data.Options.Any(o => 
+            o.Name == "add_apps" || 
+            o.Name == "remove_apps" || 
+            o.Name == "case_type" || 
+            o.Name == "charm_type" || 
+            o.Name == "wallpaper_type");
+
+        if (hasEditOptions) {
+            await EditWorkCell(command, member);
+        } else {
+            await ShowWorkCell(command, member);
+        }
+    }
+
+    private async Task EditWorkCell(SocketSlashCommand command, SocketGuildUser member) {
+
+        foreach (var option in command.Data.Options) {
+            if (option.Name == "member") continue;
 
             switch (option.Name) {
                 case "add_apps":
@@ -507,6 +515,10 @@ public class CellSystem {
                     break;
             }
         }
+        await ShowWorkCell(command, member);
+    }
+
+    private async Task ShowWorkCell(SocketSlashCommand command, SocketGuildUser member) {
 
         var caseParam = await _db.GetCaseType(member.Id);
         var charmParam = await _db.GetCharmType(member.Id);
