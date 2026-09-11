@@ -214,7 +214,7 @@ public class CommandHandler {
         commands.Add(new SlashCommandBuilder()
             .WithName("debugid")
             .WithDescription("Shows or edits another member's Enlisted ID.")
-            .AddOption("member", ApplicationCommandOptionType.User, "The member to view/edit (optional)", isRequired: false)
+            .AddOption("member", ApplicationCommandOptionType.User, "The member to view/edit (optional)", isRequired: true)
             .AddOption("avatar_url", ApplicationCommandOptionType.String, "The profile of the member / character (optional)", isRequired: false)
             .AddOption(bloodtypeOption)
             .AddOption(idTypeOption)
