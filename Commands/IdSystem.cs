@@ -16,20 +16,20 @@ using Image = SixLabors.ImageSharp.Image;
 namespace SMASSB.Commands;
 
 public class IdSystem {
-    
+
     private readonly DiscordSocketClient _client;
     private readonly DatabaseService _db;
     private readonly RoleSystem _roleSystem;
     private readonly LogHandler _logHandler;
     private readonly ulong? _guildId;
     private static readonly HttpClient HttpClient = new HttpClient();
-    
-    public IdSystem(DiscordSocketClient client, 
-                    LogHandler logHandler, 
+
+    public IdSystem(DiscordSocketClient client,
+                    LogHandler logHandler,
                     DatabaseService db,
-                    RoleSystem roleSystem, 
+                    RoleSystem roleSystem,
                     GuildConfiguration guildConfig) {
-        
+
         _client = client;
         _logHandler = logHandler;
         _db = db;
@@ -39,7 +39,7 @@ public class IdSystem {
 
     public static async Task BuildId(SocketSlashCommand command,
                                      SocketGuildUser member,
-                                     string claimParam, 
+                                     string claimParam,
                                      byte[]? avatarImageParam,
                                      string avatarUrlParam,
                                      string accIdParam,
@@ -51,7 +51,7 @@ public class IdSystem {
                                      string catchphraseParam,
                                      string usernameParam,
                                      string idType) {
-        
+
         var fontCollection = new FontCollection();
         var fontPath = Path.Combine(AppContext.BaseDirectory, "Fonts", "MonaspaceArgon-Bold.otf");
         var fontFamily = fontCollection.Add(fontPath);
@@ -62,7 +62,7 @@ public class IdSystem {
         Image idImg;
         try { idImg = LoadId(idType); } catch { await command.FollowupAsync("Did you forget to pre/enlist this person? ;)", ephemeral: true); return; }
         Image avatar;
-        
+
         if (avatarImageParam != null) {
             try {
                 using var avatarStream = new MemoryStream(avatarImageParam);
@@ -79,23 +79,23 @@ public class IdSystem {
                 var avatarBytes = await HttpClient.GetByteArrayAsync(sizedAvatarUrl, cts.Token);
                 using var avatarStream = new MemoryStream(avatarBytes);
                 avatar = await Image.LoadAsync(avatarStream, cts.Token);
-                
+
             } catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException) {
                 await command.FollowupAsync("Couldn't load the avatar image. Try again in a moment, or contact a staff member for assistance.", ephemeral: true);
                 return;
-                
+
             } catch (UnknownImageFormatException) {
                 await command.FollowupAsync("That avatar link doesn't point to a supported image format.", ephemeral: true);
                 return;
             }
         }
-        
+
         avatar.Mutate(x => x.Resize(new ResizeOptions {
             Size = new Size(250, 250),
             Mode = ResizeMode.Crop,
             Sampler = KnownResamplers.Lanczos3
         }));
-        
+
         var namePos = new Point(827, 452);
         var avatarPos = new Point(93,373);
         var idPos = new Point(1219,154);
@@ -106,17 +106,17 @@ public class IdSystem {
         var bloodtypePos = new Point(827,848);
         var catchphrasePos = new Point(70,953);
         var barcodePos = new Point(95,688);
-        
+
         var colors = LoadColors(idType);
         var barcode = Code128Rendering.MakeBarcodeImage(usernameParam, 1, true);
-        
+
         var stream = new MemoryStream();
         barcode.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
         stream.Position = 0;
-        
+
         var barcodeImg = await Image.LoadAsync(stream);
         var coloredBarcode = new Image<Rgba32>(barcodeImg.Width, barcodeImg.Height, colors[3]);
-        
+
         coloredBarcode.Mutate(ctx => ctx.DrawImage(barcodeImg, new Point(0, 0), PixelColorBlendingMode.Multiply, PixelAlphaCompositionMode.SrcOver, 1f));
         coloredBarcode.Mutate(x => x.Resize(new ResizeOptions {
             Size = new Size(250, 50),
@@ -125,7 +125,7 @@ public class IdSystem {
         }));
 
         var badgesToDraw = ListBadges(member.Roles.Select(r => r.Id).ToHashSet());
-        
+
         var clone = idImg.Clone(ipc => {
             if (member.Roles.Select(r => r.Id).ToHashSet().Contains(1527907825836097556)) {
                 ipc.DrawImage(Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "Badges", "badge10.png")), 1);
@@ -133,7 +133,7 @@ public class IdSystem {
             if (member.Roles.Select(r => r.Id).ToHashSet().Contains(1527907819649630298)) {
                 ipc.DrawImage(Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "Badges", "badge11.png")), 1);
             }
-            
+
             ipc.DrawImage(avatar, avatarPos, 1);
             ipc.DrawImage(coloredBarcode, barcodePos, 1);
             ipc.DrawText($"{pointsParam}", font, colors[2], pointsPos);
@@ -144,35 +144,35 @@ public class IdSystem {
             ipc.DrawText($"{accIdParam}", fontId, colors[0], idPos);
 
             if (claimParam.Length > 15) {
-                
+
                 var spaceIndex = claimParam.IndexOf(' ');
                 if (spaceIndex > 0) {
                     var firstName = claimParam[..spaceIndex];
                     var lastName = claimParam[(spaceIndex + 1)..];
                     claimParam = $"{firstName}\n{lastName}";
                 }
-                
+
                 ipc.DrawText($"{claimParam}", fontSmall, colors[2], new Point(namePos.X, namePos.Y - 5));
             } else ipc.DrawText($"{claimParam}", font, colors[2], namePos);
-            
+
             if (rankParam.Contains("taru")) {
                 rankParam = "Bakuryōchō\ntaru Onshō";
                 ipc.DrawText($"{rankParam}", fontSmall, colors[2], new Point(rankPos.X, rankPos.Y - 3));
-                
+
             } else ipc.DrawText($"{rankParam}", font, colors[2], rankPos);
-            
+
             foreach (var (img, pos) in badgesToDraw)
                 ipc.DrawImage(img, pos, 1);
-            
+
         });
 
         var output = Path.Combine(Path.GetTempPath(), $"id_{accIdParam}.png");
-        
+
         await clone.SaveAsync(output);
         foreach (var (img, _) in badgesToDraw) img.Dispose();
-        
+
         if (member != command.User && !command.CommandName.Contains("debug")) {
-            try { 
+            try {
                 await member.SendMessageAsync("Here you are! Your new **Identification Card** and loaned **Work Cellphone**!\nKeep them safe.");
                 await member.SendFileAsync(output);
             }
@@ -180,37 +180,45 @@ public class IdSystem {
         } else {
             await command.FollowupWithFileAsync(output, text: "<:sango_emblem_mono:1492222638980989138> :: Loaded Identification Card!");
         }
-        
+
         File.Delete(output);
     }
-    
+
     public async Task HandleIdCommand(SocketSlashCommand command) {
-        var subcommand = command.Data.Options.First().Name;
-    
-        switch (subcommand) {
-            case "show":
-                await ShowId(command);
-                break;
-            case "edit":
-                await EditId(command);
-                break;
-        }
-    }
-    
-    public async Task EditId(SocketSlashCommand command) {
 
         await command.DeferAsync();
-        
-        var enlisted = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
+
+        var memberOption = command.Data.Options.FirstOrDefault(o => o.Name == "member");
+        SocketGuildUser enlisted;
+
+        if (memberOption != null) {
+            enlisted = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)memberOption.Value).Id);
+            if (enlisted == null) {
+                await command.FollowupAsync("Could not find that user.", ephemeral: true);
+                return;
+            }
+        } else {
+            enlisted = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
+        }
+
+        var avatarUrlOption = command.Data.Options.FirstOrDefault(o => o.Name == "avatar_url");
+
+        if (avatarUrlOption != null) {
+            await EditId(command, enlisted);
+        } else {
+            await ShowId(command, enlisted);
+        }
+    }
+
+    public async Task EditId(SocketSlashCommand command, SocketGuildUser enlisted) {
+
         string? claim = null;
         string? avatarUrl = null;
         string? bloodtype = null;
         string? idType = null;
-        
-        foreach (var option in command.Data.Options) {
-            switch (option.Name)
-            {
 
+        foreach (var option in command.Data.Options) {
+            switch (option.Name) {
                 case "claim":
                     claim = option.Value.ToString();
                     break;
@@ -223,14 +231,11 @@ public class IdSystem {
                 case "id_type":
                     idType = option.Value.ToString();
                     break;
-                default:
-                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
-                    return;
             }
         }
-        
+
         if (!string.IsNullOrEmpty(avatarUrl)) {
-            
+
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
             var resolvedUrl = await ResolveImgurUrlAsync(avatarUrl, HttpClient, cts.Token);
 
@@ -247,7 +252,7 @@ public class IdSystem {
             } catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException) {
                 await command.FollowupAsync("Couldn't download that avatar image! The host website may be slow or the URL invalid. Try again or use a different link.", ephemeral: true);
                 return;
-                
+
             } catch (UnknownImageFormatException) {
                 await command.FollowupAsync("That link doesn't point to a supported image (PNG/JPEG/etc.) Make sure it's a direct image link, rather than a page containing one.", ephemeral: true);
                 return;
@@ -257,15 +262,15 @@ public class IdSystem {
         if (!string.IsNullOrEmpty(claim)) {
             await _db.SetClaim(enlisted.Id, claim);
         }
-        
+
         if (!string.IsNullOrEmpty(bloodtype)) {
             await _db.SetBloodtype(enlisted.Id, bloodtype);
         }
-        
+
         if (!string.IsNullOrEmpty(idType)) {
             await _db.SetIdType(enlisted.Id, idType);
         }
-        
+
         var claimParam = await _db.GetClaim(enlisted.Id);
         var avatarUrlParam = await _db.GetAvatarUrl(enlisted.Id);
         var accIdParam = enlisted.Id.ToString();
@@ -277,27 +282,12 @@ public class IdSystem {
         var usernameParam = await _db.GetUsername(enlisted.Id);
         var avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
         var idTypeParam = await _db.GetIdType(enlisted.Id);
-        
+
         await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, "", usernameParam, idTypeParam);
     }
-    
-    public async Task ShowId(SocketSlashCommand command) {
-        
-        await command.DeferAsync();
-        var enlisted = _client.GetGuild((ulong)_guildId!).GetUser(command.User.Id);
-        
-        foreach (var option in command.Data.Options) {
-            switch (option.Name)
-            {
-                case "member":
-                    enlisted = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
-                    break;
-                default:
-                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
-                    return;
-            }
-        }
-        
+
+    public async Task ShowId(SocketSlashCommand command, SocketGuildUser enlisted) {
+
         var claimParam = await _db.GetClaim(enlisted.Id);
         var avatarUrlParam = await _db.GetAvatarUrl(enlisted.Id);
         var accIdParam = enlisted.Id.ToString();
@@ -309,10 +299,10 @@ public class IdSystem {
         var usernameParam = await _db.GetUsername(enlisted.Id);
         var avatarImageParam = await _db.GetAvatarImage(enlisted.Id);
         var idTypeParam = await _db.GetIdType(enlisted.Id);
-        
+
         await BuildId(command, enlisted, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, "", usernameParam, idTypeParam);
     }
-    
+
     public async Task EditAddons(SocketSlashCommand command, bool add) {
 
         await command.DeferAsync();
@@ -362,7 +352,7 @@ public class IdSystem {
                     }
                 }
             }
-            
+
         } if (!string.IsNullOrEmpty(frame)) {
             if (add) {
                 await _db.GiveNewFrame(member.Id, frame);
@@ -370,20 +360,20 @@ public class IdSystem {
                 await _db.RemoveFrame(member.Id, frame);
             }
         }
-        
+
         await command.FollowupAsync("Done!");
     }
-    
+
     public async Task HandleForceUpdateCommand(SocketSlashCommand command) {
-        
+
         await command.DeferAsync();
         SocketGuildUser? member = null;
         IRole? rank = null;
         var avatarFoobar = false;
-        
+
         foreach (var option in command.Data.Options) {
             switch (option.Name) {
-                
+
                 case "member":
                     member = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
                     break;
@@ -409,33 +399,33 @@ public class IdSystem {
             var bytes = await HttpClient.GetByteArrayAsync(avatarUrl);
             await _db.SetAvatarUrl(member.Id, avatarUrl);
             await _db.SetAvatarImage(member.Id, bytes);
-            
+
             await command.FollowupAsync("Reset avatar.");
         }
 
         if (rank != null) {
-            
+
             var rankName = rank.Name;
             var dotIndex = rankName.IndexOf('.');
-            
+
             var fixedRankNick = rankName.Substring(1, dotIndex);
             var fixedRankFull = rankName[(dotIndex + 2)..];
             var oldClaim = await _db.GetClaim(member.Id);
-            
+
             await member.ModifyAsync(x => x.Nickname = fixedRankNick + " " + oldClaim);
-            
+
             await _db.SetRank(member.Id, fixedRankFull);
             await command.FollowupAsync("Changed rank.");
-            
+
         } else {
             await command.FollowupAsync("Nothing needs to be set.", ephemeral: true);
         }
     }
-    
+
     static Image LoadBadges(string filename, int w, int h) {
         var path = Path.Combine(AppContext.BaseDirectory, "Images", "Badges", filename);
         var img = Image.Load(path);
-        
+
         if (filename.Contains("tanzaku")) {
             img.Mutate(x => x.Resize(new ResizeOptions {
                 Size = new Size(w, h),
@@ -455,11 +445,11 @@ public class IdSystem {
     }
 
     static Image LoadId(string idType) {
-        
+
         var imgPath = "";
 
         switch (idType) {
-            
+
             case "ENLISTEDMAIN":
                 imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "IdAddons", "enlisted-main-template.png");
                 break;
@@ -492,25 +482,25 @@ public class IdSystem {
                 break;
             case "BLUE":
                 imgPath = Path.Combine(AppContext.BaseDirectory, "Images", "IdAddons", "blue-template.png");
-                break;  
+                break;
         }
-        
+
         return Image.Load(imgPath);
     }
-    
+
     static Image LoadFrames(string frameType) {
-        
+
         var imgPath = "";
-        
+
         return Image.Load(imgPath);
     }
 
      static List<Color> LoadColors(string idType) {
 
          var colors = new List<Color>();
-        
+
         switch (idType) {
-            
+
             case "ENLISTEDMAIN":
                 colors.Add(Color.FromRgba(190, 164, 95, 255)); // Heading
                 colors.Add(Color.FromRgba(190, 164, 95, 255)); // Catchphrase
@@ -578,12 +568,12 @@ public class IdSystem {
                 colors.Add(Color.FromRgba(46, 164, 211, 255));
                 break;
         }
-        
+
         return colors;
     }
-    
+
     private static async Task<string> ResolveImgurUrlAsync(string url, HttpClient httpClient, CancellationToken ct) {
-        
+
         if (!url.Contains("imgur.com", StringComparison.OrdinalIgnoreCase) || url.Contains("i.imgur.com", StringComparison.OrdinalIgnoreCase))
             return url;
 
@@ -592,16 +582,16 @@ public class IdSystem {
             var match = Regex.Match(html, @"<meta\s+property=[""']og:image[""']\s+content=[""']([^""']+)[""']");
 
             return match.Success ? match.Groups[1].Value : url;
-            
+
         } catch {
             return url;
         }
     }
 
     private static List<(Image img, Point pos)> ListBadges(HashSet<ulong> roleIds) {
-        
+
         var badgesToDraw = new List<(Image img, Point pos)>();
-        
+
         if (roleIds.Contains(1473371574710046840)) badgesToDraw.Add((LoadBadges("badge1.png", 150, 50),  new Point(1350, 324)));
         if (roleIds.Contains(1475889357629161523)) badgesToDraw.Add((LoadBadges("badge2.png", 150, 50),  new Point(1520, 324)));
         if (roleIds.Contains(1475898897174892769)) badgesToDraw.Add((LoadBadges("badge3.png", 150, 50),  new Point(1350, 380)));
@@ -611,11 +601,11 @@ public class IdSystem {
         if (roleIds.Contains(1475961765433970880)) badgesToDraw.Add((LoadBadges("badge7.png", 135, 135), new Point(1334, 570)));
         if (roleIds.Contains(1475899269335744564)) badgesToDraw.Add((LoadBadges("badge8.png", 135, 135), new Point(1427, 590)));
         if (roleIds.Contains(1477926845184872531)) badgesToDraw.Add((LoadBadges("badge9.png", 135, 135), new Point(1520, 570)));
-        
+
         if (roleIds.Contains(1527905937329881158)) badgesToDraw.Add((LoadBadges("tanzaku_gold.png", 130, 180),  new Point(163,895)));
         if (roleIds.Contains(1527905990329110669)) badgesToDraw.Add((LoadBadges("tanzaku_silver.png", 130, 180),  new Point(163,895)));
         if (roleIds.Contains(1527906014060609586)) badgesToDraw.Add((LoadBadges("tanzaku_slip.png", 130, 180),  new Point(163,895)));
-        
+
         return badgesToDraw;
     }
 }
