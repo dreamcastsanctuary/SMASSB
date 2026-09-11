@@ -553,7 +553,21 @@ public class ExtraneousHandler {
         ulong memberId;
 
         if (memberOption != null) {
-            memberId = ((SocketUser) memberOption.Value).Id;
+            switch (memberOption.Value) {
+                
+                case SocketUser socketUser:
+                    memberId = socketUser.Id;
+                    break;
+                case string stringId when ulong.TryParse(stringId, out var parsedId):
+                    memberId = parsedId;
+                    break;
+                case ulong ulongId:
+                    memberId = ulongId;
+                    break;
+                default:
+                    memberId = interaction.User.Id;
+                    break;
+            }
         } else {
             memberId = interaction.User.Id;
         }
