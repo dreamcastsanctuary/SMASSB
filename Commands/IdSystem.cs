@@ -202,8 +202,10 @@ public class IdSystem {
         }
 
         var avatarUrlOption = command.Data.Options.FirstOrDefault(o => o.Name == "avatar_url");
-
-        if (avatarUrlOption != null) {
+        var bloodtypeOption = command.Data.Options.FirstOrDefault(o => o.Name == "bloodtype");
+        var idTypeOption = command.Data.Options.FirstOrDefault(o => o.Name == "id_type");
+        
+        if (avatarUrlOption != null || bloodtypeOption != null || idTypeOption != null) {
             await EditId(command, enlisted);
         } else {
             await ShowId(command, enlisted);
