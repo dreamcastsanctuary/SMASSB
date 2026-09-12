@@ -20,7 +20,7 @@ public enum RankType {
 
 public static class RankTypeMethods {
 
-    private static string GetFullRank(this Enum rank) {
+    public static string GetFullRank(this Enum rank) {
         
         var rankInfo = rank.GetType().GetField(rank.ToString());
 

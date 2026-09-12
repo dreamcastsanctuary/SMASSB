@@ -143,12 +143,15 @@ public class RoleSystem {
                     break;
                 }
             }
-    
+            
             if (highestQualified.HasValue && highestQualified.Value > currentRank) {
                 promotable.Add(enlisted);
-                await command.FollowupAsync($"{enlisted.Username}: DB returned '{currentRankStr}' -> Parsed as {currentRank?.ToString() ?? "NULL"}");
             }
         }
+        
+        var test = RankType.SaSa.GetFullRank();
+        await command.FollowupAsync($"SaSa.GetFullRank() returns: '{test}'");
+        await command.FollowupAsync($"Equals 'Santō Sa'? {test == "Santō Sa"}");
 
         if (promotable.Count == 0) {
             await command.FollowupAsync("No promotions found.");
