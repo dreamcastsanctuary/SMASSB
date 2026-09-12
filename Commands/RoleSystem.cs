@@ -159,7 +159,7 @@ public class RoleSystem {
         var description = "<:sango_emblem_mono:1492222638980989138> ∥ GENERAL RANKUPs . .\n・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・\n";
 
         for (int i = 0; i < promotable.Count; i++) {
-            description += $"<@{promotable[i].Id}> -> {promoteTo[i]} ∥ {await _db.GetPoints(promotable[i].Id)} pts.";
+            description += $"<@{promotable[i].Id}> -> {promoteTo[i]} ∥ {await _db.GetPoints(promotable[i].Id)} pts.\n";
         }
 
         EmbedBuilder builder = new EmbedBuilder()
