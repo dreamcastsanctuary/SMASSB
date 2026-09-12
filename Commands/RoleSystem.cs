@@ -191,7 +191,7 @@ public class RoleSystem {
                         }
                     }
                     await enlisted.AddRoleAsync(targetRole);
-                    await _db.SetRank(enlisted.Id, targetRank.Value.ToString());
+                    await _db.SetRank(enlisted.Id, targetRank.GetFullRank());
                 }
             }
         }
