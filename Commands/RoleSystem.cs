@@ -134,7 +134,8 @@ public class RoleSystem {
             var currentPoints = await _db.GetPoints(enlisted.Id);
             RankType? highestQualified = null;
     
-            if (!Enum.TryParse<RankType>(currentRankStr, out var currentRank)) continue;
+            var currentRank = currentRankStr.ToRankType();
+            if (!currentRank.HasValue) continue;
             
             foreach (var rankType in ranks.Keys.OrderByDescending(r => (int)r)) {
                 if (currentPoints >= (int)rankType) {
