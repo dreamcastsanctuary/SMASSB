@@ -41,9 +41,23 @@ public static class RankTypeMethods {
                 return "Ittō Sō";
             case "Sō":
                 return "Sōchō";
+            case "JUi":
+                return "Jun Ui";
+            case "SaUi":
+                return "Santō Ui";
+            case "NiUi":
+                return "Nitō Ui";
+            case "ItUi":
+                return "Ittō Ui";
+            case "SaSa":
+                return "Santō Sa";
+            case "NiSa":
+                return "Nitō Sa";
+            case "ItSa":
+                return "Ittō Sa";
+            default:
+                return "Bakuryōchō-taru Onshō";
         }
-        
-        return rank.ToString();
     }
     
     public static RankType? ToRankType(this string fullName) {
