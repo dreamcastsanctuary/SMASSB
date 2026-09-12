@@ -146,6 +146,7 @@ public class RoleSystem {
     
             if (highestQualified.HasValue && highestQualified.Value > currentRank) {
                 promotable.Add(enlisted);
+                await command.FollowupAsync($"{enlisted.Username}: DB returned '{currentRankStr}' -> Parsed as {currentRank?.ToString() ?? "NULL"}");
             }
         }
 
