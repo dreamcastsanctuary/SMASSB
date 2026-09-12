@@ -135,7 +135,7 @@ public class RoleSystem {
             RankType? highestQualified = null;
     
             var currentRank = currentRankStr.ToRankType();
-            if (!currentRank.HasValue) continue;
+            if (!currentRank.HasValue || (int)currentRank.Value >= 10000) continue;
             
             foreach (var rankType in ranks.Keys.OrderByDescending(r => (int)r)) {
                 if (currentPoints >= (int)rankType && (int)rankType < 10000) {
