@@ -1,14 +1,14 @@
 ﻿namespace SMASSB.Data;
 
 public enum RankType {
-    Kō = 15,
-    NiShi = 250,
-    ItShi = 500,
-    Shi = 750,
-    SaSō = 1000,
-    NiSō = 1250,
-    ItSō = 1500,
-    Sō = 10000,
+    Kō = 50009,
+    NiShi = 50008,
+    ItShi = 250,
+    Shi = 500,
+    SaSō = 750,
+    NiSō = 1000,
+    ItSō = 1250,
+    Sō = 1500,
     JUi = 50000,
     SaUi = 50001,
     NiUi = 50002,
