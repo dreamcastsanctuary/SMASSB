@@ -10,12 +10,12 @@ public enum RankType {
     ItSō = 1500,
     Sō = 10000,
     JUi = 50000,
-    SaUi = 50000,
-    NiUi = 50000,
-    ItUi = 50000,
-    SaSa = 50000,
-    NiSa = 50000,
-    ItSa = 50000
+    SaUi = 50001,
+    NiUi = 50002,
+    ItUi = 50003,
+    SaSa = 50004,
+    NiSa = 50005,
+    ItSa = 50006
 }
 
 public static class RankTypeMethods {
