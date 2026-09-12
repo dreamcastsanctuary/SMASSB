@@ -193,7 +193,7 @@ public class RoleSystem {
                 }
             }
         }
-        if (command.Channel is ITextChannel channel) await channel.SendMessageAsync(embed: builder.Build());
+        await command.FollowupAsync(embed: builder.Build());
     }
 
     public async Task HandlePromoteCommand(SocketSlashCommand command) {
