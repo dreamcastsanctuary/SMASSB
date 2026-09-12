@@ -123,6 +123,7 @@ public class RoleSystem {
 
         var enlisteds = new List<SocketGuildUser>();
         var promotable = new List<SocketGuildUser>();
+        var promoteTo = new List<string>();
         
         foreach (var userId in _db.GetEnlisted()) {
             enlisteds.Add(guild.GetUser(ulong.Parse(userId)));
@@ -146,6 +147,7 @@ public class RoleSystem {
             
             if (highestQualified.HasValue && highestQualified.Value > currentRank) {
                 promotable.Add(enlisted);
+                promoteTo.Add(highestQualified.Value.ToString());
             }
         }
         
@@ -156,8 +158,8 @@ public class RoleSystem {
 
         var description = "<:sango_emblem_mono:1492222638980989138> ∥ GENERAL RANKUPs . .\n・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・\n";
 
-        foreach (var promo in promotable) {
-            description += "<@" + promo.Id + "> ∥ " + await _db.GetPoints(promo.Id) + "pts.\n";
+        for (int i = 0; i < promotable.Count; i++) {
+            description += $"<@{promotable[i].Id}> -> {promoteTo[i]} ∥ {await _db.GetPoints(promotable[i].Id)} pts.";
         }
 
         EmbedBuilder builder = new EmbedBuilder()
