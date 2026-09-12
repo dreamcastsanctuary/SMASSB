@@ -137,9 +137,6 @@ public class RoleSystem {
             var currentRank = currentRankStr.ToRankType();
             if (!currentRank.HasValue || (int)currentRank.Value >= 10000) continue;
             
-            await command.FollowupAsync($"{enlisted.Username}: DB returned '{currentRankStr}' -> Parsed as {currentRank?.ToString() ?? "NULL"}");
-
-            
             foreach (var rankType in ranks.Keys.OrderByDescending(r => (int)r)) {
                 if (currentPoints >= (int)rankType && (int)rankType < 10000) {
                     highestQualified = rankType;
