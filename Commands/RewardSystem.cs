@@ -178,8 +178,7 @@ public class RewardSystem {
                 embeds.Add(new EmbedBuilder()
                     .WithTitle("Custom Colorpack" + itemPackTrack1[value - 1] + " for Tracksuit!")
                     .WithColor(0xBFA55F)
-                    .WithDescription("You may change *two* colors on your tracksuit." + itemPackTrack2[value - 1] +
-                                     "\n\n✦ **181615** and **070a0c** are the same code when recoloring.\n✦ **888375** and **6b6051** are the same code when recoloring.\n✦ Colors and outlines are treated as two separate values, so don't change a main color and it's outline and say that it is one color!"));
+                    .WithDescription("You may change *two* colors on your tracksuit.\nNote that the color you change is changed across the entire uniform. If you are changing Color X, all instances of that must be replaced with Color Y." + itemPackTrack2[value - 1] + "\n\n✦ **181615** and **070a0c** are the same code when recoloring.\n✦ **888375** and **6b6051** are the same code when recoloring.\n✦ Colors and outlines are treated as two separate values, so don't change a main color and it's outline and say that it is one color!"));
 
                 embeds.Add(new EmbedBuilder()
                     .WithTitle("New Itempack for Idol Outfit!")
