@@ -1477,8 +1477,18 @@ public class DatabaseService
                               """;
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$apps", json);
+        
+        var command2 = connection.CreateCommand();
+        command2.CommandText = """
+                              INSERT INTO WorkCell (UserId, Apps)
+                              VALUES ($id, $apps)
+                              ON CONFLICT(UserId) DO UPDATE SET Apps = $apps;
+                              """;
+        command2.Parameters.AddWithValue("$id", userId.ToString());
+        command2.Parameters.AddWithValue("$apps", json);
 
         await command.ExecuteNonQueryAsync();
+        await command2.ExecuteNonQueryAsync();
     }
     
     public async Task RemoveAllApps(ulong userId) {
@@ -1495,8 +1505,19 @@ public class DatabaseService
                               """;
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$apps", json);
+        
+        var command2 = connection.CreateCommand();
+        command2.CommandText = """
+                               INSERT INTO WorkCell (UserId, Apps)
+                               VALUES ($id, $apps)
+                               ON CONFLICT(UserId) DO UPDATE SET Apps = $apps;
+                               """;
+        
+        command2.Parameters.AddWithValue("$id", userId.ToString());
+        command2.Parameters.AddWithValue("$apps", json);
 
         await command.ExecuteNonQueryAsync();
+        await command2.ExecuteNonQueryAsync();
     }
     
     public async Task<int> GetWeekStartYen(ulong userId) {
