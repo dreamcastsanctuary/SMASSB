@@ -545,6 +545,11 @@ public class CommandHandler {
                 .AddChoice("TO-DO", "TO-DO").AddChoice("IN PROGRESS", "IN PROGRESS").AddChoice("COMPLETED", "COMPLETED")
                 .WithType(ApplicationCommandOptionType.String))
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("updatekohosei")
+            .WithDescription("New Jieikan update.")
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
 
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
@@ -677,6 +682,10 @@ public class CommandHandler {
                 break;
             case "updatetaskprogress":
                 await _taskSystem.HandleUpdateProgressCommand(command);
+                break;
+            
+            case "updatekohosei":
+                await _roleSystem.Jieikan();
                 break;
 
             default:

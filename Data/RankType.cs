@@ -27,7 +27,7 @@ public static class RankTypeMethods {
 
         switch (rankInfo?.Name) {
             case "Kō":
-                return "Kōhosei";
+                return "Jieikan Kōhosei";
             case "NiShi":
                 return "Nitō Shi";
             case "ItShi":

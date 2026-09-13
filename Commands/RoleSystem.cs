@@ -53,7 +53,7 @@ public class RoleSystem {
         if (claim != null) {
             try {
                 await civilian.SendMessageAsync($"Welcome to SANGŌ, **Kō. {claim}**! We're very happy to have you.\n" + "Your first event *must* be of type **CIVT / Civilian Training**. Please be on the lookout for it.");
-                await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Kōhosei", 0, 0, "N/A", "", civilian.Username, "ENLISTEDMAIN", "BLACK", "NONE", "BASIC");
+                await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Jieikan Kōhosei", 0, 0, "N/A", "", civilian.Username, "ENLISTEDMAIN", "BLACK", "NONE", "BASIC");
             } catch {
                 await command.FollowupAsync($"Hey, <@{civilian.Id}>! Please turn your Server DMs on so that I can message you important information regarding your enlistment!\nThank you!");
             }
@@ -384,5 +384,17 @@ public class RoleSystem {
         await member2.AddRoleAsync(1473369962788950248);
 
         await command.RespondAsync("Completed pairing request.");
+    }
+
+    public async Task Jieikan() {
+        
+        var enlisted = _db.GetEnlisted();
+        foreach (var member in enlisted) {
+            
+            var rank = await _db.GetRank(ulong.Parse(member));
+            if (rank.Equals("Kōhosei")) {
+                await _db.SetRank(ulong.Parse(member), "Jieikan Kōhosei");
+            }
+        }
     }
 }
