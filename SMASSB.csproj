@@ -9,25 +9,24 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Discord.Net" Version="3.19.0-beta.1" />
-      <PackageReference Include="GenCode128" Version="2.0.0" />
-      <PackageReference Include="Microsoft.Data.Sqlite" Version="11.0.0-preview.2.26159.112" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
-      <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.0-rc" />
-      <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-      <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
-      <PackageReference Include="Discord.Net.Interactions" Version="3.18.0" />
-      <PackageReference Include="Lavalink4NET.Discord.NET" Version="4.2.0" />
+        <PackageReference Include="Discord.Net" Version="3.19.0-beta.1" />
+        <PackageReference Include="Discord.Net.Interactions" Version="3.19.0-beta.1" />
+        <PackageReference Include="GenCode128" Version="2.0.0" />
+        <PackageReference Include="Microsoft.Data.Sqlite" Version="11.0.0-preview.2.26159.112" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
+        <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.0-rc" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+        <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
+        <PackageReference Include="Lavalink4NET.Discord.NET" Version="4.2.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Include="Fonts\**\*">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Include="Images\**\*">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
+        <None Include="Fonts\**\*">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Include="Images\**\*">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>
