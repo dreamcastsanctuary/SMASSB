@@ -548,46 +548,6 @@ public class CommandHandler {
                 .AddChoice("TO-DO", "TO-DO").AddChoice("IN PROGRESS", "IN PROGRESS").AddChoice("COMPLETED", "COMPLETED")
                 .WithType(ApplicationCommandOptionType.String))
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
-        
-        // FM RADIO
-        
-        commands.Add(new SlashCommandBuilder()
-            .WithName("ga_join")
-            .WithDescription("Makes the radio join the voice call."));
-
-        commands.Add(new SlashCommandBuilder()
-            .WithName("ga_play")
-            .WithDescription("Play a YouTube, SoundCloud, Spotify link, or search by name.")
-            .AddOption("query", ApplicationCommandOptionType.String, "URL or search term.", isRequired: true));
-
-        commands.Add(new SlashCommandBuilder()
-            .WithName("ga_stop")
-            .WithDescription("Stop playback, clear queue, and disconnect."));
-
-        commands.Add(new SlashCommandBuilder()
-            .WithName("ga_skip")
-            .WithDescription("Skip the current track."));
-
-        commands.Add(new SlashCommandBuilder()
-            .WithName("ga_queue")
-            .WithDescription("Show the current queue."));
-
-        commands.Add(new SlashCommandBuilder()
-            .WithName("ga_pause")
-            .WithDescription("Pause or resume playback."));
-
-        commands.Add(new SlashCommandBuilder()
-            .WithName("ga_nowplaying")
-            .WithDescription("Show what's currently playing."));
-
-        commands.Add(new SlashCommandBuilder()
-            .WithName("ga_volume")
-            .WithDescription("Set the playback volume (0–100).")
-            .AddOption("level", ApplicationCommandOptionType.Integer, "Volume level (0–100).", isRequired: true));
-
-        commands.Add(new SlashCommandBuilder()
-            .WithName("ga_loop")
-            .WithDescription("Toggle looping the current track."));
 
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
@@ -720,34 +680,6 @@ public class CommandHandler {
                 break;
             case "updatetaskprogress":
                 await _taskSystem.HandleUpdateProgressCommand(command);
-                break;
-            
-            case "ga_join":
-                await _musicSystem.HandleJoinCommand(command);
-                break;
-            case "ga_play":
-                await _musicSystem.HandlePlayCommand(command);
-                break;
-            case "ga_stop":
-                await _musicSystem.HandleStopCommand(command);
-                break;
-            case "ga_skip":
-                await _musicSystem.HandleSkipCommand(command);
-                break;
-            case "ga_queue":
-                await _musicSystem.HandleQueueCommand(command);
-                break;
-            case "ga_pause":
-                await _musicSystem.HandlePauseCommand(command);
-                break;
-            case "ga_nowplaying":
-                await _musicSystem.HandleNowPlayingCommand(command);
-                break;
-            case "ga_volume":
-                await _musicSystem.HandleVolumeCommand(command);
-                break;
-            case "ga_loop":
-                await _musicSystem.HandleLoopCommand(command);
                 break;
 
             default:
