@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Discord;
 using Discord.WebSocket;
+using Lavalink4NET.Extensions;
 using SMASSB.Commands;
 using SMASSB.Models;
 using SMASSB.ServiceHandlers;
@@ -15,7 +16,8 @@ public class Program {
     private ExtraneousHandler? _extraneousHandler;
     private LogHandler? _logHandler;
     private MeetingSystem? _meetingSystem;
-    private ReminderService _reminderService;
+    private ReminderService? _reminderService;
+    private InactivityService? _inactivityService;
     private DatabaseService? _db;
     
     private static IServiceProvider? _serviceProvider;
@@ -39,6 +41,7 @@ public class Program {
         _logHandler = _serviceProvider.GetRequiredService<LogHandler>();
         _meetingSystem = _serviceProvider.GetRequiredService<MeetingSystem>();
         _reminderService = _serviceProvider.GetRequiredService<ReminderService>();
+        _inactivityService = _serviceProvider.GetRequiredService<InactivityService>();
         _db = _serviceProvider.GetRequiredService<DatabaseService>();
 
         StartPendingGameServer();
@@ -82,6 +85,7 @@ public class Program {
             await _logHandler.CreateOrUpdateStatChannel();
             await _commandHandler.RegisterCommands();
             _reminderService.Start();
+            _inactivityService.RegisterEvents();
 
             if (StartedLoops != null) {
                 bool shouldStartLoops;
@@ -159,7 +163,8 @@ public class Program {
                              | GatewayIntents.GuildMessageReactions
                              | GatewayIntents.GuildVoiceStates
                              | GatewayIntents.GuildInvites
-                             | GatewayIntents.MessageContent,
+                             | GatewayIntents.MessageContent
+                             | GatewayIntents.AllUnprivileged,
                              AlwaysDownloadUsers = true
         };
         
@@ -182,8 +187,23 @@ public class Program {
             .AddSingleton<CellSystem>()
             .AddSingleton<ShopSystem>()
             .AddSingleton<TaskSystem>()
+            .AddSingleton<MusicSystem>()
             
             .AddSingleton<ReminderService>()
+            .AddSingleton<InactivityService>()
+            
+            .AddHostedService(sp => sp.GetRequiredService<InactivityService>())
+                .AddLavalink().ConfigureLavalink(audioConfig => {
+
+                var host = Environment.GetEnvironmentVariable("LAVALINK_HOST") ?? "localhost";
+                var port = Environment.GetEnvironmentVariable("SERVER_PORT") ?? "2333";
+                var password = Environment.GetEnvironmentVariable("LAVALINK_PASSWORD") ?? "youshallnotpass";
+
+                audioConfig.BaseAddress = new Uri($"http://{host}:{port}");
+                audioConfig.Passphrase = password;
+                audioConfig.ReadyTimeout = TimeSpan.FromSeconds(15);
+                audioConfig.Label = "SangoFM";
+            })
             
             .BuildServiceProvider();
     }
