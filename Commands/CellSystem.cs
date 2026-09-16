@@ -135,14 +135,13 @@ public class CellSystem {
     }
 
     public async Task HandleLaunchEmulatorJs(SocketMessageComponent component, ulong ownerId, string game) {
-
-        await component.DeferAsync();
         
         if (component.User.Id != ownerId) {
-            await component.FollowupAsync("This isn't your cell! You like touching things that don't belong to you?", ephemeral: true);
+            await component.RespondAsync("This isn't your cell! You like touching things that don't belong to you?", ephemeral: true);
             return;
         }
         
+        await component.DeferAsync();
         _db.SetPendingGame(ownerId.ToString(), game);
 
         var payload = new { type = 12 };
