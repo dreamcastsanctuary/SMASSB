@@ -135,6 +135,8 @@ public class CellSystem {
     }
 
     public async Task HandleLaunchEmulatorJs(SocketMessageComponent component, ulong ownerId, string game) {
+
+        await component.DeferAsync();
         
         if (component.User.Id != ownerId) {
             await component.FollowupAsync("This isn't your cell! You like touching things that don't belong to you?", ephemeral: true);
@@ -155,8 +157,8 @@ public class CellSystem {
             var guild = _client.GetGuild((ulong)_guildId!);
             await _logHandler.LogExceptionWatch(guild.Id, text: $"LaunchActivity failed: {response.StatusCode} - {errorBody}");
             
-            if (errorBody.Contains("50230")) { await component.FollowupAsync("This application allows only Web / PC, iOS, and Android. For some reason, it seems like you're not on any of these?\nSamsung Smart Fridge users:"); await component.FollowupAsync("https://klipy.com/gifs/happywithoutjt-stan-twitter-6"); }
-            else await component.FollowupAsync("Couldn't launch the app... Ask for help!", ephemeral: true);
+            await component.FollowupAsync("This application allows only Web / PC, iOS, and Android. For some reason, it seems like you're not on any of these?\nSamsung Smart Fridge users:"); await component.FollowupAsync("https://klipy.com/gifs/happywithoutjt-stan-twitter-6");
+            
         }
     }
 
