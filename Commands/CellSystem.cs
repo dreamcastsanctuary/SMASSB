@@ -141,6 +141,7 @@ public class CellSystem {
             return;
         }
 
+        await component.DeferAsync();
         _db.SetPendingGame(ownerId.ToString(), game);
 
         var payload = new { type = 12 };
@@ -151,10 +152,12 @@ public class CellSystem {
         if (!response.IsSuccessStatusCode) {
             var errorBody = await response.Content.ReadAsStringAsync();
             Console.WriteLine($"LaunchActivity failed: {response.StatusCode} - {errorBody}");
-
+            
             var guild = _client.GetGuild((ulong)_guildId!);
             await _logHandler.LogExceptionWatch(guild.Id, text: $"LaunchActivity failed: {response.StatusCode} - {errorBody}");
-            await component.RespondAsync("Couldn't launch the app... Ask for help!", ephemeral: true);
+            
+            if (errorBody.Contains("50230")) { await component.FollowupAsync("This application allows only Web / PC, iOS, and Android. For some reason, it seems like you're not on any of these?\nSamsung Smart Fridge users:"); await component.FollowupAsync("https://klipy.com/gifs/happywithoutjt-stan-twitter-6"); }
+            else await component.FollowupAsync("Couldn't launch the app... Ask for help!", ephemeral: true);
         }
     }
 

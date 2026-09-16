@@ -26,24 +26,25 @@ public class MeetingSystem {
     }
     
     public async Task HandleMeetingCommand(SocketSlashCommand command) {
+
+        var personOption = command.Data.Options.FirstOrDefault(o => o.Name == "person");
+        var meetingNameOption = command.Data.Options.FirstOrDefault(o => o.Name == "meeting_name");
+        var typeOption = command.Data.Options.FirstOrDefault(o => o.Name == "type");
         
-        var mainOption = command.Data.Options.First();
-        
-        switch (mainOption.Name) {
-            case "create":
-                var createType = mainOption.Options.First();
-                switch (createType.Name) {
-                    case "pr":
-                        await HandleMeetingPrCreate(command, createType.Options);
-                        break;
-                    case "reprimand":
-                        await HandleMeetingReprimandCreate(command, createType.Options);
-                        break;
-                }
-                break;
-            case "close":
-                await HandleMeetingClose(command);
-                break;
+        if (personOption != null && meetingNameOption != null && typeOption != null) {
+            var meetingType = typeOption.Value.ToString();
+
+            if (meetingType == "Reprimand") {
+                await HandleMeetingReprimandCreate(command, command.Data.Options);
+            } else {
+                await HandleMeetingPrCreate(command, command.Data.Options);
+            }
+
+        } else if (personOption == null && meetingNameOption == null && typeOption == null) {
+            await HandleMeetingClose(command);
+
+        } else {
+            await command.RespondAsync("To create a meeting, you must provide person, meeting_name, and type. To close, provide none of these.", ephemeral: true);
         }
     }
 
@@ -78,12 +79,17 @@ public class MeetingSystem {
         
         await person.AddRoleAsync(1492674198345224293);
 
-        type = type switch {
-            "Partnering" => "partner",
-            "Blacklist" => "blist",
-            "Other" => "pr-gen",
-            _ => "pr-gen"
-        };
+        switch (type) {
+            case "Partnering":
+                type = "partner";
+                break;
+            case "Blacklist":
+                type = "blist";
+                break;
+            default:
+                type = "pr-gen";
+                break;
+        }
         
         var name = "meeting-" + type + "-" + meetingName;
 

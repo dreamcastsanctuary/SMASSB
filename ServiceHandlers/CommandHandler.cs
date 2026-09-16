@@ -104,43 +104,20 @@ public class CommandHandler {
 
         // MEETINGSYSTEM.
 
-        var prOption = new SlashCommandOptionBuilder()
-            .WithName("pr")
-            .WithDescription("Create a PR meeting")
-            .WithType(ApplicationCommandOptionType.SubCommand)
-            .AddOption(new SlashCommandOptionBuilder()
-                .WithName("type")
-                .WithDescription("What kind of PR meeting?")
-                .WithType(ApplicationCommandOptionType.String)
-                .WithRequired(true)
-                .AddChoice("Partnering", "Partnering")
-                .AddChoice("Blacklist", "Blacklist")
-                .AddChoice("Other", "Other"))
-            .AddOption("person", ApplicationCommandOptionType.User, "The person for the meeting", isRequired: true)
-            .AddOption("meeting_name", ApplicationCommandOptionType.String, "Name for the meeting", isRequired: true);
-
-        var reprimandOption = new SlashCommandOptionBuilder()
-            .WithName("reprimand")
-            .WithDescription("Create a reprimand meeting")
-            .WithType(ApplicationCommandOptionType.SubCommand)
-            .AddOption("person", ApplicationCommandOptionType.User, "The person for the meeting", isRequired: true)
-            .AddOption("meeting_name", ApplicationCommandOptionType.String, "Name for the meeting", isRequired: true);
-
-        var createOption = new SlashCommandOptionBuilder()
-            .WithName("create")
-            .WithDescription("Create a meeting")
-            .WithType(ApplicationCommandOptionType.SubCommandGroup)
-            .AddOption(prOption)
-            .AddOption(reprimandOption);
-
         commands.Add(new SlashCommandBuilder()
             .WithName("meeting")
             .WithDescription("Creates or closes a private meeting room with PR / Kamikawa and the person provided.")
-            .AddOption(createOption)
+            .AddOption("person", ApplicationCommandOptionType.User, "The person for the meeting (required for create)", isRequired: false)
+            .AddOption("meeting_name", ApplicationCommandOptionType.String, "Name for the meeting (required for create)", isRequired: false)
             .AddOption(new SlashCommandOptionBuilder()
-                .WithName("close")
-                .WithDescription("Close the current meeting room")
-                .WithType(ApplicationCommandOptionType.SubCommand))
+                .WithName("type")
+                .WithDescription("What kind of meeting? (required for create)")
+                .WithType(ApplicationCommandOptionType.String)
+                .WithRequired(false)
+                .AddChoice("Partnering", "Partnering")
+                .AddChoice("Blacklist", "Blacklist")
+                .AddChoice("Reprimand", "Reprimand")
+                .AddChoice("Other", "Other"))
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
 
@@ -261,18 +238,9 @@ public class CommandHandler {
 
         commands.Add(new SlashCommandBuilder()
             .WithName("checkorchangeclaim")
-            .WithDescription("Claim checking or claim changing. Pick your poison.")
-            .AddOption(new SlashCommandOptionBuilder()
-                .WithName("check_claim")
-                .WithDescription("Check if a name has been claimed yet.")
-                .WithType(ApplicationCommandOptionType.SubCommand)
-                .AddOption("claim_name", ApplicationCommandOptionType.String, "The name to check.", isRequired: true))
-            .AddOption(new SlashCommandOptionBuilder()
-                .WithName("change_claim")
-                .WithDescription("Change someone's claim name.")
-                .WithType(ApplicationCommandOptionType.SubCommand)
-                .AddOption("claim_name", ApplicationCommandOptionType.String, "The claim name.", isRequired: true)
-                .AddOption("member", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true))
+            .WithDescription("Check if a name has been claimed, or change someone's claim.")
+            .AddOption("claim_name", ApplicationCommandOptionType.String, "The name to check or change.", isRequired: true)
+            .AddOption("member", ApplicationCommandOptionType.User, "The member to change (optional - if omitted, just checks the name).", isRequired: false)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         commands.Add(new SlashCommandBuilder()

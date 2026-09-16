@@ -55,12 +55,12 @@ public class GeneralSystem {
         var tooOld = enumerable.Count - validMessages.Count;
 
         if (!validMessages.Any()) {
-            await command.ModifyOriginalResponseAsync(m =>
-                m.Content = "No deletable messages found. Messages older than 14 days cannot be bulk deleted.");
+            await command.ModifyOriginalResponseAsync(m => m.Content = "No deletable messages found. Messages older than 14 days cannot be bulk deleted.");
             return;
         }
 
-        await channel.DeleteMessagesAsync(validMessages);
+        try { await channel.DeleteMessagesAsync(validMessages); }
+        catch { await command.FollowupAsync("Some message here is seen as null and cannot be deleted. Ignore it or delete it manually.", ephemeral: true); }
 
         var response = $"Deleted {validMessages.Count} message(s).";
         if (tooOld > 0) response += $" {tooOld} message(s) were skipped as they are older than 14 days.";
@@ -126,48 +126,51 @@ public class GeneralSystem {
 
     public async Task HandleCheckOrChangeClaimCommand(SocketSlashCommand command) {
     
-        switch (command.Data.Options.First().Name) {
-            
-            case "check_claim": {
-                
-                var claimName = command.Data.Options.First().Options.First().Value.ToString();
-                var allClaims = _db.GetAllClaims();
+        var claimNameOption = command.Data.Options.FirstOrDefault(o => o.Name == "claim_name");
+        var memberOption = command.Data.Options.FirstOrDefault(o => o.Name == "member");
+        var guild = _client.GetGuild((ulong)_guildId!);
         
-                var matches = allClaims
-                    .Where(m => !string.IsNullOrWhiteSpace(m.Claim) && claimName != null && m.Claim.Contains(claimName, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+        if (claimNameOption == null) {
+            await command.RespondAsync("Claim name is required.", ephemeral: true);
+            return;
+        }
 
-                if (matches.Count == 0) {
-                    await command.RespondAsync("No claims found!", ephemeral: true);
-                } else {
-                    
-                    var matchDesc = "";
-                    foreach (var match in matches) {
-                        matchDesc += $"{match.Claim} :: <@{match.UserId}>\n";
-                    }
-                    await command.RespondAsync(matchDesc, ephemeral: true);
-                }
-                break;
-            } case "change_claim": {
-                
-                var claimName = command.Data.Options.First().Options.First().Value.ToString();
-                var member = (SocketGuildUser)command.Data.Options.First().Options.Last().Value;
+        await command.DeferAsync();
+        var claimName = claimNameOption.Value.ToString();
 
-                if (claimName == null) {
-                    await command.FollowupAsync("Something's wrong with this command.", ephemeral: true);
-                    return;
+        if (memberOption != null) {
+            var member = guild.GetUser(((SocketUser)memberOption.Value).Id);
+
+            if (claimName == null) {
+                await command.FollowupAsync("Something's wrong with this command.", ephemeral: true);
+                return;
+            }
+
+            var nickname = member.Nickname;
+            var dotIndex = nickname.IndexOf('.');
+
+            var fixedRankNick = nickname.Substring(0, dotIndex + 1);
+            await member.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claimName);
+
+            await _db.SetClaim(member.Id, claimName);
+            await command.FollowupAsync("Changed claim.", ephemeral: true);
+
+        } else {
+            
+            var allClaims = _db.GetAllClaims();
+            var matches = allClaims
+                .Where(m => !string.IsNullOrWhiteSpace(m.Claim) && claimName != null && m.Claim.Contains(claimName, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (matches.Count == 0) {
+                await command.FollowupAsync("No claims found!", ephemeral: true);
+            } else {
+                
+                var matchDesc = "";
+                foreach (var match in matches) {
+                    matchDesc += $"{match.Claim} :: <@{match.UserId}>\n";
                 }
-                
-                var nickname = member.Nickname;
-                var dotIndex = nickname.IndexOf('.');
-            
-                var fixedRankNick = nickname.Substring(0, dotIndex + 1);
-                await member.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claimName);
-            
-                await _db.SetClaim(member.Id, claimName);
-                await command.FollowupAsync("Changed claim.");
-                
-                break;
+                await command.FollowupAsync(matchDesc, ephemeral: true);
             }
         }
     }
