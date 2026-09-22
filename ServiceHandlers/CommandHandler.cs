@@ -142,7 +142,6 @@ public class CommandHandler {
             .AddOption("civilian", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
             .AddOption("claim_name", ApplicationCommandOptionType.String, "The claim name of the civilian.", isRequired: true)
             .AddOption("rank_name", ApplicationCommandOptionType.Role, "The rank to be placed in the database.", isRequired: false)
-            .AddOption("is_staff", ApplicationCommandOptionType.Boolean, "Are they a staff member, or an enlisted?", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
 
         commands.Add(new SlashCommandBuilder()
