@@ -1,7 +1,7 @@
 ﻿using Discord;
+using Discord.Net;
 using Discord.WebSocket;
 using SMASSB.Data;
-using SMASSB.Exceptions;
 using SMASSB.Models;
 using SMASSB.ServiceHandlers;
 
@@ -26,7 +26,7 @@ public class RoleSystem {
         await command.DeferAsync();
         SocketGuildUser? civilian = null;
         var claim = "";
-
+        
         foreach (var option in command.Data.Options) {
             switch (option.Name) {
                 
@@ -44,6 +44,9 @@ public class RoleSystem {
             return;
         }
         
+        try { await civilian.SendMessageAsync($"Welcome to SANGŌ, **Kō. {claim}**! We're very happy to have you.\n" + "Your first event *must* be of type **CIVT / Civilian Training**. Please be on the lookout for it."); }
+        catch (HttpException ex) when (ex.DiscordCode == DiscordErrorCode.CannotSendMessageToUser) { await command.FollowupAsync($"Hey, <@{civilian.Id}>! Please turn your Server DMs on so that I can message you important information regarding your enlistment!\nThank you!"); return; }
+        
         await civilian.AddRoleAsync(1473369036766052445);
         await civilian.AddRoleAsync(1475886792174604484);
         await civilian.RemoveRoleAsync(1473369383471677461);
@@ -51,12 +54,8 @@ public class RoleSystem {
         await civilian.ModifyAsync(x => x.Nickname = "Kō. " + claim);
 
         if (claim != null) {
-            try {
-                await civilian.SendMessageAsync($"Welcome to SANGŌ, **Kō. {claim}**! We're very happy to have you.\n" + "Your first event *must* be of type **CIVT / Civilian Training**. Please be on the lookout for it.");
-                await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Jieikan Kōhosei", 0, 0, "N/A", "", civilian.Username, "ENLISTEDMAIN", "BLACK", "NONE", "BASIC");
-            } catch {
-                await command.FollowupAsync($"Hey, <@{civilian.Id}>! Please turn your Server DMs on so that I can message you important information regarding your enlistment!\nThank you!");
-            }
+            await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Jieikan Kōhosei", 0, 0, "N/A", "", civilian.Username, "ENLISTEDMAIN", "BLACK", "NONE", "BASIC");
+
         }
     }
     
