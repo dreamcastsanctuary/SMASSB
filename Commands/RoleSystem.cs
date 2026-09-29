@@ -271,11 +271,50 @@ public class RoleSystem {
         }
 
         try {
-            await _db.ReinstateEnlistment(civilian.Id, _client);
+            await _db.ReinstateEnlistment(civilian.Id, civilian.Id, _client);
             var (rankId, categoryId) = (await _db.GetRank(civilian.Id)).GetRoleId();
             
             await civilian.RemoveRoleAsync(1473369383471677461);
             await civilian.AddRolesAsync([rankId, categoryId]);
+        } catch (Exception ex) {
+            await _logHandler.LogExceptionWatch((ulong)_guildId!, exception: ex);
+            await command.FollowupAsync("Something went wrong.", ephemeral: true);
+        }
+    }
+    
+    public async Task HandleMoveEnlistmentCommand(SocketSlashCommand command) {
+    
+        await command.DeferAsync();
+        ulong? oldId = null;
+        SocketGuildUser? newAccount = null;
+    
+        foreach (var option in command.Data.Options) {
+            switch (option.Name) {
+                case "old_account":
+                    oldId = ((IUser)option.Value).Id;
+                    break;
+                case "new_account":
+                    newAccount = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
+                    break;
+                default:
+                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    return;
+            }
+        }
+
+        if (oldId == null || newAccount == null || string.IsNullOrEmpty(await _db.GetHistoryClaim(oldId.Value))) {
+            await command.FollowupAsync("Unrecognized account(s).", ephemeral: true);
+            return;
+        }
+
+        try {
+            await _db.ReinstateEnlistment(oldId.Value, newAccount.Id, _client);
+            var (rankId, categoryId) = (await _db.GetRank(newAccount.Id)).GetRoleId();
+        
+            await newAccount.RemoveRoleAsync(1473369383471677461);
+            await newAccount.AddRolesAsync([rankId, categoryId]);
+
+            await command.FollowupAsync($"Moved enlistment to {newAccount.Mention}.");
         } catch (Exception ex) {
             await _logHandler.LogExceptionWatch((ulong)_guildId!, exception: ex);
             await command.FollowupAsync("Something went wrong.", ephemeral: true);

@@ -231,33 +231,34 @@ public class DatabaseService
         }
     }
 
-    public async Task ReinstateEnlistment(ulong userId, DiscordSocketClient client) {
+    public async Task ReinstateEnlistment(ulong oldUserId, ulong newUserId, DiscordSocketClient client) {
 
         await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
         await using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync();
 
-        var user = await client.GetUserAsync(userId);
-        var username = user?.Username ?? userId.ToString();
-
+        var user = await client.GetUserAsync(newUserId);
+        var username = user?.Username ?? newUserId.ToString();
+        
         var cmd = connection.CreateCommand();
         cmd.Transaction = transaction;
         cmd.CommandText = @"
             INSERT INTO Enrolled (UserId, Claim, AvatarUrl, AvatarImage, Rank, Points, Recruits, Bloodtype, Catchphrase, Username, IDType)
-            SELECT UserId, Claim, AvatarUrl, AvatarImage, Rank, Points, Recruits, Bloodtype, $catchphraseParam, $usernameParam, IDType
+            SELECT $newIdParam, Claim, AvatarUrl, AvatarImage, Rank, Points, Recruits, Bloodtype, $catchphraseParam, $usernameParam, IDType
             FROM EnlistedHistory WHERE UserId = $accIdParam;
 
             INSERT INTO Id (UserId, Collected, Frames)
-            SELECT UserId, IdsCollected, Frames
+            SELECT $newIdParam, IdsCollected, Frames
             FROM EnlistedHistory WHERE UserId = $accIdParam;
 
             INSERT INTO WorkCell (UserId, Yen, Cases, CaseType, Wallpapers, WallpaperType, Charms, CharmType, Apps, Collected)
-            SELECT UserId, Yen, Cases, CaseType, Wallpapers, WallpaperType, Charms, CharmType, Apps, AppsCollected
+            SELECT $newIdParam, Yen, Cases, CaseType, Wallpapers, WallpaperType, Charms, CharmType, Apps, AppsCollected
             FROM EnlistedHistory WHERE UserId = $accIdParam;
 
             DELETE FROM EnlistedHistory WHERE UserId = $accIdParam;";
 
-        cmd.Parameters.AddWithValue("$accIdParam", userId.ToString());
+        cmd.Parameters.AddWithValue("$accIdParam", oldUserId.ToString());
+        cmd.Parameters.AddWithValue("$newIdParam", newUserId.ToString());
         cmd.Parameters.AddWithValue("$usernameParam", username);
         cmd.Parameters.AddWithValue("$catchphraseParam", "");
 
