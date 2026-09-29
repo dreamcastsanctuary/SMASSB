@@ -157,7 +157,7 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
         
         commands.Add(new SlashCommandBuilder()
-            .WithName("reinstateenlistment")
+            .WithName("moveenlistment")
             .WithDescription("Reinstate the enlistment of a NiShi+ from an another account.")
             .AddOption("old_account", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
             .AddOption("new_account", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
@@ -572,7 +572,7 @@ public class CommandHandler {
                 await _roleSystem.HandleReinstateEnlistmentCommand(command);
                 break;
             case "moveenlistment":
-                await _roleSystem.HandleReinstateEnlistmentCommand(command);
+                await _roleSystem.HandleMoveEnlistmentCommand(command);
                 break;
             case "checkpromotions":
                 await _roleSystem.HandleCheckPromosCommand(command);
