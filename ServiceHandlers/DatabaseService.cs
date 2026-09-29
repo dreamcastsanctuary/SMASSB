@@ -232,10 +232,37 @@ public class DatabaseService
     }
 
     public async Task ReinstateEnlistment(ulong userId, DiscordSocketClient client) {
-        // add everything into the correct database shit.
-        // perform what preenlist does lol.
-        // correct roles and shit lol
-        // dm the person
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+        await using var transaction = (SqliteTransaction)await connection.BeginTransactionAsync();
+
+        var user = await client.GetUserAsync(userId);
+        var username = user?.Username ?? userId.ToString();
+
+        var cmd = connection.CreateCommand();
+        cmd.Transaction = transaction;
+        cmd.CommandText = @"
+            INSERT INTO Enrolled (UserId, Claim, AvatarUrl, AvatarImage, Rank, Points, Recruits, Bloodtype, Catchphrase, Username, IDType)
+            SELECT UserId, Claim, AvatarUrl, AvatarImage, Rank, Points, Recruits, Bloodtype, $catchphraseParam, $usernameParam, IDType
+            FROM EnlistedHistory WHERE UserId = $accIdParam;
+
+            INSERT INTO Id (UserId, Collected, Frames)
+            SELECT UserId, IdsCollected, Frames
+            FROM EnlistedHistory WHERE UserId = $accIdParam;
+
+            INSERT INTO WorkCell (UserId, Yen, Cases, CaseType, Wallpapers, WallpaperType, Charms, CharmType, Apps, Collected)
+            SELECT UserId, Yen, Cases, CaseType, Wallpapers, WallpaperType, Charms, CharmType, Apps, AppsCollected
+            FROM EnlistedHistory WHERE UserId = $accIdParam;
+
+            DELETE FROM EnlistedHistory WHERE UserId = $accIdParam;";
+
+        cmd.Parameters.AddWithValue("$accIdParam", userId.ToString());
+        cmd.Parameters.AddWithValue("$usernameParam", username);
+        cmd.Parameters.AddWithValue("$catchphraseParam", "");
+
+        await cmd.ExecuteNonQueryAsync();
+        await transaction.CommitAsync();
     }
 
     public async Task<int> GetPoints(ulong userId) {
@@ -610,39 +637,13 @@ public class DatabaseService
         return results;
     }
 
-    public async Task<string> GetUClaim(ulong userId) {
+    public async Task<string> GetHistoryClaim(ulong userId) {
         
         await using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = "SELECT Claim FROM Unenrolled WHERE UserId = $id;";
-        command.Parameters.AddWithValue("$id", userId.ToString());
-        
-        var result = await command.ExecuteScalarAsync();
-        return Convert.ToString(result) ?? "";
-    }
-
-    public async Task<string> GetURank(ulong userId) {
-        
-        await using var connection = new SqliteConnection(_connectionString);
-        await connection.OpenAsync();
-
-        var command = connection.CreateCommand();
-        command.CommandText = "SELECT Rank FROM Unenrolled WHERE UserId = $id;";
-        command.Parameters.AddWithValue("$id", userId.ToString());
-        
-        var result = await command.ExecuteScalarAsync();
-        return Convert.ToString(result) ?? "";
-    }
-
-    public async Task<string> GetUUsername(ulong userId) {
-        
-        await using var connection = new SqliteConnection(_connectionString);
-        await connection.OpenAsync();
-
-        var command = connection.CreateCommand();
-        command.CommandText = "SELECT Username FROM Unenrolled WHERE UserId = $id;";
+        command.CommandText = "SELECT Claim FROM EnlistedHistory WHERE UserId = $id;";
         command.Parameters.AddWithValue("$id", userId.ToString());
         
         var result = await command.ExecuteScalarAsync();

@@ -549,28 +549,6 @@ public class PointSystem {
             .Build();
     }
 
-    public async Task ReinstateEnlistment(SocketSlashCommand command) {
-
-        SocketGuildUser? member = null;
-        
-        foreach (var option in command.Data.Options) {
-            switch (option.Name) {
-                
-                case "member":
-                    member = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
-                    break;
-                default:
-                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
-                    break;
-            }
-        }
-
-        if (member == null)
-            return;
-        
-        await _db.ReinstateEnlistment(member.Id, _client);
-    }
-
     public async Task FestivalRewards(SocketSlashCommand command) {
 
         var enlisted = new List<SocketGuildUser>();

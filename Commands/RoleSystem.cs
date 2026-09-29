@@ -247,6 +247,40 @@ public class RoleSystem {
         }
         await command.FollowupAsync("Completed task.", ephemeral: true);
     }
+
+    public async Task HandleReinstateEnlistmentCommand(SocketSlashCommand command) {
+        
+        await command.DeferAsync();
+        SocketGuildUser? civilian = null;
+        
+        foreach (var option in command.Data.Options) {
+            switch (option.Name) {
+                
+                case "civilian":
+                    civilian = _client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id);
+                    break;
+                default:
+                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
+                    break;
+            }
+        }
+
+        if (civilian == null || string.IsNullOrEmpty(await _db.GetHistoryClaim(civilian.Id))) {
+            await command.FollowupAsync("Unrecognized account.", ephemeral: true);
+            return;
+        }
+
+        try {
+            await _db.ReinstateEnlistment(civilian.Id, _client);
+            var (rankId, categoryId) = (await _db.GetRank(civilian.Id)).GetRoleId();
+            
+            await civilian.RemoveRoleAsync(1473369383471677461);
+            await civilian.AddRolesAsync([rankId, categoryId]);
+        } catch (Exception ex) {
+            await _logHandler.LogExceptionWatch((ulong)_guildId!, exception: ex);
+            await command.FollowupAsync("Something went wrong.", ephemeral: true);
+        }
+    }
     
     public async Task HandleForceEnlistCommand(SocketSlashCommand command) {
         await command.DeferAsync();
