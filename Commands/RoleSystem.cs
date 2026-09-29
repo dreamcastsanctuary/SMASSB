@@ -276,6 +276,14 @@ public class RoleSystem {
             
             await civilian.RemoveRoleAsync(1473369383471677461);
             await civilian.AddRolesAsync([rankId, categoryId]);
+            
+            var rank = await _client.GetGuild((ulong)_guildId!).GetRoleAsync(rankId);
+            var rankName = rank.Name;
+            var dotIndex = rankName.IndexOf('.');
+            
+            var fixedRankNick = rankName.Substring(1, dotIndex);
+            await civilian.ModifyAsync(x => x.Nickname = fixedRankNick + " " + _db.GetClaim(civilian.Id));
+            
         } catch (Exception ex) {
             await _logHandler.LogExceptionWatch((ulong)_guildId!, exception: ex);
             await command.FollowupAsync("Something went wrong.", ephemeral: true);
@@ -314,7 +322,15 @@ public class RoleSystem {
             await newAccount.RemoveRoleAsync(1473369383471677461);
             await newAccount.AddRolesAsync([rankId, categoryId]);
 
+            var rank = await _client.GetGuild((ulong)_guildId!).GetRoleAsync(rankId);
+            var rankName = rank.Name;
+            var dotIndex = rankName.IndexOf('.');
+            
+            var fixedRankNick = rankName.Substring(1, dotIndex);
+            await newAccount.ModifyAsync(x => x.Nickname = fixedRankNick + " " + _db.GetClaim(newAccount.Id));
+
             await command.FollowupAsync($"Moved enlistment to {newAccount.Mention}.");
+            
         } catch (Exception ex) {
             await _logHandler.LogExceptionWatch((ulong)_guildId!, exception: ex);
             await command.FollowupAsync("Something went wrong.", ephemeral: true);
