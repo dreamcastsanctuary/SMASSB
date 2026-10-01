@@ -858,9 +858,9 @@ public class ExtraneousHandler {
 
                 await user.AddRoleAsync(roleId);
                 if (roleId == VampireRoleId) {
-                    await modal.RespondAsync($"🦇 :: Welcome to **Team {teamName}**!\nHere's your Tourney Gear: https://your-link-here", ephemeral: true);
+                    await modal.RespondAsync($"🦇 :: Welcome to **Team {teamName}**!\nHere's your [**Tourney Gear**](<https://sangoidoldefenseforce.vercel.app/vampire>)!", ephemeral: true);
                 } else {
-                    await modal.RespondAsync($"🐺 :: Welcome to **Team {teamName}**!\nHere's your Tourney Gear: https://your-link-here", ephemeral: true);
+                    await modal.RespondAsync($"🐺 :: Welcome to **Team {teamName}**!\nHere's your [**Tourney Gear**](<https://sangoidoldefenseforce.vercel.app/werewolf>)", ephemeral: true);
                 }
 
             } catch (Exception ex) {
