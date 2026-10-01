@@ -65,9 +65,9 @@ public class Program {
         _client.MessageDeleted += (message, messageChannel) => { _ = Task.Run(async () => await _logHandler.LogMessageDelete(message, messageChannel, _client.GetGuild(_guildId))); return Task.CompletedTask; };
         _client.MessageUpdated += (beforemessage, aftermessage, messageChannel) => { _ = Task.Run(async () => await _logHandler.LogMessageUpdate(beforemessage, aftermessage, messageChannel, _client.GetGuild(_guildId))); return Task.CompletedTask; };
         _client.WebhooksUpdated += (userGuild, channel) => { _ = Task.Run(async () => await _logHandler.LogWebhookUpdate(userGuild, channel)); return Task.CompletedTask; };
+        _client.ModalSubmitted += (modal) => { _ = Task.Run(async () => await _extraneousHandler.ModalHandler(modal)); return Task.CompletedTask; };
         
         _client.AutocompleteExecuted += async (interaction) => {
-
             if (interaction.Data.Current.Name == "id_type") { await _extraneousHandler.IdAutocompleteHandler(interaction); }
             if (interaction.Data.Current.Name == "add_apps") { await _extraneousHandler.CollectedAppAutocompleteHandler(interaction); }
             if (interaction.Data.Current.Name == "remove_apps") { await _extraneousHandler.AppAutocompleteHandler(interaction); }
