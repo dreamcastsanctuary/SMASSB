@@ -273,9 +273,6 @@ public class ExtraneousHandler {
                         case 1481753878834970654:
                             await user.RemoveRoleAsync(1473370375739015259);
                             break;
-                        case 1481754840899129406:
-                            await user.RemoveRoleAsync(1547023016452431882);
-                            break;
                     }
                 }
                 break;
@@ -303,6 +300,9 @@ public class ExtraneousHandler {
                             break;
                         case 1481753919624446063:
                             await user.RemoveRoleAsync(1473371104604061768);
+                            break;
+                        case 1481754840899129406:
+                            await user.RemoveRoleAsync(1547023016452431882);
                             break;
                     }
                 }
