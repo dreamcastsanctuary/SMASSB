@@ -856,6 +856,7 @@ public class ExtraneousHandler {
                     return;
                 }
 
+                await modal.RespondAsync($"team_confirm: team='{team}', roleId={roleId}, name='{guild.GetRole(roleId)?.Name}'");
                 await user.AddRoleAsync(roleId);
                 if (roleId == VampireRoleId) {
                     await modal.RespondAsync($"🦇 :: Welcome to **Team {teamName}**!\nHere's your [**Tourney Gear**](<https://sangoidoldefenseforce.vercel.app/vampire>)!", ephemeral: true);
