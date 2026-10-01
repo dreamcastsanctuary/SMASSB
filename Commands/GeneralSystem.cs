@@ -211,4 +211,20 @@ public class GeneralSystem {
 
         await command.FollowupAsync("Done!");
     }
+
+    public async Task HandleSendLastMessageCommand(SocketSlashCommand command) {
+        
+        var container = new ContainerBuilder()
+            .WithAccentColor(new Color(0x822222))
+            .AddComponent(new TextDisplayBuilder().WithContent("## ★【TEAM PICKING】! ★\n\nHere's where it happens . . Pick your team below, but know that you can't switch after you've chosen. Be wise.\n\nMake sure to put effort into cheering your team on - care about one another! Come up with mottos, make art, and get into the super spooky rivalry of Vampires vs. Werewolves!\n\nDo your best out there!"))
+            .AddComponent(new ActionRowBuilder().WithButton("Join Team Vampires", "team_pick:vampires", ButtonStyle.Danger))
+            .AddComponent(new ActionRowBuilder().WithButton("Join Team Werewolves", "team_pick:werewolves", ButtonStyle.Secondary));
+
+        var components = new ComponentBuilderV2()
+            .AddComponent(container)
+            .Build();
+
+        await command.Channel.SendMessageAsync(components: components);
+        await command.RespondAsync("Done!", ephemeral: true);
+    }
 }

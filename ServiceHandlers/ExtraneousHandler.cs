@@ -17,6 +17,9 @@ public class ExtraneousHandler {
     private readonly DatabaseService _db;
     private readonly LogHandler _logHandler;
     private readonly ulong? _guildId;
+    
+    private const ulong VampireRoleId = 1554704497857798205;
+    private const ulong WerewolfRoleId = 1554704576433627166;
 
     public ExtraneousHandler(DiscordSocketClient client,
         LogHandler logHandler,
@@ -456,11 +459,68 @@ public class ExtraneousHandler {
         var sundayDate = nowInZone.Date.AddDays(-daysSinceSunday);
         return new DateTimeOffset(sundayDate, offset);
     }
+    
+    private static bool TryGetTeamRole(string team, out ulong roleId, out string displayName) {
+        
+        switch (team) {
+            case "vampires":
+                roleId = VampireRoleId; 
+                displayName = "Vampires";
+                return true;
+            case "werewolves": 
+                roleId = WerewolfRoleId; 
+                displayName = "Werewolves"; 
+                return true;
+            default: 
+                roleId = 0; 
+                displayName = "";
+                return false;
+        }
+    }
+
+    private static bool HasPickedTeam(SocketGuildUser user) => user.Roles.Any(r => r.Id == VampireRoleId || r.Id == WerewolfRoleId);
 
     public async Task ButtonHandler(SocketMessageComponent component) {
 
         var id = component.Data.CustomId;
         var guild = _client.GetGuild((ulong)_guildId!);
+        
+        if (id.StartsWith("team_pick:")) {
+            try {
+                var user = component.User as SocketGuildUser ?? guild.GetUser(component.User.Id);
+                if (user == null) return;
+
+                var team = id["team_pick:".Length..];
+                if (!TryGetTeamRole(team, out _, out var teamName)) return;
+
+                if (HasPickedTeam(user)) {
+                    await component.RespondAsync("You've already picked a team!", ephemeral: true);
+                    return;
+                }
+
+                var modal = new ModalBuilder()
+                    .WithTitle($"Join Team {teamName}?")
+                    .WithCustomId($"team_confirm:{team}")
+                    .AddTextDisplay("Are you sure you want to join this team?\nOnce you choose, you can't go back!")
+                    .AddSelectMenu(
+                        label: "Confirm your choice",
+                        customId: "team_confirm_select",
+                        options: [new SelectMenuOptionBuilder().WithLabel("Yes, I'm sure!").WithValue("yes")],
+                        placeholder: "Pick to confirm...",
+                        required: true)
+                    .Build();
+
+                await component.RespondWithModalAsync(modal);
+
+            } catch (Exception ex) {
+                Console.WriteLine($"team_pick button error: {ex}");
+                await _logHandler.LogExceptionWatch(guild.Id, exception: ex, text: "team_pick button error.");
+                if (!component.HasResponded) {
+                    await component.RespondAsync("Something went wrong, please try again.", ephemeral: true);
+                }
+            }
+            return;
+        }
         
         if (id.StartsWith("buy_item_")) {
             try {
@@ -776,6 +836,39 @@ public class ExtraneousHandler {
         var results = taskNames.Select(name => new AutocompleteResult(name, name));
 
         await interaction.RespondAsync(results);
+    }
+    
+    public async Task ModalHandler(SocketModal modal) {
+        
+        var id = modal.Data.CustomId;
+        var guild = _client.GetGuild((ulong)_guildId!);
+
+        if (id.StartsWith("team_confirm:")) {
+            try {
+                var user = modal.User as SocketGuildUser ?? guild.GetUser(modal.User.Id);
+                if (user == null) return;
+
+                var team = id["team_confirm:".Length..];
+                if (!TryGetTeamRole(team, out var roleId, out var teamName)) return;
+
+                if (HasPickedTeam(user)) {
+                    await modal.RespondAsync("You've already picked a team!", ephemeral: true);
+                    return;
+                }
+
+                await user.AddRoleAsync(roleId);
+                if (roleId == VampireRoleId) {
+                    await modal.RespondAsync($"🦇 :: Welcome to **Team {teamName}**!\nHere's your Tourney Gear: https://your-link-here", ephemeral: true);
+                } else {
+                    await modal.RespondAsync($"🐺 :: Welcome to **Team {teamName}**!\nHere's your Tourney Gear: https://your-link-here", ephemeral: true);
+                }
+
+            } catch (Exception ex) {
+                Console.WriteLine($"team_confirm modal error: {ex}");
+                await _logHandler.LogExceptionWatch(guild.Id, exception: ex, text: "team_confirm modal error.");
+                if (!modal.HasResponded) { await modal.RespondAsync("Something went wrong, please try again.", ephemeral: true); }
+            }
+        }
     }
 
     private static bool IsVideoExtension(string filename) {

@@ -515,6 +515,11 @@ public class CommandHandler {
             .WithName("vieweveryone")
             .WithDescription("Views everyone's tasks.")
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("sendmessage")
+            .WithDescription("Views everyone's tasks.")
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
 
         commands.Add(new SlashCommandBuilder()
             .WithName("updatetaskprogress")
@@ -621,6 +626,9 @@ public class CommandHandler {
                 break;
             case "checkorchangeclaim":
                 await _generalSystem.HandleCheckOrChangeClaimCommand(command);
+                break;
+            case "sendmessage":
+                await _generalSystem.HandleSendLastMessageCommand(command);
                 break;
 
             case "workcell":
