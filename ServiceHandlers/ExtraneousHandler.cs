@@ -18,8 +18,8 @@ public class ExtraneousHandler {
     private readonly LogHandler _logHandler;
     private readonly ulong? _guildId;
     
-    private const ulong VampireRoleId = 1554704497857798205;
-    private const ulong WerewolfRoleId = 1554704576433627166;
+    private const ulong VampireRoleId = 1554704576433627166;
+    private const ulong WerewolfRoleId = 1554704497857798205;
 
     public ExtraneousHandler(DiscordSocketClient client,
         LogHandler logHandler,
