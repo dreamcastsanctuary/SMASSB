@@ -661,7 +661,7 @@ public class CommandHandler {
             case "checkallattendance":
                 await _pointSystem.CheckAllAttendance(command);
                 break;
-            case "checkallrecruits":
+            case "checkalltourneyrecruits":
                 await _pointSystem.CheckAllRecruits(command);
                 break;
 
