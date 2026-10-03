@@ -321,6 +321,17 @@ public class CommandHandler {
             .AddOption(teamOption)
             .AddOption("points", ApplicationCommandOptionType.Integer, "The amount of Territory to remove.", isRequired: true)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("checkterritory")
+            .WithDescription("Checks a Team's Territory.")
+            .AddOption(teamOption)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("checkallattendance")
+            .WithDescription("Checks the attendance and values in this event.")
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         // GENERAL SYSTEM
 
@@ -638,6 +649,12 @@ public class CommandHandler {
                 break;
             case "removeterritory":
                 await _pointSystem.EditTerritory(command, false);
+                break;
+            case "checkterritory":
+                await _pointSystem.CheckTerritory(command);
+                break;
+            case "checkallattendance":
+                await _pointSystem.CheckAllAttendance(command);
                 break;
 
             case "purgemessages":

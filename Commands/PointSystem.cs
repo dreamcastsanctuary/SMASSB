@@ -763,4 +763,74 @@ public class PointSystem {
         embedBuilder.WithAuthor("|| " + team).WithTitle("❖﹒Done and done!").WithColor(0xBFA55F);
         await command.FollowupAsync(embed: embedBuilder.Build());
     }
+    
+    public async Task CheckTerritory(SocketSlashCommand command) {
+
+        string? team = null;
+
+        foreach (var option in command.Data.Options) {
+            switch (option.Name) {
+                case "team":
+                    team = (string) option.Value;
+                    break;
+                default:
+                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    return;
+            }
+        }
+
+        if (team == null) {
+            await command.RespondAsync("Please choose a team.", ephemeral: true);
+            return;
+        }
+
+        var territory = await _db.GetTerritory(team);
+
+        var embed = new EmbedBuilder()
+            .WithAuthor("|| " + team)
+            .WithTitle("❖﹒Territory . .")
+            .WithDescription($"The {team} currently hold ***{territory}*** Territory.")
+            .WithColor(0xBFA55F)
+            .Build();
+
+        await command.RespondAsync(embed: embed);
+    }
+
+    public async Task CheckAllAttendance(SocketSlashCommand command) {
+
+        await command.DeferAsync();
+
+        var guild = _client.GetGuild((ulong)_guildId!);
+        var attended = new List<(string Mention, int Attendance)>();
+
+        foreach (var id in _db.GetEnlisted()) {
+            var userId = ulong.Parse(id);
+            var attendance = await _db.GetEventsAttended(userId);
+            if (attendance <= 0) continue;
+
+            var mention = guild.GetUser(userId)?.Mention ?? $"<@{userId}>";
+            attended.Add((mention, attendance));
+        }
+
+        if (attended.Count == 0) {
+            await command.FollowupAsync("Well, something's wrong here...");
+            return;
+        }
+
+        var desc = "";
+
+        foreach (var (mention, attendance) in attended.OrderByDescending(a => a.Attendance)) {
+            var line = $"{mention} :: {attendance}\n";
+
+            if (desc.Length + line.Length > 2000) {
+                await command.FollowupAsync(desc, allowedMentions: AllowedMentions.None);
+                desc = "";
+            }
+            desc += line;
+        }
+
+        if (desc.Length > 0) {
+            await command.FollowupAsync(desc, allowedMentions: AllowedMentions.None);
+        }
+    }
 }
