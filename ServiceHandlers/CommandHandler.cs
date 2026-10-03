@@ -332,6 +332,11 @@ public class CommandHandler {
             .WithName("checkallattendance")
             .WithDescription("Checks the attendance and values in this event.")
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("checkalltourneyrecruits")
+            .WithDescription("Checks how many recruits each member has scouted in this event.")
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         // GENERAL SYSTEM
 
@@ -655,6 +660,9 @@ public class CommandHandler {
                 break;
             case "checkallattendance":
                 await _pointSystem.CheckAllAttendance(command);
+                break;
+            case "checkallrecruits":
+                await _pointSystem.CheckAllRecruits(command);
                 break;
 
             case "purgemessages":

@@ -833,4 +833,42 @@ public class PointSystem {
             await command.FollowupAsync(desc, allowedMentions: AllowedMentions.None);
         }
     }
+    
+    public async Task CheckAllRecruits(SocketSlashCommand command) {
+ 
+        await command.DeferAsync();
+ 
+        var guild = _client.GetGuild((ulong)_guildId!);
+        var scouted = new List<(string Mention, int Recruits)>();
+ 
+        foreach (var id in _db.GetEnlisted()) {
+            var userId = ulong.Parse(id);
+            var recruits = await _db.GetTourneyRecruits(userId);
+            if (recruits <= 0) continue;
+ 
+            var mention = guild.GetUser(userId)?.Mention ?? $"<@{userId}>";
+            scouted.Add((mention, recruits));
+        }
+ 
+        if (scouted.Count == 0) {
+            await command.FollowupAsync("Nobody has scouted any recruits yet.");
+            return;
+        }
+ 
+        var desc = "";
+ 
+        foreach (var (mention, recruits) in scouted.OrderByDescending(s => s.Recruits)) {
+            var line = $"{mention} :: {recruits}\n";
+ 
+            if (desc.Length + line.Length > 2000) {
+                await command.FollowupAsync(desc, allowedMentions: AllowedMentions.None);
+                desc = "";
+            }
+            desc += line;
+        }
+ 
+        if (desc.Length > 0) {
+            await command.FollowupAsync(desc, allowedMentions: AllowedMentions.None);
+        }
+    }
 }
