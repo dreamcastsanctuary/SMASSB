@@ -127,6 +127,17 @@ public class DatabaseService
                 ReminderStage TEXT NOT NULL DEFAULT 'NONE',
                 LastOverdueReminderDate TEXT
             );
+
+            CREATE TABLE IF NOT EXISTS Tourney (
+                Team TEXT PRIMARY KEY,
+                Territory INTEGER NOT NULL DEFAULT 0
+            );
+
+            CREATE TABLE IF NOT EXISTS TourneyEnlisted (
+                UserId TEXT PRIMARY KEY,
+                EventsAttended INTEGER NOT NULL DEFAULT 0,
+                Recruits INTEGER NOT NULL DEFAULT 0
+            );
         ";
         
         command.ExecuteNonQuery();
@@ -2082,5 +2093,128 @@ public class DatabaseService
             ReminderStage = reader.IsDBNull(reader.GetOrdinal("ReminderStage")) ? "NONE" : reader.GetString(reader.GetOrdinal("ReminderStage")),
             LastOverdueReminderDate = reader.IsDBNull(reader.GetOrdinal("LastOverdueReminderDate")) ? null : reader.GetString(reader.GetOrdinal("LastOverdueReminderDate"))
         };
+    }
+        
+    public async Task<int> GetTerritory(string team) {
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT Territory FROM Tourney WHERE Team = $team;";
+        command.Parameters.AddWithValue("$team", team);
+
+        var result = await command.ExecuteScalarAsync();
+        return result != null ? Convert.ToInt32(result) : 0;
+    }
+
+    public async Task<int> AddTerritory(string team, int territory) {
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            INSERT INTO Tourney (Team, Territory) VALUES ($team, $territory)
+            ON CONFLICT(Team) DO UPDATE SET Territory = Territory + $territory;";
+        command.Parameters.AddWithValue("$team", team);
+        command.Parameters.AddWithValue("$territory", territory);
+
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<int> RemoveTerritory(string team, int territory) {
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE Tourney SET Territory = MAX(Territory - $territory, 0) WHERE Team = $team;";
+        command.Parameters.AddWithValue("$team", team);
+        command.Parameters.AddWithValue("$territory", territory);
+
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<int> GetEventsAttended(ulong userId) {
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT EventsAttended FROM TourneyEnlisted WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+        return result != null ? Convert.ToInt32(result) : 0;
+    }
+
+    public async Task<int> AddEventsAttended(ulong userId, int events) {
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            INSERT INTO TourneyEnlisted (UserId, EventsAttended) VALUES ($id, $events)
+            ON CONFLICT(UserId) DO UPDATE SET EventsAttended = EventsAttended + $events;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$events", events);
+
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<int> RemoveEventsAttended(ulong userId, int events) {
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE TourneyEnlisted SET EventsAttended = MAX(EventsAttended - $events, 0) WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$events", events);
+
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<int> GetTourneyRecruits(ulong userId) {
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT Recruits FROM TourneyEnlisted WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+        return result != null ? Convert.ToInt32(result) : 0;
+    }
+
+    public async Task<int> AddTourneyRecruits(ulong userId, int recruits) {
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            INSERT INTO TourneyEnlisted (UserId, Recruits) VALUES ($id, $recruits)
+            ON CONFLICT(UserId) DO UPDATE SET Recruits = Recruits + $recruits;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$recruits", recruits);
+
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<int> RemoveTourneyRecruits(ulong userId, int recruits) {
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE TourneyEnlisted SET Recruits = MAX(Recruits - $recruits, 0) WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$recruits", recruits);
+
+        return await command.ExecuteNonQueryAsync();
     }
 }

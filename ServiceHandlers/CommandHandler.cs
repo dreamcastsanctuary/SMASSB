@@ -292,11 +292,6 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         commands.Add(new SlashCommandBuilder()
-            .WithName("batchqotd")
-            .WithDescription("Parses the qotd threads and gives points to all. Can fail.")
-            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
-
-        commands.Add(new SlashCommandBuilder()
             .WithName("removevalues")
             .WithDescription("Removes certain values from a member.")
             .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false)
@@ -305,6 +300,27 @@ public class CommandHandler {
             .AddOption("yen", ApplicationCommandOptionType.Integer, "How much yen did this person get? (If applicable.)")
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
+        var teamOption = new SlashCommandOptionBuilder()
+            .WithName("team")
+            .WithDescription("The team.")
+            .WithType(ApplicationCommandOptionType.String)
+            .WithRequired(true)
+            .AddChoice("Werewolves", "Werewolves")
+            .AddChoice("Vampires", "Vampires");
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("addterritory")
+            .WithDescription("Adds Territory to a team.")
+            .AddOption(teamOption)
+            .AddOption("points", ApplicationCommandOptionType.Integer, "The amount of Territory to add.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("removeterritory")
+            .WithDescription("Removes Territory from a team.")
+            .AddOption(teamOption)
+            .AddOption("points", ApplicationCommandOptionType.Integer, "The amount of Territory to remove.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         // GENERAL SYSTEM
 
@@ -614,11 +630,14 @@ public class CommandHandler {
             case "batchrecruits":
                 await _pointSystem.HandleBatchRecruits(command);
                 break;
-            case "batchqotd":
-                await _pointSystem.HandleBatchQotd(command);
-                break;
             case "leaderboard":
                 await _pointSystem.Leaderboard(command);
+                break;
+            case "addterritory":
+                await _pointSystem.EditTerritory(command, true);
+                break;
+            case "removeterritory":
+                await _pointSystem.EditTerritory(command, false);
                 break;
 
             case "purgemessages":

@@ -270,20 +270,26 @@ public class PointSystem {
                 continue;
             }
 
-            var scored = allClaims
-                .Where(m => !string.IsNullOrWhiteSpace(m.Claim))
-                .Select(m => new { Claim = m, Distance = FuzzyContainsDistance(m.Claim, name) })
-                .Where(x => x.Distance <= MaxAllowedDistance(name))
-                .OrderBy(x => x.Distance)
+            var matches = allClaims
+                .Where(m => !string.IsNullOrWhiteSpace(m.Claim) && string.Equals(m.Claim.Trim(), name, StringComparison.OrdinalIgnoreCase))
                 .ToList();
+            var bestDistance = 0;
 
-            if (scored.Count == 0) {
-                notFound.Add(name);
-                continue;
+            if (matches.Count == 0) {
+                var scored = allClaims
+                    .Where(m => !string.IsNullOrWhiteSpace(m.Claim))
+                    .Select(m => new { Claim = m, Distance = FuzzyContainsDistance(m.Claim, name) })
+                    .Where(x => x.Distance <= MaxAllowedDistance(name))
+                    .OrderBy(x => x.Distance)
+                    .ToList();
+
+                if (scored.Count == 0) {
+                    notFound.Add(name);
+                    continue;
+                }
+                bestDistance = scored[0].Distance;
+                matches = scored.Where(x => x.Distance == bestDistance).Select(x => x.Claim).ToList();
             }
-
-            var bestDistance = scored[0].Distance;
-            var matches = scored.Where(x => x.Distance == bestDistance).Select(x => x.Claim).ToList();
 
             if (matches.Count > 1) {
                 ambiguous.Add($"{name} (matched: {string.Join(", ", matches.Select(m => m.Claim))})");
@@ -296,6 +302,7 @@ public class PointSystem {
             if (points > 0) await _db.AddPoints(userId, points);
             if (recruits > 0) await _db.AddRecruits(userId, recruits);
             if (yen > 0) await _db.AddYen(userId, yen);
+            await _db.AddEventsAttended(userId, 1);
             
             var currentPoints = await _db.GetPoints(userId);
             var currentRecruits = await _db.GetRecruits(userId);
@@ -394,18 +401,17 @@ public class PointSystem {
 
         await command.DeferAsync();
 
-        var channel = command.Channel;
-        if (channel.Id != 1475729416264093787) {
+        if (command.Channel is not SocketTextChannel channel || channel.Id != 1475729416264093787) {
             await command.FollowupAsync("This isn't the Prospects channel!");
             return;
         }
-        var messagesAsync = channel.GetMessagesAsync();
 
+        var guild = _client.GetGuild((ulong)_guildId!);
         var cutoff = DateTimeOffset.UtcNow.AddDays(-3);
         var stopped = false;
-        var desc = "";
+        var lines = new List<string>();
 
-        await foreach (var batch in messagesAsync) {
+        await foreach (var batch in channel.GetMessagesAsync(1000)) {
             foreach (var message in batch) {
 
                 if (message.Timestamp < cutoff) {
@@ -413,25 +419,54 @@ public class PointSystem {
                     break;
                 }
 
-                var user = message.Author;
-                if (user == null || user.IsBot) {
-                    desc += $"Skipped a message from **{message.Author?.Username ?? "an unknown/departed user"}** (not a current member).\n";
-                    continue;
-                }
+                if (message.Type != MessageType.Default && message.Type != MessageType.Reply) continue;
+                if (message.Author.IsBot) continue;
+
+                var member = guild.GetUser(message.Author.Id);
+                if (member == null) continue;
 
                 try {
-                    await _db.AddPoints(user.Id, 2);
-                    await _db.AddRecruits(user.Id, 1);
-                    await _db.AddYen(user.Id, 1600);
-                    desc += $"Parsed **{user.Username}**'s message successfully.\n";
+                    await _db.AddPoints(member.Id, 1);
+                    await _db.AddRecruits(member.Id, 1);
+                    await _db.AddYen(member.Id, 800);
+                    await _db.AddTourneyRecruits(member.Id, 1);
+
+                    if (member.Roles.Any(r => r.Id == 1554704576433627166)) {
+                        await _db.AddTerritory("Vampires", 1);
+                    } else if (member.Roles.Any(r => r.Id == 1554704497857798205)) {
+                        await _db.AddTerritory("Werewolves", 1);
+                    } else {
+                        lines.Add($"**{member.Username}** has no team role, so no Territory was given.");
+                    }
+
+                    lines.Add($"Parsed **{member.Username}**'s message successfully.");
                 } catch {
-                    desc += $"Failed to parse message sent by **{user.Username}**. Run /addpoints for them instead.\n";
+                    lines.Add($"Failed to parse message sent by **{member.Username}**. Check their values before running /addpoints for them.");
                 }
             }
             if (stopped) break;
         }
 
-        await command.FollowupAsync(desc + "\n\nFeel free to use /purgemessages to remove the above messages.");
+        if (lines.Count == 0) {
+            lines.Add("No messages from the last 3 days were found.");
+        }
+
+        lines.Add("");
+        lines.Add("Feel free to use /purgemessages to remove the above messages.");
+
+        var desc = "";
+
+        foreach (var line in lines) {
+            if (desc.Length + line.Length + 1 > 2000) {
+                await command.FollowupAsync(desc);
+                desc = "";
+            }
+            desc += line + "\n";
+        }
+
+        if (desc.Length > 0) {
+            await command.FollowupAsync(desc);
+        }
     }
     
     public async Task HandleBatchQotd(SocketSlashCommand command) {
@@ -684,5 +719,48 @@ public class PointSystem {
             }
         }
         return dp[a.Length, b.Length];
+    }
+
+    public async Task EditTerritory(SocketSlashCommand command, bool add) {
+
+        string? team = null;
+        var territory = 0;
+
+        foreach (var option in command.Data.Options) {
+            switch (option.Name) {
+                case "team":
+                    team = (string) option.Value;
+                    break;
+                case "points":
+                    territory = (int)(long) option.Value;
+                    break;
+                default:
+                    await command.RespondAsync("Unrecognized command.", ephemeral: true);
+                    return;
+            }
+        }
+
+        if (team == null) {
+            await command.RespondAsync("Please choose a team.", ephemeral: true);
+            return;
+        }
+
+        await command.DeferAsync();
+        var embedBuilder = new EmbedBuilder();
+
+        if (add) {
+            await _db.AddTerritory(team, territory);
+            var currentT = await _db.GetTerritory(team);
+
+            embedBuilder.WithDescription($"The {team} have been given ***{territory}*** Territory, and now hold ***{currentT}*** Territory in total.");
+        } else {
+            await _db.RemoveTerritory(team, territory);
+            var currentT = await _db.GetTerritory(team);
+
+            embedBuilder.WithDescription($"You have removed ***{territory}*** Territory from the {team}. They now hold ***{currentT}*** Territory in total.");
+        }
+
+        embedBuilder.WithAuthor("|| " + team).WithTitle("❖﹒Done and done!").WithColor(0xBFA55F);
+        await command.FollowupAsync(embed: embedBuilder.Build());
     }
 }
