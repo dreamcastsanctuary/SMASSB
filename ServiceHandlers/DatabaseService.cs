@@ -11,7 +11,7 @@ public class DatabaseService {
     
     private readonly string _connectionString;
     private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(30) };
-    private const string SiteBaseUrl = "https://sango-mag.netlify.app";
+    private const string SiteBaseUrl = "https://sangomag.vercel.app";
     private const int BatchSize = 500;
     private readonly string _secret = Environment.GetEnvironmentVariable("RANK_SYNC_SECRET") ?? throw new Exception("RANK_SYNC_SECRET environment variable not set.");
     
