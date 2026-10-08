@@ -13,12 +13,18 @@ public class RoleSystem {
     private readonly DatabaseService _db;
     private readonly LogHandler _logHandler;
     private readonly ulong? _guildId;
+    private readonly ExtraneousHandler _extraneousHandler;
     
-    public RoleSystem(DiscordSocketClient client, LogHandler logHandler, DatabaseService db, GuildConfiguration guildConfig) {
+    public RoleSystem(DiscordSocketClient client, 
+                        LogHandler logHandler, 
+                        DatabaseService db, 
+                        GuildConfiguration guildConfig,
+                        ExtraneousHandler extraneousHandler) {
         _client = client;
         _logHandler = logHandler;
         _db = db;
         _guildId = guildConfig.GuildId;
+        _extraneousHandler = extraneousHandler;
     }
 
     public async Task HandlePreEnlistCommand(SocketSlashCommand command) {
@@ -384,7 +390,7 @@ public class RoleSystem {
         await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, fixedRankFull,0,0,"N/A","", civilian.Username, idType, "BLACK", "NONE", "BASIC"); 
     }
 
-    public async Task Promote(SocketGuildUser enlisted, IRole rank, SocketSlashCommand? command = null, string? newClaim = null, string? response = null) {
+    private async Task Promote(SocketGuildUser enlisted, IRole rank, SocketSlashCommand? command = null, string? newClaim = null, string? response = null) {
         
         var nickname = enlisted.Nickname;
         var rankName = rank.Name;
@@ -410,6 +416,7 @@ public class RoleSystem {
 
         await enlisted.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claim);
         await _db.SetRank(enlisted.Id, fixedRankFull);
+        await _extraneousHandler.PushRankAsync(enlisted.Id, fixedRankFull);
 
         var message = string.IsNullOrEmpty(response) ? "Welcome to your new life as an enlisted, <@" + enlisted.Id + ">!" : response;
         

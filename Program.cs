@@ -98,6 +98,7 @@ public class Program {
                     _ = _extraneousHandler.KickUnEnlisted(guild);
                     _ = _extraneousHandler.AutoEnlistKohosei(guild);
                     _ = _extraneousHandler.WeeklyEarningsRollover();
+                    _ = SyncAllRanksToMagazine(guild);
                 }
             }
         });
@@ -136,6 +137,29 @@ public class Program {
     }
 
     private record PendingGameRequest(string UserId, string Game);
+    
+    /// <summary>
+    /// Probably works. Sends rank data to the Magazine website.
+    /// </summary>
+    private async Task SyncAllRanksToMagazine(SocketGuild guild) {
+        
+        try {
+            if (_db != null) {
+                var allRanks = await _db.GetAllRanks();
+
+                if (allRanks.Count == 0) {
+                    Console.WriteLine("[ RankSync ] No ranks loaded; skipping full sync.");
+                    return;
+                }
+
+                var ok = _extraneousHandler != null && await _extraneousHandler.PushRanksAsync(allRanks, replaceAll: true);
+                if (!ok) 
+                    if (_logHandler != null) await _logHandler.LogExceptionWatch(guild.Id, text: "[ RankSync ] Full rank sync to the website failed.");
+            }
+        } catch (Exception ex) {
+            if (_logHandler != null) await _logHandler.LogExceptionWatch(guild.Id, text: $"[ RankSync ] Error during full rank sync:\n{ex.Message}");
+        }
+    }
 
     /// <summary>
     /// Gets sent to our backend and ExceptionWatch.

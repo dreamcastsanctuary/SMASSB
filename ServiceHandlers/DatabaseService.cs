@@ -506,6 +506,26 @@ public class DatabaseService
         
         return await command.ExecuteNonQueryAsync();
     }
+    
+    public async Task<List<(ulong UserId, string? Rank)>> GetAllRanks() {
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT UserId, Rank FROM Enrolled WHERE TRIM(Rank) <> '';";
+
+        var ranks = new List<(ulong UserId, string? Rank)>();
+        await using var reader = await command.ExecuteReaderAsync();
+        
+        while (await reader.ReadAsync()) {
+            if (ulong.TryParse(Convert.ToString(reader.GetValue(0)), out var userId)) {
+                ranks.Add((userId, Convert.ToString(reader.GetValue(1))));
+            }
+        }
+    
+        return ranks;
+    }
 
     public async Task<string> GetBloodtype(ulong userId) {
         
