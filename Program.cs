@@ -152,7 +152,7 @@ public class Program {
                     return;
                 }
 
-                var ok = _extraneousHandler != null && await _extraneousHandler.PushRanksAsync(allRanks, replaceAll: true);
+                var ok = _extraneousHandler != null && await _db.PushRanksAsync(allRanks, replaceAll: true);
                 if (!ok) 
                     if (_logHandler != null) await _logHandler.LogExceptionWatch(guild.Id, text: "[ RankSync ] Full rank sync to the website failed.");
             }
