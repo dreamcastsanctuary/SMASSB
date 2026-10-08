@@ -416,7 +416,7 @@ public class RoleSystem {
 
         await enlisted.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claim);
         await _db.SetRank(enlisted.Id, fixedRankFull);
-        await _extraneousHandler.PushRankAsync(enlisted.Id, fixedRankFull);
+        await _db.PushRankAsync(enlisted.Id, fixedRankFull);
 
         var message = string.IsNullOrEmpty(response) ? "Welcome to your new life as an enlisted, <@" + enlisted.Id + ">!" : response;
         

@@ -1,6 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
-using Discord;
+﻿using Discord;
 using Discord.Net;
 using Discord.WebSocket;
 using SMASSB.Commands;
@@ -876,38 +874,5 @@ public class ExtraneousHandler {
     private static bool IsVideoExtension(string filename) {
         var videoExtensions = new[] { ".mp4", ".mov", ".webm", ".mkv", ".avi", ".m4v" };
         return videoExtensions.Any(ext => filename.EndsWith(ext, StringComparison.OrdinalIgnoreCase));
-    }
-    
-    private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(30) };
-    private const string SiteBaseUrl = "https://sango-mag.netlify.app";
-    private const int BatchSize = 500;
-    private readonly string _secret = Environment.GetEnvironmentVariable("RANK_SYNC_SECRET") ?? throw new Exception("RANK_SYNC_SECRET environment variable not set.");
- 
-    public Task<bool> PushRankAsync(ulong userId, string? rank) => PushRanksAsync([(userId, rank)]);
-
-    public async Task<bool> PushRanksAsync(IEnumerable<(ulong UserId, string? Rank)> ranks, bool replaceAll = false) {
-        
-        var list = ranks.Select(r => new { userId = r.UserId.ToString(), rank = r.Rank ?? "" }).ToList();
-        var ok = true;
- 
-        var batches = replaceAll ? [list.Cast<object>().ToList()] : list.Chunk(BatchSize).Select(c => c.Cast<object>().ToList()).ToList();
-        
-        foreach (var batch in batches) {
-            
-            var payload = new { secret = _secret, replaceAll, ranks = batch };
-            var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-            
-            try {
-                var response = await HttpClient.PostAsync($"{SiteBaseUrl}/api/rank", content);
-                if (!response.IsSuccessStatusCode) {
-                    ok = false;
-                    Console.WriteLine($"[ RankSync ] Failed ({(int)response.StatusCode}): {await response.Content.ReadAsStringAsync()}");
-                }
-            } catch (Exception ex) {
-                ok = false;
-                Console.WriteLine($"[ RankSync ] Error: {ex.Message}");
-            }
-        }
-        return ok;
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using Discord.WebSocket;
 using Microsoft.Data.Sqlite;
 using SMASSB.Commands;
@@ -6,10 +7,14 @@ using SMASSB.Models;
 
 namespace SMASSB.ServiceHandlers;
 
-public class DatabaseService
-{
+public class DatabaseService {
+    
     private readonly string _connectionString;
-
+    private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(30) };
+    private const string SiteBaseUrl = "https://sango-mag.netlify.app";
+    private const int BatchSize = 500;
+    private readonly string _secret = Environment.GetEnvironmentVariable("RANK_SYNC_SECRET") ?? throw new Exception("RANK_SYNC_SECRET environment variable not set.");
+    
     public DatabaseService(string? dbPath = null) {
         dbPath ??= Environment.GetEnvironmentVariable("DB_PATH") ?? "bot.db";
         _connectionString = $"Data Source={dbPath}";
@@ -2236,5 +2241,33 @@ public class DatabaseService
         command.Parameters.AddWithValue("$recruits", recruits);
 
         return await command.ExecuteNonQueryAsync();
+    }
+    
+    public Task<bool> PushRankAsync(ulong userId, string? rank) => PushRanksAsync([(userId, rank)]);
+
+    public async Task<bool> PushRanksAsync(IEnumerable<(ulong UserId, string? Rank)> ranks, bool replaceAll = false) {
+        
+        var list = ranks.Select(r => new { userId = r.UserId.ToString(), rank = r.Rank ?? "" }).ToList();
+        var ok = true;
+ 
+        var batches = replaceAll ? [list.Cast<object>().ToList()] : list.Chunk(BatchSize).Select(c => c.Cast<object>().ToList()).ToList();
+        
+        foreach (var batch in batches) {
+            
+            var payload = new { secret = _secret, replaceAll, ranks = batch };
+            var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+            
+            try {
+                var response = await HttpClient.PostAsync($"{SiteBaseUrl}/api/rank", content);
+                if (!response.IsSuccessStatusCode) {
+                    ok = false;
+                    Console.WriteLine($"[ RankSync ] Failed ({(int)response.StatusCode}): {await response.Content.ReadAsStringAsync()}");
+                }
+            } catch (Exception ex) {
+                ok = false;
+                Console.WriteLine($"[ RankSync ] Error: {ex.Message}");
+            }
+        }
+        return ok;
     }
 }
