@@ -13,18 +13,15 @@ public class RoleSystem {
     private readonly DatabaseService _db;
     private readonly LogHandler _logHandler;
     private readonly ulong? _guildId;
-    private readonly ExtraneousHandler _extraneousHandler;
     
     public RoleSystem(DiscordSocketClient client, 
                         LogHandler logHandler, 
                         DatabaseService db, 
-                        GuildConfiguration guildConfig,
-                        ExtraneousHandler extraneousHandler) {
+                        GuildConfiguration guildConfig) {
         _client = client;
         _logHandler = logHandler;
         _db = db;
         _guildId = guildConfig.GuildId;
-        _extraneousHandler = extraneousHandler;
     }
 
     public async Task HandlePreEnlistCommand(SocketSlashCommand command) {
