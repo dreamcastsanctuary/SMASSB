@@ -57,7 +57,7 @@ public class RoleSystem {
         await civilian.ModifyAsync(x => x.Nickname = "Kō. " + claim);
 
         if (claim != null) {
-            await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Jieikan Kōhosei", 0, 0, "N/A", "", civilian.Username, "ENLISTEDMAIN", "BLACK", "NONE", "BASIC");
+            await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl() ?? civilian.GetDefaultAvatarUrl() ?? civilian.GetDisplayAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Jieikan Kōhosei", 0, 0, "N/A", "", civilian.Username, "ENLISTEDMAIN", "BLACK", "NONE", "BASIC");
 
         }
     }
@@ -413,7 +413,7 @@ public class RoleSystem {
 
         await enlisted.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claim);
         await _db.SetRank(enlisted.Id, fixedRankFull);
-        await _db.PushRankAsync(enlisted.Id, fixedRankFull);
+        await _db.PushRankAsync(enlisted.Id, (ulong)command!.GuildId!, fixedRankFull);
 
         var message = string.IsNullOrEmpty(response) ? "Welcome to your new life as an enlisted, <@" + enlisted.Id + ">!" : response;
         
@@ -476,17 +476,5 @@ public class RoleSystem {
         await member2.AddRoleAsync(1473369962788950248);
 
         await command.RespondAsync("Completed pairing request.");
-    }
-
-    public async Task Jieikan() {
-        
-        var enlisted = _db.GetEnlisted();
-        foreach (var member in enlisted) {
-            
-            var rank = await _db.GetRank(ulong.Parse(member));
-            if (rank.Equals("Kōhosei")) {
-                await _db.SetRank(ulong.Parse(member), "Jieikan Kōhosei");
-            }
-        }
     }
 }

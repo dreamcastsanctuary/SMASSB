@@ -9,13 +9,16 @@ namespace SMASSB.ServiceHandlers;
 
 public class DatabaseService {
     
+    private readonly LogHandler _logHandler;
     private readonly string _connectionString;
-    private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(30) };
-    private const string SiteBaseUrl = "https://sangomag.vercel.app";
-    private const int BatchSize = 500;
     private readonly string _secret = Environment.GetEnvironmentVariable("RANK_SYNC_SECRET") ?? throw new Exception("RANK_SYNC_SECRET environment variable not set.");
+    private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(30) };
+    private const string SiteBaseUrl = "https://www.sango.asia";
+    private const int BatchSize = 500;
     
-    public DatabaseService(string? dbPath = null) {
+    public DatabaseService(LogHandler logHandler, string? dbPath = null) {
+        
+        _logHandler = logHandler;
         dbPath ??= Environment.GetEnvironmentVariable("DB_PATH") ?? "bot.db";
         _connectionString = $"Data Source={dbPath}";
         InitializeDatabase();
@@ -170,7 +173,9 @@ public class DatabaseService {
         await connection.OpenAsync();
         
         var cmd = connection.CreateCommand();
-        cmd.CommandText = "INSERT INTO Enrolled (UserId, Claim, AvatarUrl, Rank, Points, Recruits, Bloodtype, Catchphrase, Username, IDType) VALUES ($accIdParam, $claimParam, $avatarUrlParam, $rankParam, $pointsParam, $recruitsParam, $bloodtypeParam, $catchphraseParam, $usernameParam, $idTypeParam);";
+        cmd.CommandText = @"INSERT INTO Enrolled (UserId, Claim, AvatarUrl, Rank, Points, Recruits, Bloodtype, Catchphrase, Username, IDType) 
+                            VALUES ($accIdParam, $claimParam, $avatarUrlParam, $rankParam, $pointsParam, $recruitsParam, $bloodtypeParam, $catchphraseParam, $usernameParam, $idTypeParam);";
+        
         cmd.Parameters.AddWithValue("$accIdParam", accIdParam);
         cmd.Parameters.AddWithValue("$claimParam", claimParam);
         cmd.Parameters.AddWithValue("$avatarUrlParam", avatarUrlParam);
@@ -2243,9 +2248,9 @@ public class DatabaseService {
         return await command.ExecuteNonQueryAsync();
     }
     
-    public Task<bool> PushRankAsync(ulong userId, string? rank) => PushRanksAsync([(userId, rank)]);
+    public Task<bool> PushRankAsync(ulong userId, ulong guildId, string? rank) => PushRanksAsync([(userId, rank)], guildId);
 
-    public async Task<bool> PushRanksAsync(IEnumerable<(ulong UserId, string? Rank)> ranks, bool replaceAll = false) {
+    public async Task<bool> PushRanksAsync(IEnumerable<(ulong UserId, string? Rank)> ranks, ulong guildId, bool replaceAll = false) {
         
         var list = ranks.Select(r => new { userId = r.UserId.ToString(), rank = r.Rank ?? "" }).ToList();
         var ok = true;
@@ -2261,11 +2266,11 @@ public class DatabaseService {
                 var response = await HttpClient.PostAsync($"{SiteBaseUrl}/api/rank", content);
                 if (!response.IsSuccessStatusCode) {
                     ok = false;
-                    Console.WriteLine($"[ RankSync ] Failed ({(int)response.StatusCode}): {await response.Content.ReadAsStringAsync()}");
+                    await _logHandler.LogExceptionWatch(guildId, text: $"Failed ({(int)response.StatusCode}) : {await response.Content.ReadAsStringAsync()}");
                 }
             } catch (Exception ex) {
                 ok = false;
-                Console.WriteLine($"[ RankSync ] Error: {ex.Message}");
+                await _logHandler.LogExceptionWatch(guildId, exception: ex);
             }
         }
         return ok;

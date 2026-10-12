@@ -7,6 +7,7 @@ using SMASSB.Models;
 using SMASSB.ServiceHandlers;
 
 namespace SMASSB;
+
 public class Program {
     
     private DiscordSocketClient? _client;
@@ -21,16 +22,21 @@ public class Program {
     private DatabaseService? _db;
     
     private static IServiceProvider? _serviceProvider;
-    private static readonly HashSet<ulong>? StartedLoops = new();
+    private static readonly HashSet<ulong>? StartedLoops = [];
     private static readonly Lock StartedLoopsLock = new();
 
     /// <summary>
-    /// Where the magic starts.
+    /// I didn't like the old summary, so I'm changing it.
+    /// This is where the program begins; it finds Main() and runs whatever is inside.
     /// </summary>
     public static async Task Main() => await new Program().RunAsync();
 
     /// <summary>
-    /// Where the magic runs. This is where the bot logs onto its client.
+    /// This is where the bot logs into the Discord client.
+    /// It's also where most of our services are received for the first time.
+    /// It's also where threads begin running.
+    /// It's also where we log things, react to things, and run our time-based methods.
+    /// Y'know, just in case you couldn't read.
     /// </summary>
     private async Task RunAsync() {
         
@@ -131,15 +137,14 @@ public class Program {
             _db?.SetPendingGame(body.UserId, body.Game);
             return Results.Ok();
         });
-
-        var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-        _ = app.RunAsync($"http://0.0.0.0:{port}");
+        
+        _ = app.RunAsync($"http://0.0.0.0:{Environment.GetEnvironmentVariable("PORT") ?? "8080"}");
     }
 
     private record PendingGameRequest(string UserId, string Game);
     
     /// <summary>
-    /// Probably works. Sends rank data to the Magazine website.
+    /// Sends rank data to the Magazine website. Doesn't work right now for some reason, and it's pissing me off.
     /// </summary>
     private async Task SyncAllRanksToMagazine(SocketGuild guild) {
         
@@ -147,17 +152,12 @@ public class Program {
             if (_db != null) {
                 var allRanks = await _db.GetAllRanks();
 
-                if (allRanks.Count == 0) {
-                    Console.WriteLine("[ RankSync ] No ranks loaded; skipping full sync.");
-                    return;
-                }
-
-                var ok = _extraneousHandler != null && await _db.PushRanksAsync(allRanks, replaceAll: true);
+                var ok = _extraneousHandler != null && await _db.PushRanksAsync(allRanks, guild.Id, replaceAll: true);
                 if (!ok) 
-                    if (_logHandler != null) await _logHandler.LogExceptionWatch(guild.Id, text: "[ RankSync ] Full rank sync to the website failed.");
+                    if (_logHandler != null) await _logHandler.LogExceptionWatch(guild.Id, text: "Server returned everything but OK during PushRank(s)Async to Magazine.");
             }
         } catch (Exception ex) {
-            if (_logHandler != null) await _logHandler.LogExceptionWatch(guild.Id, text: $"[ RankSync ] Error during full rank sync:\n{ex.Message}");
+            if (_logHandler != null) await _logHandler.LogExceptionWatch(guild.Id, text: $"Error in the Program.cs SYNCALLRANKSTOMAGAZINE method.\n{ex.Message}");
         }
     }
 
@@ -216,8 +216,7 @@ public class Program {
             .AddSingleton<ReminderService>()
             .AddSingleton<InactivityService>()
             
-            .AddHostedService(sp => sp.GetRequiredService<InactivityService>())
-                .AddLavalink().ConfigureLavalink(audioConfig => {
+            .AddHostedService(sp => sp.GetRequiredService<InactivityService>()).AddLavalink().ConfigureLavalink(audioConfig => {
 
                 var host = Environment.GetEnvironmentVariable("LAVALINK_HOST") ?? "localhost";
                 var port = Environment.GetEnvironmentVariable("SERVER_PORT") ?? "2333";
@@ -229,6 +228,6 @@ public class Program {
                 audioConfig.Label = "SangoFM";
             })
             
-            .BuildServiceProvider();
+        .BuildServiceProvider();
     }
 }

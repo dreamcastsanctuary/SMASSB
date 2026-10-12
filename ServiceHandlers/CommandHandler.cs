@@ -34,6 +34,7 @@ public class CommandHandler {
                           TaskSystem taskSystem,
                           MusicSystem musicSystem,
                           GuildConfiguration guildConfig) {
+        
         _client = client;
         _client.SlashCommandExecuted += SlashCommandHandler;
         _rewardSystem = rewardSystem;
@@ -457,6 +458,7 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles)
         );
 
+        
         // SHOPSYSTEM
 
         commands.Add(new SlashCommandBuilder()
@@ -465,7 +467,8 @@ public class CommandHandler {
             .WithDefaultMemberPermissions(GuildPermission.Administrator)
         );
 
-        // JIRA
+        
+        // TASKSYSTEM
 
         commands.Add(new SlashCommandBuilder()
             .WithName("assigntask")
@@ -528,7 +531,6 @@ public class CommandHandler {
             .AddOption("deadline", ApplicationCommandOptionType.String, "The set deadline; must be in the format \"MM/DD/YYYY\"")
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
 
-
         commands.Add(new SlashCommandBuilder()
             .WithName("viewtask")
             .WithDescription("Views a task.")
@@ -545,11 +547,6 @@ public class CommandHandler {
 
         commands.Add(new SlashCommandBuilder()
             .WithName("vieweveryone")
-            .WithDescription("Views everyone's tasks.")
-            .WithDefaultMemberPermissions(GuildPermission.Administrator));
-        
-        commands.Add(new SlashCommandBuilder()
-            .WithName("sendmessage")
             .WithDescription("Views everyone's tasks.")
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
 
@@ -670,9 +667,6 @@ public class CommandHandler {
                 break;
             case "checkorchangeclaim":
                 await _generalSystem.HandleCheckOrChangeClaimCommand(command);
-                break;
-            case "sendmessage":
-                await _generalSystem.HandleSendLastMessageCommand(command);
                 break;
 
             case "workcell":
