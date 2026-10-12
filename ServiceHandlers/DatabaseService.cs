@@ -9,16 +9,14 @@ namespace SMASSB.ServiceHandlers;
 
 public class DatabaseService {
     
-    private readonly LogHandler _logHandler;
     private readonly string _connectionString;
     private readonly string _secret = Environment.GetEnvironmentVariable("RANK_SYNC_SECRET") ?? throw new Exception("RANK_SYNC_SECRET environment variable not set.");
     private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(30) };
     private const string SiteBaseUrl = "https://www.sango.asia";
     private const int BatchSize = 500;
     
-    public DatabaseService(LogHandler logHandler, string? dbPath = null) {
+    public DatabaseService(string? dbPath = null) {
         
-        _logHandler = logHandler;
         dbPath ??= Environment.GetEnvironmentVariable("DB_PATH") ?? "bot.db";
         _connectionString = $"Data Source={dbPath}";
         InitializeDatabase();
@@ -2266,11 +2264,9 @@ public class DatabaseService {
                 var response = await HttpClient.PostAsync($"{SiteBaseUrl}/api/rank", content);
                 if (!response.IsSuccessStatusCode) {
                     ok = false;
-                    await _logHandler.LogExceptionWatch(guildId, text: $"Failed ({(int)response.StatusCode}) : {await response.Content.ReadAsStringAsync()}");
                 }
             } catch (Exception ex) {
                 ok = false;
-                await _logHandler.LogExceptionWatch(guildId, exception: ex);
             }
         }
         return ok;
