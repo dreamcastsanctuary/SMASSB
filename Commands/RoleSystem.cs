@@ -152,7 +152,7 @@ public class RoleSystem {
                 promoteTo.Add(highestQualified.Value.ToString());
             }
         }
-        
+
         if (promotable.Count == 0) {
             await command.FollowupAsync("No promotions found.");
             return;
@@ -413,7 +413,7 @@ public class RoleSystem {
 
         await enlisted.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claim);
         await _db.SetRank(enlisted.Id, fixedRankFull);
-        await _db.PushRankAsync(enlisted.Id, (ulong)command!.GuildId!, fixedRankFull);
+        await _db.PushRankAsync(enlisted.Id, (ulong)_guildId!, fixedRankFull);
 
         var message = string.IsNullOrEmpty(response) ? "Welcome to your new life as an enlisted, <@" + enlisted.Id + ">!" : response;
         
