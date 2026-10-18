@@ -28,7 +28,21 @@ public class DatabaseService {
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            ALTER TABLE Enrolled ADD COLUMN RebirthPoints INTEGER DEFAULT 0;
+            CREATE TABLE IF NOT EXISTS Enrolled (
+                UserId TEXT PRIMARY KEY,
+                Claim TEXT,
+                AvatarUrl TEXT NOT NULL,
+                AvatarImage BLOB,
+                Rank TEXT NOT NULL,
+                Points INTEGER DEFAULT 0,
+                Bloodtype TEXT NOT NULL,
+                Catchphrase TEXT NOT NULL,
+                Username TEXT NOT NULL,
+                IDType TEXT NOT NULL,
+                KoNotes TEXT,
+                Recruits INTEGER NOT NULL DEFAULT 0,
+                RebirthPoints INTEGER DEFAULT 0
+            );
 
             CREATE TABLE IF NOT EXISTS EnlistedHistory (
                 UserId TEXT PRIMARY KEY,
@@ -310,6 +324,47 @@ public class DatabaseService {
         await command.ExecuteNonQueryAsync();
 
         return await Underflow(userId);
+    }
+    
+    public async Task<int> GetRebirthPoints(ulong userId) {
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT RebirthPoints FROM Enrolled WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+
+        var result = await command.ExecuteScalarAsync();
+        return result != null ? Convert.ToInt32(result) : 0;
+    }
+
+    public async Task<int> AddRebirthPoints(ulong userId, int rebirthPoints) {
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+            INSERT INTO Enrolled (UserId, RebirthPoints) VALUES ($id, $recruits)
+            ON CONFLICT(UserId) DO UPDATE SET RebirthPoints = RebirthPoints + $rebirthPoints;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$rebirthPoints", rebirthPoints);
+
+        return await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<int> RemoveRebirthPoints(ulong userId, int rebirthPoints) {
+
+        await using var connection = new SqliteConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var command = connection.CreateCommand();
+        command.CommandText = "UPDATE Enrolled SET RebirthPoints = MAX(RebirthPoints - $rebirthPoints, 0) WHERE UserId = $id;";
+        command.Parameters.AddWithValue("$id", userId.ToString());
+        command.Parameters.AddWithValue("$rebirthPoints", rebirthPoints);
+
+        return await command.ExecuteNonQueryAsync();
     }
     
     public async Task<int> GetRecruits(ulong userId) {
@@ -719,7 +774,7 @@ public class DatabaseService {
         connection.OpenAsync();
     
         var cmd = connection.CreateCommand();
-        cmd.CommandText = "SELECT UserId, Username, Points FROM Enrolled ORDER BY Points DESC;";
+        cmd.CommandText = "SELECT UserId, Username, Points, RebirthPoints, COALESCE(Points, 0) + COALESCE(RebirthPoints, 0) AS TotalPoints FROM Enrolled ORDER BY TotalPoints DESC;";
     
         var results = new List<(string, string, int)>();
         using var reader = cmd.ExecuteReader();
