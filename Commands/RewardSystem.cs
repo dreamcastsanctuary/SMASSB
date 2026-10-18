@@ -141,6 +141,7 @@ public class RewardSystem {
                 case 9:
                     value = 9;
                     await assignedTo.AddRoleAsync(1477926845184872531);
+                    await _db.GiveNewId(assignedTo.Id, "NEWGAMEPLUSENLISTED");
                     break;
                 case 10:
                     value = 10;
