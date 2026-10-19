@@ -472,6 +472,10 @@ public class CellSystem {
                 return Color.FromRgba(28, 39, 41, 255);
             case "TECH":
                 return Color.FromRgba(255, 255, 255, 255);
+            case "WEREWOLF":
+                return Color.FromRgba(34, 33, 53, 255);
+            case "VAMPIRE":
+                return Color.FromRgba(49, 8, 31, 255);
         }
         return new Color();
     }
