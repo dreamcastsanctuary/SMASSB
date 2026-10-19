@@ -6,5 +6,6 @@ public enum WallpaperType {
     SAKURA,
     SANGO,
     WEREWOLF,
-    VAMPIRE
+    VAMPIRE,
+    TECH
 }
