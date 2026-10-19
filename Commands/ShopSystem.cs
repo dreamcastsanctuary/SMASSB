@@ -100,7 +100,7 @@ public class ShopSystem {
             .AddComponent(new TextDisplayBuilder().WithContent("GO TEAM WEREWOLVES!"))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
-                .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://vamp-shelf.png"))))
+                .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://ww-shelf.png"))))
             .AddComponent(new ActionRowBuilder()
                 .WithButton($"Buy {items[0]} :: ¥21k", customId: $"buy_item_32_{command.Channel.Id}", style: ButtonStyle.Secondary)
                 .WithButton($"Buy {items[1]} :: ¥10k", customId: $"buy_item_33_{command.Channel.Id}", style: ButtonStyle.Secondary)
@@ -268,9 +268,9 @@ public class ShopSystem {
             .AddComponent(new SectionBuilder()
                 .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ . . C-STORE . . ・❖\n\nCome spend your hard-earned yen here on brand new aesthetic additions and games!"))
                 .WithAccessory(new ThumbnailBuilder()
-                    .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1486187890902958192/Untitled363_20260324221957.png?ex=6a885e95&is=6a870d15&hm=3227c32f1d2092fe4b57e76065f949ec604aeb8346bd002f4ad73c3db4f2ea88&=&format=webp&quality=lossless")))
+                    .WithMedia("https://images-ext-1.discordapp.net/external/a1WXHk8jklKgoXuWXK7nObO7inQOBXNFqt6zldi8NdE/https/64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj?format=webp")))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
-            .AddComponent(new MediaGalleryBuilder().AddItem("https://images-ext-1.discordapp.net/external/a1WXHk8jklKgoXuWXK7nObO7inQOBXNFqt6zldi8NdE/https/64.media.tumblr.com/384045d1eed5c0aa490e00aa98456239/c6b43c8a326634f0-7e/s2048x3072/8ae54d651ee2b0f75768d902e80ff1ec77417d08.pnj?format=webp"));
+            .AddComponent(new MediaGalleryBuilder().AddItem("https://media.discordapp.net/attachments/1084260632142024784/1486187890902958192/Untitled363_20260324221957.png?ex=6ad77895&is=6ad62715&hm=acaac140d73bf0faef0c2ae18e9319264421360b29f6c8d2a7a7704e0138736e&=&format=webp&quality=lossless"));
 
         var channel = command.Channel;
 
