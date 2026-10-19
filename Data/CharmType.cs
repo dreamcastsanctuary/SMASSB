@@ -5,5 +5,7 @@ public enum CharmType {
     NONE,
     SAKURA,
     SANGO,
-    TECH
+    TECH,
+    WEREWOLF,
+    VAMPIRE
 }

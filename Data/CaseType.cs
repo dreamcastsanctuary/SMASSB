@@ -5,5 +5,7 @@ public enum CaseType {
     BLACK,
     SAKURA,
     SANGO,
-    TECH
+    TECH,
+    WEREWOLF,
+    VAMPIRE
 }

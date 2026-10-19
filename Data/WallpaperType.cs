@@ -4,5 +4,7 @@ public enum WallpaperType {
     
     BASIC,
     SAKURA,
-    SANGO
+    SANGO,
+    WEREWOLF,
+    VAMPIRE
 }

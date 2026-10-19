@@ -300,6 +300,12 @@ public class CellSystem {
             case "TECH":
                 caseFile = isFront ? "tech-case-front.png" : "tech-case-back.png";
                 break;
+            case "WEREWOLF":
+                caseFile = isFront? "ww-case-front.png" : "ww-case-back.png";
+                break;
+            case "VAMPIRE":
+                caseFile = isFront ? "vamp-case-front.png" : "vamp-case-back.png";
+                break;
         }
 
         switch (charmType) {
@@ -308,6 +314,12 @@ public class CellSystem {
                 break;
             case "SANGO":
                 charmFile = "sango-charm";
+                break;
+            case "WEREWOLF":
+                charmFile = "ww-charm";
+                break;
+            case "VAMPIRE":
+                charmFile = "vamp-charm";
                 break;
         }
 
@@ -323,6 +335,12 @@ public class CellSystem {
                 break;
             case "TECH":
                 wallpaperFile = "tech-wallpaper.png";
+                break;
+            case "WEREWOLF":
+                wallpaperFile = "ww-wallpaper.png";
+                break;
+            case "VAMPIRE":
+                wallpaperFile = "vamp-wallpaper.png";
                 break;
         }
 

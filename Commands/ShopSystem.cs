@@ -29,16 +29,13 @@ public class ShopSystem {
         await command.DeferAsync().ConfigureAwait(false);
 
         var sakuraAttachment = await BuildShelfAttachment("sakura-shelf.png", "CellAddons", "sakura-showcase.png", "sakura-case-back.png", "sakura-charm-front.png", "sakura-wallpaper.png");
+        var sangoAttachment = await BuildShelfAttachment("sango-shelf.png", "CellAddons", "sango-showcase.png", "sango-case-back.png", "sango-charm-front.png", "sango-wallpaper.png");
+        var techAttachment = await BuildShelfAttachment("tech-shelf.png", "CellAddons", "tech-showcase.png", "tech-case-back.png", "tech-wallpaper.png");
+        var idsAttachment = await BuildShelfAttachment("ids-shelf.png", "IdAddons", "pink-template.png", "red-template.png", "green-template.png", "blue-template.png");
+        var wwAttachment = await BuildShelfAttachment("ww-shelf.png", "CellAddons", "ww-showcase.png", "ww-case-back.png", "ww-charm-front.png", "ww-wallpaper.png");
+        var vampAttachment = await BuildShelfAttachment("vamp-shelf.png", "CellAddons", "vamp-showcase.png", "vamp-case-back.png", "vamp-charm-front.png", "vamp-wallpaper.png");
 
-        var sangoAttachment = await BuildShelfAttachment(
-            "sango-shelf.png", "CellAddons", "sango-showcase.png", "sango-case-back.png", "sango-charm-front.png", "sango-wallpaper.png");
-
-        var techAttachment = await BuildShelfAttachment(
-            "tech-shelf.png", "CellAddons", "tech-showcase.png", "tech-case-back.png", "tech-wallpaper.png");
-
-        var idsAttachment = await BuildShelfAttachment(
-            "ids-shelf.png", "IdAddons", "pink-template.png", "red-template.png", "green-template.png", "blue-template.png");
-
+        
         var showcaseAttachments = new List<FileAttachment>();
         var items = new[] { "Bundle", "Case", "Charm", "Wallpaper", "ID" };
 
@@ -81,6 +78,34 @@ public class ShopSystem {
                 .WithButton($"Buy {items[0]} :: ¥11k", customId: $"buy_item_9_{command.Channel.Id}", style: ButtonStyle.Secondary)
                 .WithButton($"Buy {items[1]} :: ¥8k", customId: $"buy_item_10_{command.Channel.Id}", style: ButtonStyle.Secondary)
                 .WithButton($"Buy {items[3]} :: ¥4k", customId: $"buy_item_11_{command.Channel.Id}", style: ButtonStyle.Secondary)
+            );
+        
+        var containerVamp = new ContainerBuilder()
+            .WithAccentColor(new Color(105,26,41))
+            .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ LIMITED ! ! VAMPIRE-Themed WorkCell Addons!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("GO TEAM VAMPIRES!"))
+            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
+            .AddComponent(new MediaGalleryBuilder()
+                .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://vamp-shelf.png"))))
+            .AddComponent(new ActionRowBuilder()
+                .WithButton($"Buy {items[0]} :: ¥21k", customId: $"buy_item_28_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[1]} :: ¥10k", customId: $"buy_item_29_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[2]} :: ¥5k", customId: $"buy_item_30_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[3]} :: ¥7k", customId: $"buy_item_31_{command.Channel.Id}", style: ButtonStyle.Secondary)
+            );
+        
+        var containerWw = new ContainerBuilder()
+            .WithAccentColor(new Color(74,43,91))
+            .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ LIMITED ! ! WEREWOLF-Themed WorkCell Addons!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("GO TEAM WEREWOLVES!"))
+            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
+            .AddComponent(new MediaGalleryBuilder()
+                .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://vamp-shelf.png"))))
+            .AddComponent(new ActionRowBuilder()
+                .WithButton($"Buy {items[0]} :: ¥21k", customId: $"buy_item_32_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[1]} :: ¥10k", customId: $"buy_item_33_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[2]} :: ¥5k", customId: $"buy_item_34_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy {items[3]} :: ¥7k", customId: $"buy_item_35_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
 
         var containerIds = new ContainerBuilder()
@@ -266,6 +291,9 @@ public class ShopSystem {
         await SendShop(containerSango, sangoAttachment);
         await SendShop(containerTech, techAttachment);
         await SendShop(containerIds, idsAttachment);
+        await SendShop(containerVamp, vampAttachment);
+        await SendShop(containerWw, wwAttachment);
+        
         await SendShop(containerArcade, [techAttachment, ..showcaseAttachments.Take(5)]);
         await SendShop(containerPlatformers, [techAttachment, ..showcaseAttachments.Skip(5).Take(3)]);
         await SendShop(containerAdventure, [techAttachment, ..showcaseAttachments.Skip(8).Take(4)]);
@@ -332,6 +360,7 @@ public class ShopSystem {
     public async Task Buy(int num, ulong ownerId, ulong channelId) {
 
         var prices = new[] {8000, 3000, 4000, 10000};
+        var limitedPrices = new[] {10000, 5000, 7000};
         string? boughtName = null;
         string? alreadyOwnedMessage = null;
         var isApp = "";
@@ -551,6 +580,72 @@ public class ShopSystem {
                     boughtName = "Tomodachi Collection";
                 }
                 isApp = "\nMake sure to run */editworkcell* to add your new app to your homescreen!";
+                break;
+            case 28:
+                if (await OwnsCase(ownerId, "VAMPIRE") || await OwnsCharm(ownerId, "VAMPIRE") || await OwnsWallpaper(ownerId, "VAMPIRE")) {
+                    alreadyOwnedMessage = "You already own part of the Vampire bundle!";
+                    break;
+                }
+                if (await CheckBeforeBuy(ownerId, limitedPrices[0] + limitedPrices[1] + limitedPrices[2] - 1000)) {
+                    await _db.GiveNewCase(ownerId, "VAMPIRE");
+                    await _db.GiveNewCharm(ownerId, "VAMPIRE");
+                    await _db.GiveNewWallpaper(ownerId, "VAMPIRE");
+                    boughtName = "Vampire Full Bundle!";
+                }
+                break;
+            case 29:
+                if (await OwnsCase(ownerId, "VAMPIRE")) { alreadyOwnedMessage = "You already own the Vampire Case!"; break; }
+                if (await CheckBeforeBuy(ownerId, limitedPrices[0])) {
+                    await _db.GiveNewCase(ownerId, "VAMPIRE");
+                    boughtName = "Vampire Case";
+                }
+                break;
+            case 30:
+                if (await OwnsCharm(ownerId, "VAMPIRE")) { alreadyOwnedMessage = "You already own the Vampire Charm!"; break; }
+                if (await CheckBeforeBuy(ownerId, limitedPrices[1])) {
+                    await _db.GiveNewCharm(ownerId, "VAMPIRE");
+                    boughtName = "Vampire Charm";
+                }
+                break;
+            case 31:
+                if (await OwnsWallpaper(ownerId, "VAMPIRE")) { alreadyOwnedMessage = "You already own the Vampire Wallpaper!"; break; }
+                if (await CheckBeforeBuy(ownerId, limitedPrices[2])) {
+                    await _db.GiveNewWallpaper(ownerId, "VAMPIRE");
+                    boughtName = "Vampire Wallpaper";
+                }
+                break;
+            case 32:
+                if (await OwnsCase(ownerId, "WEREWOLF") || await OwnsCharm(ownerId, "WEREWOLF") || await OwnsWallpaper(ownerId, "WEREWOLF")) {
+                    alreadyOwnedMessage = "You already own part of the Werewolf bundle!";
+                    break;
+                }
+                if (await CheckBeforeBuy(ownerId, limitedPrices[0] + limitedPrices[1] + limitedPrices[2] - 1000)) {
+                    await _db.GiveNewCase(ownerId, "WEREWOLF");
+                    await _db.GiveNewCharm(ownerId, "WEREWOLF");
+                    await _db.GiveNewWallpaper(ownerId, "WEREWOLF");
+                    boughtName = "Werewolf Full Bundle!";
+                }
+                break;
+            case 33:
+                if (await OwnsCase(ownerId, "WEREWOLF")) { alreadyOwnedMessage = "You already own the Werewolf Case!"; break; }
+                if (await CheckBeforeBuy(ownerId, limitedPrices[0])) {
+                    await _db.GiveNewCase(ownerId, "WEREWOLF");
+                    boughtName = "Werewolf Case";
+                }
+                break;
+            case 34:
+                if (await OwnsCharm(ownerId, "WEREWOLF")) { alreadyOwnedMessage = "You already own the Werewolf Charm!"; break; }
+                if (await CheckBeforeBuy(ownerId, limitedPrices[1])) {
+                    await _db.GiveNewCharm(ownerId, "WEREWOLF");
+                    boughtName = "Werewolf Charm";
+                }
+                break;
+            case 35:
+                if (await OwnsWallpaper(ownerId, "WEREWOLF")) { alreadyOwnedMessage = "You already own the Werewolf Wallpaper!"; break; }
+                if (await CheckBeforeBuy(ownerId, limitedPrices[2])) {
+                    await _db.GiveNewWallpaper(ownerId, "WEREWOLF");
+                    boughtName = "Werewolf Wallpaper";
+                }
                 break;
         }
 
