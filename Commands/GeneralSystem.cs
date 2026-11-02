@@ -115,7 +115,8 @@ public class GeneralSystem {
             .WithColor(new Color(0xFF312C)).Build();
         
         foreach (var user in preCivt) {
-            await user.SendMessageAsync(embed: embed);
+            try {await user.SendMessageAsync(embed: embed);}
+            catch {}
         }
 
         await command.FollowupAsync("Completed task.");
