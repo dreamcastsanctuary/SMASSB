@@ -108,15 +108,14 @@ public class GeneralSystem {
 
         var embed = new EmbedBuilder()
             .WithAuthor("Dear Enlisted, you have been given . . .")
-            .WithTitle("【 PRE-CIVT PARADE DRESS 】")
-            .WithDescription("Here's your new PRE-CIVT Parade Dress, just in time for the fall season!\n\n[. . PRE-CIVT PARADE DRESS . .](<https://sangoidoldefenseforce.vercel.app/wyljpca>)")
+            .WithTitle("【 PRE-CIVT FALL AND WINTER PARADE DRESS 】")
+            .WithDescription("Here's your new PRE-CIVT Parade Dress, just in time for the cold season!\nWe've changed our uniforms for the upcoming months, so everyone who received the PreCIVT uniform in the past will now get it's updated version.\n\n[. . PRE-CIVT PARADE DRESS . .](<https://sangoidoldefenseforce.vercel.app/wyljpca>)")
             .WithImageUrl("https://64.media.tumblr.com/616bce1d6e1a6d7a2123c76d6f249404/2ecded076fd064e9-c6/s1280x1920/11d327bf242c41a07ca122757d050c6c6ce52da1.pnj")
-            .WithFooter("Thank you for your support thus far! We love you!!\n\n 恐れも、惨めさも、怒りも無く！・❖")
+            .WithFooter("Thank you for your support thus far!\n\n 恐れも、惨めさも、怒りも無く！・❖")
             .WithColor(new Color(0xFF312C)).Build();
         
         foreach (var user in preCivt) {
-            if (user.Username.Contains("fastestthingalive")) {await user.SendMessageAsync(embed: embed);}
-            await command.FollowupAsync(user.Username);
+            await user.SendMessageAsync(embed: embed);
         }
 
         await command.FollowupAsync("Completed task.");
