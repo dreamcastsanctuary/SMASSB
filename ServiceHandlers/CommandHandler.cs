@@ -466,6 +466,12 @@ public class CommandHandler {
             .WithDescription("Posts the current shop items.")
             .WithDefaultMemberPermissions(GuildPermission.Administrator)
         );
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("precivt")
+            .WithDescription("Posts the current shop items.")
+            .WithDefaultMemberPermissions(GuildPermission.Administrator)
+        );
 
         
         // TASKSYSTEM
@@ -664,6 +670,9 @@ public class CommandHandler {
 
             case "purgemessages":
                 await _generalSystem.HandleMassRemoveCommand(command);
+                break;
+            case "precivt":
+                await _generalSystem.HandleParseCivtCommand(command);
                 break;
             case "checkorchangeclaim":
                 await _generalSystem.HandleCheckOrChangeClaimCommand(command);
