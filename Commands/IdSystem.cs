@@ -127,12 +127,6 @@ public class IdSystem {
         var badgesToDraw = ListBadges(member.Roles.Select(r => r.Id).ToHashSet());
 
         var clone = idImg.Clone(ipc => {
-            if (member.Roles.Select(r => r.Id).ToHashSet().Contains(1527907825836097556)) {
-                ipc.DrawImage(Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "Badges", "badge10.png")), 1);
-            }
-            if (member.Roles.Select(r => r.Id).ToHashSet().Contains(1527907819649630298)) {
-                ipc.DrawImage(Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "Badges", "badge11.png")), 1);
-            }
 
             ipc.DrawImage(avatar, avatarPos, 1);
             ipc.DrawImage(coloredBarcode, barcodePos, 1);
@@ -603,11 +597,15 @@ public class IdSystem {
         if (roleIds.Contains(1475961765433970880)) badgesToDraw.Add((LoadBadges("badge7.png", 135, 135), new Point(1334, 570)));
         if (roleIds.Contains(1475899269335744564)) badgesToDraw.Add((LoadBadges("badge8.png", 135, 135), new Point(1427, 590)));
         if (roleIds.Contains(1477926845184872531)) badgesToDraw.Add((LoadBadges("badge9.png", 135, 135), new Point(1520, 570)));
-
+        if (roleIds.Contains(1527907825836097556)) badgesToDraw.Add((LoadBadges("badge10.png", 150, 150), new Point(0, 0)));
+        if (roleIds.Contains(1527907819649630298)) badgesToDraw.Add((LoadBadges("badge11.png", 150, 150), new Point(0, 0)));
+        
         if (roleIds.Contains(1527905937329881158)) badgesToDraw.Add((LoadBadges("tanzaku_gold.png", 130, 180),  new Point(163,895)));
         if (roleIds.Contains(1527905990329110669)) badgesToDraw.Add((LoadBadges("tanzaku_silver.png", 130, 180),  new Point(163,895)));
         if (roleIds.Contains(1527906014060609586)) badgesToDraw.Add((LoadBadges("tanzaku_slip.png", 130, 180),  new Point(163,895)));
-
+        
+        if (roleIds.Contains(1567600759929962619)) badgesToDraw.Add((LoadBadges("donator_talisman.png", 150,150), new Point(0, 0)));
+        
         return badgesToDraw;
     }
 }
