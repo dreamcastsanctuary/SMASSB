@@ -140,27 +140,27 @@ public class ShopSystem {
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  RHYTHM TENGOKU　⋮　リズム天国   !\n*\"Here we go!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### <:sango_a_goldarrow:1565905710875676722>  RHYTHM TENGOKU　⋮　リズム天国   !\n*\"Here we go!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{tengokuShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  TETRIS　⋮　テトリス   !\n*\"You've been Tetris-ized!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### <:sango_a_goldarrow:1565905710875676722>  TETRIS　⋮　テトリス   !\n*\"You've been Tetris-ized!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{tetrisShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  PUYO POP FEVER　⋮　ぷよぷよフィーバー   !\n*\"Let's FEVER!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### <:sango_a_goldarrow:1565905710875676722>  PUYO POP FEVER　⋮　ぷよぷよフィーバー   !\n*\"Let's FEVER!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{puyoShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  WARIOWARE: MEGA MICROGAMES　⋮　メイド イン ワリオ   !\n*\"3, 2, 1, Go!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### <:sango_a_goldarrow:1565905710875676722>  WARIOWARE: MEGA MICROGAMES　⋮　メイド イン ワリオ   !\n*\"3, 2, 1, Go!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{wariowareShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  PAC-MAN　⋮　パックマン   !\n*\"Waka-waka!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### <:sango_a_goldarrow:1565905710875676722>  PAC-MAN　⋮　パックマン   !\n*\"Waka-waka!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{pacmanShowcase.FileName}")))
 
@@ -181,17 +181,17 @@ public class ShopSystem {
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  SONIC ADVANCE 2　⋮　ソニックアドバンス2   !\n*\"Let's do it to it!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### <:sango_a_goldarrow:1565905710875676722>  SONIC ADVANCE 2　⋮　ソニックアドバンス2   !\n*\"Let's do it to it!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{sonicShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  SHANTAE　⋮　シャンティ   !\n*\"I'm Ret-2-Go!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### <:sango_a_goldarrow:1565905710875676722>  SHANTAE　⋮　シャンティ   !\n*\"I'm Ret-2-Go!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{shantaeShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  RISTAR　⋮　リスター   !\n*\"Hasta la vista!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### <:sango_a_goldarrow:1565905710875676722>  RISTAR　⋮　リスター   !\n*\"Hasta la vista!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{ristarShowcase.FileName}")))
 
@@ -209,22 +209,22 @@ public class ShopSystem {
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  EARTHBOUND　⋮　MOTHER 2   !\n*\"OK desu ka?\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### <:sango_a_goldarrow:1565905710875676722>  EARTHBOUND　⋮　MOTHER 2   !\n*\"OK desu ka?\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{earthboundShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  POKEMON: LEAF-GREEN　⋮　ポケモン   !\n*\"Catch 'em all!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### <:sango_a_goldarrow:1565905710875676722>  POKEMON: LEAF-GREEN　⋮　ポケモン   !\n*\"Catch 'em all!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{leafgreenShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  MADOU MONOGATARI　⋮　魔導物語   !\n*\"Ba-Bayoen!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### <:sango_a_goldarrow:1565905710875676722>  MADOU MONOGATARI　⋮　魔導物語   !\n*\"Ba-Bayoen!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{madouShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  TOMODACHI COLLECTION　⋮　トモダチコレクション   !\n*\"Hey there, Look-a-like!\"*\n-# <:sango_a_note:1565904348066750654> Warning! Does not work on mobile devices."))
+                .AddComponent(new TextDisplayBuilder().WithContent("### <:sango_a_goldarrow:1565905710875676722>  TOMODACHI COLLECTION　⋮　トモダチコレクション   !\n*\"Hey there, Look-a-like!\"*\n-# <:sango_a_note:1565904348066750654> Warning! Does not work on mobile devices."))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{tomodachiShowcase.FileName}")))
 
@@ -238,7 +238,7 @@ public class ShopSystem {
         var containerHeader = new ContainerBuilder()
             .WithAccentColor(new Color(255, 49, 44))
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("## <:sango_a_beigefourstar:1566153893635690657> ◦ C-STORE　⋮　コンビニ\n\n> Come spend your hard-earned yen here on brand new aesthetic additions and games!\n\n-# :sango_a_note: Refunds may not always be available, spend wisely!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("## <:sango_a_beigefourstar:1566153893635690657> ◦ C-STORE　⋮　コンビニ\n\n> Come spend your hard-earned yen here on brand new aesthetic additions and games!\n\n-# <:sango_a_note:1565904348066750654> Refunds may not always be available, spend wisely!"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1486187890902958192/Untitled363_20260324221957.png?ex=6ad77895&is=6ad62715&hm=acaac140d73bf0faef0c2ae18e9319264421360b29f6c8d2a7a7704e0138736e&=&format=webp&quality=lossless")))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
