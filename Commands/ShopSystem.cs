@@ -41,7 +41,7 @@ public class ShopSystem {
 
         var containerSakura = new ContainerBuilder()
             .WithAccentColor(new Color(254,201,209))
-            .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Sakura-Themed WorkCell Addons!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("## <:sango_a_beigefourstar:1566153893635690657><:sango_a_goldfourstar:1566153909352013854><:sango_a_greenfourstar:1566153902930526379>  ◦   SAKURA　⋮　桜   <:sango_a_redarrow:1565905694652243998> WORKCELL !"))
             .AddComponent(new TextDisplayBuilder().WithContent("It's, uh, *winter*, you know..."))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
@@ -55,7 +55,7 @@ public class ShopSystem {
 
         var containerSango = new ContainerBuilder()
             .WithAccentColor(new Color(160,41,39))
-            .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ SANGŌ-Themed WorkCell Addons!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("## <:sango_a_beigefourstar:1566153893635690657><:sango_a_goldfourstar:1566153909352013854><:sango_a_greenfourstar:1566153902930526379>  ◦   SANGŌ　⋮　珊瑚   <:sango_a_redarrow:1565905694652243998> WORKCELL !"))
             .AddComponent(new TextDisplayBuilder().WithContent("..? You're dressed in our uniform, isn't that enough merch? I'm kidding."))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
@@ -69,7 +69,7 @@ public class ShopSystem {
 
         var containerTech = new ContainerBuilder()
             .WithAccentColor(new Color(0,0,156))
-            .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Tech-Themed WorkCell Addons!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("## <:sango_a_beigefourstar:1566153893635690657><:sango_a_goldfourstar:1566153909352013854><:sango_a_greenfourstar:1566153902930526379>  ◦   TECH　⋮　テクノロジー   <:sango_a_redarrow:1565905694652243998> WORKCELL !"))
             .AddComponent(new TextDisplayBuilder().WithContent("You the type to like sleek blues and whites? I've got what you want."))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
@@ -79,38 +79,10 @@ public class ShopSystem {
                 .WithButton($"Buy {items[1]} :: ¥8k", customId: $"buy_item_10_{command.Channel.Id}", style: ButtonStyle.Secondary)
                 .WithButton($"Buy {items[3]} :: ¥4k", customId: $"buy_item_11_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
-        
-        var containerVamp = new ContainerBuilder()
-            .WithAccentColor(new Color(105,26,41))
-            .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ LIMITED ! ! VAMPIRE-Themed WorkCell Addons!"))
-            .AddComponent(new TextDisplayBuilder().WithContent("GO TEAM VAMPIRES!"))
-            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
-            .AddComponent(new MediaGalleryBuilder()
-                .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://vamp-shelf.png"))))
-            .AddComponent(new ActionRowBuilder()
-                .WithButton($"Buy {items[0]} :: ¥21k", customId: $"buy_item_28_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[1]} :: ¥10k", customId: $"buy_item_29_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[2]} :: ¥5k", customId: $"buy_item_30_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[3]} :: ¥7k", customId: $"buy_item_31_{command.Channel.Id}", style: ButtonStyle.Secondary)
-            );
-        
-        var containerWw = new ContainerBuilder()
-            .WithAccentColor(new Color(74,43,91))
-            .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ LIMITED ! ! WEREWOLF-Themed WorkCell Addons!"))
-            .AddComponent(new TextDisplayBuilder().WithContent("GO TEAM WEREWOLVES!"))
-            .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
-            .AddComponent(new MediaGalleryBuilder()
-                .AddItem(new MediaGalleryItemProperties(new UnfurledMediaItemProperties("attachment://ww-shelf.png"))))
-            .AddComponent(new ActionRowBuilder()
-                .WithButton($"Buy {items[0]} :: ¥21k", customId: $"buy_item_32_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[1]} :: ¥10k", customId: $"buy_item_33_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[2]} :: ¥5k", customId: $"buy_item_34_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy {items[3]} :: ¥7k", customId: $"buy_item_35_{command.Channel.Id}", style: ButtonStyle.Secondary)
-            );
 
         var containerIds = new ContainerBuilder()
             .WithAccentColor(new Color(0,0,0))
-            .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Custom IDs!"))
+            .AddComponent(new TextDisplayBuilder().WithContent("## <:sango_a_beigefourstar:1566153893635690657><:sango_a_goldfourstar:1566153909352013854><:sango_a_greenfourstar:1566153902930526379>  ◦   IDs !"))
             .AddComponent(new TextDisplayBuilder().WithContent("They're a little plain, but they're better than basic."))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
             .AddComponent(new MediaGalleryBuilder()
@@ -161,34 +133,34 @@ public class ShopSystem {
         var containerArcade = new ContainerBuilder()
             .WithAccentColor(new Color(255, 49, 44))
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ Arcade Apps!\nMake sure to use Save States in the Emulator's settings to save your progress!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("## <:sango_a_beigefourstar:1566153893635690657><:sango_a_goldfourstar:1566153909352013854><:sango_a_greenfourstar:1566153902930526379>  ◦   ARCADE　⋮　ゲーセン   <:sango_a_redarrow:1565905694652243998> APPS !\nMake sure to use Save States in the Emulator's settings to save your progress!"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1539461629136338954/Untitled384_20260818213045.png?ex=6a8666de&is=6a85155e&hm=f28b12d3f095cf6c756fd9afac95f3ead212915a62615bd3cb67e07dc2132870&=&format=webp&quality=lossless&width=640&height=640")))
 
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Rhythm Tengoku!\n*\"Here we go!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  RHYTHM TENGOKU　⋮　リズム天国   !\n*\"Here we go!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{tengokuShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Tetris!\n*\"You've been Tetris-ized!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  TETRIS　⋮　テトリス   !\n*\"You've been Tetris-ized!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{tetrisShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Puyo Pop Fever!\n*\"Let's FEVER!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  PUYO POP FEVER　⋮　ぷよぷよフィーバー   !\n*\"Let's FEVER!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{puyoShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ WarioWare: Mega Microgames!\n*\"3, 2, 1, Go!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  WARIOWARE: MEGA MICROGAMES　⋮　メイド イン ワリオ   !\n*\"3, 2, 1, Go!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{wariowareShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Pacman!\n*\"Waka-waka!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  PAC-MAN　⋮　パックマン   !\n*\"Waka-waka!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{pacmanShowcase.FileName}")))
 
@@ -198,28 +170,28 @@ public class ShopSystem {
                 .WithButton($"Buy Tetris :: ¥8k", customId: $"buy_item_17_{command.Channel.Id}", style: ButtonStyle.Secondary)
                 .WithButton($"Buy Puyo Fever :: ¥10k", customId: $"buy_item_18_{command.Channel.Id}", style: ButtonStyle.Secondary)
                 .WithButton($"Buy WarioWare :: ¥10k", customId: $"buy_item_19_{command.Channel.Id}", style: ButtonStyle.Secondary)
-                .WithButton($"Buy PacMan :: ¥8k", customId: $"buy_item_20_{command.Channel.Id}", style: ButtonStyle.Secondary)
+                .WithButton($"Buy Pac-Man :: ¥8k", customId: $"buy_item_20_{command.Channel.Id}", style: ButtonStyle.Secondary)
             );
 
         var containerPlatformers = new ContainerBuilder()
             .WithAccentColor(new Color(255, 49, 44))
             .AddComponent(new TextDisplayBuilder()
-                .WithContent("## ❖・ Platformer Apps!\nMake sure to use Save States in the Emulator's settings to save your progress!"))
+                .WithContent("## <:sango_a_beigefourstar:1566153893635690657><:sango_a_goldfourstar:1566153909352013854><:sango_a_greenfourstar:1566153902930526379>  ◦   PLATFORMER　⋮　ジャンプアクションゲーム   <:sango_a_redarrow:1565905694652243998> APPS !\nMake sure to use Save States in the Emulator's settings to save your progress!"))
 
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Sonic Advance 2!\n*\"Let's do it to it!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  SONIC ADVANCE 2　⋮　ソニックアドバンス2   !\n*\"Let's do it to it!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{sonicShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Shantae!\n*\"I'm Ret-2-Go!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  SHANTAE　⋮　シャンティ   !\n*\"I'm Ret-2-Go!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{shantaeShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Ristar!\n*\"Hasta la vista!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  RISTAR　⋮　リスター   !\n*\"Hasta la vista!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{ristarShowcase.FileName}")))
 
@@ -232,27 +204,27 @@ public class ShopSystem {
         var containerAdventure = new ContainerBuilder()
             .WithAccentColor(new Color(255, 49, 44))
             .AddComponent(new TextDisplayBuilder()
-                .WithContent("## ❖・ Adventure Apps!\nMake sure to use Save States in the Emulator's settings to save your progress!"))
+                .WithContent("## <:sango_a_beigefourstar:1566153893635690657><:sango_a_goldfourstar:1566153909352013854><:sango_a_greenfourstar:1566153902930526379>  ◦   ADVENTURE　⋮　アドベンチャーゲーム   <:sango_a_redarrow:1565905694652243998> APPS !\nMake sure to use Save States in the Emulator's settings to save your progress!"))
 
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Earthbound!\n*\"OK desu ka?\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  EARTHBOUND　⋮　MOTHER 2   !\n*\"OK desu ka?\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{earthboundShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Pokemon LeafGreen!\n*\"Catch 'em all!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  POKEMON: LEAF-GREEN　⋮　ポケモン   !\n*\"Catch 'em all!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{leafgreenShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Madou Monogatari!\n*\"Ba-Bayoen!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  MADOU MONOGATARI　⋮　魔導物語   !\n*\"Ba-Bayoen!\"*"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{madouShowcase.FileName}")))
 
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("### ∥・ Tomodachi Collection!\n*\"Hey there, Look-a-like!\"*"))
+                .AddComponent(new TextDisplayBuilder().WithContent("### :sango_a_goldarrow:  TOMODACHI COLLECTION　⋮　トモダチコレクション   !\n*\"Hey there, Look-a-like!\"*\n-# <:sango_a_note:1565904348066750654> Warning! Does not work on mobile devices."))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia($"attachment://{tomodachiShowcase.FileName}")))
 
@@ -266,7 +238,7 @@ public class ShopSystem {
         var containerHeader = new ContainerBuilder()
             .WithAccentColor(new Color(255, 49, 44))
             .AddComponent(new SectionBuilder()
-                .AddComponent(new TextDisplayBuilder().WithContent("## ❖・ . . C-STORE . . ・❖\n\nCome spend your hard-earned yen here on brand new aesthetic additions and games!"))
+                .AddComponent(new TextDisplayBuilder().WithContent("## <:sango_a_beigefourstar:1566153893635690657> ◦ C-STORE　⋮　コンビニ\n\n> Come spend your hard-earned yen here on brand new aesthetic additions and games!\n\n-# :sango_a_note: Refunds may not always be available, spend wisely!"))
                 .WithAccessory(new ThumbnailBuilder()
                     .WithMedia("https://media.discordapp.net/attachments/1084260632142024784/1486187890902958192/Untitled363_20260324221957.png?ex=6ad77895&is=6ad62715&hm=acaac140d73bf0faef0c2ae18e9319264421360b29f6c8d2a7a7704e0138736e&=&format=webp&quality=lossless")))
             .AddComponent(new SeparatorBuilder().WithIsDivider(true).WithSpacing(SeparatorSpacingSize.Large))
@@ -291,8 +263,6 @@ public class ShopSystem {
         await SendShop(containerSango, sangoAttachment);
         await SendShop(containerTech, techAttachment);
         await SendShop(containerIds, idsAttachment);
-        await SendShop(containerVamp, vampAttachment);
-        await SendShop(containerWw, wwAttachment);
         
         await SendShop(containerArcade, [techAttachment, ..showcaseAttachments.Take(5)]);
         await SendShop(containerPlatformers, [techAttachment, ..showcaseAttachments.Skip(5).Take(3)]);
