@@ -96,56 +96,30 @@ public class PointSystem {
                 await _db.AddPoints(member.Id, points);
                 await _db.AddRecruits(member.Id, recruits);
                 await _db.AddYen(member.Id, yen);
-                var currentP = await _db.GetPoints(member.Id);
+
+                if (member.Roles.Any(r => r.Id == 1477926845184872531)) {
+                    var pointsNow = await _db.GetPoints(member.Id);
+                    if (pointsNow > 1500) {
+                        var rebirthPoints = pointsNow - 1500;
+                        await _db.RemovePoints(member.Id, rebirthPoints);
+                        await _db.AddRebirthPoints(member.Id, rebirthPoints);
+                    }
+                }
+
+                var currentP = await _db.GetPoints(member.Id) + await _db.GetRebirthPoints(member.Id);
                 var currentR = await _db.GetRecruits(member.Id);
                 var currentY = await _db.GetYen(member.Id);
 
-                if (member.Roles.Any(r => r.Id == 1477926845184872531)) {
-                    var rebirthPoints = currentP - 1500;
-                    await _db.RemovePoints(member.Id, rebirthPoints);
-                    await _db.AddRebirthPoints(member.Id, rebirthPoints);
-                }
-
                 var desc = "";
-
+                
                 if (yen != 0) {
                     desc += $"\nThey've received ¥{yen} and now have a balance of ***{currentY}*** yen in total.";
                 }
                 if (recruits != 0) {
                     desc += $"\nThey've also scouted ***{recruits}*** recruit{(recruits == 1 ? "" : "s")}, and now has scouted ***{currentR}*** recruit{(currentR == 1 ? "" : "s")} in total!";
                 }
-                
+
                 embedBuilder.WithDescription($"This member has been given ***{points}*** point{(points == 1 ? "" : "s")}, and now has ***{currentP}*** point{(currentP == 1 ? "" : "s")}.{desc}");
-                
-            } else {
-                
-                if (member.Roles.Any(r => r.Id == 1477926845184872531)) {
-                    var rebirthPoints = await _db.GetRebirthPoints(member.Id);
-                    if (points > await _db.GetRebirthPoints(member.Id)) {
-                        
-                        await _db.RemoveRebirthPoints(member.Id, points);
-                        var extraPoints = points - await _db.GetRebirthPoints(member.Id);
-                        await _db.RemovePoints(member.Id, extraPoints);
-                        
-                    } else await _db.RemoveRebirthPoints(member.Id, rebirthPoints);
-                } else await _db.RemovePoints(member.Id, points);
-                
-                await _db.RemoveRecruits(member.Id, recruits);
-                await _db.RemoveYen(member.Id, yen);
-                var currentP = await _db.GetPoints(member.Id) + await _db.GetRebirthPoints(member.Id);
-                var currentR = await _db.GetRecruits(member.Id);
-                var currentY = await _db.GetYen(member.Id);
-            
-                var desc = "";
-                
-                if (yen != 0) {
-                    desc += $"\nYou've removed ¥{yen}, this user now has a balance of ***{currentY}*** yen in total.";
-                }
-                if (recruits != 0) {
-                    desc += $"\nYou've removed ***{recruits}*** recruit{(recruits == 1 ? "" : "s")}, this person's total scouting count is now ***{currentR}*** recruit{(currentR == 1 ? "" : "s")} in total!";
-                }
-                
-                embedBuilder.WithDescription($"You have removed ***{points}*** point{(points == 1 ? "" : "s")} from this member. They now have ***{currentP}*** point{(currentP == 1 ? "" : "s")}.{desc}");
             }
 
             embedBuilder
@@ -319,16 +293,20 @@ public class PointSystem {
             if (points > 0) await _db.AddPoints(userId, points);
             if (recruits > 0) await _db.AddRecruits(userId, recruits);
             if (yen > 0) await _db.AddYen(userId, yen);
+
+            var guildUser = guild?.GetUser(userId);
+            if (guildUser is not null && guildUser.Roles.Any(r => r.Id == 1477926845184872531)) {
+                var pointsNow = await _db.GetPoints(userId);
+                if (pointsNow > 1500) {
+                    var rebirthPoints = pointsNow - 1500;
+                    await _db.RemovePoints(userId, rebirthPoints);
+                    await _db.AddRebirthPoints(userId, rebirthPoints);
+                }
+            }
             
-            var currentPoints = await _db.GetPoints(userId);
+            var currentPoints = await _db.GetPoints(userId) + await _db.GetRebirthPoints(userId);
             var currentRecruits = await _db.GetRecruits(userId);
             var currentYen = await _db.GetYen(userId);
-            
-            if (guild!.GetUser(userId).Roles.Any(r => r.Id == 1477926845184872531)) {
-                var rebirthPoints = currentPoints - 1500;
-                await _db.RemovePoints(userId, rebirthPoints);
-                await _db.AddRebirthPoints(userId, rebirthPoints);
-            }
 
             var summary = $"<@{userId}> has been given ***{points}*** point{(points == 1 ? "" : "s")}";
             if (recruits > 0) summary += $", ***{recruits}*** recruit{(recruits == 1 ? "" : "s")}";
