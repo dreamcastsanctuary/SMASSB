@@ -100,6 +100,12 @@ public class PointSystem {
                 var currentR = await _db.GetRecruits(member.Id);
                 var currentY = await _db.GetYen(member.Id);
 
+                if (member.Roles.Any(r => r.Id == 1477926845184872531)) {
+                    var rebirthPoints = currentP - 1500;
+                    await _db.RemovePoints(member.Id, rebirthPoints);
+                    await _db.AddRebirthPoints(member.Id, rebirthPoints);
+                }
+
                 var desc = "";
 
                 if (yen != 0) {
@@ -112,10 +118,21 @@ public class PointSystem {
                 embedBuilder.WithDescription($"This member has been given ***{points}*** point{(points == 1 ? "" : "s")}, and now has ***{currentP}*** point{(currentP == 1 ? "" : "s")}.{desc}");
                 
             } else {
-                await _db.RemovePoints(member.Id, points);
+                
+                if (member.Roles.Any(r => r.Id == 1477926845184872531)) {
+                    var rebirthPoints = await _db.GetRebirthPoints(member.Id);
+                    if (points > await _db.GetRebirthPoints(member.Id)) {
+                        
+                        await _db.RemoveRebirthPoints(member.Id, points);
+                        var extraPoints = points - await _db.GetRebirthPoints(member.Id);
+                        await _db.RemovePoints(member.Id, extraPoints);
+                        
+                    } else await _db.RemoveRebirthPoints(member.Id, rebirthPoints);
+                } else await _db.RemovePoints(member.Id, points);
+                
                 await _db.RemoveRecruits(member.Id, recruits);
                 await _db.RemoveYen(member.Id, yen);
-                var currentP = await _db.GetPoints(member.Id);
+                var currentP = await _db.GetPoints(member.Id) + await _db.GetRebirthPoints(member.Id);
                 var currentR = await _db.GetRecruits(member.Id);
                 var currentY = await _db.GetYen(member.Id);
             
@@ -302,11 +319,16 @@ public class PointSystem {
             if (points > 0) await _db.AddPoints(userId, points);
             if (recruits > 0) await _db.AddRecruits(userId, recruits);
             if (yen > 0) await _db.AddYen(userId, yen);
-            await _db.AddEventsAttended(userId, 1);
             
             var currentPoints = await _db.GetPoints(userId);
             var currentRecruits = await _db.GetRecruits(userId);
             var currentYen = await _db.GetYen(userId);
+            
+            if (guild!.GetUser(userId).Roles.Any(r => r.Id == 1477926845184872531)) {
+                var rebirthPoints = currentPoints - 1500;
+                await _db.RemovePoints(userId, rebirthPoints);
+                await _db.AddRebirthPoints(userId, rebirthPoints);
+            }
 
             var summary = $"<@{userId}> has been given ***{points}*** point{(points == 1 ? "" : "s")}";
             if (recruits > 0) summary += $", ***{recruits}*** recruit{(recruits == 1 ? "" : "s")}";
@@ -429,14 +451,11 @@ public class PointSystem {
                     await _db.AddPoints(member.Id, 1);
                     await _db.AddRecruits(member.Id, 1);
                     await _db.AddYen(member.Id, 800);
-                    await _db.AddTourneyRecruits(member.Id, 1);
-
-                    if (member.Roles.Any(r => r.Id == 1554704576433627166)) {
-                        await _db.AddTerritory("Vampires", 1);
-                    } else if (member.Roles.Any(r => r.Id == 1554704497857798205)) {
-                        await _db.AddTerritory("Werewolves", 1);
-                    } else {
-                        lines.Add($"**{member.Username}** has no team role, so no Territory was given.");
+                    
+                    if (member.Roles.Any(r => r.Id == 1477926845184872531)) {
+                        var rebirthPoints = await _db.GetPoints(member.Id) - 1500;
+                        await _db.RemovePoints(member.Id, rebirthPoints);
+                        await _db.AddRebirthPoints(member.Id, rebirthPoints);
                     }
 
                     lines.Add($"Parsed **{member.Username}**'s message successfully.");
