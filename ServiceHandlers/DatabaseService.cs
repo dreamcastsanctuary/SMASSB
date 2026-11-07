@@ -345,9 +345,7 @@ public class DatabaseService {
         await connection.OpenAsync();
 
         var command = connection.CreateCommand();
-        command.CommandText = @"
-            INSERT INTO Enrolled (UserId, RebirthPoints) VALUES ($id, $rebirthPoints)
-            ON CONFLICT(UserId) DO UPDATE SET RebirthPoints = RebirthPoints + $rebirthPoints;";
+        command.CommandText = "UPDATE Enrolled SET RebirthPoints = COALESCE(RebirthPoints, 0) + $rebirthPoints WHERE UserId = $id;";
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$rebirthPoints", rebirthPoints);
 
