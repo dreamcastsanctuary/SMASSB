@@ -272,7 +272,7 @@ public class IdSystem {
         var accIdParam = enlisted.Id.ToString();
         var dateParam = enlisted.JoinedAt ?? enlisted.CreatedAt;
         var rankParam = await _db.GetRank(enlisted.Id);
-        var pointsParam = await _db.GetPoints(enlisted.Id);
+        var pointsParam = await _db.GetPoints(enlisted.Id) + await _db.GetRebirthPoints(enlisted.Id);
         var recruitsParam = await _db.GetRecruits(enlisted.Id);
         var bloodtypeParam = await _db.GetBloodtype(enlisted.Id);
         var usernameParam = await _db.GetUsername(enlisted.Id);
@@ -289,7 +289,7 @@ public class IdSystem {
         var accIdParam = enlisted.Id.ToString();
         var dateParam = enlisted.JoinedAt ?? enlisted.CreatedAt;
         var rankParam = await _db.GetRank(enlisted.Id);
-        var pointsParam = await _db.GetPoints(enlisted.Id);
+        var pointsParam = await _db.GetPoints(enlisted.Id) + await _db.GetRebirthPoints(enlisted.Id);
         var recruitsParam = await _db.GetRecruits(enlisted.Id);
         var bloodtypeParam = await _db.GetBloodtype(enlisted.Id);
         var usernameParam = await _db.GetUsername(enlisted.Id);
