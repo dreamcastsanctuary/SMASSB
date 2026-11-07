@@ -346,7 +346,7 @@ public class DatabaseService {
 
         var command = connection.CreateCommand();
         command.CommandText = @"
-            INSERT INTO Enrolled (UserId, RebirthPoints) VALUES ($id, $recruits)
+            INSERT INTO Enrolled (UserId, RebirthPoints) VALUES ($id, $rebirthPoints)
             ON CONFLICT(UserId) DO UPDATE SET RebirthPoints = RebirthPoints + $rebirthPoints;";
         command.Parameters.AddWithValue("$id", userId.ToString());
         command.Parameters.AddWithValue("$rebirthPoints", rebirthPoints);
