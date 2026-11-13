@@ -492,6 +492,8 @@ public class RoleSystem {
         ["medic"] = ("Medic", 1557736016016576522, "https://sangoidoldefenseforce.vercel.app/wonsm", "https://docs.google.com/document/d/17cNiFP86K7Q4dq73WU6AqiBIXj3UaZ4gjhpFkUEmO74/edit?usp=sharing", "45th-emblem.png"),
     };
     
+    private static IEnumerable<ulong> ExclusiveUnitRoleIds => UnitRoles.Values.Select(u => u.RoleId).Where(id => id != 1557736055778713641).Distinct();
+    
     public async Task UnitAccept(SocketSlashCommand command) {
         
         string? messageLink = null;
@@ -585,6 +587,11 @@ public class RoleSystem {
                 continue;
             }
 
+            if (units.Count(u => u.RoleId != 1557736055778713641) > 1) {
+                unparsed.Add($"\"{line}\" (only Drill Team can be combined with another unit, man!)");
+                continue;
+            }
+
             var matches = allClaims
                 .Where(m => !string.IsNullOrWhiteSpace(m.Claim) && string.Equals(m.Claim.Trim(), name, StringComparison.OrdinalIgnoreCase))
                 .ToList();
@@ -612,6 +619,7 @@ public class RoleSystem {
             }
 
             var wasFuzzy = bestDistance > 0;
+            
             var userId = ulong.Parse(matches[0].UserId);
             IGuildUser? guildUser = guild.GetUser(userId);
 
@@ -623,9 +631,17 @@ public class RoleSystem {
             var toAdd = units.Where(u => !guildUser.RoleIds.Contains(u.RoleId)).ToList();
             var alreadyHad = units.Where(u => guildUser.RoleIds.Contains(u.RoleId)).ToList();
 
+            var newExclusive = units.Where(u => u.RoleId != 1557736055778713641).Select(u => u.RoleId).ToList();
+            var toRemove = newExclusive.Count == 0
+                ? new List<ulong>()
+                : ExclusiveUnitRoleIds.Where(id => !newExclusive.Contains(id) && guildUser.RoleIds.Contains(id)).ToList();
+
             try {
                 if (toAdd.Count > 0)
                     await guildUser.AddRolesAsync(toAdd.Select(u => u.RoleId));
+                if (toRemove.Count > 0)
+                    await guildUser.RemoveRolesAsync(toRemove);
+                
             } catch (HttpException ex) {
                 failures.Add($"<@{userId}> : couldn't assign roles ({ex.Reason ?? ex.Message})");
                 continue;
@@ -658,6 +674,11 @@ public class RoleSystem {
 
             if (wasFuzzy)
                 summary += $" *(matched \"{name}\" → \"{matches[0].Claim}\", {bestDistance} char{(bestDistance == 1 ? "" : "s")} off)*";
+
+            if (toRemove.Count > 0) {
+                var removedNames = toRemove.Select(id => UnitRoles.Values.First(u => u.RoleId == id).Name);
+                summary += $" *(removed from {string.Join(" and ", removedNames)})*";
+            }
 
             if (dmFailed) summary += " *(couldn't DM them)*";
             successes.Add(summary);
