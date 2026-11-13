@@ -769,7 +769,7 @@ public class RoleSystem {
 
         var advice = guides.Count > 0
             ? "\nRead your Guide, come up with new ideas / study what you've been given, and speak with your new peers."
-            : "\nCome up with new ideas / study what you've been given, and speak with your new peers.";
+            : "\nCome up with new ideas and speak with your new peers.";
 
         var description = $"## <:sango_a_beigefourstar:1566153893635690657> ・ Welcome to the {designation} {division}, enlisted.\n_ _\n*We're honored to have you stand by us.*\n\n<:sango_a_redarrow:1565905694652243998> {Links(units.Select(u => u.UniformLink))} to access your Fall uniform{(plural ? "s" : "")}.\n{guideLine}\nYou will eventually be called to an in-person training in the <#1568904427241218069> channel, where you'll be taught how to properly do your new job.\n\nUntil then, get your uniforms in and find a feel for your new responsibilities, however you see fit. {advice}\n\n*Good luck, and make us proud.*\n\n> ### <:sango_emblem_mono:1492222638980989138> ⋮ For the Good of All. ⋮ <:sango_a_redfourstar:1565904661922455583>";
         
