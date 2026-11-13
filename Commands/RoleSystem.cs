@@ -479,11 +479,12 @@ public class RoleSystem {
         await command.RespondAsync("Completed pairing request.");
     }
 
-    private static readonly Regex UnitLineRegex = new Regex(@"^\s*(?<name>.+?)\s+(?<units>(?:u(?:drill[\s_-]*team|researcher|journalist|recon|medic)\s*){1,2})$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-    private static readonly Regex UnitTokenRegex = new Regex(@"u(?<unit>drill[\s_-]*team|researcher|journalist|recon|medic)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex UnitLineRegex = new Regex(@"^\s*(?<name>.+?)\s+(?<units>(?:u(?:drill[\s_-]*team|striker|researcher|journalist|recon|medic)\s*){1,2})$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex UnitTokenRegex = new Regex(@"u(?<unit>drill[\s_-]*team|striker|researcher|journalist|recon|medic)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     
     private static readonly Dictionary<string, (string Name, ulong RoleId, string UniformLink, string? GuideLink, string Thumbnail)> UnitRoles = new(StringComparer.OrdinalIgnoreCase) {
 
+        ["striker"] = ("Striker", 1557735885192040448, "https://discord.com/channels/1471660035854569505/1473516609397063680", null, "61st-emblem.png"),
         ["drillteam"]  = ("Drill Team", 1557736055778713641, "https://sangoidoldefenseforce.vercel.app/nbsvvdokw", null, "61st-emblem.png"),
         ["researcher"] = ("Researcher", 1557735964950929558, "https://sangoidoldefenseforce.vercel.app/bocokbmrob", "https://docs.google.com/document/d/1XHVLCm9fh7x0ZYHXgSMl90srZ2H7Tags9ule6lW9a4g/edit?usp=sharing", "233rd-emblem.png"),
         ["journalist"] = ("Journalist", 1557736035495059477, "https://sangoidoldefenseforce.vercel.app/tyebxkvscd", "https://docs.google.com/document/d/18_kBgrC0wux0LhOJIhbGePnxVn2hQi3PB3jLkKDJVQE/edit?usp=sharing", "233rd-emblem.png"),
@@ -767,15 +768,15 @@ public class RoleSystem {
             : "";
 
         var advice = guides.Count > 0
-            ? "Read your Guide, come up with new ideas / study what you've been given, and speak with your new peers."
-            : "Come up with new ideas / study what you've been given, and speak with your new peers.";
+            ? "\nRead your Guide, come up with new ideas / study what you've been given, and speak with your new peers."
+            : "\nCome up with new ideas / study what you've been given, and speak with your new peers.";
 
-        var description = $"### Welcome to the {designation} {division}, enlisted.\n_ _\n*We're honored to have you stand by us.*\n\n<:sango_a_redarrow:1565905694652243998> {Links(units.Select(u => u.UniformLink))} to access your Fall uniform{(plural ? "s" : "")}.\n{guideLine}\nYou will eventually be called to an in-person training in the <#1568904427241218069> channel, where you'll be taught how to properly do your new job.\n\nUntil then, get your uniforms in and find a feel for your new responsibilities, however you see fit. {advice}\n\n*Good luck, and make us proud.*\n\n> ### <:sango_emblem_mono:1492222638980989138>　⋮　For the Good of All.　⋮　<:sango_a_redfourstar:1565904661922455583>";
+        var description = $"## <:sango_a_beigefourstar:1566153893635690657> ・ Welcome to the {designation} {division}, enlisted.\n_ _\n*We're honored to have you stand by us.*\n\n<:sango_a_redarrow:1565905694652243998> {Links(units.Select(u => u.UniformLink))} to access your Fall uniform{(plural ? "s" : "")}.\n{guideLine}\nYou will eventually be called to an in-person training in the <#1568904427241218069> channel, where you'll be taught how to properly do your new job.\n\nUntil then, get your uniforms in and find a feel for your new responsibilities, however you see fit. {advice}\n\n*Good luck, and make us proud.*\n\n> ### <:sango_emblem_mono:1492222638980989138> ⋮ For the Good of All. ⋮ <:sango_a_redfourstar:1565904661922455583>";
         
         return new EmbedBuilder()
             .WithDescription(description)
             .WithThumbnailUrl($"attachment://{units[0].Thumbnail}")
-            .WithColor(0xBFA55F)
+            .WithColor(0xBC3533)
             .Build();
     }
 
@@ -839,9 +840,10 @@ public class RoleSystem {
         var deadline = DateTimeOffset.UtcNow.AddMinutes(30).ToUnixTimeSeconds();
 
         var embedDescription =
-            $"<:sango_a_redarrow:1565905694652243998> 『 OPERATION: {PrettyName(operation.ToString())} 』\n" +
-            $"<:sango_a_note:1565904348066750654> LOCATION: {PrettyName(location.ToString())}\n" +
-            $"<:sango_a_note:1565904348066750654> TIME LIMIT: <t:{deadline}:R>\n\n" +
+            $"-# {pings}" +
+            $"## <:sango_a_redarrow:1565905694652243998> ・ 『 **OPERATION**　⋮　{PrettyName(operation.ToString())} 』\n" +
+            $"<:sango_a_note:1565904348066750654> **LOCATION**　⋮　{PrettyName(location.ToString())}\n" +
+            $"<:sango_a_note:1565904348066750654> **TIME LIMIT**　⋮　<t:{deadline}:R>\n\n" +
             $"> {description}";
 
         var embedBuilder = new EmbedBuilder()
@@ -851,7 +853,7 @@ public class RoleSystem {
         var embed = embedBuilder.Build();
 
         var allowedMentions = new AllowedMentions(AllowedMentionTypes.Roles);
-        await channel.SendMessageAsync(pings, embed: embed, allowedMentions: allowedMentions);
+        await channel.SendMessageAsync(embed: embed, allowedMentions: allowedMentions);
         await command.FollowupAsync($"Assignment sent to {channel.Mention}.", ephemeral: true);
     }
 }
