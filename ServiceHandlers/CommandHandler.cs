@@ -578,7 +578,7 @@ public class CommandHandler {
             .WithName("operation_type")
             .WithDescription("The type of Operation.")
             .WithType(ApplicationCommandOptionType.String)
-            .WithAutocomplete(true);
+            .WithRequired(true);
 
         foreach (var name in Enum.GetNames<OperationType>())
             operationOption.AddChoice(name, name);
