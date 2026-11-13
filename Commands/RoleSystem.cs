@@ -840,11 +840,11 @@ public class RoleSystem {
         var deadline = DateTimeOffset.UtcNow.AddMinutes(30).ToUnixTimeSeconds();
 
         var embedDescription =
-            $"-# {pings}" +
+            $"-# {pings}\n" +
             $"## <:sango_a_redarrow:1565905694652243998> ・ 『 **OPERATION**　⋮　{PrettyName(operation.ToString())} 』\n" +
             $"<:sango_a_note:1565904348066750654> **LOCATION**　⋮　{PrettyName(location.ToString())}\n" +
             $"<:sango_a_note:1565904348066750654> **TIME LIMIT**　⋮　<t:{deadline}:R>\n\n" +
-            $"> {description}";
+            $"> \" {description} \"";
 
         var embedBuilder = new EmbedBuilder()
             .WithDescription(embedDescription)
