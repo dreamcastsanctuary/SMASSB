@@ -847,7 +847,7 @@ public class RoleSystem {
 
         var embedBuilder = new EmbedBuilder()
             .WithDescription(embedDescription)
-            .WithColor(0xBFA55F)
+            .WithColor(0xBC3533)
             .WithImageUrl("https://media.discordapp.net/attachments/1480816858998374501/1569231818098479155/image.png?ex=6af7fa84&is=6af6a904&hm=ae8206325680bc74c0423f5b497c2e843b60ed3389370cfc4707259a7802d0ca&=&format=webp&quality=lossless");
         var embed = embedBuilder.Build();
 
