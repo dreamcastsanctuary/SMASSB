@@ -577,7 +577,8 @@ public class CommandHandler {
         var operationOption = new SlashCommandOptionBuilder()
             .WithName("operation_type")
             .WithDescription("The type of Operation.")
-            .WithType(ApplicationCommandOptionType.String);
+            .WithType(ApplicationCommandOptionType.String)
+            .WithAutocomplete(true);
 
         foreach (var name in Enum.GetNames<OperationType>())
             operationOption.AddChoice(name, name);
@@ -626,10 +627,6 @@ public class CommandHandler {
             .WithName("profile")
             .WithDescription("Shows your SANGO.ASIA profile."));
         
-        commands.Add(new SlashCommandBuilder()
-            .WithName("striker")
-            .WithDescription("Yay!")
-            .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
@@ -649,9 +646,6 @@ public class CommandHandler {
 
             case "tourneyrewards":
                 await _pointSystem.TourneyRewards(command);
-                break;
-            case "striker":
-                await _generalSystem.Striker(command);
                 break;
             
             case "rewardko":
