@@ -626,6 +626,11 @@ public class CommandHandler {
             .WithName("profile")
             .WithDescription("Shows your SANGO.ASIA profile."));
         
+        commands.Add(new SlashCommandBuilder()
+            .WithName("striker")
+            .WithDescription("Yay!")
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
+        
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
             await ((IGuild)guild).BulkOverwriteApplicationCommandsAsync(builtCommands);
@@ -644,6 +649,9 @@ public class CommandHandler {
 
             case "tourneyrewards":
                 await _pointSystem.TourneyRewards(command);
+                break;
+            case "striker":
+                await _generalSystem.Striker(command);
                 break;
             
             case "rewardko":

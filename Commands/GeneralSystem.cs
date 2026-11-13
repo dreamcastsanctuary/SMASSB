@@ -229,4 +229,15 @@ public class GeneralSystem {
             await _logHandler.LogExceptionWatch((ulong)_guildId!, text:"*Something* went wrong in the ShowProfile command.");
         }
     }
+
+    public async Task Striker(SocketSlashCommand command) {
+
+        var guild = _client.GetGuild((ulong)_guildId!);
+        var enlisted = _db.GetEnlisted();
+        
+        foreach (var id in enlisted) {
+            var member = guild.GetUser(ulong.Parse(id));
+            await member.AddRoleAsync(1557735885192040448);
+        }
+    }
 }
