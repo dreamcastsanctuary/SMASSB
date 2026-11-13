@@ -8,6 +8,7 @@ namespace SMASSB.Commands;
 
 public class GeneralSystem {
 
+    public static readonly HttpClient httpClient = new();
     private readonly DiscordSocketClient _client;
     private readonly LogHandler _logHandler;
     private readonly DatabaseService _db;
@@ -210,5 +211,22 @@ public class GeneralSystem {
         }
 
         await command.FollowupAsync("Done!");
+    }
+
+    public async Task ShowProfile(SocketSlashCommand command) {
+
+        try {
+            using var response = await httpClient.GetAsync($"https://www.sango.asia/content/personnel/{command.User.Id}.json", HttpCompletionOption.ResponseHeadersRead);
+
+            if (response.IsSuccessStatusCode && response.Content.Headers.ContentType?.MediaType == "application/json") {
+                await command.RespondAsync($"[<:sango_a_redfourstar:1565904661922455583> ・ Here's your profile!](https://www.sango.asia/profile.html?id={command.User.Id})");
+                
+            } else {
+                await command.RespondAsync(
+                    "Hey! We can't find a profile for your ID! Log in and make one here　⋮　\n\n<:sango_a_redarrow:1565905694652243998> ・ https://www.sango.asia/roster.html");
+            }
+        } catch {
+            await _logHandler.LogExceptionWatch((ulong)_guildId!, text:"*Something* went wrong in the ShowProfile command.");
+        }
     }
 }

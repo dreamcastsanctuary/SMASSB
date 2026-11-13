@@ -2,6 +2,7 @@
 using Discord.Net;
 using Discord.WebSocket;
 using SMASSB.Commands;
+using SMASSB.Data;
 using SMASSB.Exceptions;
 using SMASSB.Models;
 
@@ -834,6 +835,22 @@ public class ExtraneousHandler {
         };
 
         var results = taskNames.Select(name => new AutocompleteResult(name, name));
+
+        await interaction.RespondAsync(results);
+    }
+    
+    public async Task LocationAutocompleteHandler(SocketAutocompleteInteraction interaction) {
+
+        if (interaction.Data.Current.Name != "location") {
+            return;
+        }
+
+        var typed = interaction.Data.Current.Value?.ToString() ?? "";
+
+        var results = Enum.GetNames<LocationType>()
+            .Where(location => string.IsNullOrEmpty(typed) || RoleSystem.PrettyName(location).Contains(typed, StringComparison.OrdinalIgnoreCase))
+            .Take(25)
+            .Select(location => new AutocompleteResult(RoleSystem.PrettyName(location), location));
 
         await interaction.RespondAsync(results);
     }

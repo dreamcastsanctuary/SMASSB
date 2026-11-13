@@ -1,0 +1,37 @@
+﻿namespace SMASSB.Data;
+
+public enum LocationType {
+    
+    KinutaPark,
+    ShimokitazawaO1,
+    ShimokitazawaO2,
+    FishMarket,
+    Harajuku,
+    YoyogiPark,
+    Highlands,
+    Plaza,
+    SweetShoppinBakery,
+    CarrotTerrace,
+    BerryGarden,
+    UenoPark,
+    SumidaPark,
+    ShinobazuPond,
+    OchanomizuUniversity,
+    AoyamaCemetery,
+    AoyamaPark,
+    GardenTerrace,
+    AwajichoStationSeatingO1,
+    AwajichoStationSeatingO2,
+    MemorialPark,
+    Museum,
+    Staging,
+    PumpkinGarden,
+    RabbitGarden,
+    MarinePark,
+    HommachiCommunityCenter,
+    SportsCenter,
+    AkihabaraPark,
+    YodobashiShoppingCenter,
+    ShibuyaUniversity,
+    WhiteGlassCoffeeshop
+}

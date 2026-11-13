@@ -599,12 +599,41 @@ public class IdSystem {
         if (roleIds.Contains(1477926845184872531)) badgesToDraw.Add((LoadBadges("badge9.png", 135, 135), new Point(1520, 570)));
         if (roleIds.Contains(1527907825836097556)) badgesToDraw.Add((Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "Badges", "badge10.png")), new Point(0, 0)));
         if (roleIds.Contains(1527907819649630298)) badgesToDraw.Add((Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "Badges", "badge11.png")), new Point(0, 0)));
-        
-        if (roleIds.Contains(1527905937329881158)) badgesToDraw.Add((LoadBadges("tanzaku_gold.png", 130, 180),  new Point(163,895)));
-        if (roleIds.Contains(1527905990329110669)) badgesToDraw.Add((LoadBadges("tanzaku_silver.png", 130, 180),  new Point(163,895)));
-        if (roleIds.Contains(1527906014060609586)) badgesToDraw.Add((LoadBadges("tanzaku_slip.png", 130, 180),  new Point(163,895)));
-        
         if (roleIds.Contains(1567600759929962619)) badgesToDraw.Add((Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "Badges","donator_talisman.png")), new Point(0, 0)));
+        
+        var eventBadges = new (ulong RoleId, string File)[] {
+            
+            (1527905937329881158, "tanzaku_gold.png"),
+            (1527905990329110669, "tanzaku_silver.png"),
+            (1527906014060609586, "tanzaku_slip.png"),
+            (1570621305353670787, "tour_mic"),
+            (1570620847217975306, "tourney_gold"),
+            (1570620925785800764, "tourney_silver"),
+            (1570620994211680332, "tourney_bat")
+        };
+
+        var ownedEventBadges = eventBadges.Where(b => roleIds.Contains(b.RoleId)).ToList();
+
+        int[] xPositions;
+        switch (ownedEventBadges.Count) {
+            
+            case 1:
+                xPositions = [163];
+                break;
+            case 2:
+                xPositions = [93, 233];
+                break;
+            case 3:
+                xPositions = [23, 163, 303];
+                break;
+            default:
+                xPositions = [];
+                break;
+        }
+
+        for (int i = 0; i < ownedEventBadges.Count; i++) {
+            badgesToDraw.Add((LoadBadges(ownedEventBadges[i].File, 130, 180), new Point(xPositions[i], 895)));
+        }
         
         return badgesToDraw;
     }

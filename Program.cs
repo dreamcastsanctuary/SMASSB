@@ -81,6 +81,7 @@ public class Program {
             if (interaction.Data.Current.Name == "charm_type") { await _extraneousHandler.CharmAutocompleteHandler(interaction); }
             if (interaction.Data.Current.Name == "wallpaper_type") { await _extraneousHandler.WallpaperAutocompleteHandler(interaction); }
             if (interaction.Data.Current.Name == "task_name") { await _extraneousHandler.TaskAutocompleteHandler(interaction); }
+            if (interaction.Data.CommandName == "unitassignment") await _extraneousHandler.LocationAutocompleteHandler(interaction);
         };
         
         _client.Ready += async () => {

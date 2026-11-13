@@ -568,7 +568,63 @@ public class CommandHandler {
                 .AddChoice("TO-DO", "TO-DO").AddChoice("IN PROGRESS", "IN PROGRESS").AddChoice("COMPLETED", "COMPLETED")
                 .WithType(ApplicationCommandOptionType.String))
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("tourneyrewards")
+            .WithDescription("Yay!"));
+        
+        var operationOption = new SlashCommandOptionBuilder()
+            .WithName("operation_type")
+            .WithDescription("The type of Operation.")
+            .WithType(ApplicationCommandOptionType.String);
 
+        foreach (var name in Enum.GetNames<OperationType>())
+            operationOption.AddChoice(name, name);
+        
+        var locationOption = new SlashCommandOptionBuilder()
+            .WithName("location")
+            .WithDescription("Where will the Operation be?")
+            .WithType(ApplicationCommandOptionType.String)
+            .WithRequired(true)
+            .WithAutocomplete(true);
+
+        SlashCommandOptionBuilder UnitOption(string name, bool required) {
+            var option = new SlashCommandOptionBuilder()
+                .WithName(name)
+                .WithDescription("A Unit to assign.")
+                .WithType(ApplicationCommandOptionType.String)
+                .WithRequired(required);
+
+            option.AddChoice("Striker", "striker");
+            option.AddChoice("Drill Team", "drillteam");
+            option.AddChoice("Researcher", "researcher");
+            option.AddChoice("Journalist", "journalist");
+            option.AddChoice("Recon", "recon");
+            option.AddChoice("Medic", "medic");
+            return option;
+        }
+
+        commands.Add(new SlashCommandBuilder()
+            .WithName("unitassignment")
+            .WithDescription("Assigns the given Units to this task.")
+            .AddOption(operationOption)
+            .AddOption(locationOption)
+            .AddOption("description", ApplicationCommandOptionType.String, "The description of the task. Be descriptive!", isRequired: true)
+            .AddOption(UnitOption("unit1", true))
+            .AddOption(UnitOption("unit2", false))
+            .AddOption(UnitOption("unit3", false))
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("unitaccept")
+            .WithDescription("Reads a message link full of [Name uUnit], and assigns people their roles.")
+            .AddOption("message_link", ApplicationCommandOptionType.String, "The link to the message with the enlisted list.", isRequired: true)
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+
+        commands.Add(new SlashCommandBuilder()
+            .WithName("profile")
+            .WithDescription("Shows your SANGO.ASIA profile."));
+        
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
             await ((IGuild)guild).BulkOverwriteApplicationCommandsAsync(builtCommands);
@@ -585,6 +641,10 @@ public class CommandHandler {
     private async Task HandleSlashCommand(SocketSlashCommand command) {
         switch(command.Data.Name) {
 
+            case "tourneyrewards":
+                await _pointSystem.TourneyRewards(command);
+                break;
+            
             case "rewardko":
                 await _rewardSystem.HandleRewardKoCommand(command);
                 break;
@@ -619,6 +679,12 @@ public class CommandHandler {
                 break;
             case "duo":
                 await _roleSystem.HandleDuoCommand(command);
+                break;
+            case "unitaccept":
+                await _roleSystem.UnitAccept(command);
+                break;
+            case "unitassignment":
+                await _roleSystem.UnitAssignment(command);
                 break;
 
             case "id":
@@ -676,6 +742,9 @@ public class CommandHandler {
                 break;
             case "checkorchangeclaim":
                 await _generalSystem.HandleCheckOrChangeClaimCommand(command);
+                break;
+            case "profile":
+                await _generalSystem.ShowProfile(command);
                 break;
 
             case "workcell":
