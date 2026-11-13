@@ -571,7 +571,8 @@ public class CommandHandler {
         
         commands.Add(new SlashCommandBuilder()
             .WithName("tourneyrewards")
-            .WithDescription("Yay!"));
+            .WithDescription("Yay!")
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
         var operationOption = new SlashCommandOptionBuilder()
             .WithName("operation_type")
