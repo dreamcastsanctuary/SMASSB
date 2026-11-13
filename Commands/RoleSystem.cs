@@ -840,7 +840,6 @@ public class RoleSystem {
         var deadline = DateTimeOffset.UtcNow.AddMinutes(30).ToUnixTimeSeconds();
 
         var embedDescription =
-            $"-# {pings}\n" +
             $"## <:sango_a_redarrow:1565905694652243998> ・ 『 **OPERATION**　⋮　{PrettyName(operation.ToString())} 』\n" +
             $"<:sango_a_note:1565904348066750654> **LOCATION**　⋮　{PrettyName(location.ToString())}\n" +
             $"<:sango_a_note:1565904348066750654> **TIME LIMIT**　⋮　<t:{deadline}:R>\n\n" +
@@ -853,7 +852,7 @@ public class RoleSystem {
         var embed = embedBuilder.Build();
 
         var allowedMentions = new AllowedMentions(AllowedMentionTypes.Roles);
-        await channel.SendMessageAsync(embed: embed, allowedMentions: allowedMentions);
+        await channel.SendMessageAsync($"-# {pings}", embed: embed, allowedMentions: allowedMentions);
         await command.FollowupAsync($"Assignment sent to {channel.Mention}.", ephemeral: true);
     }
 }
