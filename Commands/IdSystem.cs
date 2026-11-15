@@ -639,7 +639,7 @@ public class IdSystem {
         switch (ownedEventBadges.Count) {
             
             case 1:
-                xPositions = [163];
+                xPositions = [ownedEventBadges[0].File.Contains("tanzaku") ? 163 : 132];
                 break;
             case 2:
                 xPositions = [33, 203];
