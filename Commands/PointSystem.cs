@@ -623,11 +623,11 @@ public class PointSystem {
             var tier = place switch { 1 => 1, 2 or 3 => 2, _ => 3 };
 
             try {
-                // await _db.AddPoints(user.Id, events + 50);
-                // await _db.AddYen(user.Id, 50000);
-                // await user.AddRoleAsync(1475899268593225829);
-                // await user.AddRoleAsync(tierRoles[tier - 1]);
-                // rewarded++;
+                await _db.AddPoints(user.Id, events + 50);
+                await _db.AddYen(user.Id, 50000);
+                await user.AddRoleAsync(1475899268593225829);
+                await user.AddRoleAsync(tierRoles[tier - 1]);
+                rewarded++;
             } catch (Exception ex) {
                 errors.Add($"Couldn't reward {user.Username}: {ex.Message}");
                 continue;
@@ -654,7 +654,7 @@ public class PointSystem {
                 .Build();
 
             try {
-                await command.FollowupAsync(text: user.Username, embed: embed);
+                await user.SendMessageAsync(embed: embed);
             } catch (Discord.Net.HttpException ex) {
                 errors.Add(new MessageSendException(user.Username, ex).Message);
             }
