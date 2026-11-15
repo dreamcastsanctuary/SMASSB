@@ -642,7 +642,7 @@ public class IdSystem {
                 xPositions = [163];
                 break;
             case 2:
-                xPositions = [93, 233];
+                xPositions = [33, 203];
                 break;
             case 3:
                 xPositions = [13, 143, 283];
