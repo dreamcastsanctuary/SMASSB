@@ -151,8 +151,8 @@ public class GeneralSystem {
         await command.FollowupAsync($"Completed task. Sent to {preCivt.Count - dmFailures.Count} / {preCivt.Count} members.");
 
         var report = "";
-        if (failures.Count > 0)   report += "**Couldn't read DMs:**\n" + string.Join("\n", failures.Select(f => f.ToString())) + "\n\n";
-        if (failures2.Count > 0)  report += "**Couldn't parse DMs:**\n" + string.Join("\n", failures2.Select(f => f.ToString())) + "\n\n";
+        if (failures.Count > 0) report += "**Couldn't read DMs:**\n" + string.Join("\n", failures.Select(f => f.ToString())) + "\n\n";
+        if (failures2.Count > 0) report += "**Couldn't parse DMs:**\n" + string.Join("\n", failures2.Select(f => f.ToString())) + "\n\n";
         if (dmFailures.Count > 0) report += "**Couldn't send the uniform to:**\n" + string.Join("\n", dmFailures);
 
         if (report.Length > 0)
