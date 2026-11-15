@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Discord;
 using Discord.WebSocket;
 using Microsoft.Data.Sqlite;
 using SMASSB.Commands;
@@ -172,8 +173,7 @@ public class DatabaseService {
         await connection.OpenAsync();
         
         var cmd = connection.CreateCommand();
-        cmd.CommandText = @"INSERT INTO Enrolled (UserId, Claim, AvatarUrl, Rank, Points, Recruits, Bloodtype, Catchphrase, Username, IDType) 
-                            VALUES ($accIdParam, $claimParam, $avatarUrlParam, $rankParam, $pointsParam, $recruitsParam, $bloodtypeParam, $catchphraseParam, $usernameParam, $idTypeParam);";
+        cmd.CommandText = @"INSERT INTO Enrolled (UserId, Claim, AvatarUrl, Rank, Points, Recruits, Bloodtype, Catchphrase, Username, IDType)VALUES ($accIdParam, $claimParam, $avatarUrlParam, $rankParam, $pointsParam, $recruitsParam, $bloodtypeParam, $catchphraseParam, $usernameParam, $idTypeParam);";
         
         cmd.Parameters.AddWithValue("$accIdParam", accIdParam);
         cmd.Parameters.AddWithValue("$claimParam", claimParam);
@@ -188,20 +188,52 @@ public class DatabaseService {
         
         cmd.ExecuteNonQuery();
         
-        await command.FollowupAsync("Processed Prospect into Database.");
+        await command.FollowupAsync("<:sango_a_beigefourstar:1566153893635690657> ・ Processed Prospect into Database.");
 
-        await GiveNewId(ulong.Parse(accIdParam), idTypeParam);
-        await GiveNewCase(ulong.Parse(accIdParam), caseParam);
-        await SetCaseType(ulong.Parse(accIdParam), caseParam);
-        await GiveNewCharm(ulong.Parse(accIdParam), charmParam);
-        await SetCharmType(ulong.Parse(accIdParam), charmParam);
-        await GiveNewWallpaper(ulong.Parse(accIdParam), wallpaperParam);
-        await SetWallpaperType(ulong.Parse(accIdParam), wallpaperParam);
-        var appsParam = await GetApps(ulong.Parse(accIdParam));
-        var (currentWeekEarnings, _, percentChange, isIncrease) = await GetEarningsSummary(ulong.Parse(accIdParam));
+        var userId = ulong.Parse(accIdParam);
+
+        await GiveNewId(userId, idTypeParam);
+        await GiveNewCase(userId, caseParam);
+        await SetCaseType(userId, caseParam);
+        await GiveNewCharm(userId, charmParam);
+        await SetCharmType(userId, charmParam);
+        await GiveNewWallpaper(userId, wallpaperParam);
+        await SetWallpaperType(userId, wallpaperParam);
+        var appsParam = await GetApps(userId);
+        var (currentWeekEarnings, _, percentChange, isIncrease) = await GetEarningsSummary(userId);
+
+        var idPath = await IdSystem.RenderId(command, member, claimParam, null, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, catchphraseParam, usernameParam, idTypeParam);
+        if (idPath == null) return;
+
+        var (cellAttachment, cellImageUrl) = CellSystem.RenderCell(member, caseParam, charmParam, wallpaperParam, appsParam, await GetYen(userId), currentWeekEarnings, percentChange, isIncrease);
+        var idAttachment = new FileAttachment(idPath, "id.png");
+
+        var components = new ComponentBuilderV2()
+            .WithTextDisplay(new TextDisplayBuilder().WithContent($"Welcome to Sango, {claimParam}! We're very happy to have you.\n> Your first event *must* be of type **__CIVT / Civilian Training__**. *Be on the look out for it!*\n\n<:sango_a_beigefourstar:1566153893635690657> ・ Either way, now that you're here, let's get you your belongings."))
+            .WithTextDisplay(new TextDisplayBuilder().WithContent("### <:sango_01:1481753776745611505>　⋮　Your Identification Card"))
+            .AddComponent(new ContainerBuilder().AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties("attachment://id.png"))))
+            .WithTextDisplay(new TextDisplayBuilder().WithContent("-# Use */id* in the server to see it."))
+            .WithTextDisplay(new TextDisplayBuilder().WithContent("### <:sango_02:1481753799071633499>　⋮　Your Work Cellphone"))
+            .AddComponent(new ContainerBuilder().AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl))))
+            .WithTextDisplay(new TextDisplayBuilder().WithContent("-# Use */workcell* in the server to use it."))
+            .WithTextDisplay(new TextDisplayBuilder().WithContent("### <:sango_03:1481753821637251112>　⋮　Your Personnel Profile\n> Create your own personnel profile for your claim, complete with a guestbook, here!\n> ***( Also, check out the magazine when you have time. )***"))
+            .AddComponent(new ActionRowBuilder().WithButton("sango.asia", url: "https://www.sango.asia", style: ButtonStyle.Link))
+            .WithTextDisplay(new TextDisplayBuilder().WithContent("-# Use */profile* in the server to see it."))
+            .Build();
         
-        await IdSystem.BuildId(command, member, claimParam, null, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, catchphraseParam, usernameParam, idTypeParam);
-        await CellSystem.BuildCell(command, member, caseParam, charmParam, wallpaperParam, appsParam, await GetYen(ulong.Parse(accIdParam)), currentWeekEarnings, percentChange, isIncrease);
+        try {
+            if (member != command.User && !command.CommandName.Contains("debug")) {
+                await member.SendFilesAsync(attachments: [idAttachment, cellAttachment], components: components);
+            } else {
+                await command.FollowupWithFilesAsync(attachments: [idAttachment, cellAttachment], components: components);
+            }
+        } catch (Discord.Net.HttpException) {
+            await command.FollowupAsync($"Something bad just happened.");
+        } finally {
+            idAttachment.Dispose();
+            File.Delete(idPath);
+        }
+
         await member.AddRoleAsync(1537202109336920096);
     }
 

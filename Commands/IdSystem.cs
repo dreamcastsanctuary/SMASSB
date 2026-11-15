@@ -52,6 +52,36 @@ public class IdSystem {
                                      string usernameParam,
                                      string idType) {
 
+        var output = await RenderId(command, member, claimParam, avatarImageParam, avatarUrlParam, accIdParam, dateParam, rankParam, pointsParam, recruitsParam, bloodtypeParam, catchphraseParam, usernameParam, idType);
+        if (output == null) return;
+
+        if (member != command.User && !command.CommandName.Contains("debug")) {
+            try {
+                await member.SendFileAsync(output);
+            }
+            catch {}
+        } else {
+            await command.FollowupWithFileAsync(output, text: "<:sango_emblem_mono:1492222638980989138> :: Loaded Identification Card!");
+        }
+
+        File.Delete(output);
+    }
+
+    public static async Task<string?> RenderId(SocketSlashCommand command,
+                                               SocketGuildUser member,
+                                               string claimParam,
+                                               byte[]? avatarImageParam,
+                                               string avatarUrlParam,
+                                               string accIdParam,
+                                               DateTimeOffset dateParam,
+                                               string rankParam,
+                                               int pointsParam,
+                                               int recruitsParam,
+                                               string bloodtypeParam,
+                                               string catchphraseParam,
+                                               string usernameParam,
+                                               string idType) {
+
         var fontCollection = new FontCollection();
         var fontPath = Path.Combine(AppContext.BaseDirectory, "Fonts", "MonaspaceArgon-Bold.otf");
         var fontFamily = fontCollection.Add(fontPath);
@@ -60,7 +90,7 @@ public class IdSystem {
         var fontSmall = fontFamily.CreateFont(35);
 
         Image idImg;
-        try { idImg = LoadId(idType); } catch { await command.FollowupAsync("Did you forget to pre/enlist this person? ;)", ephemeral: true); return; }
+        try { idImg = LoadId(idType); } catch { await command.FollowupAsync("Did you forget to pre/enlist this person? ;)", ephemeral: true); return null; }
         Image avatar;
 
         if (avatarImageParam != null) {
@@ -69,7 +99,7 @@ public class IdSystem {
                 avatar = await Image.LoadAsync(avatarStream);
             } catch (UnknownImageFormatException) {
                 await command.FollowupAsync("It seems like your avatar is corrupted. Please run /editid to fix it, or contact a staff member for assistance.", ephemeral: true);
-                return;
+                return null;
             }
         } else {
             var sizedAvatarUrl = avatarUrlParam.Contains('?') ? avatarUrlParam + "&size=4096" : avatarUrlParam + "?size=4096";
@@ -82,11 +112,11 @@ public class IdSystem {
 
             } catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException) {
                 await command.FollowupAsync("Couldn't load the avatar image. Try again in a moment, or contact a staff member for assistance.", ephemeral: true);
-                return;
+                return null;
 
             } catch (UnknownImageFormatException) {
                 await command.FollowupAsync("That avatar link doesn't point to a supported image format.", ephemeral: true);
-                return;
+                return null;
             }
         }
 
@@ -165,17 +195,7 @@ public class IdSystem {
         await clone.SaveAsync(output);
         foreach (var (img, _) in badgesToDraw) img.Dispose();
 
-        if (member != command.User && !command.CommandName.Contains("debug")) {
-            try {
-                await member.SendMessageAsync("Here you are! Your new **Identification Card** and loaned **Work Cellphone**!\nKeep them safe.");
-                await member.SendFileAsync(output);
-            }
-            catch {}
-        } else {
-            await command.FollowupWithFileAsync(output, text: "<:sango_emblem_mono:1492222638980989138> :: Loaded Identification Card!");
-        }
-
-        File.Delete(output);
+        return output;
     }
 
     public async Task HandleIdCommand(SocketSlashCommand command) {
@@ -600,16 +620,17 @@ public class IdSystem {
         if (roleIds.Contains(1527907825836097556)) badgesToDraw.Add((Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "Badges", "badge10.png")), new Point(0, 0)));
         if (roleIds.Contains(1527907819649630298)) badgesToDraw.Add((Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "Badges", "badge11.png")), new Point(0, 0)));
         if (roleIds.Contains(1567600759929962619)) badgesToDraw.Add((Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "Badges","donator_talisman.png")), new Point(0, 0)));
+        if (roleIds.Contains(1569194840720408656)) badgesToDraw.Add((Image.Load(Path.Combine(AppContext.BaseDirectory, "Images", "Badges","weekly_talisman.png")), new Point(0, 0)));
         
         var eventBadges = new (ulong RoleId, string File)[] {
             
             (1527905937329881158, "tanzaku_gold.png"),
             (1527905990329110669, "tanzaku_silver.png"),
             (1527906014060609586, "tanzaku_slip.png"),
-            (1570621305353670787, "tour_mic"),
-            (1570620847217975306, "tourney_gold"),
-            (1570620925785800764, "tourney_silver"),
-            (1570620994211680332, "tourney_bat")
+            (1570621305353670787, "tour_mic.png"),
+            (1570620847217975306, "tourney_gold.png"),
+            (1570620925785800764, "tourney_silver.png"),
+            (1570620994211680332, "tourney_bat.png")
         };
 
         var ownedEventBadges = eventBadges.Where(b => roleIds.Contains(b.RoleId)).ToList();

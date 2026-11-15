@@ -583,96 +583,85 @@ public class PointSystem {
 
     public async Task TourneyRewards(SocketSlashCommand command) {
 
-        var enlisted = new List<SocketGuildUser>();
-        var recruits = new List<(SocketGuildUser User, int Recruits)>();
-        var attended = new List<(SocketGuildUser User, int Attended)>();
-        var guild = _client.GetGuild((ulong)_guildId!);
-        
         await command.DeferAsync();
         
-        foreach (var userId in _db.GetEnlisted()) {
-            var member = guild.GetUser(ulong.Parse(userId));
-            if (member != null) enlisted.Add(member);
-        }
+        var guild = _client.GetGuild(_guildId!.Value);
+        var eligible = new List<(SocketGuildUser User, int Events, int Recruits)>();
 
-        foreach (var user in enlisted) {
+        foreach (var userId in _db.GetEnlisted()) {
+            
+            var user = guild.GetUser(ulong.Parse(userId));
+            if (user == null) continue;
             
             var events = await _db.GetEventsAttended(user.Id);
+            if (events <= 5) continue;
+
+            eligible.Add((user, events, await _db.GetTourneyRecruits(user.Id)));
+        }
+
+        var topEvents = eligible.OrderByDescending(e => e.Events).Take(3).ToList();
+        var topRecruits = eligible.Where(e => e.Recruits > 0).OrderByDescending(e => e.Recruits).Take(3).ToList();
+        
+        var places = new Dictionary<ulong, int>();
+        foreach (var ranking in new[] { topEvents, topRecruits }) {
             
-            if (events < 5) {
+            for (var i = 0; i < ranking.Count; i++) {
+                var id = ranking[i].User.Id;
+                if (!places.TryGetValue(id, out var best) || i + 1 < best) places[id] = i + 1;
+            }
+        }
+        
+        ulong[] tierRoles = [1570620847217975306, 1570620925785800764, 1570620994211680332];
+        string[] pinNames = ["The Gold Bat", "The Silver Bat", "The Black Bat"];
+        var rewarded = 0;
+        var errors = new List<string>();
+
+        foreach (var (user, events, _) in eligible) {
+
+            var place = places.GetValueOrDefault(user.Id);
+            var tier = place switch { 1 => 1, 2 or 3 => 2, _ => 3 };
+
+            try {
+                // await _db.AddPoints(user.Id, events + 50);
+                // await _db.AddYen(user.Id, 50000);
+                // await user.AddRoleAsync(1475899268593225829);
+                // await user.AddRoleAsync(tierRoles[tier - 1]);
+                // rewarded++;
+            } catch (Exception ex) {
+                errors.Add($"Couldn't reward {user.Username}: {ex.Message}");
                 continue;
             }
             
-            await _db.AddPoints(user.Id, events);
-            await _db.AddPoints(user.Id, 50);
-            await _db.AddYen(user.Id, 50000);
-            await user.AddRoleAsync(1475899268593225829);
-            
-            recruits.Add((user, await _db.GetTourneyRecruits(user.Id)));
-            attended.Add((user, events));
+            var message = $"## <:sango_a_redfourstar:1565904661922455583> ・ Congratulations, {await _db.GetClaim(user.Id)} *!!*\n*You've done a fantastic job with the Tourney over the course of October.*\n\n";
+
+            if (place > 0) {
+                message += $"> For this reason alone, you have placed {ToOrdinal(place)} in the FANGSinMOONLIGHT event!\n\n";
+            }
+
+            message += $"・ The Tier {tier} Pin　⋮　**{pinNames[tier - 1]}**\n・ The number of your attended events during the month transformed into points!\n";
+
+            if (place > 0) {
+                message += "・ Your character turned into a phone charm *just for you*, drawn by *Wu Hongye*!\n-# _ _       <:sango_a_note:1565904348066750654> Make sure to DM her after receiving this and send her a screenshot of this embed.\n";
+            }
+
+            message += "\n> <:sango_a_goldarrow:1565905710875676722>  *As promised, an extra 50 Points, 50k Yen, and the World-Class Idol badge have been given to your account.*";
+
+            var embed = new EmbedBuilder()
+                .WithDescription(message)
+                .WithImageUrl("https://media.discordapp.net/attachments/1514405869243334726/1571342505016828057/IMG_4640.png?ex=6afa623f&is=6af910bf&hm=38a2e38a90fa5c3c316ec338b5c7655bffa778844b2e15e63aed0dcb05c0ecea&format=webp&quality=lossless")
+                .WithColor(new Color(0x4e5156))
+                .Build();
+
+            try {
+                await command.FollowupAsync(text: user.Username, embed: embed);
+            } catch (Discord.Net.HttpException ex) {
+                errors.Add(new MessageSendException(user.Username, ex).Message);
+            }
         }
-        
-        var rankedRecruits = recruits.OrderByDescending(r => r.Recruits).ToList();
-        var limitRecruits = Math.Min(6, rankedRecruits.Count);
-        
-        var rankedAttended = attended.OrderByDescending(r => r.Attended).ToList();
-        var limitAttended = Math.Min(6, rankedAttended.Count);
-        
-        for (var i = 0; i < limitRecruits; i++) { // fix the images and the embeds yay!
-            
-            var user = rankedRecruits[i].User;
-                string place;
-        
-                if (i == 3) {
-                    place = ToOrdinal(i);
-                } else if (i > 3) {
-                    place = ToOrdinal(i - 1);
-                } else place = ToOrdinal(i + 1);
-            
-                var embedBuilder = new EmbedBuilder()
-                    .WithImageUrl("https://media.discordapp.net/attachments/1473209020285452360/1520884908397035590/IMG_2415.gif?ex=6a6efc32&is=6a6daab2&hm=48177297d77f74c40998c69a7c4269c22abe15b0222798240f23870560d1e546&=")
-                    .WithColor(new Color(0x829cff));
-                
-                if (i == 0) {
-                    await user.AddRoleAsync(1527905937329881158);
-                    embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\n\nFor this reason alone, you have placed **1ST** in the Festival event and gained the following rewards:\n\n- The Tier 1 Badge : The Golden Tanzaku\n- A headshot of your character drawn by the main server artist, KAPS\n- A third of your currency transformed into points (nice rank skip!)\n- The limited Starry Night ID skin (use /editid to check it out!)\n- The ability to help design the special Parade Dress for our debut event!\n\nMake sure to message Mikage Makina for more information about the headshot from KAPS!\nMessage Kamikawa Hiromi to discuss more about the future Parade Dress you'll be helping with!\n\nGood job, you did wonderfully. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
-                } else if (i is 1 or 2 or 3) {
-                    await user.AddRoleAsync(1527905990329110669);
-                    embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\n\nFor this reason alone, you have placed **{place}** in the Festival event and gained the following rewards:\n\n- The Tier 2 Badge : The Silver Tanzaku\n- An art piece of your character drawn by the main server artist, Tokiwa Cho\n- A third of your currency transformed into points\n- The limited Starry Night ID skin (use /editid to check it out!)\n\nMake sure to message Tokiwa Cho for more information about the art they'll draw for you!\n\nGood job, you did wonderfully. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
-                } else {
-                    await user.AddRoleAsync(1527906014060609586);
-                    embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\n\nFor this reason alone, you have placed **{place}** in the Festival event and gained the following rewards:\n\n- The Tier 2 Badge : The Silver Tanzaku\n- A third of your currency transformed into points\n- The limited Starry Night ID skin (use /editid to check it out!)\n\nGood job, you did wonderfully. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
-                }
-                await user.SendMessageAsync(embed: embedBuilder.Build());
-        }
-        
-        for (var i = 0; i < limitAttended; i++) {
-            
-            var user = rankedAttended[i].User;
-                string place;
-        
-                if (i == 3) {
-                    place = ToOrdinal(i);
-                } else if (i > 3) {
-                    place = ToOrdinal(i - 1);
-                } else place = ToOrdinal(i + 1);
-            
-                var embedBuilder = new EmbedBuilder()
-                    .WithImageUrl("https://media.discordapp.net/attachments/1473209020285452360/1520884908397035590/IMG_2415.gif?ex=6a6efc32&is=6a6daab2&hm=48177297d77f74c40998c69a7c4269c22abe15b0222798240f23870560d1e546&=")
-                    .WithColor(new Color(0x829cff));
-                
-                if (i == 0) {
-                    await user.AddRoleAsync(1527905937329881158);
-                    embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\n\nFor this reason alone, you have placed **1ST** in the Festival event and gained the following rewards:\n\n- The Tier 1 Badge : The Golden Tanzaku\n- A headshot of your character drawn by the main server artist, KAPS\n- A third of your currency transformed into points (nice rank skip!)\n- The limited Starry Night ID skin (use /editid to check it out!)\n- The ability to help design the special Parade Dress for our debut event!\n\nMake sure to message Mikage Makina for more information about the headshot from KAPS!\nMessage Kamikawa Hiromi to discuss more about the future Parade Dress you'll be helping with!\n\nGood job, you did wonderfully. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
-                } else if (i is 1 or 2 or 3) {
-                    await user.AddRoleAsync(1527905990329110669);
-                    embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\n\nFor this reason alone, you have placed **{place}** in the Festival event and gained the following rewards:\n\n- The Tier 2 Badge : The Silver Tanzaku\n- An art piece of your character drawn by the main server artist, Tokiwa Cho\n- A third of your currency transformed into points\n- The limited Starry Night ID skin (use /editid to check it out!)\n\nMake sure to message Tokiwa Cho for more information about the art they'll draw for you!\n\nGood job, you did wonderfully. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
-                } else {
-                    await user.AddRoleAsync(1527906014060609586);
-                    embedBuilder.WithDescription($"## Congratulations, {await _db.GetClaim(user.Id)}!\n\nYou've done a fantastic job with the special largescale event over the course of the past month.\n\nFor this reason alone, you have placed **{place}** in the Festival event and gained the following rewards:\n\n- The Tier 2 Badge : The Silver Tanzaku\n- A third of your currency transformed into points\n- The limited Starry Night ID skin (use /editid to check it out!)\n\nGood job, you did wonderfully. We are honored to have had you here with us!\n### _ _                                                         — The Staff at Sangō Idol-Defense Force");
-                }
-                await user.SendMessageAsync(embed: embedBuilder.Build());
-        }
+
+        var reply = $"Gave Tourney rewards to {rewarded} member(s).";
+        if (errors.Count > 0) reply += "\n\n" + string.Join("\n", errors);
+        await command.FollowupAsync(reply);
     }
     
     private static string ToOrdinal(int number) {

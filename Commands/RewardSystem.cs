@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Net;
 using Discord.WebSocket;
 using SMASSB.Exceptions;
 using SMASSB.Models;
@@ -58,6 +59,7 @@ public class RewardSystem {
         
         foreach (SocketGuildUser enlisted in enlisteds) {
             try {
+                
                 await enlisted.SendMessageAsync(null, false, embedHeadphones);
                 await enlisted.SendMessageAsync(null, false, embedSword);
                 await enlisted.RemoveRoleAsync(1537202109336920096);
@@ -71,154 +73,126 @@ public class RewardSystem {
         }
     }
 
+    private record Accomplishment(string Name, ulong? RoleId, Embed[] Embeds, int Points = 0, int Yen = 0, string? NewId = null);
+
+    private static readonly Dictionary<int, Accomplishment> Accomplishments = new() {
+        
+        [1] = Standard("TRANSFER", 1473371574710046840, "Left Wing, Main Color 3", "#5d6866", false, "Thin Scarf", "Circle Headphones"),
+        [2] = Standard("SUPPORTER", null, "Right Wing, Main Color 3", "#5d6866", true, "Neck Headphones", "No Mask Perms OR Chest Acc. Change"),
+        [3] = Standard("HIGH SCOUTER", 1475898897174892769, "Left Wing, Outline 2", "#839390", false, "Neck Ribbon", "No Headphones Perms"),
+        [4] = Standard("MAX SCOUTER", 1475899025851945081, "Right Wing, Outline 2", "#839390", true, "Cravat", "Ear Acc. Change (Cannot Remove Them)"),
+        [5] = Standard("PERFECT PITCH", 1475899134337617980, "Left Sleeve, Outline 1", "#5d6866", false, "Sleeveless Shirt", "Foreleg Pattern Change"),
+        [6] = Standard("WORLD-CLASS IDOL", 1475899268593225829, "Left Sleeve, Main Color 5", "#839390", true, "Longer Sleeves", "Spiked Collar"),
+        [7] = Standard("RIKUGUN BUKŌSHŌ I", 1475961765433970880, "Right Sleeve, Outline 1", "#5d6866", true, "Heart Headphones", "Heart Front Socks"),
+        [8] = Standard("RIKUGUN BUKŌSHŌ II", 1475899269335744564, "Right Sleeve, Main Color 5", "#839390", true, "Flowy Sleeves", "No Mask Perms OR Chest Acc. Change"),
+        [9] = Standard("REBIRTH", 1477926845184872531, "Chest Acc., Color 5", "#839390", true, "Skirt / Pants Change, Chest Acc. Change,", "Hindleg Acc. Change") with { NewId = "NEWGAMEPLUSENLISTED" },
+        [10] = Special("A NUTRITIOUS BREAKFAST", 1527907825836097556, 60, 3500, "Please place these codes on your dress on the *Back Bow*. \n✦ **#839390 | #272e2e**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#231a16 | #LOCKED**"),
+        [11] = Special("STALEMATE", 1527907819649630298, 30, 2000, "Please place this code on your dress on the *Waist Accessory, Main Color 2*. \n✦ **#5d6866**"),
+        [12] = Extraneous("CHARITY DONATOR", 1569194840720408656, "Left Sleeve, Outline 6", "#5d6866")
+    };
+
     public async Task HandleRewardAccompCommand(SocketSlashCommand command) {
         
-        await command.DeferAsync();
+        await command.DeferAsync(ephemeral: true);
+        var members = new List<SocketGuildUser>();
+        var itemId = 0;
         
-        string[] accompName = ["TRANSFER", "SUPPORTER", "HIGH SCOUTER", "MAX SCOUTER", "PERFECT PITCH", "WORLD-CLASS IDOL", "RIKUGUN BUKŌSHŌ I", "RIKUGUN BUKŌSHŌ II", "REBIRTH", "A NUTRITIOUS BREAKFAST", "STALEMATE"];
-        string[] paradeLocation = ["Left Wing, Main Color 3", "Right Wing, Main Color 3", "Left Wing, Outline 2", "Right Wing, Outline 2", "Left Sleeve, Outline 1", "Left Sleeve, Main Color 5", "Right Sleeve, Outline 1", "Right Sleeve, Main Color 5", "Chest Acc., Color 5"];
-        string[] paradeHex = ["#5d6866", "#5d6866","#839390", "#839390", "#5d6866", "#839390","#5d6866", "#839390", "#839390"];
-        string[] itemPackTrack1 = ["", " and Custom Itempack", "", " and Custom Itempack", "", " and Custom Itempack", " and Custom Itempack", " and Custom Itempack", " and Custom Itempack"];
-        string[] itemPackTrack2 = ["", "\n   - You may change or add ONE item to your tracksuit.", "", "\n   - You may change or add ONE item to your tracksuit.", "", "\n   - You may change or add ONE item to your tracksuit.", "\n   - You may change or add ONE item to your tracksuit.", "\n   - You may change or add ONE item to your tracksuit.", "\n   - You may change or add ONE item to your tracksuit."];
-        string[] itemPackIdol1 = ["Thin Scarf", "Neck Headphones", "Neck Ribbon", "Cravat", "Sleeveless Shirt", "Longer Sleeves", "Heart Headphones", "Flowy Sleeves", "Skirt / Pants Change, Chest Acc. Change,"];
-        string[] itemPackIdol2 = ["Circle Headphones", "No Mask Perms OR Chest Acc. Change", "No Headphones Perms", "Ear Acc. Change (Cannot Remove Them)", "Foreleg Pattern Change", "Spiked Collar", "Heart Front Socks", "No Mask Perms OR Chest Acc. Change", "Hindleg Acc. Change"];
-        
-        var guild = _client.GetGuild((ulong)_guildId!);
-        var channel = guild.GetChannel(1542227176387121182) as ITextChannel;
-        var enlisteds = new List<SocketGuildUser>();
-        var desc = "";
-        var item = 0;
-        var value = 0;
-
         foreach (var option in command.Data.Options) {
             
-            if (option.Name.StartsWith("enlisted")) {
-                enlisteds.Add(_client.GetGuild((ulong)_guildId!).GetUser(((SocketUser)option.Value).Id));
+            if (option.Name.StartsWith("enlisted") && option.Value is SocketGuildUser user) {
+                members.Add(user);
             } else if (option.Name == "item") {
-                item = (int)(long)option.Value;
-            } else {
-                await command.RespondAsync("Unrecognized command.", ephemeral: true);
-                return;
-            }
-        }
-
-        foreach (var assignedTo in enlisteds) {
-
-            desc += "<@" + assignedTo.Id + ">, ";
-            switch (item) {
-
-                case 1:
-                    value = 1;
-                    await assignedTo.AddRoleAsync(1473371574710046840);
-                    break;
-                case 2:
-                    value = 2;
-                    break;
-                case 3:
-                    value = 3;
-                    await assignedTo.AddRoleAsync(1475898897174892769);
-                    break;
-                case 4:
-                    value = 4;
-                    await assignedTo.AddRoleAsync(1475899025851945081);
-                    break;
-                case 5:
-                    value = 5;
-                    await assignedTo.AddRoleAsync(1475899134337617980);
-                    break;
-                case 6:
-                    value = 6;
-                    await assignedTo.AddRoleAsync(1475899268593225829);
-                    break;
-                case 7:
-                    value = 7;
-                    await assignedTo.AddRoleAsync(1475961765433970880);
-                    break;
-                case 8:
-                    value = 8;
-                    await assignedTo.AddRoleAsync(1475899269335744564);
-                    break;
-                case 9:
-                    value = 9;
-                    await assignedTo.AddRoleAsync(1477926845184872531);
-                    await _db.GiveNewId(assignedTo.Id, "NEWGAMEPLUSENLISTED");
-                    break;
-                case 10:
-                    value = 10;
-                    await assignedTo.AddRoleAsync(1527907825836097556);
-                    await _db.AddPoints(assignedTo.Id, 60);
-                    await _db.AddYen(assignedTo.Id, 3500);
-                    break;
-                case 11:
-                    value = 11;
-                    await assignedTo.AddRoleAsync(1527907819649630298);
-                    await _db.AddPoints(assignedTo.Id, 30);
-                    await _db.AddYen(assignedTo.Id, 2000);
-                    break;
-                default:
-                    await command.FollowupAsync("Unrecognized command.", ephemeral: true);
-                    return;
-            }
-
-            List<EmbedBuilder> embeds = [new EmbedBuilder()
-                    .WithAuthor("Dear Enlistee, you have completed the . . .")
-                    .WithTitle(accompName[value - 1] + " ACCOMPLISHMENT!")
-                    .WithColor(0xBFA55F)
-                    .WithDescription(". . And have been awarded with the following :")
-                    .WithThumbnailUrl(
-                        "https://64.media.tumblr.com/7d47f90161168afdb17720c3e645e120/b35d6053bfb9fc2a-03/s400x600/5ed0e321f4aeac2aa3542a520f1df49cbeff1752.pnj")];
-
-            if (value < 10) {
-
-                embeds.Add(new EmbedBuilder()
-                    .WithTitle("Wearable for Parade Dress!")
-                    .WithColor(0xBFA55F)
-                    .WithDescription("Please place this code on your dress on the *" + paradeLocation[value - 1] +
-                                     "*. \n✦ **" + paradeHex[value - 1] + "**"));
-
-                embeds.Add(new EmbedBuilder()
-                    .WithTitle("Custom Colorpack" + itemPackTrack1[value - 1] + " for Tracksuit!")
-                    .WithColor(0xBFA55F)
-                    .WithDescription("You may change *two* colors on your tracksuit.\nNote that the color you change is changed across the entire uniform. If you are changing Color X, all instances of that must be replaced with Color Y." + itemPackTrack2[value - 1] + "\n\n✦ **181615** and **070a0c** are the same code when recoloring.\n✦ **888375** and **6b6051** are the same code when recoloring.\n✦ Colors and outlines are treated as two separate values, so don't change a main color and it's outline and say that it is one color!"));
-
-                embeds.Add(new EmbedBuilder()
-                    .WithTitle("New Itempack for Idol Outfit!")
-                    .WithColor(0xBFA55F)
-                    .WithDescription("You may use **" + itemPackIdol1[value - 1] + "** and **" +
-                                     itemPackIdol2[value - 1] + "** rather than the required items!")
-                    .WithFooter("Please send your updated uniforms in the typical uniform checks."));
-                
-            } else {
-                switch (value) {
-                    case 10:
-                        embeds.Add(new EmbedBuilder()
-                            .WithTitle("Wearable for Parade Dress!")
-                            .WithColor(0xBFA55F)
-                            .WithDescription(
-                                "Please place these codes on your dress on the *Back Bow*. \n✦ **#839390 | #272e2e**\nThen, place these codes on the *Tail*. \n✦ **#0f1111 | #5d6866**\n✦ **#231a16 | #LOCKED**\n\n- You may change or add ONE item to your tracksuit.")
-                            .WithFooter(
-                                "You've also received 60 POINTs and ¥3500!\n✦ Please send your updated uniform in the typical uniform checks."));
-                        break;
-                    case 11:
-                        embeds.Add(new EmbedBuilder()
-                            .WithTitle("Wearable for Parade Dress!")
-                            .WithColor(0xBFA55F)
-                            .WithDescription(
-                                "Please place this code on your dress on the *Waist Accessory, Main Color 2*. \n✦ **#5d6866**\n\n- You may change or add ONE item to your tracksuit.")
-                            .WithFooter(
-                                "You've also received 30 POINTs and ¥2000!\n✦ Please send your updated uniform in the typical uniform checks."));
-                        break;
-                }
-            }
-
-            foreach (var embed in embeds) {
-                try { await assignedTo.SendMessageAsync("", false, embed.Build()); }
-                catch (Discord.Net.HttpException ex) { await command.FollowupAsync(new MessageSendException(ex.Message, ex).Message); }
+                itemId = Convert.ToInt32(option.Value);
             }
         }
         
-        desc = desc.TrimEnd(',', ' ');
-        if (channel != null) await channel.SendMessageAsync("## Au__tomatic Messaging Syst__em . . \nPlease congratulate " + desc + " in <#1473211757269876831> \nfor achieving the accomplishment **__" + accompName[value - 1]+ "__**!\n\n<@&1473370613992394864>");
-        await command.FollowupAsync(text: "Rewarded members with accomplishment " + accompName[value - 1] + ".", ephemeral: true);
+        if (!Accomplishments.TryGetValue(itemId, out var accomp)) {
+            await command.FollowupAsync("Unknown accomplishment.");
+            return;
+        }
+        
+        var header = new EmbedBuilder()
+            .WithAuthor("Dear Enlistee, you have completed the . . .")
+            .WithTitle(accomp.Name + " ACCOMPLISHMENT!")
+            .WithColor(0xBFA55F)
+            .WithDescription(". . And have been awarded with the following :")
+            .WithThumbnailUrl("https://64.media.tumblr.com/7d47f90161168afdb17720c3e645e120/b35d6053bfb9fc2a-03/s400x600/5ed0e321f4aeac2aa3542a520f1df49cbeff1752.pnj")
+            .Build();
+        
+        Embed[] dm = [header, ..accomp.Embeds];
+        var rewarded = new List<SocketGuildUser>();
+        var errors = new List<string>();
+        
+        foreach (var member in members) {
+            try {
+                
+                if (accomp.RoleId != null) await member.AddRoleAsync(accomp.RoleId.Value);
+                if (accomp.NewId != null) await _db.GiveNewId(member.Id, accomp.NewId);
+                if (accomp.Points > 0) await _db.AddPoints(member.Id, accomp.Points);
+                if (accomp.Yen > 0) await _db.AddYen(member.Id, accomp.Yen);
+                rewarded.Add(member);
+                
+            } catch (Exception ex) {
+                errors.Add($"Couldn't reward {member.Username}: {ex.Message}");
+                continue;
+            }
+            
+            try {
+                await member.SendMessageAsync(embeds: dm);
+            } catch (HttpException ex) {
+                errors.Add(new MessageSendException(member.Username, ex).Message);
+            }
+        }
+        
+        if (rewarded.Count > 0 && _client.GetGuild(_guildId!.Value).GetChannel(1542227176387121182) is ITextChannel channel) {
+            
+            var mentions = string.Join(", ", rewarded.Select(m => m.Mention));
+            await channel.SendMessageAsync("## Au__tomatic Messaging Syst__em . . \nPlease congratulate " + mentions + " in <#1473211757269876831> \nfor achieving the accomplishment **__" + accomp.Name + "__**!\n\n<@&1473370613992394864>");
+        }
+        var reply = $"Rewarded {rewarded.Count} member(s) with accomplishment {accomp.Name}.";
+        
+        if (errors.Count > 0) reply += "\n\n" + string.Join("\n", errors);
+        await command.FollowupAsync(reply);
+    }
+
+    private static Embed RewardEmbed(string title, string description, string? footer = null) {
+        
+        var embed = new EmbedBuilder().WithTitle(title).WithColor(0xBFA55F).WithDescription(description);
+        if (footer != null) embed.WithFooter(footer);
+        
+        return embed.Build();
+    }
+
+    private static Accomplishment Standard(string name, ulong? roleId, string paradeLocation, string paradeHex, bool itempack, string idolItem1, string idolItem2) {
+        
+        var parade = RewardEmbed("Wearable for Parade Dress!", $"Please place this code on your dress on the *{paradeLocation}*. \n✦ **{paradeHex}**");
+        
+        var colorpackDescription = "You may change *two* colors on your tracksuit.\nNote that the color you change is changed across the entire uniform. If you are changing Color X, all instances of that must be replaced with Color Y.";
+        if (itempack) 
+            colorpackDescription += "\n   - You may change or add ONE item to your tracksuit.";
+        
+        colorpackDescription += "\n\n✦ **181615** and **070a0c** are the same code when recoloring.\n✦ **888375** and **6b6051** are the same code when recoloring.\n✦ Colors and outlines are treated as two separate values, so don't change a main color and it's outline and say that it is one color!";
+        var colorpack = RewardEmbed("Custom Colorpack" + (itempack ? " and Custom Itempack" : "") + " for Tracksuit!", colorpackDescription);
+        var idol = RewardEmbed("New Itempack for Idol Outfit!", $"You may use **{idolItem1}** and **{idolItem2}** rather than the required items!", "Please send your updated uniforms in the typical uniform checks.");
+        
+        return new Accomplishment(name, roleId, [parade, colorpack, idol]);
+    }
+
+    private static Accomplishment Special(string name, ulong roleId, int points, int yen, string paradeText) {
+        
+        var description = paradeText + "\n\n- You may change or add ONE item to your tracksuit.";
+        var footer = $"You've also received {points} POINTs and ¥{yen}!\n✦ Please send your updated uniform in the typical uniform checks.";
+        var embed = RewardEmbed("Wearable for Parade Dress!", description, footer);
+        
+        return new Accomplishment(name, roleId, [embed], points, yen);
+    }
+    
+    private static Accomplishment Extraneous(string name, ulong roleId, string paradeLocation, string paradeHex) {
+        
+        var parade = RewardEmbed("Wearable for Parade Dress!", $"Please place this code on your dress on the *{paradeLocation}*. \n✦ **{paradeHex}**");
+        var colorpack = RewardEmbed("Custom Colorpack and Itempack for Tracksuit!", "You may change *two* colors on your tracksuit.\nNote that the color you change is changed across the entire uniform. If you are changing Color X, all instances of that must be replaced with Color Y.\n   - You may change or add ONE item to your tracksuit.\n\n✦ **181615** and **070a0c** are the same code when recoloring.\n✦ **888375** and **6b6051** are the same code when recoloring.\n✦ Colors and outlines are treated as two separate values, so don't change a main color and it's outline and say that it is one color!");
+        var idol = RewardEmbed("New Itempack for Idol Outfit!", $"You may change *two* required items on your idol outfit!", "Please send your updated uniforms in the typical uniform checks.");
+        
+        return new Accomplishment(name, roleId, [parade, colorpack, idol]);
     }
 }

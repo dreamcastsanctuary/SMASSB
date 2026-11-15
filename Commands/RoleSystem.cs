@@ -48,8 +48,11 @@ public class RoleSystem {
             return;
         }
         
-        try { await civilian.SendMessageAsync($"Welcome to SANGŌ, **Kō. {claim}**! We're very happy to have you.\n" + "Your first event *must* be of type **CIVT / Civilian Training**. Please be on the lookout for it."); }
-        catch (HttpException ex) when (ex.DiscordCode == DiscordErrorCode.CannotSendMessageToUser) { await command.FollowupAsync($"Hey, <@{civilian.Id}>! Please turn your Server DMs on so that I can message you important information regarding your enlistment!\nThank you!"); return; }
+        try {
+            var message = await civilian.SendMessageAsync("Seeing if DMs are open...");
+            await message.DeleteAsync();
+        }
+        catch (Exception) { await command.FollowupAsync($"Hey, <@{civilian.Id}>! Please turn your Server DMs on so that I can message you important information regarding your enlistment!\nThank you!"); return; }
         
         await civilian.AddRoleAsync(1473369036766052445);
         await civilian.AddRoleAsync(1475886792174604484);
@@ -59,7 +62,6 @@ public class RoleSystem {
 
         if (claim != null) {
             await _db.PreEnlist(command, civilian, claim, civilian.GetGuildAvatarUrl() ?? civilian.GetAvatarUrl() ?? civilian.GetDefaultAvatarUrl() ?? civilian.GetDisplayAvatarUrl(), civilian.Id.ToString(), civilian.JoinedAt ?? civilian.CreatedAt, "Jieikan Kōhosei", 0, 0, "N/A", "", civilian.Username, "ENLISTEDMAIN", "BLACK", "NONE", "BASIC");
-
         }
     }
     

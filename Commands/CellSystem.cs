@@ -133,6 +133,21 @@ public class CellSystem {
             );
         }
     }
+    
+    public static (FileAttachment Attachment, string Url) RenderCell(SocketGuildUser member,
+        string caseType,
+        string charmType,
+        string wallpaperType,
+        List<string> appsParam,
+        int yen,
+        int currentWeekEarnings,
+        double percentChange,
+        bool isIncrease) {
+
+        bool Has(AppType app) => appsParam.Contains(app.ToString());
+
+        return GetCellImage(Has(AppType.RHYTHMTENGOKU), Has(AppType.MADOUMONOGATARI), Has(AppType.PUYOPUYOFEVER), Has(AppType.POKEMONLEAFGREEN), Has(AppType.TETRIS), Has(AppType.TOMODACHICOLLECTION), Has(AppType.SONICADVANCE), Has(AppType.WARIOWARE), Has(AppType.SHANTAE), Has(AppType.RHYTHMHEAVEN), Has(AppType.EARTHBOUND), Has(AppType.RISTAR), Has(AppType.PACMAN), caseType, charmType, wallpaperType, isFront: true, yen: yen, userId: member.Id, currentWeekEarnings: currentWeekEarnings, percentChange: percentChange, isIncrease: isIncrease);
+    }
 
     public async Task HandleLaunchEmulatorJs(SocketMessageComponent component, ulong ownerId, string game) {
         
