@@ -213,10 +213,10 @@ public class DatabaseService {
             .WithTextDisplay(new TextDisplayBuilder().WithContent("### <:sango_01:1481753776745611505>　⋮　Your Identification Card"))
             .AddComponent(new ContainerBuilder().AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties("attachment://id.png"))))
             .WithTextDisplay(new TextDisplayBuilder().WithContent("-# Use */id* in the server to see it."))
-            .WithTextDisplay(new TextDisplayBuilder().WithContent("\n### <:sango_02:1481753799071633499>　⋮　Your Work Cellphone"))
+            .WithTextDisplay(new TextDisplayBuilder().WithContent("\n\n### <:sango_02:1481753799071633499>　⋮　Your Work Cellphone"))
             .AddComponent(new ContainerBuilder().AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties(cellImageUrl))))
             .WithTextDisplay(new TextDisplayBuilder().WithContent("-# Use */workcell* in the server to use it."))
-            .WithTextDisplay(new TextDisplayBuilder().WithContent("\n### <:sango_03:1481753821637251112>　⋮　Your Personnel Profile\n> Create your own personnel profile for your claim, complete with a guestbook, here!\n> ***( Also, check out the magazine when you have time. )***"))
+            .WithTextDisplay(new TextDisplayBuilder().WithContent("\n\n### <:sango_03:1481753821637251112>　⋮　Your Personnel Profile\n> Create your own personnel profile for your claim, complete with a guestbook, here!\n> ***( Also, check out the magazine when you have time. )***"))
             .AddComponent(new ActionRowBuilder().WithButton("SANGO.asia", url: "https://www.sango.asia/roster.html", style: ButtonStyle.Link))
             .WithTextDisplay(new TextDisplayBuilder().WithContent("-# Make sure to sign in first. Use */profile* in the server to see it."))
             .Build();
