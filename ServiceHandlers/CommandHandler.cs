@@ -60,12 +60,26 @@ public class CommandHandler {
             try {
                 await HandleSlashCommand(command);
             } catch (Exception ex) {
-                var guild = _client.GetGuild((ulong)_guildId!);
-                await _logHandler.LogExceptionWatch(guild.Id, exception: ex);
-                if (command.HasResponded)
-                    await command.FollowupAsync(ex.Message, ephemeral: true);
-                else
-                    await command.RespondAsync(ex.Message, ephemeral: true);
+                Console.WriteLine($"/{command.CommandName} failed for {command.User.Id}: {ex}");
+
+                var reply = $"Something went wrong running /{command.CommandName}: {ex.Message}";
+                if (reply.Length > 1900) reply = reply[..1900];
+
+                try {
+                    if (command.HasResponded)
+                        await command.FollowupAsync(reply, ephemeral: true);
+                    else
+                        await command.RespondAsync(reply, ephemeral: true);
+                } catch (Exception replyEx) {
+                    Console.WriteLine($"Couldn't send the error reply for /{command.CommandName}: {replyEx}");
+                }
+
+                try {
+                    var guild = _client.GetGuild((ulong)_guildId!);
+                    await _logHandler.LogExceptionWatch(guild.Id, exception: ex, text: $"/{command.CommandName} failed for user {command.User.Id}.");
+                } catch (Exception logEx) {
+                    Console.WriteLine($"LogExceptionWatch failed: {logEx}");
+                }
             }
         });
         return Task.CompletedTask;

@@ -435,9 +435,19 @@ public class LogHandler {
 
         if (_client.GetGuild(guildId).GetChannel(1540194084633710602) is IThreadChannel thread) {
             
-            if (text != null) await thread.SendMessageAsync("[ DESCRIPTION ]\n\n" + text.ToUpper());
-            if (msg != null) await thread.SendMessageAsync(msg.ToString());
-            if (exception != null) await thread.SendMessageAsync(exception.ToString());
+            if (text != null) await SendChunked(thread, "[ DESCRIPTION ]\n\n" + text.ToUpper());
+            if (msg != null) await SendChunked(thread, msg.ToString());
+            if (exception != null) await SendChunked(thread, exception.ToString());
+        }
+    }
+
+    private static async Task SendChunked(IMessageChannel channel, string content) {
+
+        const int maxLength = 1990;
+
+        for (var i = 0; i < content.Length; i += maxLength) {
+            var chunk = content.Substring(i, Math.Min(maxLength, content.Length - i));
+            await channel.SendMessageAsync(chunk, allowedMentions: AllowedMentions.None);
         }
     }
 }
