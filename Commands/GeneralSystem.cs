@@ -119,6 +119,8 @@ public class GeneralSystem {
             await Task.Delay(250);
         }
 
+        var sent = 0;
+
         foreach (var user in preCivt) {
 
             var careers = CareerParadeDress
@@ -141,6 +143,7 @@ public class GeneralSystem {
             
             try {
                 await user.SendMessageAsync(embed: embed);
+                sent++;
             } catch (HttpException) {
                 dmFailures.Add(user.Nickname ?? user.Username);
             }
@@ -148,7 +151,7 @@ public class GeneralSystem {
             await Task.Delay(250);
         }
 
-        await command.FollowupAsync($"Completed task. Sent to {preCivt.Count - dmFailures.Count} / {preCivt.Count} members.");
+        await command.FollowupAsync($"Completed task. Sent to {sent} member{(sent == 1 ? "" : "s")}.");
 
         var report = "";
         if (failures.Count > 0) report += "**Couldn't read DMs:**\n" + string.Join("\n", failures.Select(f => f.ToString())) + "\n\n";
