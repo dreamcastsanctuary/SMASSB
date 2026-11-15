@@ -587,7 +587,8 @@ public class PointSystem {
         
         var guild = _client.GetGuild(_guildId!.Value);
         var eligible = new List<(SocketGuildUser User, int Events, int Recruits)>();
-
+        await guild.DownloadUsersAsync();
+        
         foreach (var userId in _db.GetEnlisted()) {
             
             var user = guild.GetUser(ulong.Parse(userId));
