@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.Net;
 using Discord.WebSocket;
 using SMASSB.Exceptions;
 using SMASSB.Models;
@@ -70,6 +71,13 @@ public class GeneralSystem {
         await _logHandler.LogMassRemove(command, validMessages.Count);
     }
 
+    private static readonly Dictionary<ulong, (string Name, string Link)> CareerParadeDress = new() {
+        [1557735964950929558] = ("Researcher", "https://sangoidoldefenseforce.vercel.app/fsgsofqvsfdfsqwjh"),
+        [1557736035495059477] = ("Journalist", "https://sangoidoldefenseforce.vercel.app/xcifbozwghdfsqwjh"),
+        [1568931405134561501] = ("Recon", "https://sangoidoldefenseforce.vercel.app/fsqcbdfsqwjh"),
+        [1557736016016576522] = ("Medic", "https://sangoidoldefenseforce.vercel.app/asrwqdfsqwjh"),
+    };
+
     public async Task HandleParseCivtCommand(SocketSlashCommand command) {
 
         await command.DeferAsync();
@@ -82,12 +90,16 @@ public class GeneralSystem {
                     
         var failures = new List<MessageSendException>();
         var failures2 = new List<DmParseException>();
+        var dmFailures = new List<string>();
 
-        foreach (var userId in _db.GetEnlisted()) { enlisted.Add(guild.GetUser(ulong.Parse(userId))); }
+        foreach (var userId in _db.GetEnlisted()) {
+            var member = guild.GetUser(ulong.Parse(userId));
+            if (member != null) enlisted.Add(member);
+        }
         
         foreach (var user in enlisted) {
             
-            try { if (user.IsBot) continue; } catch (Exception e) { await command.FollowupAsync(e.ToString()); }
+            if (user.IsBot) continue;
             
             try {
                 var dmChannel = await user.CreateDMChannelAsync();
@@ -97,32 +109,54 @@ public class GeneralSystem {
                 try {
                     if (messages.Count == 0) continue;
                     if (messages.Any(m => m.Author.Id == _client.CurrentUser.Id && m.Embeds.Any(e => e.Description != null && e.Description.Contains("You've made it past your mandatory lectures!", StringComparison.OrdinalIgnoreCase)))) {
-                        
                         preCivt.Add(user);
                     }
                 } catch {
                     failures2.Add(new DmParseException(user.Nickname ?? user.Username));
                 }
             } catch (Exception ex) { failures.Add(new MessageSendException(user.Username, ex)); }
+
             await Task.Delay(250);
         }
 
-        var embed = new EmbedBuilder()
-            .WithAuthor("Dear Enlisted, you have been given . . .")
-            .WithTitle("【 PRE-CIVT FALL AND WINTER PARADE DRESS 】")
-            .WithDescription("Here's your new PRE-CIVT Parade Dress, just in time for the cold season!\nWe've changed our uniforms for the upcoming months, so everyone who received the PreCIVT uniform in the past will now get it's updated version.\n\n[. . PRE-CIVT PARADE DRESS . .](<https://sangoidoldefenseforce.vercel.app/wyljpca>)")
-            .WithImageUrl("https://64.media.tumblr.com/616bce1d6e1a6d7a2123c76d6f249404/2ecded076fd064e9-c6/s1280x1920/11d327bf242c41a07ca122757d050c6c6ce52da1.pnj")
-            .WithFooter("Thank you for your support thus far!\n\n 恐れも、惨めさも、怒りも無く！・❖")
-            .WithColor(new Color(0xFF312C)).Build();
-        
         foreach (var user in preCivt) {
-            try {await user.SendMessageAsync(embed: embed);}
-            catch {}
+
+            var careers = CareerParadeDress
+                .Where(c => user.Roles.Any(r => r.Id == c.Key))
+                .Select(c => c.Value)
+                .ToList();
+            
+            if (careers.Count == 0) continue;
+            
+            var links = string.Join("\n", careers.Select(c => $"[. . {c.Name.ToUpper()} PARADE DRESS . .](<{c.Link}>)"));
+            
+            var embed = new EmbedBuilder()
+                .WithAuthor("Dear Enlisted, you have been given . . .")
+                .WithTitle("【 PRE-CIVT FALL AND WINTER PARADE DRESS 】")
+                .WithDescription($"Here's your new PRE-CIVT Parade Dress, just in time for the cold season!\nWe've changed our uniforms for the upcoming months, so everyone who received the PreCIVT uniform in the past will now get its updated version.\n\n{links}")
+                .WithImageUrl("https://64.media.tumblr.com/616bce1d6e1a6d7a2123c76d6f249404/2ecded076fd064e9-c6/s1280x1920/11d327bf242c41a07ca122757d050c6c6ce52da1.pnj")
+                .WithFooter("Thank you for your support thus far!\n\n 恐れも、惨めさも、怒りも無く！・❖")
+                .WithColor(new Color(0xFF312C))
+                .Build();
+            
+            try {
+                await user.SendMessageAsync(embed: embed);
+            } catch (HttpException) {
+                dmFailures.Add(user.Nickname ?? user.Username);
+            }
+
+            await Task.Delay(250);
         }
 
-        await command.FollowupAsync("Completed task.");
-        await command.FollowupAsync(string.Join("FAILURES : \n", failures.Select(f => f.ToString())));
-        await command.FollowupAsync(string.Join("FAILURES : \n", failures2.Select(f => f.ToString())));
+        await command.FollowupAsync($"Completed task. Sent to {preCivt.Count - dmFailures.Count} / {preCivt.Count} members.");
+
+        var report = "";
+        if (failures.Count > 0)   report += "**Couldn't read DMs:**\n" + string.Join("\n", failures.Select(f => f.ToString())) + "\n\n";
+        if (failures2.Count > 0)  report += "**Couldn't parse DMs:**\n" + string.Join("\n", failures2.Select(f => f.ToString())) + "\n\n";
+        if (dmFailures.Count > 0) report += "**Couldn't send the uniform to:**\n" + string.Join("\n", dmFailures);
+
+        if (report.Length > 0)
+            await command.FollowupAsync(report.Length > 2000 ? report[..1997] + "..." : report);
     }
 
     public async Task HandleCheckOrChangeClaimCommand(SocketSlashCommand command) {
