@@ -645,7 +645,7 @@ public class IdSystem {
                 xPositions = [93, 233];
                 break;
             case 3:
-                xPositions = [23, 163, 303];
+                xPositions = [13, 143, 283];
                 break;
             default:
                 xPositions = [];
@@ -653,7 +653,7 @@ public class IdSystem {
         }
 
         for (int i = 0; i < ownedEventBadges.Count; i++) {
-            badgesToDraw.Add((LoadBadges(ownedEventBadges[i].File, 130, 180), new Point(xPositions[i], 895)));
+            badgesToDraw.Add((LoadBadges(ownedEventBadges[i].File, 180, 180), new Point(xPositions[i], 895)));
         }
         
         return badgesToDraw;
