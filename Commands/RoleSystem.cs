@@ -47,12 +47,15 @@ public class RoleSystem {
             await command.FollowupAsync("Unrecognized account.", ephemeral: true);
             return;
         }
-        
+
         try {
             var message = await civilian.SendMessageAsync("Seeing if DMs are open...");
             await message.DeleteAsync();
+        } catch (Exception ex) {
+            
+            await _logHandler.LogExceptionWatch((ulong)_guildId!, exception: ex);
+            await command.FollowupAsync($"Hey, <@{civilian.Id}>! Please turn your Server DMs on so that I can message you important information regarding your enlistment!\nThank you!"); return;
         }
-        catch (Exception) { await command.FollowupAsync($"Hey, <@{civilian.Id}>! Please turn your Server DMs on so that I can message you important information regarding your enlistment!\nThank you!"); return; }
         
         await civilian.AddRoleAsync(1473369036766052445);
         await civilian.AddRoleAsync(1475886792174604484);
