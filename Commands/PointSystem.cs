@@ -600,8 +600,8 @@ public class PointSystem {
             eligible.Add((user, events, await _db.GetTourneyRecruits(user.Id)));
         }
 
-        var topEvents = eligible.OrderByDescending(e => e.Events).Take(3).ToList();
-        var topRecruits = eligible.Where(e => e.Recruits > 0).OrderByDescending(e => e.Recruits).Take(3).ToList();
+        var topEvents = eligible.Where(e => e.User.Id != 274990117163368448).OrderByDescending(e => e.Events).Take(3).ToList();
+        var topRecruits = eligible.Where(e => e.User.Id != 274990117163368448 && e.Recruits > 0).OrderByDescending(e => e.Recruits).Take(3).ToList();
         
         var places = new Dictionary<ulong, int>();
         foreach (var ranking in new[] { topEvents, topRecruits }) {
