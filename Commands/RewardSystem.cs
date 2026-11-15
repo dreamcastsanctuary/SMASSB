@@ -73,9 +73,9 @@ public class RewardSystem {
         }
     }
 
-    private record Accomplishment(string Name, ulong? RoleId, Embed[] Embeds, int Points = 0, int Yen = 0, string? NewId = null);
+    internal record Accomplishment(string Name, ulong? RoleId, Embed[] Embeds, int Points = 0, int Yen = 0, string? NewId = null);
 
-    private static readonly Dictionary<int, Accomplishment> Accomplishments = new() {
+    internal static readonly Dictionary<int, Accomplishment> Accomplishments = new() {
         
         [1] = Standard("TRANSFER", 1473371574710046840, "Left Wing, Main Color 3", "#5d6866", false, "Thin Scarf", "Circle Headphones"),
         [2] = Standard("SUPPORTER", null, "Right Wing, Main Color 3", "#5d6866", true, "Neck Headphones", "No Mask Perms OR Chest Acc. Change"),

@@ -374,7 +374,16 @@ public class CellSystem {
                 }
                 var color = GetFontColor(wallpaperType);
                 ipc.DrawImage(wallpaper, new Point(0, 0), 1);
-                ipc.DrawText("¥" + yen.ToString("N0"), fontReg, color, new Point(757, 739));
+                
+                var balanceText = "¥" + yen.ToString("N0");
+                var balanceFont = fontReg;
+                
+                while (balanceFont.Size > 40 && TextMeasurer.MeasureSize(balanceText, new TextOptions(balanceFont)).Width > 830) 
+                    balanceFont = fontFamily.CreateFont(balanceFont.Size - 5);
+                
+                var balanceY = 739 + (int)((200 - balanceFont.Size) / 2);
+                ipc.DrawText(balanceText, balanceFont, color, new Point(757, balanceY));
+                
                 ipc.DrawText("**** **** **** " + (userId % 10000).ToString("D4"), fontSmall, color, new Point(762, 463));
                 ipc.DrawText("Balance", fontBal, color, new Point(740, 640));
                 ipc.DrawText(BuildEarningsSummary(currentWeekEarnings, percentChange, isIncrease), fontTiny, color, new Point(740, 963));

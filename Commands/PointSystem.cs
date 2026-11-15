@@ -584,83 +584,39 @@ public class PointSystem {
     public async Task TourneyRewards(SocketSlashCommand command) {
 
         await command.DeferAsync();
-        
+
         var guild = _client.GetGuild(_guildId!.Value);
-        var eligible = new List<(SocketGuildUser User, int Events, int Recruits)>();
         await guild.DownloadUsersAsync();
-        
-        foreach (var userId in _db.GetEnlisted()) {
-            
-            var user = guild.GetUser(ulong.Parse(userId));
-            if (user == null) continue;
-            
-            var events = await _db.GetEventsAttended(user.Id);
-            if (events <= 5) continue;
 
-            eligible.Add((user, events, await _db.GetTourneyRecruits(user.Id)));
-        }
+        var accomp = RewardSystem.Accomplishments[6];
+        
+        var header = new EmbedBuilder()
+            .WithAuthor("Dear Enlistee, you have completed the . . .")
+            .WithTitle(accomp.Name + " ACCOMPLISHMENT!")
+            .WithColor(0xBFA55F)
+            .WithDescription(". . And have been awarded with the following :")
+            .WithThumbnailUrl("https://64.media.tumblr.com/7d47f90161168afdb17720c3e645e120/b35d6053bfb9fc2a-03/s400x600/5ed0e321f4aeac2aa3542a520f1df49cbeff1752.pnj")
+            .Build();
 
-        var topEvents = eligible.Where(e => e.User.Id != 274990117163368448).OrderByDescending(e => e.Events).Take(3).ToList();
-        var topRecruits = eligible.Where(e => e.User.Id != 274990117163368448 && e.Recruits > 0).OrderByDescending(e => e.Recruits).Take(3).ToList();
-        
-        var places = new Dictionary<ulong, int>();
-        foreach (var ranking in new[] { topEvents, topRecruits }) {
-            
-            for (var i = 0; i < ranking.Count; i++) {
-                var id = ranking[i].User.Id;
-                if (!places.TryGetValue(id, out var best) || i + 1 < best) places[id] = i + 1;
-            }
-        }
-        
-        ulong[] tierRoles = [1570620847217975306, 1570620925785800764, 1570620994211680332];
-        string[] pinNames = ["The Gold Bat", "The Silver Bat", "The Black Bat"];
-        var rewarded = 0;
+        Embed[] dm = [header, ..accomp.Embeds];
+        var sent = 0;
         var errors = new List<string>();
 
-        foreach (var (user, events, _) in eligible) {
+        foreach (var userId in _db.GetEnlisted()) {
 
-            var place = places.GetValueOrDefault(user.Id);
-            var tier = place switch { 1 => 1, 2 or 3 => 2, _ => 3 };
-
-            try {
-                await _db.AddPoints(user.Id, events + 50);
-                await _db.AddYen(user.Id, 50000);
-                await user.AddRoleAsync(1475899268593225829);
-                await user.AddRoleAsync(tierRoles[tier - 1]);
-                rewarded++;
-            } catch (Exception ex) {
-                errors.Add($"Couldn't reward {user.Username}: {ex.Message}");
-                continue;
-            }
-            
-            var message = $"## <:sango_a_redfourstar:1565904661922455583> ・ Congratulations, {await _db.GetClaim(user.Id)} *!!*\n*You've done a fantastic job with the Tourney over the course of October.*\n\n";
-
-            if (place > 0) {
-                message += $"> For this reason alone, you have placed {ToOrdinal(place)} in the FANGSinMOONLIGHT event!\n\n";
-            }
-
-            message += $"・ The Tier {tier} Pin　⋮　**{pinNames[tier - 1]}**\n・ The number of your attended events during the month transformed into points!\n";
-
-            if (place > 0) {
-                message += "・ Your character turned into a phone charm *just for you*, drawn by *Wu Hongye*!\n-# _ _       <:sango_a_note:1565904348066750654> Make sure to DM her after receiving this and send her a screenshot of this embed.\n";
-            }
-
-            message += "\n> <:sango_a_goldarrow:1565905710875676722>  *As promised, an extra 50 Points, 50k Yen, and the World-Class Idol badge have been given to your account.*";
-
-            var embed = new EmbedBuilder()
-                .WithDescription(message)
-                .WithImageUrl("https://media.discordapp.net/attachments/1514405869243334726/1571342505016828057/IMG_4640.png?ex=6afa623f&is=6af910bf&hm=38a2e38a90fa5c3c316ec338b5c7655bffa778844b2e15e63aed0dcb05c0ecea&format=webp&quality=lossless")
-                .WithColor(new Color(0x4e5156))
-                .Build();
+            var user = guild.GetUser(ulong.Parse(userId));
+            if (user == null) continue;
+            if (await _db.GetEventsAttended(user.Id) <= 5) continue;
 
             try {
-                await user.SendMessageAsync(embed: embed);
+                await user.SendMessageAsync(embeds: dm);
+                sent++;
             } catch (Discord.Net.HttpException ex) {
                 errors.Add(new MessageSendException(user.Username, ex).Message);
             }
         }
 
-        var reply = $"Gave Tourney rewards to {rewarded} member(s).";
+        var reply = $"Sent the World-Class Idol rewards to {sent} member(s).";
         if (errors.Count > 0) reply += "\n\n" + string.Join("\n", errors);
         await command.FollowupAsync(reply);
     }
