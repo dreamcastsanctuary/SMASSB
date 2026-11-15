@@ -209,7 +209,7 @@ public class DatabaseService {
         var idAttachment = new FileAttachment(idPath, "id.png");
 
         var components = new ComponentBuilderV2()
-            .WithTextDisplay(new TextDisplayBuilder().WithContent($"Welcome to Sango, {claimParam}! We're very happy to have you.\n> Your first event *must* be of type **__CIVT / Civilian Training__**. *Be on the look out for it!*\n\n<:sango_a_beigefourstar:1566153893635690657> ・ Either way, now that you're here, let's get you your belongings."))
+            .WithTextDisplay(new TextDisplayBuilder().WithContent($"Welcome to Sango, {claimParam}! We're very happy to have you.\n> Your first event *must* be of type **__CIVT / Civilian Training__**. *Be on the look out for it!*\n> **Make sure to stay out of your uniform *until* you attend a CIVT!**\n\n<:sango_a_beigefourstar:1566153893635690657> ・ Either way, now that you're here, let's get you your belongings."))
             .WithTextDisplay(new TextDisplayBuilder().WithContent("### <:sango_01:1481753776745611505>　⋮　Your Identification Card"))
             .AddComponent(new ContainerBuilder().AddComponent(new MediaGalleryBuilder().AddItem(new MediaGalleryItemProperties("attachment://id.png"))))
             .WithTextDisplay(new TextDisplayBuilder().WithContent("-# Use */id* in the server to see it."))
