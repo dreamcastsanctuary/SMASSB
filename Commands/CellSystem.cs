@@ -538,15 +538,21 @@ public class CellSystem {
                 case "remove_apps":
                     await _db.RemoveAppsFromHome(member.Id, option.Value.ToString());
                     break;
-                case "case_type":
-                    await _db.SetCaseType(member.Id, option.Value.ToString());
+                case "case_type": {
+                    var value = Normalize<CaseType>(option.Value.ToString()) ?? "BLACK";
+                    await _db.SetCaseType(member.Id, value);
                     break;
-                case "charm_type":
-                    await _db.SetCharmType(member.Id, option.Value.ToString());
+                }
+                case "charm_type": {
+                    var value = Normalize<CharmType>(option.Value.ToString()) ?? "NONE";
+                    await _db.SetCharmType(member.Id, value);
                     break;
-                case "wallpaper_type":
-                    await _db.SetWallpaperType(member.Id, option.Value.ToString());
+                }
+                case "wallpaper_type": {
+                    var value = Normalize<WallpaperType>(option.Value.ToString()) ?? "BASIC";
+                    await _db.SetWallpaperType(member.Id, value);
                     break;
+                }
             }
         }
         await ShowWorkCell(command, member);
@@ -554,9 +560,18 @@ public class CellSystem {
 
     private async Task ShowWorkCell(SocketSlashCommand command, SocketGuildUser member) {
 
-        var caseParam = await _db.GetCaseType(member.Id);
-        var charmParam = await _db.GetCharmType(member.Id);
-        var wallpaperParam = await _db.GetWallpaperType(member.Id);
+        var storedCase = await _db.GetCaseType(member.Id);
+        var storedCharm = await _db.GetCharmType(member.Id);
+        var storedWallpaper = await _db.GetWallpaperType(member.Id);
+
+        var caseParam = Normalize<CaseType>(storedCase) ?? nameof(CaseType.BLACK);
+        var charmParam = Normalize<CharmType>(storedCharm) ?? nameof(CharmType.NONE);
+        var wallpaperParam = Normalize<WallpaperType>(storedWallpaper) ?? nameof(WallpaperType.BASIC);
+
+        if (caseParam != storedCase) await _db.SetCaseType(member.Id, caseParam);
+        if (charmParam != storedCharm) await _db.SetCharmType(member.Id, charmParam);
+        if (wallpaperParam != storedWallpaper) await _db.SetWallpaperType(member.Id, wallpaperParam);
+
         var appsParam = await _db.GetApps(member.Id);
         var (currentWeekEarnings, _, percentChange, isIncrease) = await _db.GetEarningsSummary(member.Id);
 
@@ -662,5 +677,13 @@ public class CellSystem {
         await _db.RemoveAllApps(userId);
 
         await command.FollowupAsync("Hello! I took all your shit.");
+    }
+    
+    private static string? Normalize<T>(string? value) where T : struct, Enum {
+        
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        if (!Enum.TryParse(value.Trim(), true, out T parsed)) return null;
+        
+        return !Enum.IsDefined(parsed) ? null : parsed.ToString();
     }
 }
