@@ -466,14 +466,14 @@ public class PointSystem {
         }
     }
     
-    public async Task HandleBatchQotd(SocketSlashCommand command) {
+    public async Task HandleBatchProof(SocketSlashCommand command) {
 
         await command.DeferAsync();
 
         var channel = command.Channel;
         await command.FollowupAsync($"Channel type: {channel.GetType().Name}");
         if (channel is not IThreadChannel and not SocketThreadChannel) {
-            await command.FollowupAsync("This isn't a QOTD thread!");
+            await command.FollowupAsync("This isn't a Proof thread!");
             return;
         }
         
@@ -526,10 +526,9 @@ public class PointSystem {
         }
 
         foreach (SocketGuildUser user in enlisted) {
-            await _db.AddPoints(user.Id, 2);
+            await _db.AddPoints(user.Id, 3);
+            await _db.AddYen(user.Id, 400);
         }
-        
-        await command.FollowupAsync("There should be no more responses in this channel.");
     }
 
 

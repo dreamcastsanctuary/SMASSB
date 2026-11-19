@@ -808,7 +808,7 @@ public class RoleSystem {
 
     public static string PrettyName(string enumName) => Regex.Replace(enumName, @"(?<=[a-z])(?=[A-Z0-9])|(?<=[0-9])(?=[A-Z])", " ");
     
-    public async Task UnitAssignment(SocketSlashCommand command) {
+    public async Task   UnitAssignment(SocketSlashCommand command) {
 
         string? operationStr = null, locationStr = null, description = null;
         var unitKeys = new List<string>();
@@ -874,11 +874,16 @@ public class RoleSystem {
         var embedBuilder = new EmbedBuilder()
             .WithDescription(embedDescription)
             .WithColor(0xBC3533)
-            .WithImageUrl("https://media.discordapp.net/attachments/1480816858998374501/1569231818098479155/image.png?ex=6af7fa84&is=6af6a904&hm=ae8206325680bc74c0423f5b497c2e843b60ed3389370cfc4707259a7802d0ca&=&format=webp&quality=lossless");
+            .WithImageUrl("https://media.discordapp.net/attachments/1480816858998374501/1569231818098479155/image.png?ex=6af7fa84&is=6af6a904&hm=ae8206325680bc74c0423f5b497c2e843b60ed3389370cfc4707259a7802d0ca&=&format=webp&quality=lossless")
+            .WithFooter($"– Called for by {await _db.GetClaim(command.User.Id)}");
         var embed = embedBuilder.Build();
 
         var allowedMentions = new AllowedMentions(AllowedMentionTypes.Roles);
-        await channel.SendMessageAsync($"-# {pings}", embed: embed, allowedMentions: allowedMentions);
+        
+        var message = await channel.SendMessageAsync($"-# {pings}", embed: embed, allowedMentions: allowedMentions);
+        var thread = await channel.CreateThreadAsync(name: "✦ PROOF OF ATTENDANCE.", type: ThreadType.PublicThread, autoArchiveDuration: ThreadArchiveDuration.OneDay, message: message);
+        await thread.SendMessageAsync("<:sango_a_redarrow:1565905694652243998> ・ Send a screenshot of yourself on the Unit Assignment in order to gain points.");
+        
         await command.FollowupAsync($"Assignment sent to {channel.Mention}.", ephemeral: true);
     }
 }

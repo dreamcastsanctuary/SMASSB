@@ -305,6 +305,11 @@ public class CommandHandler {
             .WithName("batchrecruits")
             .WithDescription("Parses the recruits channel and gives points to all. Can fail.")
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
+        
+        commands.Add(new SlashCommandBuilder()
+            .WithName("batchproof")
+            .WithDescription("Parses the unit assignment proof threads and gives rewards to all. Can fail.")
+            .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
         commands.Add(new SlashCommandBuilder()
             .WithName("removevalues")
@@ -731,6 +736,9 @@ public class CommandHandler {
                 break;
             case "batchrecruits":
                 await _pointSystem.HandleBatchRecruits(command);
+                break;
+            case "batchproof":
+                await _pointSystem.HandleBatchProof(command);
                 break;
             case "leaderboard":
                 await _pointSystem.Leaderboard(command);
