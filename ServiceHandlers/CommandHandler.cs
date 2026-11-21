@@ -646,11 +646,10 @@ public class CommandHandler {
             .WithName("profile")
             .WithDescription("Shows your SANGO.ASIA profile."));
         
-        new SlashCommandBuilder()
+        commands.Add(new SlashCommandBuilder()
             .WithName("fixrebirthranks")
             .WithDescription("Sets everyone with the REBIRTH accomplishment to ✦ Nitō Shi.")
-            .WithDefaultMemberPermissions(GuildPermission.Administrator)
-            .Build();
+            .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
