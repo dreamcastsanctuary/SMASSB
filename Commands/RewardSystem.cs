@@ -130,6 +130,7 @@ public class RewardSystem {
                 if (accomp.NewId != null) await _db.GiveNewId(member.Id, accomp.NewId);
                 if (accomp.Points > 0) await _db.AddPoints(member.Id, accomp.Points);
                 if (accomp.Yen > 0) await _db.AddYen(member.Id, accomp.Yen);
+                if (accomp.Name == "REBIRTH") await ApplyRebirthRankAsync(member);
                 rewarded.Add(member);
                 
             } catch (Exception ex) {
@@ -153,6 +154,24 @@ public class RewardSystem {
         
         if (errors.Count > 0) reply += "\n\n" + string.Join("\n", errors);
         await command.FollowupAsync(reply);
+    }
+
+    private async Task ApplyRebirthRankAsync(SocketGuildUser member) {
+
+        var oldRankRoles = member.Roles
+            .Select(r => r.Id)
+            .Where(id => RoleSystem.RankRoles.ContainsValue(id) && id != RoleSystem.NiShiRoleId)
+            .ToList();
+
+        if (oldRankRoles.Count > 0) await member.RemoveRolesAsync(oldRankRoles);
+        if (member.Roles.All(r => r.Id != RoleSystem.NiShiRoleId)) await member.AddRoleAsync(RoleSystem.NiShiRoleId);
+
+        var rank = RoleSystem.RebirthMark + RoleSystem.RebirthStartRank;
+        await _db.SetRank(member.Id, rank);
+        await _db.PushRankAsync(member.Id, member.Guild.Id, rank);
+
+        var claim = await _db.GetClaim(member.Id);
+        await member.ModifyAsync(x => x.Nickname = RoleSystem.RebirthMark + "NiShi. " + claim);
     }
 
     private static Embed RewardEmbed(string title, string description, string? footer = null) {

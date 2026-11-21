@@ -15,6 +15,34 @@ public class RoleSystem {
     private readonly LogHandler _logHandler;
     private readonly ulong? _guildId;
     
+    internal const string RebirthMark = "✦ ";
+    internal const string RebirthStartRank = "Nitō Shi";
+    internal const ulong NiShiRoleId = 1475886748268625962;
+
+    internal static readonly Dictionary<RankType, ulong> RankRoles = new() {
+        { RankType.Kō, 1475886792174604484 },
+        { RankType.NiShi, 1475886748268625962 },
+        { RankType.ItShi, 1475886729561899212 },
+        { RankType.Shi, 1475886715368509753 },
+        { RankType.SaSō, 1475886697118957660 },
+        { RankType.NiSō, 1475886671919579310 },
+        { RankType.ItSō, 1475886657545961472 },
+        { RankType.Sō, 1475886640429011125 }
+    };
+
+    internal static bool HasRebirthMark(string? text) {
+    
+        if (text == null) return false;
+        return text.StartsWith(RebirthMark, StringComparison.Ordinal);
+    }
+
+    internal static string StripRebirthMark(string? text) {
+    
+        if (text == null) return "";
+        if (HasRebirthMark(text)) return text[RebirthMark.Length..];
+        return text;
+    }
+
     public RoleSystem(DiscordSocketClient client, 
                         LogHandler logHandler, 
                         DatabaseService db, 
@@ -118,20 +146,10 @@ public class RoleSystem {
             }
         }
 
-        var ranks = new Dictionary<RankType, ulong> {
-            { RankType.Kō, 1475886792174604484 },
-            { RankType.NiShi, 1475886748268625962 },
-            { RankType.ItShi, 1475886729561899212 },
-            { RankType.Shi, 1475886715368509753 },
-            { RankType.SaSō, 1475886697118957660 },
-            { RankType.NiSō, 1475886671919579310 },
-            { RankType.ItSō, 1475886657545961472 },
-            { RankType.Sō, 1475886640429011125 }
-        };
+        var ranks = RankRoles;
 
         var enlisteds = new List<SocketGuildUser>();
-        var promotable = new List<SocketGuildUser>();
-        var promoteTo = new List<string>();
+        var promotable = new List<(SocketGuildUser User, RankType Target, int Points, bool IsRebirth)>();
         
         foreach (var userId in _db.GetEnlisted()) {
             enlisteds.Add(guild.GetUser(ulong.Parse(userId)));
@@ -140,12 +158,14 @@ public class RoleSystem {
         foreach (var enlisted in enlisteds) {
             
             var currentRankStr = await _db.GetRank(enlisted.Id);
-            var currentPoints = await _db.GetPoints(enlisted.Id);
-            RankType? highestQualified = null;
-    
-            var currentRank = currentRankStr.ToRankType();
+            var currentRank = StripRebirthMark(currentRankStr).ToRankType();
             if (!currentRank.HasValue || (int)currentRank.Value >= 10000) continue;
             
+            var rebirthPoints = await _db.GetRebirthPoints(enlisted.Id);
+            var isRebirth = rebirthPoints > 0;
+            var currentPoints = isRebirth ? rebirthPoints : await _db.GetPoints(enlisted.Id);
+
+            RankType? highestQualified = null;
             foreach (var rankType in ranks.Keys.OrderByDescending(r => (int)r)) {
                 if (currentPoints >= (int)rankType && (int)rankType < 10000) {
                     highestQualified = rankType;
@@ -154,8 +174,7 @@ public class RoleSystem {
             }
             
             if (highestQualified.HasValue && highestQualified.Value > currentRank) {
-                promotable.Add(enlisted);
-                promoteTo.Add(highestQualified.Value.ToString());
+                promotable.Add((enlisted, highestQualified.Value, currentPoints, isRebirth));
             }
         }
 
@@ -164,46 +183,47 @@ public class RoleSystem {
             return;
         }
 
-        var description = "<:sango_emblem_mono:1492222638980989138> ∥ GENERAL RANKUPs . .\n・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・\n";
+        const string divider = "・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・ ・\n";
+        var generalLines = new List<string>();
+        var rebirthLines = new List<string>();
 
-        for (int i = 0; i < promotable.Count; i++) {
-            description += $"{await _db.GetClaim(promotable[i].Id)} :: <@{promotable[i].Id}> -> {promoteTo[i]} ∥ {await _db.GetPoints(promotable[i].Id)} pts.\n";
-        }
+        foreach (var p in promotable) {
+            var claim = await _db.GetClaim(p.User.Id);
 
-        EmbedBuilder builder = new EmbedBuilder()
-            .WithTitle("❖﹒Viable Promotions . .")
-            .WithThumbnailUrl("https://media.discordapp.net/attachments/1084260632142024784/1514408846259523606/Untitled384_20260410170520.png?ex=6a2e8e65&is=6a2d3ce5&hm=c05da8c7af19869b1745e4024aa09d0ba8a119d1c0ee397c6d02d6f9a381ff9a&=&format=webp&quality=lossless&width=1265&height=1265")
-            .WithDescription(description)
-            .WithColor(0xBFA55F);
-
-        if (promote) {
-            foreach (var enlisted in promotable) {
-                
-                var currentPoints = await _db.GetPoints(enlisted.Id);
-                RankType? targetRank = null;
-                
-                foreach (var rank in ranks.Keys.OrderByDescending(r => (int)r)) {
-                    if (currentPoints < (int)rank) continue;
-                    targetRank = rank;
-                    break;
-                }
-        
-                if (targetRank.HasValue) {
-                    var targetRole = guild.GetRole(ranks[targetRank.Value]);
-                    if (targetRole == null) continue;
-                    
-                    foreach (var roleId in ranks.Values.Distinct()) {
-                        var role = guild.GetRole(roleId);
-                        if (role != null && enlisted.Roles.Contains(role)) {
-                            await enlisted.RemoveRoleAsync(role);
-                        }
-                    }
-                    await enlisted.AddRoleAsync(targetRole);
-                    await Promote(enlisted, targetRole);
-                }
+            if (p.IsRebirth) {
+                rebirthLines.Add($"{claim} :: <@{p.User.Id}> -> {p.Target} ∥ {p.Points} rebirth pts.");
+            } else {
+                generalLines.Add($"{claim} :: <@{p.User.Id}> -> {p.Target} ∥ {p.Points} pts.");
             }
         }
-        await command.FollowupAsync(embed: builder.Build());
+
+        if (promote) {
+            foreach (var p in promotable) {
+                
+                var targetRole = guild.GetRole(ranks[p.Target]);
+                if (targetRole == null) continue;
+                
+                foreach (var roleId in ranks.Values.Distinct()) {
+                    var role = guild.GetRole(roleId);
+                    if (role != null && p.User.Roles.Contains(role)) {
+                        await p.User.RemoveRoleAsync(role);
+                    }
+                }
+                await p.User.AddRoleAsync(targetRole);
+                await Promote(p.User, targetRole);
+            }
+        }
+        const string thumbnail = "https://media.discordapp.net/attachments/1084260632142024784/1514408846259523606/Untitled384_20260410170520.png?ex=6a2e8e65&is=6a2d3ce5&hm=c05da8c7af19869b1745e4024aa09d0ba8a119d1c0ee397c6d02d6f9a381ff9a&=&format=webp&quality=lossless&width=1265&height=1265";
+
+        if (generalLines.Count > 0) {
+            var generalDescription = "<:sango_emblem_mono:1492222638980989138> ∥ GENERAL RANKUPs . .\n" + divider + string.Join("\n", generalLines);
+            await SendChunkedEmbedAsync(command, "❖﹒Viable Promotions . .", generalDescription, thumbnailUrl: thumbnail);
+        }
+
+        if (rebirthLines.Count > 0) {
+            var rebirthDescription = "<:sango_emblem_mono:1492222638980989138> ∥ REBIRTH RANKUPs . .\n" + divider + string.Join("\n", rebirthLines);
+            await SendChunkedEmbedAsync(command, "❖﹒Viable Rebirth Promotions . .", rebirthDescription, thumbnailUrl: thumbnail);
+        }
     }
 
     public async Task HandlePromoteCommand(SocketSlashCommand command) {
@@ -281,7 +301,9 @@ public class RoleSystem {
 
         try {
             await _db.ReinstateEnlistment(civilian.Id, civilian.Id, _client);
-            var (rankId, categoryId) = (await _db.GetRank(civilian.Id)).GetRoleId();
+            var storedRank = await _db.GetRank(civilian.Id);
+            var mark = HasRebirthMark(storedRank) ? RebirthMark : "";
+            var (rankId, categoryId) = StripRebirthMark(storedRank).GetRoleId();
             
             await civilian.RemoveRoleAsync(1473369383471677461);
             await civilian.AddRolesAsync([rankId, categoryId]);
@@ -291,7 +313,8 @@ public class RoleSystem {
             var dotIndex = rankName.IndexOf('.');
             
             var fixedRankNick = rankName.Substring(1, dotIndex);
-            await civilian.ModifyAsync(x => x.Nickname = fixedRankNick + " " + _db.GetClaim(civilian.Id));
+            var claim = await _db.GetClaim(civilian.Id);
+            await civilian.ModifyAsync(x => x.Nickname = mark + fixedRankNick + " " + claim);
             
         } catch (Exception ex) {
             await _logHandler.LogExceptionWatch((ulong)_guildId!, exception: ex);
@@ -326,7 +349,9 @@ public class RoleSystem {
 
         try {
             await _db.ReinstateEnlistment(oldId.Value, newAccount.Id, _client);
-            var (rankId, categoryId) = (await _db.GetRank(newAccount.Id)).GetRoleId();
+            var storedRank = await _db.GetRank(newAccount.Id);
+            var mark = HasRebirthMark(storedRank) ? RebirthMark : "";
+            var (rankId, categoryId) = StripRebirthMark(storedRank).GetRoleId();
         
             await newAccount.RemoveRoleAsync(1473369383471677461);
             await newAccount.AddRolesAsync([rankId, categoryId]);
@@ -336,7 +361,8 @@ public class RoleSystem {
             var dotIndex = rankName.IndexOf('.');
             
             var fixedRankNick = rankName.Substring(1, dotIndex);
-            await newAccount.ModifyAsync(x => x.Nickname = fixedRankNick + " " + _db.GetClaim(newAccount.Id));
+            var claim = await _db.GetClaim(newAccount.Id);
+            await newAccount.ModifyAsync(x => x.Nickname = mark + fixedRankNick + " " + claim);
 
             await command.FollowupAsync($"Moved enlistment to {newAccount.Mention}.");
             
@@ -395,7 +421,8 @@ public class RoleSystem {
 
     private async Task Promote(SocketGuildUser enlisted, IRole rank, SocketSlashCommand? command = null, string? newClaim = null, string? response = null) {
         
-        var nickname = enlisted.Nickname;
+        var mark = HasRebirthMark(await _db.GetRank(enlisted.Id)) || HasRebirthMark(enlisted.Nickname) ? RebirthMark : "";
+        var nickname = StripRebirthMark(enlisted.Nickname ?? enlisted.Username);
         var rankName = rank.Name;
 
         var dotIndex = rankName.IndexOf('.');
@@ -417,9 +444,9 @@ public class RoleSystem {
             await _db.SetIdType(enlisted.Id, "STAFFMAIN");
         }
 
-        await enlisted.ModifyAsync(x => x.Nickname = fixedRankNick + " " + claim);
-        await _db.SetRank(enlisted.Id, fixedRankFull);
-        await _db.PushRankAsync(enlisted.Id, (ulong)_guildId!, fixedRankFull);
+        await enlisted.ModifyAsync(x => x.Nickname = mark + fixedRankNick + " " + claim);
+        await _db.SetRank(enlisted.Id, mark + fixedRankFull);
+        await _db.PushRankAsync(enlisted.Id, (ulong)_guildId!, mark + fixedRankFull);
 
         var message = string.IsNullOrEmpty(response) ? "Welcome to your new life as an enlisted, <@" + enlisted.Id + ">!" : response;
         
@@ -744,7 +771,7 @@ public class RoleSystem {
         return dp[a.Length, b.Length];
     }
     
-    private static async Task SendChunkedEmbedAsync(SocketSlashCommand command, string title, string description) {
+    private static async Task SendChunkedEmbedAsync(SocketSlashCommand command, string title, string description, string? thumbnailUrl = null) {
         
         const int maxDescriptionLength = 4096;
         var chunks = new List<string>();
@@ -761,12 +788,16 @@ public class RoleSystem {
         if (!string.IsNullOrEmpty(currentChunk)) chunks.Add(currentChunk.TrimEnd());
 
         for (var i = 0; i < chunks.Count; i++) {
-            var embed = new EmbedBuilder()
+            
+            var builder = new EmbedBuilder()
                 .WithTitle(chunks.Count == 1 ? title : $"{title} (Part {i + 1} / {chunks.Count})")
                 .WithColor(0xBFA55F)
-                .WithDescription(chunks[i])
-                .Build();
-            await command.FollowupAsync(embed: embed);
+                .WithDescription(chunks[i]);
+
+            if (i == 0 && !string.IsNullOrEmpty(thumbnailUrl))
+                builder.WithThumbnailUrl(thumbnailUrl);
+
+            await command.FollowupAsync(embed: builder.Build());
         }
     }
     
