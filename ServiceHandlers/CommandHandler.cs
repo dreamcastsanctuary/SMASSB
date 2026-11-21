@@ -646,6 +646,11 @@ public class CommandHandler {
             .WithName("profile")
             .WithDescription("Shows your SANGO.ASIA profile."));
         
+        new SlashCommandBuilder()
+            .WithName("fixrebirthranks")
+            .WithDescription("Sets everyone with the REBIRTH accomplishment to ✦ Nitō Shi.")
+            .WithDefaultMemberPermissions(GuildPermission.Administrator)
+            .Build();
         
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
@@ -707,6 +712,9 @@ public class CommandHandler {
                 break;
             case "unitassignment":
                 await _roleSystem.UnitAssignment(command);
+                break;
+            case "fixrebirthranks":
+                await _roleSystem.HandleFixRebirthRanksCommand(command);
                 break;
 
             case "id":

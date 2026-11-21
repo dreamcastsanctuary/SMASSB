@@ -31,13 +31,13 @@ public class RoleSystem {
     };
 
     internal static bool HasRebirthMark(string? text) {
-    
+
         if (text == null) return false;
         return text.StartsWith(RebirthMark, StringComparison.Ordinal);
     }
 
     internal static string StripRebirthMark(string? text) {
-    
+
         if (text == null) return "";
         if (HasRebirthMark(text)) return text[RebirthMark.Length..];
         return text;
@@ -451,6 +451,63 @@ public class RoleSystem {
         var message = string.IsNullOrEmpty(response) ? "Welcome to your new life as an enlisted, <@" + enlisted.Id + ">!" : response;
         
         if (command != null) { await command.FollowupAsync(message); }
+    }
+
+    internal static async Task ApplyRebirthRankAsync(DatabaseService db, SocketGuildUser member) {
+
+        var oldRankRoles = member.Roles
+            .Select(r => r.Id)
+            .Where(id => RankRoles.ContainsValue(id) && id != NiShiRoleId)
+            .ToList();
+
+        if (oldRankRoles.Count > 0) await member.RemoveRolesAsync(oldRankRoles);
+        if (member.Roles.All(r => r.Id != NiShiRoleId)) await member.AddRoleAsync(NiShiRoleId);
+
+        var rank = RebirthMark + RebirthStartRank;
+        await db.SetRank(member.Id, rank);
+        await db.PushRankAsync(member.Id, member.Guild.Id, rank);
+
+        var claim = await db.GetClaim(member.Id);
+        await member.ModifyAsync(x => x.Nickname = RebirthMark + "NiShi. " + claim);
+    }
+
+    public async Task HandleFixRebirthRanksCommand(SocketSlashCommand command) {
+
+        await command.DeferAsync(ephemeral: true);
+
+        var guild = _client.GetGuild((ulong)_guildId!);
+        await guild.DownloadUsersAsync();
+
+        var rebirthRole = guild.GetRole(1477926845184872531);
+        if (rebirthRole == null) {
+            await command.FollowupAsync("I couldn't find the REBIRTH role.", ephemeral: true);
+            return;
+        }
+
+        var updated = new List<string>();
+        var skipped = 0;
+        var errors = new List<string>();
+
+        foreach (var member in rebirthRole.Members) {
+
+            if (HasRebirthMark(await _db.GetRank(member.Id))) {
+                skipped++;
+                continue;
+            }
+
+            try {
+                await ApplyRebirthRankAsync(_db, member);
+                updated.Add(member.Mention);
+            } catch (Exception ex) {
+                errors.Add($"{member.Mention} : {ex.Message}");
+            }
+        }
+
+        var description = $"Updated **{updated.Count}** to ✦ Nitō Shi. Skipped **{skipped}** (already starred).\n";
+        if (updated.Count > 0) description += "\n**Updated:**\n" + string.Join("\n", updated) + "\n";
+        if (errors.Count > 0)  description += "\n**Failed:**\n" + string.Join("\n", errors);
+
+        await SendChunkedEmbedAsync(command, "❖﹒Rebirth rank fix . .", description.TrimEnd());
     }
 
     public async Task HandleForceRemoveCommand(SocketSlashCommand command) {
