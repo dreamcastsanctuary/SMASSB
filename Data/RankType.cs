@@ -62,7 +62,11 @@ public static class RankTypeMethods {
     }
     
     public static RankType? ToRankType(this string fullName) {
-        return Enum.GetValues<RankType>().FirstOrDefault(r => (r).GetFullRank() == fullName);
+
+        foreach (var rank in Enum.GetValues<RankType>()) {
+            if (rank.GetFullRank() == fullName) return rank;
+        }
+        return null;
     }
     
     public static (ulong rank, ulong category) GetRoleId(this string fullName) {

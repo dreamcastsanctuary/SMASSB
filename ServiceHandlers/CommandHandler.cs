@@ -651,6 +651,12 @@ public class CommandHandler {
             .WithDescription("Sets everyone with the REBIRTH accomplishment to ✦ Nitō Shi.")
             .WithDefaultMemberPermissions(GuildPermission.Administrator));
         
+        commands.Add(new SlashCommandBuilder()
+                .WithName("promotestaff")
+                .WithDescription("Promotes enlisted to staff.")
+                .WithDefaultMemberPermissions(GuildPermission.Administrator)
+                .AddOption("enlisted1", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: true).AddOption("enlisted2", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted3", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted4", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted5", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted6", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted7", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted8", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted9", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false).AddOption("enlisted10", ApplicationCommandOptionType.User, "The @ of the enlisted.", isRequired: false));
+                
         try {
             var builtCommands = commands.Select(c => (ApplicationCommandProperties)c.Build()).ToArray();
             await ((IGuild)guild).BulkOverwriteApplicationCommandsAsync(builtCommands);
@@ -714,6 +720,9 @@ public class CommandHandler {
                 break;
             case "fixrebirthranks":
                 await _roleSystem.HandleFixRebirthRanksCommand(command);
+                break;
+            case "promotestaff":
+                await _roleSystem.HandlePromoteStaffCommand(command);
                 break;
 
             case "id":

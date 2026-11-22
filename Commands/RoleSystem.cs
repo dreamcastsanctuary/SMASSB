@@ -455,6 +455,20 @@ public class RoleSystem {
 
     internal static async Task ApplyRebirthRankAsync(DatabaseService db, SocketGuildUser member) {
 
+        var currentRank = StripRebirthMark(await db.GetRank(member.Id));
+        var currentRankType = currentRank.ToRankType();
+
+        if (currentRankType.HasValue && (int)currentRankType.Value >= 50000) {
+
+            await db.SetRank(member.Id, RebirthMark + currentRank);
+
+            if (!HasRebirthMark(member.Nickname)) {
+                var nickname = member.Nickname ?? member.DisplayName;
+                await member.ModifyAsync(x => x.Nickname = RebirthMark + nickname);
+            }
+            return;
+        }
+
         var oldRankRoles = member.Roles
             .Select(r => r.Id)
             .Where(id => RankRoles.ContainsValue(id) && id != NiShiRoleId)
@@ -973,5 +987,73 @@ public class RoleSystem {
         await thread.SendMessageAsync("<:sango_a_redarrow:1565905694652243998> ・ Send a screenshot of yourself on the Unit Assignment in order to gain points.");
         
         await command.FollowupAsync($"Assignment sent to {channel.Mention}.", ephemeral: true);
+    }
+    
+    public async Task HandlePromoteStaffCommand(SocketSlashCommand command) {
+
+        await command.DeferAsync();
+
+        var guild = _client.GetGuild((ulong)_guildId!);
+        
+        if (guild.GetRole(1475886599756841062) == null) {
+            await command.FollowupAsync("I couldn't find the Jun Ui role.", ephemeral: true);
+            return;
+        }
+
+        var members = new List<SocketGuildUser>();
+        
+        foreach (var option in command.Data.Options) {
+            if (option.Name.StartsWith("enlisted") && option.Value is SocketUser user) {
+                
+                var member = guild.GetUser(user.Id);
+                if (member != null && !members.Contains(member)) members.Add(member);
+            }
+        }
+
+        if (members.Count == 0) {
+            await command.FollowupAsync("You need to pick at least one enlisted.", ephemeral: true);
+            return;
+        }
+
+        var promoted = new List<string>();
+        var skipped = new List<string>();
+        var errors = new List<string>();
+
+        foreach (var member in members) {
+
+            var currentRank = StripRebirthMark(await _db.GetRank(member.Id)).ToRankType();
+            if (!currentRank.HasValue) {
+                skipped.Add($"{member.Mention} (not enlisted)");
+                continue;
+            }
+            if ((int)currentRank.Value >= 50000) {
+                skipped.Add($"{member.Mention} (already staff)");
+                continue;
+            }
+
+            try {
+                var toRemove = member.Roles
+                    .Select(r => r.Id)
+                    .Where(id => RankRoles.ContainsValue(id) || id == 1473368797023961139)
+                    .ToList();
+
+                if (toRemove.Count > 0) await member.RemoveRolesAsync(toRemove);
+                await member.AddRolesAsync([1475886599756841062, 1473368699523305708]);
+
+                await Promote(member, guild.GetRole(1475886599756841062));
+                promoted.Add(member.Mention);
+
+            } catch (Exception ex) {
+                await _logHandler.LogExceptionWatch((ulong)_guildId!, exception: ex);
+                errors.Add($"{member.Mention} : {ex.Message}");
+            }
+        }
+
+        var description = "";
+        if (promoted.Count > 0) description += $"Promoted to **Jun Ui**:\n{string.Join("\n", promoted)}\n";
+        if (skipped.Count > 0)  description += $"\n**Skipped:**\n{string.Join("\n", skipped)}\n";
+        if (errors.Count > 0)   description += $"\n**Failed:**\n{string.Join("\n", errors)}";
+
+        await SendChunkedEmbedAsync(command, "❖﹒Staff promotions . .", description.TrimEnd());
     }
 }
