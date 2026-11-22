@@ -199,6 +199,9 @@ public class RoleSystem {
 
         if (promote) {
             foreach (var p in promotable) {
+
+                if (p.User.Id == 274990117163368448)
+                    continue;
                 
                 var targetRole = guild.GetRole(ranks[p.Target]);
                 if (targetRole == null) continue;

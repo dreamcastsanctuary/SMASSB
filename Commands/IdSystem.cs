@@ -380,11 +380,12 @@ public class IdSystem {
         await command.FollowupAsync("Done!");
     }
 
-    public async Task HandleForceUpdateCommand(SocketSlashCommand command) {
+    public async Task HandleDebugFixCommand(SocketSlashCommand command) {
 
         await command.DeferAsync();
         SocketGuildUser? member = null;
         IRole? rank = null;
+        String rankButLikeText = "";
         var avatarFoobar = false;
 
         foreach (var option in command.Data.Options) {
@@ -398,6 +399,9 @@ public class IdSystem {
                     break;
                 case "avatar_fix":
                     avatarFoobar = option.Value.ToString() == "True";
+                    break;
+                case "rank_name_but_like_text":
+                    rankButLikeText = option.Value.ToString();
                     break;
                 default:
                     await command.FollowupAsync("Unrecognized command.", ephemeral: true);
@@ -432,6 +436,13 @@ public class IdSystem {
 
             await _db.SetRank(member.Id, fixedRankFull);
             await command.FollowupAsync("Changed rank.");
+
+        }
+        
+        if (!string.IsNullOrWhiteSpace(rankButLikeText)) {
+            
+            await _db.SetRank(member.Id, rankButLikeText);
+            await command.FollowupAsync("Changed rank IN DATABASE.");
 
         } else {
             await command.FollowupAsync("Nothing needs to be set.", ephemeral: true);
