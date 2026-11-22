@@ -276,7 +276,7 @@ public class CommandHandler {
             .AddOption("member", ApplicationCommandOptionType.User, "The @ of the user.", isRequired: true)
             .AddOption("rank_name", ApplicationCommandOptionType.Role, "The rank to be placed in the database.", isRequired: false)
             .AddOption("avatar_fix", ApplicationCommandOptionType.Boolean, "Got a borked avatar in the database? No you don't.")
-            .AddOption("rank_name_but_like_text", ApplicationCommandOptionType.String, "Y'know.", isRequired: true)
+            .AddOption("rank_name_but_like_text", ApplicationCommandOptionType.String, "Y'know.", isRequired: false)
             .WithDefaultMemberPermissions(GuildPermission.ManageRoles));
 
 
