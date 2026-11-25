@@ -88,7 +88,8 @@ public class PointSystem {
 
         await command.DeferAsync();
         var currencyFailures = new List<CurrencySyncException>();
-        
+        var verb = add ? "given" : "deducted";
+
         foreach (var member in enlisteds) {
             var embedBuilder = new EmbedBuilder();
             
@@ -105,24 +106,32 @@ public class PointSystem {
                         await _db.AddRebirthPoints(member.Id, rebirthPoints);
                     }
                 }
+            } else {
+                var rebirthNow = await _db.GetRebirthPoints(member.Id);
+                var fromRebirth = Math.Min(points, rebirthNow);
+                if (fromRebirth > 0) await _db.AddRebirthPoints(member.Id, -fromRebirth);
+                var fromRegular = points - fromRebirth;
+                if (fromRegular > 0) await _db.RemovePoints(member.Id, fromRegular);
 
-                var currentP = await _db.GetPoints(member.Id) + await _db.GetRebirthPoints(member.Id);
-                var currentR = await _db.GetRecruits(member.Id);
-                var currentY = await _db.GetYen(member.Id);
+                await _db.AddRecruits(member.Id, -recruits);
+                await _db.AddYen(member.Id, -yen);
+            }
 
-                var desc = "";
-                
-                if (yen != 0) {
-                    desc += $"\nThey've received ¥{yen} and now have a balance of ***{currentY}*** yen in total.";
-                }
-                if (recruits != 0) {
-                    desc += $"\nThey've also scouted ***{recruits}*** recruit{(recruits == 1 ? "" : "s")}, and now has scouted ***{currentR}*** recruit{(currentR == 1 ? "" : "s")} in total!";
-                }
+            var currentP = await _db.GetPoints(member.Id) + await _db.GetRebirthPoints(member.Id);
+            var currentR = await _db.GetRecruits(member.Id);
+            var currentY = await _db.GetYen(member.Id);
 
-                embedBuilder.WithDescription($"This member has been given ***{points}*** point{(points == 1 ? "" : "s")}, and now has ***{currentP}*** point{(currentP == 1 ? "" : "s")}.{desc}");
+            var desc = "";
+
+            if (yen != 0) {
+                desc += $"\nThey've been {verb} ¥{yen} and now have a balance of ***{currentY}*** yen in total.";
+            }
+            if (recruits != 0) {
+                desc += $"\n***{recruits}*** recruit{(recruits == 1 ? "" : "s")} {(add ? "added" : "removed")}, and they now have ***{currentR}*** recruit{(currentR == 1 ? "" : "s")} in total.";
             }
 
             embedBuilder
+                .WithDescription($"This member has been {verb} ***{points}*** point{(points == 1 ? "" : "s")}, and now has ***{currentP}*** point{(currentP == 1 ? "" : "s")}.{desc}")
                 .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())
                 .WithTitle("❖﹒Done and done!")
                 .WithColor(0xBFA55F);
@@ -133,7 +142,7 @@ public class PointSystem {
             
             try {
                 var response = await HttpClient.PostAsJsonAsync("/internal/currency",
-                    new CurrencyModels.CurrencyRequest(member.Id, currency));
+                    new CurrencyModels.CurrencyRequest(member.Id, add ? currency : -currency));
 
                 response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadFromJsonAsync<CurrencyModels.CurrencyResult>();
@@ -142,7 +151,7 @@ public class PointSystem {
                     var currencyEmbed = new EmbedBuilder()
                         .WithAuthor("|| " + member.Nickname, member.GetGuildAvatarUrl() ?? member.GetAvatarUrl())
                         .WithTitle("★﹒I wish, and wish, and wish . .")
-                        .WithDescription($"This member has been given ***{currency}*** Star Piece{(currency == 1 ? "" : "s")},\nand now has ***{result.NewBalance}*** Star Piece{(result.NewBalance == 1 ? "" : "s")}.")
+                        .WithDescription($"This member has been {verb} ***{currency}*** Star Piece{(currency == 1 ? "" : "s")},\nand now has ***{result.NewBalance}*** Star Piece{(result.NewBalance == 1 ? "" : "s")}.")
                         .WithColor(0xBFA55F)
                         .Build();
 
