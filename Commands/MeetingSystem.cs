@@ -96,7 +96,7 @@ public class MeetingSystem {
         if (channel != null) {
             var thread = await channel.CreateThreadAsync(name, type: ThreadType.PrivateThread, autoArchiveDuration: ThreadArchiveDuration.OneHour);
             await Task.Delay(500);
-            await thread.SendMessageAsync($"Welcome to Meeting Room {meetingName}.\nPlease wait here and be patient as <@274990117163368448> and <@&1473371232060702781> prepare to assist you, <@{person.Id}>.");
+            await thread.SendMessageAsync($"Welcome to Meeting Room {meetingName}.\nPlease wait here and be patient as <@&1553985065220837459> and <@&1473371232060702781> prepare to assist you, <@{person.Id}>.");
         }
     }
 
